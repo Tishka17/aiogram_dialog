@@ -4,6 +4,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, ContentTypes
+from aiogram.utils.exceptions import MessageNotModified
 
 from .data import DialogData
 from .step import Step
@@ -99,7 +100,10 @@ class Dialog:
     async def _do_finish(self, m: Message, dialog_data: DialogData):
         oldmsg_id = await dialog_data.message_id()
         if oldmsg_id:
-            await m.bot.edit_message_reply_markup(m.chat.id, oldmsg_id)
+            try:
+                await m.bot.edit_message_reply_markup(m.chat.id, oldmsg_id)
+            except MessageNotModified:
+                pass
         await dialog_data.reset()
 
     async def _notify_finish(self, m: Message, args, kwargs):
@@ -190,7 +194,8 @@ class Dialog:
         data = await dialog_data.data()
         value, next_state = await step.process_message(m, data, args, kwargs)
         dialog_data[step.field()] = value
-        await self.next(current_state, m, dialog_data, False, next_state, args, kwargs)
+        edit = (next_state == current_state)  # if step did not changed only edit message
+        await self.next(current_state, m, dialog_data, edit, next_state, args, kwargs)
         await dialog_data.commit()
 
     async def handle_callback(self, c: CallbackQuery, *args, **kwargs):
@@ -236,11 +241,20 @@ class Dialog:
         oldmsg_id = await dialog_data.message_id()
         data = await dialog_data.data()
         if edit and oldmsg_id:
-            await message.edit_text(await next_step.render_text(data, *args, **kwargs)),
-            await message.edit_reply_markup(await self.get_kbd(next_state, next_step, data, args, kwargs))
+            try:
+                await message.edit_text(await next_step.render_text(data, *args, **kwargs)),
+            except MessageNotModified:
+                pass
+            try:
+                await message.edit_reply_markup(await self.get_kbd(next_state, next_step, data, args, kwargs))
+            except MessageNotModified:
+                pass
         else:
             if oldmsg_id:
-                await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+                try:
+                    await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+                except MessageNotModified:
+                    pass
             newmsg = await message.answer(
                 text=await next_step.render_text(data, *args, **kwargs),
                 reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
@@ -251,7 +265,10 @@ class Dialog:
     async def switch_dialog(self, message: Message, dialog_data: DialogData, dialog: "Dialog", args, kwargs):
         oldmsg_id = await dialog_data.message_id()
         if oldmsg_id:
-            await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+            try:
+                await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+            except MessageNotModified:
+                pass
         await self.start_dialog(message, dialog_data, dialog, args, kwargs)
 
     async def start_dialog(self, m: Message, dialog_data: DialogData, dialog: "Dialog", args, kwargs):
