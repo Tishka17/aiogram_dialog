@@ -68,6 +68,7 @@ class DataStep(Step):
             multiple: bool = False,
             checked_prefix: str = "\N{HEAVY CHECK MARK} ",
             unchecked_prefix: str = "",
+            reorder_variants_by: int = 0,
             **kwargs
     ):
         super().__init__(**kwargs)
@@ -79,6 +80,7 @@ class DataStep(Step):
         self.multiple = multiple
         self.checked_prefix = checked_prefix
         self.unchecked_prefix = unchecked_prefix
+        self.reorder_variants_by = reorder_variants_by
 
     async def process_callback(self, callback: CallbackQuery, current_data,
                                *args, **kwargs) -> Tuple[Any, Optional[str]]:
@@ -110,13 +112,19 @@ class DataStep(Step):
         kbd = InlineKeyboardMarkup()
         variants = await self.get_variants(current_data, *args, **kwargs)
         field = self.field()
+        row = []
         for title, data in variants:
             if self.multiple and field:
                 if data in current_data.get(field, []):
                     title = self.checked_prefix + title
                 else:
                     title = self.unchecked_prefix + title
-            kbd.row(InlineKeyboardButton(title, callback_data=data))
+            row.append(InlineKeyboardButton(title, callback_data=data))
+            if not self.reorder_variants_by or len(row) >= self.reorder_variants_by:
+                kbd.row(*row)
+                row = []
+        if row:
+            kbd.row(*row)
         return kbd
 
 
