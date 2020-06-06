@@ -101,7 +101,7 @@ class Dialog:
         oldmsg_id = await dialog_data.message_id()
         if oldmsg_id:
             try:
-                await m.bot.edit_message_reply_markup(m.chat.id, oldmsg_id)
+                await m.bot.edit_message_reply_markup(chat_id=m.chat.id, message_id=oldmsg_id)
             except MessageNotModified:
                 pass
         await dialog_data.reset()
@@ -132,11 +132,14 @@ class Dialog:
         current_state = await dialog_data.state.get_state()
         current_step: Step = self.steps[current_state]
         await self.on_back(c.message, *args, **kwargs)
+        if current_step:
+            del dialog_data[current_step.field()]
         prev_state = current_step.back
         if prev_state is NotImplemented:
             prev_state = self.states[self.states.index(current_state) - 1]
         prev_step = self.steps[prev_state]
         await self.switch_step(c.message, dialog_data, prev_state, prev_step, True, args, kwargs)
+        await dialog_data.commit()
 
     async def on_next(self, m: Message, *args, **kwargs):
         pass
@@ -242,17 +245,26 @@ class Dialog:
         data = await dialog_data.data()
         if edit and oldmsg_id:
             try:
-                await message.edit_text(await next_step.render_text(data, *args, **kwargs)),
+                await message.bot.edit_message_text(
+                    chat_id=message.chat.id, message_id=oldmsg_id,
+                    text=await next_step.render_text(data, *args, **kwargs)
+                ),
             except MessageNotModified:
                 pass
             try:
-                await message.edit_reply_markup(await self.get_kbd(next_state, next_step, data, args, kwargs))
+                await message.bot.edit_message_reply_markup(
+                    chat_id=message.chat.id, message_id=oldmsg_id,
+                    reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs)
+                )
             except MessageNotModified:
                 pass
         else:
             if oldmsg_id:
                 try:
-                    await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+                    await message.bot.edit_message_reply_markup(
+                        chat_id=message.chat.id,
+                        message_id=oldmsg_id
+                    )
                 except MessageNotModified:
                     pass
             newmsg = await message.answer(
@@ -266,7 +278,9 @@ class Dialog:
         oldmsg_id = await dialog_data.message_id()
         if oldmsg_id:
             try:
-                await message.bot.edit_message_reply_markup(message.chat.id, oldmsg_id)
+                await message.bot.edit_message_reply_markup(
+                    chat_id=message.chat.id, message_id=oldmsg_id
+                )
             except MessageNotModified:
                 pass
         await self.start_dialog(message, dialog_data, dialog, args, kwargs)

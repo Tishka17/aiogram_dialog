@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, Dict
 
 from aiogram.dispatcher import FSMContext
 
@@ -14,8 +14,9 @@ class DialogData:
         self.dialog_field = dialog_field
         self.state = state
         self.field_changes = {}
+        self.field_deletes = set()
         self.changes = {}
-        self._data = NOT_FILLED
+        self._data: Union[Dict, NOT_FILLED] = NOT_FILLED  # cache of field data
 
     def _dialog_data(self, data):
         if not self.dialog_field:
@@ -48,10 +49,20 @@ class DialogData:
         if not key:
             return
         self.field_changes[key] = value
+        if self._data not in (None, NOT_FILLED):
+            self._data[key] = value
+        self.field_deletes.discard(key)
+
+    def __delitem__(self, key):
+        if not key:
+            return
+        if self._data not in (None, NOT_FILLED):
+            self._data.pop(key, None)
+        self.field_changes.pop(key, None)
+        self.field_deletes.add(key)
 
     async def reset(self):
         async with self.state.proxy() as data:
-            print("Reset", data)
             dialog_data = self._dialog_data(data)
             old_state = dialog_data.get(self.STATE_FIELD)
             if self.dialog_field:
@@ -63,19 +74,24 @@ class DialogData:
         self.field_changes = {}
 
     async def commit(self):
-        if not self.changes and not self.field_changes:
+        if not self.changes and not self.field_changes and not self.field_deletes:
             return
         async with self.state.proxy() as state_data:
             data = self._dialog_data(state_data)
             data.update(self.changes)
+            field_data = data.get(self.DATA_FIELD)
             if self.field_changes:
-                field_data = data.get(self.DATA_FIELD)
                 if not field_data:
                     data[self.DATA_FIELD] = self.field_changes
                 else:
                     field_data.update(self.field_changes)
+            if self.field_deletes and field_data:
+                field_data = data.get(self.DATA_FIELD)
+                for field in self.field_deletes:
+                    field_data.pop(field, None)
         self.changes = {}
         self.field_changes = {}
+        self.field_deletes = set()
 
     async def data(self, force: bool = False):
         if not force and self._data != NOT_FILLED:
