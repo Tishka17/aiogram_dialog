@@ -157,7 +157,7 @@ class Dialog:
         if not next_state:
             await self.done(m, dialog_data, args, kwargs)
         else:
-            await self.switch_step(m, dialog_data, error,  next_state, self.steps[next_state], edit, args, kwargs)
+            await self.switch_step(m, dialog_data, error, next_state, self.steps[next_state], edit, args, kwargs)
 
     async def get_kbd(self, current_state: str, current_step: Step, current_data: Dict, args, kwargs):
         kbd = await current_step.render_kbd(current_data, *args, **kwargs)
@@ -318,15 +318,17 @@ class Dialog:
         await self.on_resume(message, *args, **kwargs)
 
         newmsg = await message.answer(
-            text=await next_step.render_text(data, *args, **kwargs),
+            text=await next_step.render_text(data, None, *args, **kwargs),
             reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
         )
         dialog_data.set_message_id(newmsg.message_id)
         await dialog_data.commit()
 
-    def register_handler(self, dp: Dispatcher):
-        dp.register_message_handler(self.handle_message, state=self.states, content_types=ContentTypes.ANY)
-        dp.register_callback_query_handler(self.handle_callback, state=self.states)
+    def register_handler(self, dp: Dispatcher, *args, **kwargs):
+        dp.register_message_handler(self.handle_message,
+                                    state=self.states, content_types=ContentTypes.ANY,
+                                    *args, **kwargs)
+        dp.register_callback_query_handler(self.handle_callback, state=self.states, *args, **kwargs)
 
 
 class SimpleDialog(Dialog):
