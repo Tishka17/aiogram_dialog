@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Any, Sequence
+from typing import Tuple, Optional, Any, Sequence, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
@@ -8,6 +8,7 @@ class Step:
     def __init__(
             self,
             prompt: str = "",
+            error_msg: str = "Ошибка, некорректный ввод\n\n",
             can_cancel: bool = True,
             can_back: bool = True,
             can_done: bool = True,
@@ -22,6 +23,7 @@ class Step:
         self._can_skip = can_skip
         self._field = field
         self.prompt = prompt
+        self.error_msg = error_msg
         if back and back is not NotImplemented:
             back: str = back.state
         self.back = back
@@ -41,7 +43,9 @@ class Step:
     def can_skip(self) -> bool:
         return self._can_skip
 
-    async def render_text(self, current_data, *args, **kwargs):
+    async def render_text(self, current_data, error: Optional[Exception], *args, **kwargs):
+        if error:
+            return self.error_msg + self.prompt
         return self.prompt
 
     async def render_kbd(self, current_data, *args, **kwargs) -> Optional[InlineKeyboardMarkup]:
@@ -59,10 +63,16 @@ class Step:
         raise NotImplementedError
 
 
+Variant = Union[
+    Tuple[str, Any],
+    Tuple[str, Any, Any]
+]
+
+
 class DataStep(Step):
     def __init__(
             self,
-            variants: Sequence[Tuple[str, Any]] = (),
+            variants: Sequence[Variant] = (),
             type_factory=str,
             allow_text: Optional[bool] = None,
             multiple: bool = False,
@@ -113,7 +123,7 @@ class DataStep(Step):
         variants = await self.get_variants(current_data, *args, **kwargs)
         field = self.field()
         row = []
-        for title, data in variants:
+        for title, data, *_ in variants:
             if self.multiple and field:
                 if data in current_data.get(field, []):
                     title = self.checked_prefix + title
@@ -131,7 +141,12 @@ class DataStep(Step):
 class StateStep(DataStep):
     async def process_callback(self, callback: CallbackQuery, current_data,
                                *args, **kwargs) -> Tuple[Any, Optional[str]]:
-        return callback.data, callback.data
+        for title, data, *rest in await self.get_variants(current_data, *args, **kwargs):
+            if data != callback.data:
+                continue
+            if rest:
+                return callback.data, rest[0]
+            return callback.data, callback.data
 
     async def process_message(self, text, current_data,
                               *args, **kwargs) -> Tuple[Any, Optional[str]]:

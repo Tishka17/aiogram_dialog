@@ -122,7 +122,7 @@ class Dialog:
         await self.on_start(m, *args, **kwargs)
         if next_state is NotImplemented:
             next_state = self.next_step(None)
-        await self.switch_step(m, real_dialog_data, next_state, self.steps[next_state], False, args, kwargs)
+        await self.switch_step(m, real_dialog_data, None, next_state, self.steps[next_state], False, args, kwargs)
         await real_dialog_data.commit()
 
     async def on_back(self, m: Message, *args, **kwargs):
@@ -138,14 +138,15 @@ class Dialog:
         if prev_state is NotImplemented:
             prev_state = self.states[self.states.index(current_state) - 1]
         prev_step = self.steps[prev_state]
-        await self.switch_step(c.message, dialog_data, prev_state, prev_step, True, args, kwargs)
+        await self.switch_step(c.message, dialog_data, None, prev_state, prev_step, True, args, kwargs)
         await dialog_data.commit()
 
     async def on_next(self, m: Message, *args, **kwargs):
         pass
 
     async def next(self, current_state: str, m: Message, dialog_data: DialogData, edit: bool,
-                   next_state: Union[str, "Dialog", None], args, kwargs):
+                   error: Optional[Exception], next_state: Union[str, "Dialog", None],
+                   args, kwargs):
         await self.on_back(m, args, kwargs)
         if next_state is NotImplemented:
             next_state = self.next_step(current_state)
@@ -156,7 +157,7 @@ class Dialog:
         if not next_state:
             await self.done(m, dialog_data, args, kwargs)
         else:
-            await self.switch_step(m, dialog_data, next_state, self.steps[next_state], edit, args, kwargs)
+            await self.switch_step(m, dialog_data, error,  next_state, self.steps[next_state], edit, args, kwargs)
 
     async def get_kbd(self, current_state: str, current_step: Step, current_data: Dict, args, kwargs):
         kbd = await current_step.render_kbd(current_data, *args, **kwargs)
@@ -190,15 +191,21 @@ class Dialog:
         state: FSMContext = kwargs["state"]
         dialog_data = DialogData(self.dialog_field, state)
         current_state = await state.get_state()
-        step = self.steps[current_state]
+        step: Step = self.steps[current_state]
         if not step:
             print("!!!!!! No step")
 
         data = await dialog_data.data()
-        value, next_state = await step.process_message(m, data, args, kwargs)
-        dialog_data[step.field()] = value
+        try:
+            value, next_state = await step.process_message(m, data, *args, **kwargs)
+            dialog_data[step.field()] = value
+            error = None
+        except ValueError as e:
+            next_state = current_state
+            error = e
+
         edit = (next_state == current_state)  # if step did not changed only edit message
-        await self.next(current_state, m, dialog_data, edit, next_state, args, kwargs)
+        await self.next(current_state, m, dialog_data, edit, error, next_state, args, kwargs)
         await dialog_data.commit()
 
     async def handle_callback(self, c: CallbackQuery, *args, **kwargs):
@@ -215,7 +222,7 @@ class Dialog:
             await c.answer()
             return
         elif c.data == self.skip_cd:
-            await self.next(current_state, c.message, dialog_data, True, NotImplemented, args, kwargs)
+            await self.next(current_state, c.message, dialog_data, True, None, NotImplemented, args, kwargs)
             await c.answer()
             return
         elif c.data == self.cancel_cd:
@@ -228,15 +235,22 @@ class Dialog:
             print("!!!!!! No step")
 
         data = await dialog_data.data()
-        value, next_state = await step.process_callback(c, data, args, kwargs)
-        dialog_data[step.field()] = value
+        try:
+            value, next_state = await step.process_callback(c, data, *args, **kwargs)
+            dialog_data[step.field()] = value
+            error = None
+        except ValueError as e:
+            next_state = current_state
+            error = e
+
         await c.answer()
-        await self.next(current_state, c.message, dialog_data, True, next_state, args, kwargs)
+        await self.next(current_state, c.message, dialog_data, True, error, next_state, args, kwargs)
         await dialog_data.commit()
 
     async def switch_step(self,
                           message: Message,
                           dialog_data: DialogData,
+                          error: Optional[Exception],
                           next_state: str,
                           next_step: Step,
                           edit: bool,
@@ -247,7 +261,7 @@ class Dialog:
             try:
                 await message.bot.edit_message_text(
                     chat_id=message.chat.id, message_id=oldmsg_id,
-                    text=await next_step.render_text(data, *args, **kwargs)
+                    text=await next_step.render_text(data, error, *args, **kwargs)
                 ),
             except MessageNotModified:
                 pass
@@ -268,7 +282,7 @@ class Dialog:
                 except MessageNotModified:
                     pass
             newmsg = await message.answer(
-                text=await next_step.render_text(data, *args, **kwargs),
+                text=await next_step.render_text(data, error, *args, **kwargs),
                 reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
             )
             dialog_data.set_message_id(newmsg.message_id)
