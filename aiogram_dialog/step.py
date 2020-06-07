@@ -147,6 +147,7 @@ class StateStep(DataStep):
             if rest:
                 return callback.data, rest[0]
             return callback.data, callback.data
+        raise ValueError
 
     async def process_message(self, text, current_data,
                               *args, **kwargs) -> Tuple[Any, Optional[str]]:

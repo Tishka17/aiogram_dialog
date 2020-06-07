@@ -22,7 +22,7 @@ class Dialog:
             dialog_field: str = ""
     ):
         self.steps = {
-            s.state: step for s, step in steps.items()
+            (s and s.state): step for s, step in steps.items()
         }
         self.states = list(self.steps)
 
