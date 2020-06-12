@@ -17,7 +17,6 @@ subdialog = Dialog(steps={
         ],
         reorder_variants_by=2,
         field="smoke",
-        type_factory=lambda x: x == "yes",
     ),
 })
 
@@ -35,7 +34,6 @@ dialog = Dialog(
             ],
             reorder_variants_by=2,
             field="18+",
-            type_factory=lambda x: x == "yes",
         ),
         last_state: DataStep(
             prompt="Спасибо",

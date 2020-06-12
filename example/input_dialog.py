@@ -35,7 +35,6 @@ dialog = Dialog(
             ],
             reorder_variants_by=2,
             field="18+",
-            type_factory=lambda x: x == "yes",
         ),
         State("3"): DataStep(
             prompt="Введите ваш рост",

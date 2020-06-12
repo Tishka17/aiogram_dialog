@@ -46,7 +46,6 @@ dialog = Dialog(
             ],
             reorder_variants_by=2,
             field="18+",
-            type_factory=lambda x: x == "yes",
         ),
         DialogSG.smoke: DataStep(
             prompt="Вы курите?",
@@ -56,7 +55,6 @@ dialog = Dialog(
             ],
             reorder_variants_by=2,
             field="smoke",
-            type_factory=lambda x: x == "yes",
         ),
         DialogSG.height: DataStep(
             prompt="Введите ваш рост",
