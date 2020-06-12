@@ -147,7 +147,9 @@ class Dialog:
     async def next(self, current_state: str, m: Message, dialog_data: DialogData, edit: bool,
                    error: Optional[Exception], next_state: Union[str, "Dialog", None],
                    args, kwargs):
-        await self.on_back(m, args, kwargs)
+        await self.on_next(m, args, kwargs)
+        if isinstance(next_state, State):
+            next_state = next_state.state
         if next_state is NotImplemented:
             next_state = self.next_step(current_state)
         if isinstance(next_state, Dialog):
