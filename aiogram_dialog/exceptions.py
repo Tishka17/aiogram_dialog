@@ -1,0 +1,2 @@
+class StateBrokenError(Exception):
+    pass

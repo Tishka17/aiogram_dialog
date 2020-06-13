@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Dict, Optional, Union
 
 from aiogram import Dispatcher
@@ -7,7 +8,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, C
 from aiogram.utils.exceptions import MessageNotModified
 
 from .data import DialogData
+from .exceptions import StateBrokenError
 from .step import Step
+from .texts import DialogTexts
+
+logger = getLogger(__name__)
 
 
 class Dialog:
@@ -19,7 +24,9 @@ class Dialog:
             can_done: bool = False,
             can_skip: bool = False,
             internal_callback_prefix: str = "",
-            dialog_field: str = ""
+            dialog_field: str = "",
+            texts: Optional[DialogTexts] = None,
+
     ):
         self.steps = {
             (s and s.state): step for s, step in steps.items()
@@ -41,6 +48,7 @@ class Dialog:
         self.finished_callbacks = []
         self.done_callbacks = []
         self.cancel_callbacks = []
+        self.texts = texts or DialogTexts()
 
     def can_cancel(self, step: Optional[Step]) -> bool:
         if not step:
@@ -167,16 +175,16 @@ class Dialog:
             kbd = InlineKeyboardMarkup()
         steps_row = []
         if self.can_back(current_state, current_step):
-            steps_row.append(InlineKeyboardButton(text="< Назад", callback_data=self.back_cd))
+            steps_row.append(InlineKeyboardButton(text=self.texts.back, callback_data=self.back_cd))
         if self.can_skip(current_step):
-            steps_row.append(InlineKeyboardButton(text="Пропустить >", callback_data=self.skip_cd))
+            steps_row.append(InlineKeyboardButton(text=self.texts.skip, callback_data=self.skip_cd))
         if steps_row:
             kbd.row(*steps_row)
         finish_row = []
         if self.can_cancel(current_step):
-            finish_row.append(InlineKeyboardButton(text="Отмена", callback_data=self.cancel_cd))
+            finish_row.append(InlineKeyboardButton(text=self.texts.cancel, callback_data=self.cancel_cd))
         if self.can_done(current_step):
-            finish_row.append(InlineKeyboardButton(text="✓ Готово", callback_data=self.done_cd))
+            finish_row.append(InlineKeyboardButton(text=self.texts.done, callback_data=self.done_cd))
         if finish_row:
             kbd.row(*finish_row)
         return kbd
@@ -193,9 +201,11 @@ class Dialog:
         state: FSMContext = kwargs["state"]
         dialog_data = DialogData(self.dialog_field, state)
         current_state = await state.get_state()
-        step: Step = self.steps[current_state]
+        step: Step = self.steps.get(current_state)
         if not step:
-            print("!!!!!! No step")
+            logger.error("Not step found for current state `%s`. Probably steps changed after registration",
+                         current_state)
+            raise StateBrokenError(f"No step found for state {current_state}")
 
         data = await dialog_data.data()
         try:
@@ -232,9 +242,11 @@ class Dialog:
             await c.answer()
             return
 
-        step = self.steps[current_state]
+        step = self.steps.get(current_state)
         if not step:
-            print("!!!!!! No step")
+            logger.error("Not step found for current state `%s`. Probably steps changed after registration",
+                         current_state)
+            raise StateBrokenError(f"No step found for state {current_state}")
 
         data = await dialog_data.data()
         try:
@@ -346,16 +358,3 @@ class SimpleDialog(Dialog):
             dialog_field=dialog_field,
             internal_callback_prefix=internal_callback_prefix,
         )
-
-# - фото видео гпс-локи)
-# - ещё бы хорошо удалять кнопки у сообщений бота на которые уже ответили
-# - при кликах по клаве можно редактировать, по тексту - нет
-# - и ещё можно сделать чтобы была отправка нескольких сообщений за один стейт (MultiInput)
-# - да/нет диалоги
-# - Диалог из одного шага
-#
-# Вложенные диалоги: при старте запоминаем в data старый стейт и свои данные храним во вложенном словаре
-# При завершении восстанавливаем стейт
-
-# фильтрация парметров
-# https://github.com/aiogram/aiogram/blob/70767111c4ca74961103eae0b39f09f64dd62026/aiogram/dispatcher/handler.py#L25-L36

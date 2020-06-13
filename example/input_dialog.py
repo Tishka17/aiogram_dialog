@@ -5,9 +5,16 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import Message
 
-from aiogram_dialog import Dialog, DataStep
+from aiogram_dialog import Dialog, DataStep, DialogTexts
 
 API_TOKEN = 'BOT TOKEN HERE'
+
+dialog_texts = DialogTexts(
+    back="< Назад",
+    skip="Прпоустить >",
+    done="✓ Готово",
+    cancel="Отмена"
+)
 
 
 async def input_done(m: Message, dialog_data, *args, **kwargs):
@@ -22,6 +29,7 @@ async def input_done(m: Message, dialog_data, *args, **kwargs):
 
 
 dialog = Dialog(
+    texts=dialog_texts,
     steps={
         State("1"): DataStep(
             prompt="Введите ваше имя",
