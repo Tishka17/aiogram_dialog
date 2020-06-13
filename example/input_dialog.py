@@ -11,7 +11,7 @@ API_TOKEN = 'BOT TOKEN HERE'
 
 dialog_texts = DialogTexts(
     back="< Назад",
-    skip="Прпоустить >",
+    skip="Пропустить >",
     done="✓ Готово",
     cancel="Отмена"
 )
