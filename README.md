@@ -6,4 +6,4 @@
 pip install git+https://github.com/Tishka17/aiogram_dialog.git
 ```
 
-2. See [exmaples](example) 
+2. See [examples](example) 
