@@ -257,8 +257,8 @@ class Dialog:
             next_state = current_state
             error = e
 
-        await c.answer()
         await self.next(current_state, c.message, dialog_data, True, error, next_state, args, kwargs)
+        await c.answer()
         await dialog_data.commit()
 
     async def switch_step(self,
@@ -271,14 +271,13 @@ class Dialog:
                           args, kwargs):
         oldmsg_id = await dialog_data.message_id()
         data = await dialog_data.data()
+        new_text = await next_step.render_text(data, error, *args, **kwargs)
         if edit and oldmsg_id:
-            try:
+            if message.text != new_text:
                 await message.bot.edit_message_text(
                     chat_id=message.chat.id, message_id=oldmsg_id,
-                    text=await next_step.render_text(data, error, *args, **kwargs)
-                ),
-            except MessageNotModified:
-                pass
+                    text= new_text
+                )
             try:
                 await message.bot.edit_message_reply_markup(
                     chat_id=message.chat.id, message_id=oldmsg_id,
@@ -296,7 +295,7 @@ class Dialog:
                 except MessageNotModified:
                     pass
             newmsg = await message.answer(
-                text=await next_step.render_text(data, error, *args, **kwargs),
+                text=new_text,
                 reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
             )
             dialog_data.set_message_id(newmsg.message_id)
