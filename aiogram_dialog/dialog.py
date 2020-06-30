@@ -276,7 +276,7 @@ class Dialog:
             if message.text != new_text:
                 await message.bot.edit_message_text(
                     chat_id=message.chat.id, message_id=oldmsg_id,
-                    text= new_text
+                    text=new_text
                 )
             try:
                 await message.bot.edit_message_reply_markup(
@@ -318,12 +318,14 @@ class Dialog:
     async def on_resume(self, m: Message, *args, **kwargs):
         pass
 
-    async def resume(self, message: Message, *args, **kwargs):
+    async def resume(self, message: Message, *args, **kwargs) -> bool:
         state: FSMContext = kwargs["state"]
         dialog_data = DialogData(self.dialog_field, state)
 
         data = await dialog_data.data()
         next_state = await state.get_state()
+        if next_state not in self.steps:
+            return False
         next_step = self.steps[next_state]
         if not next_step:
             print("!!!!!! No step")
@@ -336,6 +338,7 @@ class Dialog:
         )
         dialog_data.set_message_id(newmsg.message_id)
         await dialog_data.commit()
+        return True
 
     def register_handler(self, dp: Dispatcher, *args, **kwargs):
         dp.register_message_handler(self.handle_message,
