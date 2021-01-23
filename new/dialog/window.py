@@ -1,16 +1,22 @@
-from typing import Dict, Callable
+from typing import Dict, Callable, Optional
 
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.dispatcher.filters.state import State
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
+from .dialog import Dialog, Window as WindowProtocol
 from .kbd import Keyboard
 from .text import Text
 
 
-class Window:
-    def __init__(self, text: Text, kbd: Keyboard, getter: Callable):
+class Window(WindowProtocol):
+
+    def __init__(self, text: Text, kbd: Keyboard, getter: Callable, state: State,
+                 on_message: Optional[Callable] = None):
         self.text = text
         self.kbd = kbd
         self.getter = getter
+        self.state = state
+        self.on_message = on_message
 
     async def render_text(self, data) -> str:
         return await self.text.render_text(data)
@@ -24,3 +30,14 @@ class Window:
         if not self.getter:
             return {}
         return await self.getter()
+
+    async def process_message(self, m: Message, dialog: Dialog, data: Dict):
+        if self.on_message:
+            await self.on_message(m, dialog, data)
+
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+        if self.kbd:
+            await self.kbd.process_callback(c, dialog, data)
+
+    def get_state(self) -> State:
+        return self.state

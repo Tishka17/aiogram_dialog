@@ -1,8 +1,9 @@
 from itertools import chain
-from typing import List, Callable, Optional, Union
+from typing import List, Callable, Optional, Union, Dict
 
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, CallbackQuery
 
+from aiogram_dialog import Dialog
 from .text import Text
 from .when import Whenable
 
@@ -19,20 +20,30 @@ class Keyboard(Whenable):
     async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+        return False
+
 
 class Button(Keyboard):
-    def __init__(self, text: Text, callback_data: Text, on_click: Optional[Callable] = None,
+    def __init__(self, text: Text, callback_data: str, on_click: Optional[Callable] = None,
                  when: Union[str, Callable] = None):
         super().__init__(when)
         self.text = text
         self.callback_data = callback_data
         self.on_click = on_click
 
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+        if c.data != self.callback_data:
+            return False
+        if self.on_click:
+            self.on_click(c, dialog, data)
+        return True
+
     async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data),
-                callback_data=await self.callback_data.render_text(data)
+                callback_data=self.callback_data
             )
         ]]
 
@@ -83,3 +94,9 @@ class Group(Keyboard):
         if row:
             res.append(row)
         return res
+
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+        for b in self.buttons:
+            if b.process_callback(c, dialog, data):
+                return True
+        return False
