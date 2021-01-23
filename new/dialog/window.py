@@ -3,14 +3,14 @@ from typing import Dict, Callable, Optional
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
-from .dialog import Dialog, Window as WindowProtocol
+from .dialog import Dialog, Window as WindowProtocol, DataGetter
 from .kbd import Keyboard
 from .text import Text
 
 
 class Window(WindowProtocol):
 
-    def __init__(self, text: Text, kbd: Keyboard, getter: Callable, state: State,
+    def __init__(self, text: Text, kbd: Keyboard, getter: DataGetter, state: State,
                  on_message: Optional[Callable] = None):
         self.text = text
         self.kbd = kbd
@@ -26,10 +26,10 @@ class Window(WindowProtocol):
             inline_keyboard=await self.kbd.render_kbd(data)
         )
 
-    async def load_data(self) -> Dict:
+    async def load_data(self, dialog: "Dialog", data: Dict) -> Dict:
         if not self.getter:
             return {}
-        return await self.getter()
+        return await self.getter(dialog, data)
 
     async def process_message(self, m: Message, dialog: Dialog, data: Dict):
         if self.on_message:

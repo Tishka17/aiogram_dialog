@@ -36,7 +36,7 @@ class Button(Keyboard):
         if c.data != self.callback_data:
             return False
         if self.on_click:
-            self.on_click(c, dialog, data)
+            await self.on_click(c, dialog, data)
         return True
 
     async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
@@ -97,6 +97,6 @@ class Group(Keyboard):
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
         for b in self.buttons:
-            if b.process_callback(c, dialog, data):
+            if await b.process_callback(c, dialog, data):
                 return True
         return False
