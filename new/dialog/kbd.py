@@ -1,10 +1,11 @@
 from itertools import chain
 from typing import List, Callable, Optional, Union, Dict
 
+from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
-from aiogram_dialog import Dialog
-from .text import Text
+from .dialog import Dialog
+from .text import Text, Const
 from .when import Whenable
 
 
@@ -46,6 +47,53 @@ class Button(Keyboard):
                 callback_data=self.callback_data
             )
         ]]
+
+
+class SwitchState(Button):
+    def __init__(self, text: Text, callback_data: str,
+                 state: State,
+                 on_click: Optional[Callable] = None,
+                 when: Union[str, Callable] = None):
+        super().__init__(text, callback_data, self._on_click, when)
+        self.text = text
+        self.callback_data = callback_data
+        self.user_on_click = on_click
+        self.state = state.state
+
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+        if self.user_on_click:
+            await self.user_on_click(c, dialog, data)
+        await dialog.switch_to(self.state, c.bot, c.message.chat.id, c.from_user.id, data)
+
+
+class Next(Button):
+    def __init__(self, text: Text = Const("Next"), callback_data: str = "next",
+                 on_click: Optional[Callable] = None,
+                 when: Union[str, Callable] = None):
+        super().__init__(text, callback_data, self._on_click, when)
+        self.text = text
+        self.callback_data = callback_data
+        self.user_on_click = on_click
+
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+        if self.user_on_click:
+            await self.user_on_click(c, dialog, data)
+        await dialog.next(c.bot, c.message.chat.id, c.from_user.id, data)
+
+
+class Back(Button):
+    def __init__(self, text: Text = Const("Back"), callback_data: str = "back",
+                 on_click: Optional[Callable] = None,
+                 when: Union[str, Callable] = None):
+        super().__init__(text, callback_data, self._on_click, when)
+        self.text = text
+        self.callback_data = callback_data
+        self.user_on_click = on_click
+
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+        if self.user_on_click:
+            await self.user_on_click(c, dialog, data)
+        await dialog.back(c.bot, c.message.chat.id, c.from_user.id, data)
 
 
 class Uri(Keyboard):

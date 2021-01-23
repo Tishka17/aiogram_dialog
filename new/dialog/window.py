@@ -1,5 +1,6 @@
 from typing import Dict, Callable, Optional
 
+from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
@@ -10,7 +11,8 @@ from .text import Text
 
 class Window(WindowProtocol):
 
-    def __init__(self, text: Text, kbd: Keyboard, getter: DataGetter, state: State,
+    def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
+                 getter: DataGetter = None,
                  on_message: Optional[Callable] = None):
         self.text = text
         self.kbd = kbd
@@ -38,6 +40,12 @@ class Window(WindowProtocol):
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict):
         if self.kbd:
             await self.kbd.process_callback(c, dialog, data)
+
+    async def show(self, chat_id: int, user_id: int, dialog: Dialog, bot: Bot, data: Dict):
+        current_data = await self.load_data(dialog, data)
+        text = await self.render_text(current_data)
+        kbd = await self.render_kbd(current_data)
+        await bot.send_message(chat_id, text=text, reply_markup=kbd)
 
     def get_state(self) -> State:
         return self.state

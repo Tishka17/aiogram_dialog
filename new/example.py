@@ -5,12 +5,11 @@ from typing import Dict
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from dialog.dialog import Dialog
-from dialog.kbd import Button, Group
+from dialog.kbd import Button, Group, Next, Back
 from dialog.text import Const, Format, Multi
 from dialog.window import Window
 
@@ -27,9 +26,7 @@ class Register(StatesGroup):
 
 
 async def start(m: Message, dialog: Dialog, **kwargs):
-    state: FSMContext = kwargs["state"]
-    await state.set_state(Register.hello.state)
-    await dialog.show(m.bot, m.chat.id, kwargs)
+    await dialog.start(m.bot, m.chat.id, m.from_user.id, kwargs)
 
 
 async def fun(c: CallbackQuery, dialog: Dialog, data: Dict):
@@ -37,7 +34,7 @@ async def fun(c: CallbackQuery, dialog: Dialog, data: Dict):
 
 
 async def main():
-    window = Window(
+    hello_window = Window(
         Multi(
             Const("Hello, {name}!"),
             Format("Hello, {name}!", when=lambda data: data["age"] > 18),
@@ -46,17 +43,20 @@ async def main():
         Group(
             Group(
                 Button(Format("{name}"), "b1"),
+                Next(),
                 Button(Const("Is it Fun?"), "b2", on_click=fun),
                 keep_rows=False
             ),
             Button(Const("3. {name}"), "b3"),
+            Group(Next(), Next(), Next(), Next(), width=2, keep_rows=False),
         ),
         getter=get_data,
         state=Register.hello,
 
     )
+    name_window = Window(Const("oook"), Back(), state=Register.name)
 
-    dialog = Dialog(window)
+    dialog = Dialog(hello_window, name_window)
 
     # real main
     logging.basicConfig(level=logging.INFO)
