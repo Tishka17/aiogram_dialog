@@ -26,7 +26,7 @@ class Register(StatesGroup):
 
 
 async def start(m: Message, dialog: Dialog, **kwargs):
-    await dialog.start(m.bot, m.chat.id, m.from_user.id, kwargs)
+    await dialog.start(m, kwargs)
 
 
 async def fun(c: CallbackQuery, dialog: Dialog, data: Dict):
@@ -64,8 +64,8 @@ async def main():
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
 
-    dialog.register(dp)
     dp.register_message_handler(partial(start, dialog=dialog), text="/start", state="*")
+    dialog.register(dp)
 
     await dp.start_polling()
 

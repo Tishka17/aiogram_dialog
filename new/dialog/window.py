@@ -1,10 +1,9 @@
 from typing import Dict, Callable, Optional
 
-from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
-from .dialog import Dialog, Window as WindowProtocol, DataGetter
+from .dialog import Dialog, Window as WindowProtocol, DataGetter, ChatEvent
 from .kbd import Keyboard
 from .text import Text
 
@@ -41,11 +40,18 @@ class Window(WindowProtocol):
         if self.kbd:
             await self.kbd.process_callback(c, dialog, data)
 
-    async def show(self, chat_id: int, user_id: int, dialog: Dialog, bot: Bot, data: Dict):
+    async def show(self, chat_event: ChatEvent, dialog: Dialog, data: Dict):
         current_data = await self.load_data(dialog, data)
         text = await self.render_text(current_data)
         kbd = await self.render_kbd(current_data)
-        await bot.send_message(chat_id, text=text, reply_markup=kbd)
+        if isinstance(chat_event, CallbackQuery):
+            if text == chat_event.message.text:
+                await chat_event.message.edit_text(text=text, reply_markup=kbd)
+            else:
+                await chat_event.message.edit_text(text=text, reply_markup=kbd)
+        else:
+            # TODO remove keyboard from previous message
+            await chat_event.answer(text=text, reply_markup=kbd)
 
     def get_state(self) -> State:
         return self.state

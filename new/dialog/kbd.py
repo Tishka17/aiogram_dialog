@@ -63,7 +63,7 @@ class SwitchState(Button):
     async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
         if self.user_on_click:
             await self.user_on_click(c, dialog, data)
-        await dialog.switch_to(self.state, c.bot, c.message.chat.id, c.from_user.id, data)
+        await dialog.switch_to(self.state, c, data)
 
 
 class Next(Button):
@@ -78,7 +78,7 @@ class Next(Button):
     async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
         if self.user_on_click:
             await self.user_on_click(c, dialog, data)
-        await dialog.next(c.bot, c.message.chat.id, c.from_user.id, data)
+        await dialog.next(c, data)
 
 
 class Back(Button):
@@ -93,7 +93,7 @@ class Back(Button):
     async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
         if self.user_on_click:
             await self.user_on_click(c, dialog, data)
-        await dialog.back(c.bot, c.message.chat.id, c.from_user.id, data)
+        await dialog.back(c, data)
 
 
 class Uri(Keyboard):
