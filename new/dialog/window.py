@@ -40,18 +40,20 @@ class Window(WindowProtocol):
         if self.kbd:
             await self.kbd.process_callback(c, dialog, data)
 
-    async def show(self, chat_event: ChatEvent, dialog: Dialog, data: Dict):
+    async def show(self, chat_event: ChatEvent, dialog: Dialog, data: Dict) -> Message:
         current_data = await self.load_data(dialog, data)
         text = await self.render_text(current_data)
         kbd = await self.render_kbd(current_data)
         if isinstance(chat_event, CallbackQuery):
             if text == chat_event.message.text:
-                await chat_event.message.edit_text(text=text, reply_markup=kbd)
+                return await chat_event.message.edit_reply_markup(reply_markup=kbd)
             else:
-                await chat_event.message.edit_text(text=text, reply_markup=kbd)
+                return await chat_event.message.edit_text(text=text, reply_markup=kbd)
         else:
-            # TODO remove keyboard from previous message
-            await chat_event.answer(text=text, reply_markup=kbd)
+            context = await dialog.context(data)
+            if context.last_message_id:
+                await chat_event.bot.edit_message_reply_markup(message_id=context.last_message_id, chat_id=chat_event.chat.id)
+            return await chat_event.answer(text=text, reply_markup=kbd)
 
     def get_state(self) -> State:
         return self.state

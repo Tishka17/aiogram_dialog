@@ -30,7 +30,7 @@ class Window(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", data: Dict):
         raise NotImplementedError
 
-    async def show(self, chat_event: ChatEvent, dialog: "Dialog", data: Dict):
+    async def show(self, chat_event: ChatEvent, dialog: "Dialog", data: Dict) -> Message:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -76,8 +76,10 @@ class Dialog:
         return self.windows[context.state]
 
     async def show(self, chat_event: ChatEvent, data):
+        context = await self.context(data)
         window = await self._current_window(data)
-        await window.show(chat_event, self, data)
+        message = await window.show(chat_event, self, data)
+        context.last_message_id = message.message_id
 
     async def _message_handler(self, m: Message, **kwargs):
         context = await self.context(kwargs)

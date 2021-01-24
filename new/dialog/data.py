@@ -29,19 +29,21 @@ class DialogContext:
 
     @last_message_id.setter
     def last_message_id(self, last_message_id: int):
-        self.proxy[GLOBAL_CONTEXT][LAST_MESSAGE_ID] = last_message_id
+        self.proxy.setdefault(GLOBAL_CONTEXT, {})
+        g_context = self.proxy[GLOBAL_CONTEXT]
+        g_context[LAST_MESSAGE_ID] = last_message_id
 
     def set_data(self, key: str, value: Any, internal: bool = False):
         context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
         self.proxy.setdefault(context_name, {})
-        g_context = self.proxy[context_name]
-        g_context.setdefault(self.dialog_id, {})
-        g_context[self.dialog_id][key] = value
+        d_context = self.proxy[context_name]
+        d_context.setdefault(self.dialog_id, {})
+        d_context[self.dialog_id][key] = value
 
     def data(self, key, internal: bool = False):
         context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
-        gcontext = self.proxy.get(context_name) or {}
-        dialog_data = gcontext.get(self.dialog_id) or {}
+        d_context = self.proxy.get(context_name) or {}
+        dialog_data = d_context.get(self.dialog_id) or {}
         return dialog_data[key]
 
     @classmethod

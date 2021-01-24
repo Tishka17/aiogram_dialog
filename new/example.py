@@ -33,6 +33,11 @@ async def fun(c: CallbackQuery, dialog: Dialog, data: Dict):
     await c.message.answer("It is fun!")
 
 
+async def input_fun(m: Message, dialog: Dialog, data: Dict):
+    print("input_fun")
+    await dialog.switch_to(Register.hello.state, m, data)
+
+
 async def main():
     hello_window = Window(
         Multi(
@@ -52,7 +57,7 @@ async def main():
         ),
         getter=get_data,
         state=Register.hello,
-
+        on_message=input_fun,
     )
     name_window = Window(Const("oook"), Back(), state=Register.name)
 
