@@ -4,8 +4,8 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
 from .dialog import Dialog, Window as WindowProtocol, DataGetter, ChatEvent
-from .kbd import Keyboard
-from .text import Text
+from dialog.widgets.kbd import Keyboard
+from dialog.widgets.text import Text
 
 
 class Window(WindowProtocol):

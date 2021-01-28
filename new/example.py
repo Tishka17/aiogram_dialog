@@ -9,8 +9,8 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from dialog.dialog import Dialog
-from dialog.kbd import Button, Group, Next, Back
-from dialog.text import Const, Format, Multi
+from dialog.widgets.kbd import Button, Group, Next, Back
+from dialog.widgets.text import Const, Format, Multi
 from dialog.window import Window
 
 API_TOKEN = ""

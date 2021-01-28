@@ -4,7 +4,7 @@ from typing import List, Callable, Optional, Union, Dict
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
-from .dialog import Dialog
+from dialog.dialog import Dialog
 from .text import Text, Const
 from .when import Whenable
 
