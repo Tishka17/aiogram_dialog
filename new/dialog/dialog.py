@@ -3,7 +3,7 @@ from typing import Protocol
 
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .data import DialogContext
@@ -38,10 +38,14 @@ class Window(Protocol):
 
 
 class Dialog:
-    def __init__(self, *windows: Window, id: str = ""):
+    def __init__(self, *windows: Window):
+        self._states_group = windows[0].get_state().group
+        for w in windows:
+            if w.get_state().group != self._states_group:
+                raise ValueError("All windows must be attached to same StatesGroup")
+
         self.states: List[str] = [w.get_state().state for w in windows]
         self.windows: Dict[str, Window] = dict(zip(self.states, windows))
-        self.id = id
 
     async def next(self, chat_event: ChatEvent, data: Dict):
         state: FSMContext = data["state"]
@@ -52,7 +56,7 @@ class Dialog:
     async def context(self, data):
         context = data.get(DIALOG_CONTEXT)
         if not context:
-            context = await DialogContext.create(data["state"], self.id)
+            context = await DialogContext.create(data["state"], self.states_group_name())
             data[DIALOG_CONTEXT] = context
         return context
 
@@ -99,3 +103,9 @@ class Dialog:
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY
         dp.register_message_handler(self._message_handler, state=self.states, **filters)
+
+    def states_group(self) -> StatesGroup:
+        return self._states_group
+
+    def states_group_name(self) -> str:
+        return self._states_group.__full_group_name__
