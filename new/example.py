@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from functools import partial
 from typing import Dict
 
 from aiogram import Bot, Dispatcher
@@ -9,6 +8,8 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from dialog.dialog import Dialog
+from dialog.manager.manager import DialogManager
+from dialog.manager.registry import DialogRegistry
 from dialog.widgets.kbd import Button, Group, Next, Back
 from dialog.widgets.text import Const, Format, Multi
 from dialog.window import Window
@@ -25,17 +26,17 @@ class Register(StatesGroup):
     name = State()
 
 
-async def start(m: Message, dialog: Dialog, **kwargs):
-    await dialog.start(m, kwargs)
+async def start(m: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(Register.hello)
 
 
-async def fun(c: CallbackQuery, dialog: Dialog, data: Dict):
+async def fun(c: CallbackQuery, dialog: Dialog, manager: DialogManager):
     await c.message.answer("It is fun!")
 
 
-async def input_fun(m: Message, dialog: Dialog, data: Dict):
+async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
     print("input_fun")
-    await dialog.switch_to(Register.hello.state, m, data)
+    await dialog.switch_to(Register.hello, manager)
 
 
 async def main():
@@ -68,8 +69,10 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
+    registry = DialogRegistry(dp)
+    registry.register(dialog)
 
-    dp.register_message_handler(partial(start, dialog=dialog), text="/start", state="*")
+    dp.register_message_handler(start, text="/start", state="*")
     dialog.register(dp)
 
     await dp.start_polling()

@@ -1,4 +1,4 @@
-from typing import Dict, Callable, Awaitable, List, Union
+from typing import Dict, Callable, Awaitable, List, Union, Any
 from typing import Protocol
 
 from aiogram import Dispatcher
@@ -90,3 +90,6 @@ class Dialog:
 
     def states_group_name(self) -> str:
         return self._states_group.__full_group_name__
+
+    async def process_result(self, result: Any, manager: DialogManager):
+        pass

@@ -1,14 +1,12 @@
 from typing import Dict, Optional, Union
 
 from aiogram import Dispatcher
+from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
-from aiogram.types import Message, CallbackQuery
 
 from .manager import Dialog, DialogManager
 from .stack import DialogStack
-
-ChatEvent = Union[CallbackQuery, Message]
 
 
 class DialogRegistry(BaseMiddleware):
@@ -29,17 +27,21 @@ class DialogRegistry(BaseMiddleware):
     def _register_middleware(self):
         self.dp.setup_middleware(self)
 
-    def find_dialog(self, state: str) -> Dialog:
-        group, *_ = state.partition(":")
+    def find_dialog(self, state: Union[str, State]) -> Dialog:
+        if isinstance(state, str):
+            group, *_ = state.partition(":")
+        else:
+            group = state.group.__full_group_name__
         return self.dialogs[group]
 
     async def on_pre_process_message(self, event, data: dict):
-        proxy = await FSMContextProxy.create(data["state"])
+        proxy = await FSMContextProxy.create(self.dp.current_state())  # there is no state in data at this moment
         manager = DialogManager(
             event,
             DialogStack(proxy),
             proxy,
             self,
+            data,
         )
         data["dialog_manager"] = manager
 
