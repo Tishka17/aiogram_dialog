@@ -1,6 +1,7 @@
 from typing import Any
 
-from aiogram.dispatcher.storage import FSMContextProxy, FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.storage import FSMContextProxy
 
 GLOBAL_CONTEXT = "__AIOGD_G_CONTEXT"
 DIALOG_CONTEXT = "__AIOGD_D_CONTEXT"
@@ -10,17 +11,22 @@ LAST_MESSAGE_ID = "LAST_MESSAGE_ID"
 
 
 class DialogContext:
-    def __init__(self, proxy: FSMContextProxy, dialog_id: str):
+    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: StatesGroup):
         self.proxy = proxy
         self.dialog_id = dialog_id
+        self.states_group = states_group
 
     @property
-    def state(self) -> str:
-        return self.proxy.state
+    def state(self) -> State:
+        state = self.proxy.state
+        for s in self.states_group.states:
+            if s.state == state:
+                return s
+        raise ValueError("Unknown state `%s`" % state)
 
     @state.setter
-    def state(self, state: str):
-        self.proxy.state = state
+    def state(self, state: State):
+        self.proxy.state = state.state
 
     @property
     def last_message_id(self) -> int:
@@ -45,11 +51,6 @@ class DialogContext:
         d_context = self.proxy.get(context_name) or {}
         dialog_data = d_context.get(self.dialog_id) or {}
         return dialog_data[key]
-
-    @classmethod
-    async def create(cls, state: FSMContext, dialog_id: str):
-        proxy = await FSMContextProxy.create(state)
-        return cls(proxy, dialog_id)
 
     def clear(self):
         if DIALOG_CONTEXT in self.proxy:

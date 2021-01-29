@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import List, Callable, Optional, Union, Dict
+from typing import List, Callable, Optional, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardButton, CallbackQuery
@@ -7,6 +7,7 @@ from aiogram.types import InlineKeyboardButton, CallbackQuery
 from dialog.dialog import Dialog
 from .text import Text, Const
 from .when import Whenable
+from ..manager.manager import DialogManager
 
 
 class Keyboard(Whenable):
@@ -21,7 +22,7 @@ class Keyboard(Whenable):
     async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         return False
 
 
@@ -33,11 +34,11 @@ class Button(Keyboard):
         self.callback_data = callback_data
         self.on_click = on_click
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         if c.data != self.callback_data:
             return False
         if self.on_click:
-            await self.on_click(c, dialog, data)
+            await self.on_click(c, dialog, manager)
         return True
 
     async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
@@ -60,10 +61,10 @@ class SwitchState(Button):
         self.user_on_click = on_click
         self.state = state.state
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, data)
-        await dialog.switch_to(self.state, c, data)
+            await self.user_on_click(c, dialog, manager)
+        await dialog.switch_to(self.state, manager)
 
 
 class Next(Button):
@@ -75,10 +76,10 @@ class Next(Button):
         self.callback_data = callback_data
         self.user_on_click = on_click
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, data)
-        await dialog.next(c, data)
+            await self.user_on_click(c, dialog, manager)
+        await dialog.next(manager)
 
 
 class Back(Button):
@@ -90,10 +91,10 @@ class Back(Button):
         self.callback_data = callback_data
         self.user_on_click = on_click
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, data: Dict):
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, data)
-        await dialog.back(c, data)
+            await self.user_on_click(c, dialog, manager)
+        await dialog.back(manager)
 
 
 class Uri(Keyboard):
@@ -143,8 +144,8 @@ class Group(Keyboard):
             res.append(row)
         return res
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, data: Dict) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         for b in self.buttons:
-            if await b.process_callback(c, dialog, data):
+            if await b.process_callback(c, dialog, manager):
                 return True
         return False
