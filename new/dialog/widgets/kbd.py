@@ -97,6 +97,21 @@ class Back(Button):
         await dialog.back(manager)
 
 
+class Cancel(Button):
+    def __init__(self, text: Text = Const("Cancel"), callback_data: str = "cancel",
+                 on_click: Optional[Callable] = None,
+                 when: Union[str, Callable] = None):
+        super().__init__(text, callback_data, self._on_click, when)
+        self.text = text
+        self.callback_data = callback_data
+        self.user_on_click = on_click
+
+    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+        if self.user_on_click:
+            await self.user_on_click(c, dialog, manager)
+        await manager.done()
+
+
 class Uri(Keyboard):
     def __init__(self, text: Text, uri: Text, when: Union[str, Callable, None] = None):
         super().__init__(when)
