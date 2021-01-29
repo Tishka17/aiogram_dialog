@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -69,11 +70,18 @@ dialog1 = Dialog(Window(
 # ----- Dialog 2
 
 async def get_data2(dialog_manager: DialogManager, **kwargs):
-    return {"text": dialog_manager.current_intent().data}
+    return {
+        "text": dialog_manager.current_intent().data,
+        "now": datetime.now().isoformat(),
+    }
 
 
 dialog2 = Dialog(
-    Window(Format("Your text is: {text}"), Cancel(), state=Sub.text, getter=get_data2)
+    Window(
+        Format("Your text is: {text}\nCurrent time: {now}"),
+        Cancel(), state=Sub.text, getter=get_data2,
+        on_message=input_fun
+    )
 )
 
 

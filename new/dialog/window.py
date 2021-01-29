@@ -48,7 +48,10 @@ class Window(WindowProtocol):
         event = manager.event
         if isinstance(event, CallbackQuery):
             if text == event.message.text:
-                return await event.message.edit_reply_markup(reply_markup=kbd)
+                if kbd != event.message.reply_markup:
+                    return await event.message.edit_reply_markup(reply_markup=kbd)
+                else:
+                    return event.message
             else:
                 return await event.message.edit_text(text=text, reply_markup=kbd)
         else:
