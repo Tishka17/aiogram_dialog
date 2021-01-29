@@ -52,14 +52,19 @@ class DialogManager:
 
     async def start(self, state: State, data: Data = None):
         dialog = self.registry.find_dialog(state)
-        intent = self.stack.push(state.state, data)
+        self.stack.push(state.state, data)
         self.context = self.load_context()
         await dialog.start(self)
 
     async def done(self, result: Any = None, intent: Optional[Intent] = None):
         self.stack.pop(intent)
-        dialog = self.dialog()
         self.context.clear()
+        intent = self.current_intent()
+        if intent:
+            self.proxy.state = intent.name
+        else:
+            self.proxy.state = None
+        dialog = self.dialog()
         self.context = self.load_context()
         await dialog.process_result(result, self)
         await dialog.show(self)
@@ -68,8 +73,11 @@ class DialogManager:
         self.context.clear()
         self.stack.pop(intent)
 
+    def current_intent(self) -> Intent:
+        return self.stack.current()
+
     def dialog(self):
-        current = self.stack.current()
+        current = self.current_intent()
         if not current:
             return None
         return self.registry.find_dialog(current.name)

@@ -8,7 +8,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentT
 from dialog.manager.manager import DialogManager
 
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
-DataGetter = Callable[["Dialog", Dict], Awaitable[Dict]]
+DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 

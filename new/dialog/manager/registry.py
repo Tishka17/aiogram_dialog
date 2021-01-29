@@ -21,7 +21,10 @@ class DialogRegistry(BaseMiddleware):
         self._register_middleware()
 
     def register(self, dialog: Dialog, *args, **kwargs):
-        self.dialogs[dialog.states_group_name()] = dialog
+        name = dialog.states_group_name()
+        if name in self.dialogs:
+            raise ValueError(f"StatesGroup `{name}` is already used")
+        self.dialogs[name] = dialog
         dialog.register(self.dp, *args, **kwargs)
 
     def _register_middleware(self):
