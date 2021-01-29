@@ -51,9 +51,6 @@ class DialogContext:
         proxy = await FSMContextProxy.create(state)
         return cls(proxy, dialog_id)
 
-    async def save(self):
-        await self.proxy.save()
-
     def clear(self):
         if DIALOG_CONTEXT in self.proxy:
             if self.dialog_id in self.proxy[DIALOG_CONTEXT]:

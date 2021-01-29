@@ -6,6 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
+from dialog.manager.manager import DialogManager
 from .data import DialogContext
 
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -56,7 +57,8 @@ class Dialog:
     async def context(self, data):
         context = data.get(DIALOG_CONTEXT)
         if not context:
-            context = await DialogContext.create(data["state"], self.states_group_name())
+            manager: DialogManager = data["dialog_manager"]
+            context = DialogContext(manager.proxy, self.states_group_name())
             data[DIALOG_CONTEXT] = context
         return context
 
@@ -73,7 +75,6 @@ class Dialog:
         context = await self.context(data)
         context.state = state
         await self.show(chat_event, data)
-        await context.save()
 
     async def _current_window(self, data) -> Window:
         context = await self.context(data)
@@ -89,13 +90,11 @@ class Dialog:
         context = await self.context(kwargs)
         window = await self._current_window(kwargs)
         await window.process_message(m, self, kwargs)
-        await context.save()
 
     async def _callback_handler(self, c: CallbackQuery, **kwargs):
         context = await self.context(kwargs)
         window = await self._current_window(kwargs)
         await window.process_callback(c, self, kwargs)
-        await context.save()
         await c.answer()
 
     def register(self, dp: Dispatcher, **filters):

@@ -1,4 +1,4 @@
-from typing import Optional, Any, Protocol
+from typing import Optional, Any, Protocol, Dict
 
 from aiogram import Dispatcher
 from aiogram.dispatcher.storage import FSMContextProxy
@@ -15,10 +15,13 @@ class Dialog(Protocol):
     def states_group_name(self) -> str:
         pass
 
-    async def show(self, chat_event: ChatEvent, intent: Intent, data):
+    async def start(self, chat_event: ChatEvent, intent: Intent, data: Dict):
         pass
 
-    async def process_result(self, chat_event: ChatEvent, result: Any, data):
+    async def show(self, chat_event: ChatEvent, intent: Intent, data: Dict):
+        pass
+
+    async def process_result(self, chat_event: ChatEvent, result: Any, data: Dict):
         pass
 
 
@@ -34,10 +37,10 @@ class DialogManager:
         self.registry = registry
         self.event = event
 
-    def start(self, name: str, data: Data, kwargs):
+    def start(self, name: str, data: Data, kwargs: Dict):
         dialog = self.registry.find_dialog(name)
         intent = self.stack.push(name, data)
-        dialog.show(self.event, intent, kwargs)
+        dialog.start(self.event, intent, kwargs)
 
     def done(self, kwargs, result: Any = None, intent: Optional[Intent] = None):
         self.stack.pop(intent)

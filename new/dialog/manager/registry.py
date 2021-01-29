@@ -20,13 +20,14 @@ class DialogRegistry(BaseMiddleware):
         if dialogs is None:
             dialogs = {}
         self.dialogs = dialogs
+        self._register_middleware()
 
     def register(self, dialog: Dialog, *args, **kwargs):
         self.dialogs[dialog.states_group_name()] = dialog
         dialog.register(self.dp, *args, **kwargs)
 
     def _register_middleware(self):
-        pass  # TODO
+        self.dp.setup_middleware(self)
 
     def find_dialog(self, state: str) -> Dialog:
         group, *_ = state.partition(":")
@@ -40,12 +41,12 @@ class DialogRegistry(BaseMiddleware):
             proxy,
             self,
         )
-        data["manager"] = manager
+        data["dialog_manager"] = manager
 
     on_pre_process_callback_query = on_pre_process_message
 
     async def on_post_process_message(self, _, result, data: dict):
-        manager: DialogManager = data.pop("manager")
+        manager: DialogManager = data.pop("dialog_manager")
         await manager.proxy.save()
 
     on_post_process_callback_query = on_post_process_message
