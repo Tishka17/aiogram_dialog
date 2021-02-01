@@ -23,7 +23,7 @@ class Whenable():
     def __init__(self, when: WhenCondition = None):
         if when is None:
             self.condition = true
-        if isinstance(when, str):
+        elif isinstance(when, str):
             self.condition = new_when_field(when)
         else:
             self.condition = when

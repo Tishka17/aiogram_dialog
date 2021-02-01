@@ -14,10 +14,10 @@ ChatEvent = Union[CallbackQuery, Message]
 
 
 class Window(Protocol):
-    async def render_text(self, data) -> str:
+    async def render_text(self, data: Dict, manager: DialogManager) -> str:
         raise NotImplementedError
 
-    async def render_kbd(self, data) -> InlineKeyboardMarkup:
+    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
         raise NotImplementedError
 
     async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
@@ -57,10 +57,10 @@ class Dialog:
     async def start(self, manager: DialogManager):
         new_state = self.states[0]
         await self.switch_to(new_state, manager)
+        await self.show(manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
         manager.context.state = state
-        await self.show(manager)
 
     async def _current_window(self, manager: DialogManager) -> Window:
         return self.windows[manager.context.state]
@@ -73,10 +73,14 @@ class Dialog:
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         window = await self._current_window(dialog_manager)
         await window.process_message(m, self, dialog_manager)
+        if dialog_manager.dialog() is self:
+            await self.show(dialog_manager)
 
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
         window = await self._current_window(dialog_manager)
         await window.process_callback(c, self, dialog_manager)
+        if dialog_manager.dialog() is self:
+            await self.show(dialog_manager)
         await c.answer()
 
     def register(self, dp: Dispatcher, **filters):

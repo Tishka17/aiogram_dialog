@@ -1,4 +1,4 @@
-from typing import Callable, Union, Dict, Any
+from typing import Callable, Union, Dict, Any, Hashable
 
 from .base import Text
 from ..when import WhenCondition
@@ -19,11 +19,11 @@ class Multi(Text):
         return self.sep.join(filter(None, texts))
 
 
-Selector = Callable[[Dict, "Case", DialogManager], bool]
+Selector = Callable[[Dict, "Case", DialogManager], Hashable]
 
 
 def new_case_field(fieldname: str) -> Selector:
-    def case_field(data: Dict, widget: "Case", manager: DialogManager) -> bool:
+    def case_field(data: Dict, widget: "Case", manager: DialogManager) -> Hashable:
         return data.get(fieldname)
 
     return case_field

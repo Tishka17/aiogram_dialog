@@ -11,6 +11,7 @@ from dialog.dialog import Dialog
 from dialog.manager.manager import DialogManager
 from dialog.manager.registry import DialogRegistry
 from dialog.widgets.kbd import Button, Group, Next, Back, Cancel
+from dialog.widgets.kbd.checkbox import Checkbox
 from dialog.widgets.text import Const, Format, Multi
 from dialog.window import Window
 
@@ -46,24 +47,32 @@ async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
 dialog1 = Dialog(Window(
     Multi(
         Const("Hello, {name}!"),
-        Format("Hello, {name}!", when=lambda data: data["age"] > 18),
+        Format("Hello, {name}!", when=lambda data, w, m: data["age"] > 18),
         sep="\n\n",
     ),
     Group(
         Group(
             Button(Format("{name}"), "b1"),
-            Next(),
             Button(Const("Is it Fun?"), "b2", on_click=fun),
+            Checkbox(Const("Yes"), Const("No"), "check", "check"),
             keep_rows=False
         ),
         Button(Const("3. {name}"), "b3"),
-        Group(Next(), Next(), Next(), Next(), width=2, keep_rows=False),
+        Next(),
     ),
     getter=get_data,
     state=Register.hello,
     on_message=input_fun,
 ),
-    Window(Const("oook"), Back(), state=Register.name)
+    Window(Const("Выберите время начала"),
+           Group(
+               Group(*[
+                   Button(Const(f"{h % 24:2}:{m:02}"), f"{h}:{m}")
+                   for h in range(20, 26) for m in range(0, 60, 15)
+               ], keep_rows=False, width=4),
+               Group(Button(Const("Позже"), "ltr"), Button(Const("Раньше"), "erl"), keep_rows=False),
+               Back(Const("Назад")),
+           ), state=Register.name)
 )
 
 

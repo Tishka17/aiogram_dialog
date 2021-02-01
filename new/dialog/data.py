@@ -9,6 +9,8 @@ DIALOG_INTERNAL_CONTEXT = "__AIOGD_ID_CONTEXT"
 
 LAST_MESSAGE_ID = "LAST_MESSAGE_ID"
 
+FORBID = object()
+
 
 class DialogContext:
     def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: StatesGroup):
@@ -39,18 +41,21 @@ class DialogContext:
         g_context = self.proxy[GLOBAL_CONTEXT]
         g_context[LAST_MESSAGE_ID] = last_message_id
 
-    def set_data(self, key: str, value: Any, internal: bool = False):
+    def set_data(self, key: str, value: Any, *, internal: bool = False):
         context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
         self.proxy.setdefault(context_name, {})
         d_context = self.proxy[context_name]
         d_context.setdefault(self.dialog_id, {})
         d_context[self.dialog_id][key] = value
 
-    def data(self, key, internal: bool = False):
+    def data(self, key, default=FORBID, *, internal: bool = False, ):
         context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
         d_context = self.proxy.get(context_name) or {}
         dialog_data = d_context.get(self.dialog_id) or {}
-        return dialog_data[key]
+        if default is FORBID:
+            return dialog_data[key]
+        else:
+            return dialog_data.get(key, default)
 
     def clear(self):
         if DIALOG_CONTEXT in self.proxy:

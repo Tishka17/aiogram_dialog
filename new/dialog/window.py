@@ -20,12 +20,12 @@ class Window(WindowProtocol):
         self.state = state
         self.on_message = on_message
 
-    async def render_text(self, data) -> str:
-        return await self.text.render_text(data)
+    async def render_text(self, data: Dict, manager: DialogManager) -> str:
+        return await self.text.render_text(data, manager)
 
-    async def render_kbd(self, data) -> InlineKeyboardMarkup:
+    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
-            inline_keyboard=await self.kbd.render_kbd(data)
+            inline_keyboard=await self.kbd.render_kbd(data, manager)
         )
 
     async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
@@ -43,8 +43,8 @@ class Window(WindowProtocol):
 
     async def show(self, dialog: Dialog, manager: DialogManager) -> Message:
         current_data = await self.load_data(dialog, manager)
-        text = await self.render_text(current_data)
-        kbd = await self.render_kbd(current_data)
+        text = await self.render_text(current_data, manager)
+        kbd = await self.render_kbd(current_data, manager)
         event = manager.event
         if isinstance(event, CallbackQuery):
             if text == event.message.text:
