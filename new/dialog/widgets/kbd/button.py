@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Union
+from typing import List, Callable, Optional, Union, Dict
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -6,11 +6,12 @@ from dialog.dialog import Dialog
 from dialog.manager.manager import DialogManager
 from dialog.widgets.text import Text
 from .base import Keyboard
+from ..when import WhenCondition
 
 
 class Button(Keyboard):
     def __init__(self, text: Text, callback_data: str, on_click: Optional[Callable] = None,
-                 when: Union[str, Callable] = None):
+                 when: WhenCondition = None):
         super().__init__(when)
         self.text = text
         self.callback_data = callback_data
@@ -23,10 +24,10 @@ class Button(Keyboard):
             await self.on_click(c, dialog, manager)
         return True
 
-    async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
+    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
-                text=await self.text.render_text(data),
+                text=await self.text.render_text(data, manager),
                 callback_data=self.callback_data
             )
         ]]
@@ -38,10 +39,10 @@ class Uri(Keyboard):
         self.text = text
         self.uri = uri
 
-    async def _render_kbd(self, data) -> List[List[InlineKeyboardButton]]:
+    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
-                text=await self.text.render_text(data),
-                uri=await self.uri.render_text(data)
+                text=await self.text.render_text(data, manager),
+                uri=await self.uri.render_text(data, manager)
             )
         ]]
