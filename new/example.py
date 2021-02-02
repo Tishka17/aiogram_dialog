@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
+from operator import itemgetter
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -12,6 +13,7 @@ from dialog.manager.manager import DialogManager
 from dialog.manager.registry import DialogRegistry
 from dialog.widgets.kbd import Button, Group, Next, Back, Cancel
 from dialog.widgets.kbd.checkbox import Checkbox
+from dialog.widgets.kbd.select import Select
 from dialog.widgets.text import Const, Format, Multi
 from dialog.window import Window
 
@@ -44,6 +46,23 @@ async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
     await manager.start(Sub.text, m.text)
 
 
+items = [("One", 1), ("Two", 2), ("Three", 3), ("Four", 4)]
+select = Select(
+    Format("🔘 {item[0]}"), Format("◯ {item[0]}"),
+    "select:",
+    itemgetter(0),
+    items,
+    "select1"
+)
+multiselect = Select(
+    Format("✓ {item[0]}"), Format("{item[0]}"),
+    "mselect:",
+    itemgetter(0),
+    items,
+    "mselect",
+    multiple=True
+)
+
 dialog1 = Dialog(Window(
     Multi(
         Const("Hello, {name}!"),
@@ -57,6 +76,8 @@ dialog1 = Dialog(Window(
             Checkbox(Const("Yes"), Const("No"), "check", "check"),
             keep_rows=False
         ),
+        select,
+        multiselect,
         Button(Const("3. {name}"), "b3"),
         Next(),
     ),
