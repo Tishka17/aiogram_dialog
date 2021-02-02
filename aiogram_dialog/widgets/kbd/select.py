@@ -3,8 +3,8 @@ from typing import Callable, Optional, Union, Dict, Any, List, Awaitable
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from dialog.manager.manager import DialogManager
-from dialog.widgets.text import Text, Case
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.text import Text, Case
 from .base import Keyboard
 from ...dialog import Dialog
 

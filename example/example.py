@@ -8,14 +8,9 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from dialog.dialog import Dialog
-from dialog.manager.manager import DialogManager
-from dialog.manager.registry import DialogRegistry
-from dialog.widgets.kbd import Button, Group, Next, Back, Cancel
-from dialog.widgets.kbd.checkbox import Checkbox
-from dialog.widgets.kbd.select import Select
-from dialog.widgets.text import Const, Format, Multi
-from dialog.window import Window
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
+from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Select
+from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = ""
 

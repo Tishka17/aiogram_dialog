@@ -2,9 +2,9 @@ from typing import List
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
-from dialog.dialog import Dialog
-from dialog.manager.manager import DialogManager
-from dialog.widgets.when import Whenable, WhenCondition
+from aiogram_dialog.dialog import Dialog
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.when import Whenable, WhenCondition
 
 
 class Keyboard(Whenable):

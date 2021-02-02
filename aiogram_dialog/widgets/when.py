@@ -1,6 +1,6 @@
 from typing import Union, Callable, Dict
 
-from dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager
 
 Predicate = Callable[[Dict, "Whenable", DialogManager], bool]
 WhenCondition = Union[str, Predicate, None]

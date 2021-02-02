@@ -3,8 +3,8 @@ from typing import Dict, Callable, Optional
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
-from dialog.widgets.kbd import Keyboard
-from dialog.widgets.text import Text
+from .widgets.kbd import Keyboard
+from .widgets.text import Text
 from .dialog import Dialog, Window as WindowProtocol, DataGetter
 from .manager.manager import DialogManager
 

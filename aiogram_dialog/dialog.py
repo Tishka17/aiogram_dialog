@@ -5,7 +5,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager
 
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]

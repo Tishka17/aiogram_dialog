@@ -2,8 +2,8 @@ from typing import Callable, Optional, Union, Dict, Awaitable
 
 from aiogram.types import CallbackQuery
 
-from dialog.manager.manager import DialogManager
-from dialog.widgets.text import Text, Case
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.text import Text, Case
 from .button import Button
 
 OnStateChanged = Callable[[CallbackQuery, "Checkbox", DialogManager], Awaitable]

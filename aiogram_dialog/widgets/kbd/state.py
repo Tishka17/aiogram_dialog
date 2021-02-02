@@ -3,8 +3,8 @@ from typing import Callable, Optional
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
-from dialog.manager.manager import DialogManager
-from dialog.widgets.text import Text, Const
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.text import Text, Const
 from .button import Button, OnClick
 from ..when import WhenCondition
 
