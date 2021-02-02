@@ -3,17 +3,16 @@ from typing import Callable, Optional
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
-from dialog.dialog import Dialog
 from dialog.manager.manager import DialogManager
 from dialog.widgets.text import Text, Const
-from .button import Button
+from .button import Button, OnClick
 from ..when import WhenCondition
 
 
 class SwitchState(Button):
     def __init__(self, text: Text, callback_data: str,
                  state: State,
-                 on_click: Optional[Callable] = None,
+                 on_click: Optional[OnClick] = None,
                  when: WhenCondition = None):
         super().__init__(text, callback_data, self._on_click, when)
         self.text = text
@@ -21,10 +20,10 @@ class SwitchState(Button):
         self.user_on_click = on_click
         self.state = state.state
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, manager)
-        await dialog.switch_to(self.state, manager)
+            await self.user_on_click(c, self, manager)
+        await manager.dialog().switch_to(self.state, manager)
 
 
 class Next(Button):
@@ -36,10 +35,10 @@ class Next(Button):
         self.callback_data = callback_data
         self.user_on_click = on_click
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, manager)
-        await dialog.next(manager)
+            await self.user_on_click(c, button, manager)
+        await manager.dialog().next(manager)
 
 
 class Back(Button):
@@ -51,10 +50,10 @@ class Back(Button):
         self.callback_data = callback_data
         self.user_on_click = on_click
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, manager)
-        await dialog.back(manager)
+            await self.user_on_click(c, button, manager)
+        await manager.dialog().back(manager)
 
 
 class Cancel(Button):
@@ -66,7 +65,7 @@ class Cancel(Button):
         self.callback_data = callback_data
         self.user_on_click = on_click
 
-    async def _on_click(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, dialog, manager)
+            await self.user_on_click(c, button, manager)
         await manager.done()

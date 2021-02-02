@@ -37,7 +37,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     return {"name": "Tishka17", "age": 19}
 
 
-async def fun(c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
     await c.message.answer("It is fun!")
 
 

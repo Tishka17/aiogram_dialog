@@ -1,5 +1,5 @@
 from operator import itemgetter
-from typing import Callable, Optional, Union, Dict, Any, List
+from typing import Callable, Optional, Union, Dict, Any, List, Awaitable
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -10,7 +10,7 @@ from ...dialog import Dialog
 
 ItemIdGetter = Callable[[Any], str]
 ItemsGetter = Callable[[Dict], List]
-OnStateChanged = Callable[[str, "Select", DialogManager], None]
+OnStateChanged = Callable[[CallbackQuery, str, "Select", DialogManager], Awaitable]
 
 
 def get_identity(items: List) -> ItemsGetter:
@@ -60,7 +60,7 @@ class Select(Keyboard):
         item_id = c.data[len(self.callback_data_prefix):]
         self.set_checked(item_id, not self.is_checked(item_id, manager), manager)
         if self.on_state_changed:
-            self.on_state_changed(item_id, self, manager)
+            await self.on_state_changed(c, item_id, self, manager)
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = self.item_id_getter(data["item"])

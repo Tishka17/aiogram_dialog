@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Union, Dict
+from typing import List, Callable, Optional, Union, Dict, Awaitable
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -8,9 +8,11 @@ from dialog.widgets.text import Text
 from .base import Keyboard
 from ..when import WhenCondition
 
+OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
+
 
 class Button(Keyboard):
-    def __init__(self, text: Text, callback_data: str, on_click: Optional[Callable] = None,
+    def __init__(self, text: Text, callback_data: str, on_click: Optional[OnClick] = None,
                  when: WhenCondition = None):
         super().__init__(when)
         self.text = text
@@ -21,7 +23,7 @@ class Button(Keyboard):
         if c.data != self.callback_data:
             return False
         if self.on_click:
-            await self.on_click(c, dialog, manager)
+            await self.on_click(c, self, manager)
         return True
 
     async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
