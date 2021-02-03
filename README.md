@@ -160,6 +160,9 @@ Base widgets are `Whenable` and `Actionable`.
 All currently implemented texts and keyboards are `Whenable`
 All keyboards are also Actionable.
 
+For picture above we have such widgets:
+
+![window example](doc/resources/layout_example2.png)
 
 ### Text widget types
 
