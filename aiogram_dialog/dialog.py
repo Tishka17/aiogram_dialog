@@ -12,6 +12,7 @@ DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
+OnProcessResult = Callable[[Any, DialogManager], Awaitable]
 
 
 class Window(Protocol):
@@ -41,9 +42,9 @@ class Window(Protocol):
 
 
 class Dialog:
-    def __init__(self, *windows: Window):
+    def __init__(self, *windows: Window, on_process_result: Optional[OnProcessResult] = None):
         self._states_group = windows[0].get_state().group
-        self.states: List[State] =[]
+        self.states: List[State] = []
         for w in windows:
             if w.get_state().group != self._states_group:
                 raise ValueError("All windows must be attached to same StatesGroup")
@@ -51,8 +52,8 @@ class Dialog:
             if state in self.states:
                 raise ValueError(f"Multiple windows with state {state}")
             self.states.append(state)
-
         self.windows: Dict[State, Window] = dict(zip(self.states, windows))
+        self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
         new_state = self.states[self.states.index(manager.context.state) + 1]
@@ -104,7 +105,8 @@ class Dialog:
         return self._states_group.__full_group_name__
 
     async def process_result(self, result: Any, manager: DialogManager):
-        pass
+        if self.on_process_result:
+            await self.on_process_result(result, manager)
 
     def find(self, widget_id) -> Optional[Actionable]:
         for w in self.windows.values():

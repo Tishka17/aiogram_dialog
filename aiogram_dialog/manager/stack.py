@@ -21,7 +21,6 @@ def id_to_str(int_id: int) -> str:
     if not int_id:
         return ID_SYMS[0]
     base = len(ID_SYMS)
-    print(base, int_id)
     res = ""
     while int_id:
         int_id, mod = divmod(int_id, base)
