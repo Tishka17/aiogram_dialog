@@ -24,13 +24,13 @@ UI:
 
 * **Widget** - UI build block, such as text, button or group of elements
 * **Window** - Single message. It consists of one or more widgets
-* **Dialog** - Several windows in a line that share data and cen be switched one to another
+* **Dialog** - Several windows in a line that share data and can be switched one to another
 
 Technical:
 
 * **DialogRegistry** - container of all your dialogs, used to register them in dispatcher
 * **DialogManager** - main class used to manipulate dialogs in runtime
-* **DialogContext** - storage of all your dialog data. Can be accesed via dialog manager instance
+* **DialogContext** - storage of all your dialog data. Can be accessed via dialog manager instance
 
 #### Declaring Window
 
@@ -44,7 +44,7 @@ Each window consists of:
 
 **Info:** always create `State` inside `StatesGroup`
 
-Minimal window is:
+A minimal window is:
 
 ```python
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -87,6 +87,14 @@ Window(
     getter=get_data,
 ),
 ```
+
+More complex window with multiple texts, button groups and selects can look like:
+
+![window example](doc/resources/window_example.png)
+
+And if we draw red border around each widget it will be:
+
+![window example](doc/resources/layout_example.png)
 
 ### Declaring dialog
 
