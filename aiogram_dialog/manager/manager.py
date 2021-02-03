@@ -4,7 +4,6 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery, Message
-from aiogram.utils.exceptions import MessageNotModified
 
 from .intent import Data, Intent
 from .stack import DialogStack
@@ -60,7 +59,8 @@ class DialogManager:
         self.data = data
         self.context = self.load_context()
 
-    async def start(self, state: State, data: Data = None):
+    async def start(self, state: State, data: Data = None, reset_stack: bool = False):
+        # TODO option clear stack
         dialog = self.registry.find_dialog(state)
         self.stack.push(state.state, data)
         self.context = self.load_context()
