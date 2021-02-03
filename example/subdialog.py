@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry
-from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row
+from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -68,10 +68,6 @@ async def get_main_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_enter_name(c: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.start(NameSG.input)
-
-
 async def on_reset_name(c: CallbackQuery, button: Button, manager: DialogManager):
     manager.context.set_data("name", None)
 
@@ -83,7 +79,7 @@ main_menu = Dialog(
             Const("Hello, unknown person", when=lambda data, whenable, manager: not data["name"]),
         ),
         Group(
-            Button(Const("Enter name"), id="set", on_click=on_enter_name),
+            Start(Const("Enter name"), id="set", state=NameSG.input),
             Button(Const("Reset name"), id="reset", on_click=on_reset_name, when="name")
         ),
         MainSG.main,
