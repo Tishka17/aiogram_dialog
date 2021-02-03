@@ -43,11 +43,15 @@ class Window(Protocol):
 class Dialog:
     def __init__(self, *windows: Window):
         self._states_group = windows[0].get_state().group
+        self.states: List[State] =[]
         for w in windows:
             if w.get_state().group != self._states_group:
                 raise ValueError("All windows must be attached to same StatesGroup")
+            state = w.get_state()
+            if state in self.states:
+                raise ValueError(f"Multiple windows with state {state}")
+            self.states.append(state)
 
-        self.states: List[State] = [w.get_state() for w in windows]
         self.windows: Dict[State, Window] = dict(zip(self.states, windows))
 
     async def next(self, manager: DialogManager):
