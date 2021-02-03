@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import FSMContextProxy
@@ -13,13 +13,15 @@ FORBID = object()
 
 
 class DialogContext:
-    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: StatesGroup):
+    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: Optional[StatesGroup]):
         self.proxy = proxy
         self.dialog_id = dialog_id
         self.states_group = states_group
 
     @property
     def state(self) -> State:
+        if not self.states_group:
+            raise ValueError("No states group in current context")
         state = self.proxy.state
         for s in self.states_group.states:
             if s.state == state:

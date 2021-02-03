@@ -2,11 +2,13 @@ from typing import Dict, Callable, Optional
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.utils.exceptions import MessageNotModified
 
-from .widgets.kbd import Keyboard
-from .widgets.text import Text
 from .dialog import Dialog, Window as WindowProtocol, DataGetter
 from .manager.manager import DialogManager
+from .widgets.action import Actionable
+from .widgets.kbd import Keyboard, Row
+from .widgets.text import Text, Const
 
 
 class Window(WindowProtocol):
@@ -14,7 +16,11 @@ class Window(WindowProtocol):
     def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
                  getter: DataGetter = None,
                  on_message: Optional[Callable] = None):
+        if text is None:
+            text = Const("")
         self.text = text
+        if kbd is None:
+            kbd = Row()
         self.kbd = kbd
         self.getter = getter
         self.state = state
@@ -57,9 +63,19 @@ class Window(WindowProtocol):
         else:
             context = manager.context
             if context.last_message_id:
-                await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
+                try:
+                    await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
                                                                   chat_id=manager.event.chat.id)
+                except MessageNotModified:
+                    pass  # nothing to remove
             return await manager.event.answer(text=text, reply_markup=kbd)
 
     def get_state(self) -> State:
         return self.state
+
+    def find(self, widget_id) -> Optional[Actionable]:
+        if self.kbd:
+            return self.kbd.find(widget_id)
+
+    def __repr__(self):
+        return f"<Window(state={self.state})>"

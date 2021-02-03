@@ -1,4 +1,4 @@
-from typing import Dict, Callable, Awaitable, List, Union, Any
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional
 from typing import Protocol
 
 from aiogram import Dispatcher
@@ -6,6 +6,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.action import Actionable
 
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]
@@ -33,6 +34,9 @@ class Window(Protocol):
         raise NotImplementedError
 
     def get_state(self) -> State:
+        raise NotImplementedError
+
+    def find(self, widget_id) -> Optional[Actionable]:
         raise NotImplementedError
 
 
@@ -97,3 +101,9 @@ class Dialog:
 
     async def process_result(self, result: Any, manager: DialogManager):
         pass
+
+    def find(self, widget_id) -> Optional[Actionable]:
+        for w in self.windows.values():
+            widget = w.find(widget_id)
+            if widget:
+                return widget

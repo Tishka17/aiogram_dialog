@@ -12,15 +12,14 @@ OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 
 class Button(Keyboard):
-    def __init__(self, text: Text, callback_data: str, on_click: Optional[OnClick] = None,
+    def __init__(self, text: Text, id: str, on_click: Optional[OnClick] = None,
                  when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(id, when)
         self.text = text
-        self.callback_data = callback_data
         self.on_click = on_click
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
-        if c.data != self.callback_data:
+        if c.data != self.widget_id:
             return False
         if self.on_click:
             await self.on_click(c, self, manager)
@@ -30,7 +29,7 @@ class Button(Keyboard):
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.callback_data
+                callback_data=self.widget_id
             )
         ]]
 

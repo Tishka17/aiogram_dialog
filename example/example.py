@@ -47,14 +47,12 @@ select = Select(
     "select:",
     itemgetter(0),
     items,
-    "select1"
 )
 multiselect = Select(
     Format("✓ {item[0]}"), Format("{item[0]}"),
-    "mselect:",
+    "mselect",
     itemgetter(0),
     items,
-    "mselect",
     multiple=True
 )
 
@@ -68,7 +66,7 @@ dialog1 = Dialog(Window(
         Group(
             Button(Format("{name}"), "b1"),
             Button(Const("Is it Fun?"), "b2", on_click=fun),
-            Checkbox(Const("Yes"), Const("No"), "check", "check"),
+            Checkbox(Const("Yes"), Const("No"), "check"),
             keep_rows=False
         ),
         select,

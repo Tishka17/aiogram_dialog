@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -10,12 +10,22 @@ from ..when import WhenCondition
 
 
 class Group(Keyboard):
-    def __init__(self, *buttons: Keyboard, keep_rows: bool = True, width: int = 0,
+    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, keep_rows: bool = True, width: int = 0,
                  when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(id, when)
         self.buttons = buttons
         self.keep_rows = keep_rows
         self.width = width
+
+    def find(self, widget_id):
+        widget = super(Group, self).find(widget_id)
+        if widget:
+            return widget
+        for btn in self.buttons:
+            widget = btn.find(widget_id)
+            if widget:
+                return widget
+        return None
 
     async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
@@ -48,5 +58,6 @@ class Group(Keyboard):
         return False
 
 
-def Row(*buttons: Keyboard, when: WhenCondition = None):
-    return Group(*buttons, keep_rows=False, when=when)
+class Row(Group):
+    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
+        super().__init__(*buttons, id=id, keep_rows=False, when=when)

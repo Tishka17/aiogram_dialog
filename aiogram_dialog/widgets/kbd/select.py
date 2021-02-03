@@ -22,18 +22,17 @@ def get_identity(items: List) -> ItemsGetter:
 
 class Select(Keyboard):
     def __init__(self, checked_text: Text, unchecked_text: Text,
-                 callback_data_prefix: str,
+                 id: str,
                  item_id_getter: ItemIdGetter,
                  items: Union[str, List],
-                 id: str,
                  multiple: bool = False,
                  on_state_changed: Optional[OnStateChanged] = None,
                  when: Union[str, Callable] = None):
-        super().__init__(when)
+        super().__init__(id, when)
         self.text = Case({True: checked_text, False: unchecked_text}, selector=self._is_text_checked)
         self.widget_id = id
         self.on_state_changed = on_state_changed
-        self.callback_data_prefix = callback_data_prefix
+        self.callback_data_prefix = id + ":"
         self.item_id_getter = item_id_getter
         self.multiple = multiple
         if isinstance(items, str):
@@ -69,15 +68,21 @@ class Select(Keyboard):
     def reset_checked(self, manager: DialogManager):
         manager.context.set_data(self.widget_id, [], internal=True)
 
-    def get_checked(self, manager: DialogManager) -> List[str]:
+    def get_checked(self, manager: DialogManager) -> Optional[str]:
+        data = self.get_multichecked(manager)
+        if not data:
+            return None
+        return data[0]
+
+    def get_multichecked(self, manager: DialogManager) -> List[str]:
         return manager.context.data(self.widget_id, [], internal=True)
 
     def is_checked(self, item_id: str, manager: DialogManager) -> bool:
-        data = self.get_checked(manager)
+        data: List = self.get_multichecked(manager)
         return item_id in data
 
     def set_checked(self, item_id: str, checked: bool, manager: DialogManager) -> None:
-        data: List = self.get_checked(manager)
+        data: List = self.get_multichecked(manager)
         if item_id in data:
             if not checked:
                 data.remove(item_id)

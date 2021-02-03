@@ -18,7 +18,7 @@ class Text(Whenable):
 
 
 class Const(Text):
-    def __init__(self, text: str, when: Union[str, Callable, None] = None):
+    def __init__(self, text: str, when: WhenCondition = None):
         super().__init__(when)
         self.text = text
 
