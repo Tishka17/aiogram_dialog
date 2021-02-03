@@ -26,6 +26,8 @@ class Select(Keyboard):
                  item_id_getter: ItemIdGetter,
                  items: Union[str, List],
                  multiple: bool = False,
+                 min_selected: int = 0,
+                 max_selected: int = 0,
                  on_state_changed: Optional[OnStateChanged] = None,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
@@ -35,6 +37,8 @@ class Select(Keyboard):
         self.callback_data_prefix = id + ":"
         self.item_id_getter = item_id_getter
         self.multiple = multiple
+        self.min_selected = min_selected
+        self.max_selected = max_selected
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
         else:
@@ -85,11 +89,13 @@ class Select(Keyboard):
         data: List = self.get_multichecked(manager)
         if item_id in data:
             if not checked:
-                data.remove(item_id)
+                if len(data) > self.min_selected:
+                    data.remove(item_id)
         else:
             if checked:
                 if self.multiple:
-                    data.append(item_id)
+                    if self.max_selected == 0 or self.max_selected > len(data):
+                        data.append(item_id)
                 else:
                     data = [item_id]
         manager.context.set_data(self.widget_id, data, internal=True)

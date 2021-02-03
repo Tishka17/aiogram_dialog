@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
-from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchState
+from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchState, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -40,6 +40,10 @@ async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
     await manager.done()
 
 
+async def on_age_changed(c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
+    await manager.dialog().next(manager)
+
+
 dialog = Dialog(
     Window(
         text=Const("Greetings! Please, introduce yourself:"),
@@ -50,11 +54,12 @@ dialog = Dialog(
     Window(
         text=Format("{name}! How old are you?"),
         kbd=Select(
-            checked_text=Format("{item}"), unchecked_text=Format("{item}"),
+            checked_text=Format("✓ {item}"), unchecked_text=Format("{item}"),
             items=["0-12", "12-18", "18-25", "25-40", "40+"],
             item_id_getter=lambda x: x,
+            min_selected=1,
             id="w_age",
-            on_state_changed=lambda c, d, w, m: m.dialog().next(m),
+            on_state_changed=on_age_changed,
         ),
         state=DialogSG.age,
         getter=get_data,
@@ -66,8 +71,9 @@ dialog = Dialog(
             sep="\n\n",
         ),
         kbd=Row(
-            Button(Const("Finish"), on_click=on_finish, id="finish"),
+            Back(),
             SwitchState(Const("Restart"), id="restart", state=DialogSG.greeting),
+            Button(Const("Finish"), on_click=on_finish, id="finish"),
         ),
         getter=get_data,
         state=DialogSG.finish,
