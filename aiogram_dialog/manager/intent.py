@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Union, List
 
 Data = Union[Dict, List, int, str, None]
@@ -6,6 +6,6 @@ Data = Union[Dict, List, int, str, None]
 
 @dataclass(frozen=True)
 class Intent:
-    id: str
-    name: str
-    data: Data
+    id: str = field(compare=True)
+    name: str = field(compare=False)
+    data: Data = field(compare=False)

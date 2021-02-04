@@ -1,7 +1,7 @@
 from typing import Dict, Optional, Union
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
 

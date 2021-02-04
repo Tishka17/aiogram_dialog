@@ -12,6 +12,11 @@ LAST_MESSAGE_ID = "LAST_MESSAGE_ID"
 FORBID = object()
 
 
+def reset_dialog_contexts(proxy: FSMContextProxy):
+    proxy.pop(DIALOG_CONTEXT, None)
+    proxy.pop(DIALOG_INTERNAL_CONTEXT, None)
+
+
 class DialogContext:
     def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: Optional[StatesGroup]):
         self.proxy = proxy

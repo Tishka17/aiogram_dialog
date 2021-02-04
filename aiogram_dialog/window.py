@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Dict, Callable, Optional
 
 from aiogram.dispatcher.filters.state import State
@@ -9,6 +10,8 @@ from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
 from .widgets.text import Text, Const
+
+logger = getLogger(__name__)
 
 
 class Window(WindowProtocol):
@@ -50,6 +53,7 @@ class Window(WindowProtocol):
             await self.kbd.process_callback(c, dialog, manager)
 
     async def show(self, dialog: Dialog, manager: DialogManager) -> Message:
+        logger.debug("Show window: %s", self)
         current_data = await self.load_data(dialog, manager)
         text = await self.render_text(current_data, manager)
         kbd = await self.render_kbd(current_data, manager)
@@ -80,4 +84,4 @@ class Window(WindowProtocol):
             return self.kbd.find(widget_id)
 
     def __repr__(self):
-        return f"<Window(state={self.state})>"
+        return f"<{self.__class__.__qualname__}({self.state})>"

@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional
 from typing import Protocol
 
@@ -8,6 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentT
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.action import Actionable
 
+logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]
 
@@ -63,9 +65,11 @@ class Dialog:
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def start(self, manager: DialogManager):
-        new_state = self.states[0]
-        await self.switch_to(new_state, manager)
+    async def start(self, manager: DialogManager, state: Optional[State] = None):
+        if state is None:
+            state = self.states[0]
+        logger.debug("Dialog start: %s (%s)", state, self)
+        await self.switch_to(state, manager)
         await self.show(manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
@@ -75,20 +79,23 @@ class Dialog:
         return self.windows[manager.context.state]
 
     async def show(self, manager: DialogManager):
+        logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
         message = await window.show(self, manager)
         manager.context.last_message_id = message.message_id
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
+        intent = dialog_manager.current_intent()
         window = await self._current_window(dialog_manager)
         await window.process_message(m, self, dialog_manager)
-        if dialog_manager.dialog() is self:
+        if dialog_manager.current_intent() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
+        intent = dialog_manager.current_intent()
         window = await self._current_window(dialog_manager)
         await window.process_callback(c, self, dialog_manager)
-        if dialog_manager.dialog() is self:
+        if dialog_manager.current_intent() == intent:  # no new dialog started
             await self.show(dialog_manager)
         await c.answer()
 
@@ -113,3 +120,6 @@ class Dialog:
             widget = w.find(widget_id)
             if widget:
                 return widget
+
+    def __repr__(self):
+        return f"<{self.__class__.__qualname__}({self.states_group()})>"

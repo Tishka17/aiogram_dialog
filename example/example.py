@@ -111,19 +111,20 @@ dialog2 = Dialog(
 # --------------
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(Register.hello)
+    await dialog_manager.start(Register.hello, reset_stack=True)
 
 
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("aiogram_dialog").setLevel(logging.DEBUG)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
     registry = DialogRegistry(dp)
+    dp.register_message_handler(start, text="/start", state="*")
     registry.register(dialog1)
     registry.register(dialog2)
-    dp.register_message_handler(start, text="/start", state="*")
 
     await dp.start_polling()
 

@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery, Message
 
 from .intent import Data, Intent
 from .stack import DialogStack
-from ..data import DialogContext
+from ..data import DialogContext, reset_dialog_contexts
 
 ChatEvent = Union[CallbackQuery, Message]
 
@@ -22,7 +22,7 @@ class Dialog(Protocol):
     def states_group(self) -> StatesGroup:
         pass
 
-    async def start(self, manager: "DialogManager"):
+    async def start(self, manager: "DialogManager", state: Optional[State] = None):
         pass
 
     async def show(self, manager: "DialogManager"):
@@ -43,7 +43,8 @@ async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
     else:
         stub_context = DialogContext(proxy, "", None)
         last_message_id = stub_context.last_message_id
-        await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
+        if last_message_id:
+            await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
 
 
 class DialogManager:
@@ -60,11 +61,13 @@ class DialogManager:
         self.context = self.load_context()
 
     async def start(self, state: State, data: Data = None, reset_stack: bool = False):
-        # TODO option clear stack
+        if reset_stack:
+            await remove_kbd_safe(self.event, self.proxy)
+            reset_dialog_contexts(self.proxy)
         dialog = self.registry.find_dialog(state)
         self.stack.push(state.state, data)
         self.context = self.load_context()
-        await dialog.start(self)
+        await dialog.start(self, state)
 
     async def done(self, result: Any = None, intent: Optional[Intent] = None):
         self.stack.pop(intent)
