@@ -1,16 +1,11 @@
-from .dialog import Dialog, SimpleDialog
-from .step import DataStep, Step, StateStep
-from .texts import DialogTexts
-from .exceptions import StateBrokenError
-from .resumer import DialogResumer
+from .dialog import Dialog
+from .manager.manager import DialogManager
+from .manager.registry import DialogRegistry
+from .window import Window
 
 __all__ = [
     "Dialog",
-    "DataStep",
-    "Step",
-    "SimpleDialog",
-    "StateStep",
-    "DialogTexts",
-    "StateBrokenError",
-    "DialogResumer",
+    "DialogManager",
+    "DialogRegistry",
+    "Window",
 ]

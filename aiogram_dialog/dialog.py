@@ -1,362 +1,125 @@
 from logging import getLogger
-from typing import Dict, Optional, Union
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional
+from typing import Protocol
 
 from aiogram import Dispatcher
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, ContentTypes
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from .data import DialogData
-from .exceptions import StateBrokenError
-from .step import Step
-from .texts import DialogTexts
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.widgets.action import Actionable
 
 logger = getLogger(__name__)
+DIALOG_CONTEXT = "DIALOG_CONTEXT"
+DataGetter = Callable[..., Awaitable[Dict]]
+
+ChatEvent = Union[CallbackQuery, Message]
+OnProcessResult = Callable[[Any, DialogManager], Awaitable]
+
+
+class Window(Protocol):
+    async def render_text(self, data: Dict, manager: DialogManager) -> str:
+        raise NotImplementedError
+
+    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
+        raise NotImplementedError
+
+    async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
+        raise NotImplementedError
+
+    async def process_message(self, m: Message, dialog: "Dialog", manager: DialogManager):
+        raise NotImplementedError
+
+    async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
+        raise NotImplementedError
+
+    async def show(self, dialog: "Dialog", manager: DialogManager) -> Message:
+        raise NotImplementedError
+
+    def get_state(self) -> State:
+        raise NotImplementedError
+
+    def find(self, widget_id) -> Optional[Actionable]:
+        raise NotImplementedError
 
 
 class Dialog:
-    def __init__(
-            self,
-            steps: Dict[State, Step],
-            can_cancel: bool = True,
-            can_back: bool = True,
-            can_done: bool = False,
-            can_skip: bool = False,
-            internal_callback_prefix: str = "",
-            dialog_field: str = "",
-            texts: Optional[DialogTexts] = None,
+    def __init__(self, *windows: Window, on_process_result: Optional[OnProcessResult] = None):
+        self._states_group = windows[0].get_state().group
+        self.states: List[State] = []
+        for w in windows:
+            if w.get_state().group != self._states_group:
+                raise ValueError("All windows must be attached to same StatesGroup")
+            state = w.get_state()
+            if state in self.states:
+                raise ValueError(f"Multiple windows with state {state}")
+            self.states.append(state)
+        self.windows: Dict[State, Window] = dict(zip(self.states, windows))
+        self.on_process_result = on_process_result
 
-    ):
-        self.steps = {
-            (s and s.state): step for s, step in steps.items()
-        }
-        self.states = list(self.steps)
+    async def next(self, manager: DialogManager):
+        new_state = self.states[self.states.index(manager.context.state) + 1]
+        await self.switch_to(new_state, manager)
 
-        self.dialog_field = dialog_field
+    async def back(self, manager: DialogManager):
+        new_state = self.states[self.states.index(manager.context.state) - 1]
+        await self.switch_to(new_state, manager)
 
-        self.cancel_cd = internal_callback_prefix + "[cancel]"
-        self.done_cd = internal_callback_prefix + "[done]"
-        self.back_cd = internal_callback_prefix + "[back]"
-        self.skip_cd = internal_callback_prefix + "[skip]"
+    async def start(self, manager: DialogManager, state: Optional[State] = None):
+        if state is None:
+            state = self.states[0]
+        logger.debug("Dialog start: %s (%s)", state, self)
+        await self.switch_to(state, manager)
+        await self.show(manager)
 
-        self._can_cancel = can_cancel
-        self._can_back = can_back
-        self._can_done = can_done
-        self._can_skip = can_skip
+    async def switch_to(self, state: State, manager: DialogManager):
+        manager.context.state = state
 
-        self.finished_callbacks = []
-        self.done_callbacks = []
-        self.cancel_callbacks = []
-        self.texts = texts or DialogTexts()
+    async def _current_window(self, manager: DialogManager) -> Window:
+        return self.windows[manager.context.state]
 
-    def can_cancel(self, step: Optional[Step]) -> bool:
-        if not step:
-            return self._can_cancel
-        return self._can_cancel and step.can_cancel()
+    async def show(self, manager: DialogManager):
+        logger.debug("Dialog show (%s)", self)
+        window = await self._current_window(manager)
+        message = await window.show(self, manager)
+        manager.context.last_message_id = message.message_id
 
-    def can_back(self, state: str, step: Optional[Step]) -> bool:
-        if not step:
-            return False
-        if self.states.index(state) < 1:
-            return False
-        return self._can_back and step.can_back()
+    async def _message_handler(self, m: Message, dialog_manager: DialogManager):
+        intent = dialog_manager.current_intent()
+        window = await self._current_window(dialog_manager)
+        await window.process_message(m, self, dialog_manager)
+        if dialog_manager.current_intent() == intent:  # no new dialog started
+            await self.show(dialog_manager)
 
-    def can_done(self, step: Optional[Step]) -> bool:
-        if not step:
-            return self._can_done
-        return self._can_done and step.can_done()
-
-    def can_skip(self, step: Optional[Step]) -> bool:
-        if not step:
-            return self._can_skip
-        return self._can_skip and step.can_skip()
-
-    def add_finished_callback(self, callback):
-        self.finished_callbacks.append(callback)
-
-    def add_done_callback(self, callback):
-        self.done_callbacks.append(callback)
-
-    def add_cancel_callback(self, callback):
-        self.cancel_callbacks.append(callback)
-
-    async def on_done(self, m: Message, dialog_data: Dict, *args, **kwargs):
-        pass
-
-    async def done(self, m: Message, dialog_data: DialogData, args, kwargs):
-        data = await dialog_data.data()
-        await self._do_finish(m, dialog_data)
-        await self.on_done(m, dialog_data=data, *args, **kwargs)
-        for c in self.done_callbacks:
-            await c(m, dialog_data=data, *args, **kwargs)
-        await self._notify_finish(m, args, kwargs)
-
-    async def on_cancel(self, m: Message, *args, **kwargs):
-        pass
-
-    async def cancel(self, m: Message, dialog_data: DialogData, args, kwargs):
-        await self._do_finish(m, dialog_data)
-        await self.on_cancel(m, *args, **kwargs)
-        for c in self.cancel_callbacks:
-            await c(m, *args, **kwargs)
-        await self._notify_finish(m, args, kwargs)
-
-    async def on_finish(self, m: Message, *args, **kwargs):
-        pass
-
-    async def _do_finish(self, m: Message, dialog_data: DialogData):
-        oldmsg_id = await dialog_data.message_id()
-        if oldmsg_id:
-            try:
-                await m.bot.edit_message_reply_markup(chat_id=m.chat.id, message_id=oldmsg_id)
-            except MessageNotModified:
-                pass
-        await dialog_data.reset()
-
-    async def _notify_finish(self, m: Message, args, kwargs):
-        await self.on_finish(m, *args, **kwargs)
-        for c in self.finished_callbacks:
-            await c(m, *args, **kwargs)
-
-    async def on_start(self, m: Message, *args, **kwargs):
-        pass
-
-    async def start(self, m: Message, state: FSMContext, dialog_data: Optional = None, next_state: str = NotImplemented,
-                    *args, **kwargs):
-        real_dialog_data = DialogData(self.dialog_field, state)
-        real_dialog_data.update(dialog_data)
-        await real_dialog_data.set_old_state()
-        await self.on_start(m, *args, **kwargs)
-        if next_state is NotImplemented:
-            next_state = self.next_step(None)
-        await self.switch_step(m, real_dialog_data, None, next_state, self.steps[next_state], False, args, kwargs)
-        await real_dialog_data.commit()
-
-    async def on_back(self, m: Message, *args, **kwargs):
-        pass
-
-    async def back(self, c: CallbackQuery, dialog_data: DialogData, args, kwargs):
-        current_state = await dialog_data.state.get_state()
-        current_step: Step = self.steps[current_state]
-        await self.on_back(c.message, *args, **kwargs)
-        if current_step:
-            del dialog_data[current_step.field()]
-        prev_state = current_step.back
-        if prev_state is NotImplemented:
-            prev_state = self.states[self.states.index(current_state) - 1]
-        prev_step = self.steps[prev_state]
-        await self.switch_step(c.message, dialog_data, None, prev_state, prev_step, True, args, kwargs)
-        await dialog_data.commit()
-
-    async def on_next(self, m: Message, *args, **kwargs):
-        pass
-
-    async def next(self, current_state: str, m: Message, dialog_data: DialogData, edit: bool,
-                   error: Optional[Exception], next_state: Union[str, "Dialog", None],
-                   args, kwargs):
-        await self.on_next(m, args, kwargs)
-        if isinstance(next_state, State):
-            next_state = next_state.state
-        if next_state is NotImplemented:
-            next_state = self.next_step(current_state)
-        if isinstance(next_state, Dialog):
-            await self.switch_dialog(m, dialog_data, next_state, args, kwargs)
-            return
-
-        if not next_state:
-            await self.done(m, dialog_data, args, kwargs)
-        else:
-            await self.switch_step(m, dialog_data, error, next_state, self.steps[next_state], edit, args, kwargs)
-
-    async def get_kbd(self, current_state: str, current_step: Step, current_data: Dict, args, kwargs):
-        kbd = await current_step.render_kbd(current_data, *args, **kwargs)
-        if not kbd:
-            kbd = InlineKeyboardMarkup()
-        steps_row = []
-        if self.can_back(current_state, current_step):
-            steps_row.append(InlineKeyboardButton(text=self.texts.back, callback_data=self.back_cd))
-        if self.can_skip(current_step):
-            steps_row.append(InlineKeyboardButton(text=self.texts.skip, callback_data=self.skip_cd))
-        if steps_row:
-            kbd.row(*steps_row)
-        finish_row = []
-        if self.can_cancel(current_step):
-            finish_row.append(InlineKeyboardButton(text=self.texts.cancel, callback_data=self.cancel_cd))
-        if self.can_done(current_step):
-            finish_row.append(InlineKeyboardButton(text=self.texts.done, callback_data=self.done_cd))
-        if finish_row:
-            kbd.row(*finish_row)
-        return kbd
-
-    def next_step(self, current_state: Optional[str]) -> Optional[str]:
-        if not current_state:
-            return self.states[0]
-        try:
-            return self.states[self.states.index(current_state) + 1]
-        except IndexError:
-            return
-
-    async def handle_message(self, m: Message, *args, **kwargs):
-        state: FSMContext = kwargs["state"]
-        dialog_data = DialogData(self.dialog_field, state)
-        current_state = await state.get_state()
-        step: Step = self.steps.get(current_state)
-        if not step:
-            logger.error("Not step found for current state `%s`. Probably steps changed after registration",
-                         current_state)
-            raise StateBrokenError(f"No step found for state {current_state}")
-
-        data = await dialog_data.data()
-        try:
-            value, next_state = await step.process_message(m, data, *args, **kwargs)
-            dialog_data[step.field()] = value
-            error = None
-        except ValueError as e:
-            next_state = current_state
-            error = e
-
-        edit = (next_state == current_state)  # if step did not changed only edit message
-        await self.next(current_state, m, dialog_data, edit, error, next_state, args, kwargs)
-        await dialog_data.commit()
-
-    async def handle_callback(self, c: CallbackQuery, *args, **kwargs):
-        state: FSMContext = kwargs["state"]
-        dialog_data = DialogData(self.dialog_field, state)
-        current_state = await state.get_state()
-
-        if c.data == self.done_cd:
-            await self.done(c.message, dialog_data, args, kwargs)
-            await c.answer()
-            return
-        elif c.data == self.back_cd:
-            await self.back(c, dialog_data, args, kwargs)
-            await c.answer()
-            return
-        elif c.data == self.skip_cd:
-            await self.next(current_state, c.message, dialog_data, True, None, NotImplemented, args, kwargs)
-            await c.answer()
-            return
-        elif c.data == self.cancel_cd:
-            await self.cancel(c.message, dialog_data, args, kwargs)
-            await c.answer()
-            return
-
-        step = self.steps.get(current_state)
-        if not step:
-            logger.error("Not step found for current state `%s`. Probably steps changed after registration",
-                         current_state)
-            raise StateBrokenError(f"No step found for state {current_state}")
-
-        data = await dialog_data.data()
-        try:
-            value, next_state = await step.process_callback(c, data, *args, **kwargs)
-            dialog_data[step.field()] = value
-            error = None
-        except ValueError as e:
-            next_state = current_state
-            error = e
-
-        await self.next(current_state, c.message, dialog_data, True, error, next_state, args, kwargs)
+    async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
+        intent = dialog_manager.current_intent()
+        window = await self._current_window(dialog_manager)
+        await window.process_callback(c, self, dialog_manager)
+        if dialog_manager.current_intent() == intent:  # no new dialog started
+            await self.show(dialog_manager)
         await c.answer()
-        await dialog_data.commit()
 
-    async def switch_step(self,
-                          message: Message,
-                          dialog_data: DialogData,
-                          error: Optional[Exception],
-                          next_state: str,
-                          next_step: Step,
-                          edit: bool,
-                          args, kwargs):
-        oldmsg_id = await dialog_data.message_id()
-        data = await dialog_data.data()
-        new_text = await next_step.render_text(data, error, *args, **kwargs)
-        if edit and oldmsg_id:
-            if message.text != new_text:
-                await message.bot.edit_message_text(
-                    chat_id=message.chat.id, message_id=oldmsg_id,
-                    text=new_text
-                )
-            try:
-                await message.bot.edit_message_reply_markup(
-                    chat_id=message.chat.id, message_id=oldmsg_id,
-                    reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs)
-                )
-            except MessageNotModified:
-                pass
-        else:
-            if oldmsg_id:
-                try:
-                    await message.bot.edit_message_reply_markup(
-                        chat_id=message.chat.id,
-                        message_id=oldmsg_id
-                    )
-                except MessageNotModified:
-                    pass
-            newmsg = await message.answer(
-                text=new_text,
-                reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
-            )
-            dialog_data.set_message_id(newmsg.message_id)
-        await dialog_data.state.set_state(next_state)
+    def register(self, dp: Dispatcher, **filters):
+        dp.register_callback_query_handler(self._callback_handler, state=self.states, **filters)
+        if "content_types" not in filters:
+            filters["content_types"] = ContentTypes.ANY
+        dp.register_message_handler(self._message_handler, state=self.states, **filters)
 
-    async def switch_dialog(self, message: Message, dialog_data: DialogData, dialog: "Dialog", args, kwargs):
-        oldmsg_id = await dialog_data.message_id()
-        if oldmsg_id:
-            try:
-                await message.bot.edit_message_reply_markup(
-                    chat_id=message.chat.id, message_id=oldmsg_id
-                )
-            except MessageNotModified:
-                pass
-        await self.start_dialog(message, dialog_data, dialog, args, kwargs)
+    def states_group(self) -> StatesGroup:
+        return self._states_group
 
-    async def start_dialog(self, m: Message, dialog_data: DialogData, dialog: "Dialog", args, kwargs):
-        await dialog.start(m, *args, **kwargs)
+    def states_group_name(self) -> str:
+        return self._states_group.__full_group_name__
 
-    async def on_resume(self, m: Message, *args, **kwargs):
-        pass
+    async def process_result(self, result: Any, manager: DialogManager):
+        if self.on_process_result:
+            await self.on_process_result(result, manager)
 
-    async def resume(self, message: Message, *args, **kwargs) -> bool:
-        state: FSMContext = kwargs["state"]
-        dialog_data = DialogData(self.dialog_field, state)
+    def find(self, widget_id) -> Optional[Actionable]:
+        for w in self.windows.values():
+            widget = w.find(widget_id)
+            if widget:
+                return widget
 
-        data = await dialog_data.data()
-        next_state = await state.get_state()
-        if next_state not in self.steps:
-            return False
-        next_step = self.steps[next_state]
-        if not next_step:
-            print("!!!!!! No step")
-
-        await self.on_resume(message, *args, **kwargs)
-
-        newmsg = await message.answer(
-            text=await next_step.render_text(data, None, *args, **kwargs),
-            reply_markup=await self.get_kbd(next_state, next_step, data, args, kwargs),
-        )
-        dialog_data.set_message_id(newmsg.message_id)
-        await dialog_data.commit()
-        return True
-
-    def register_handler(self, dp: Dispatcher, *args, **kwargs):
-        dp.register_message_handler(self.handle_message,
-                                    state=self.states, content_types=ContentTypes.ANY,
-                                    *args, **kwargs)
-        dp.register_callback_query_handler(self.handle_callback, state=self.states, *args, **kwargs)
-
-
-class SimpleDialog(Dialog):
-    def __init__(self, state: State, step: Step, can_cancel: bool = True,
-                 internal_callback_prefix: str = "",
-                 dialog_field: str = ""):
-        super().__init__(
-            steps={state: step},
-            can_skip=False,
-            can_done=False,
-            can_cancel=can_cancel,
-            can_back=False,
-            dialog_field=dialog_field,
-            internal_callback_prefix=internal_callback_prefix,
-        )
+    def __repr__(self):
+        return f"<{self.__class__.__qualname__}({self.states_group()})>"

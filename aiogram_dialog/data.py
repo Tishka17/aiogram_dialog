@@ -1,105 +1,73 @@
-from typing import Optional, Union, Dict
+from typing import Any, Optional
 
-from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.storage import FSMContextProxy
 
-NOT_FILLED = object()
+GLOBAL_CONTEXT = "__AIOGD_G_CONTEXT"
+DIALOG_CONTEXT = "__AIOGD_D_CONTEXT"
+DIALOG_INTERNAL_CONTEXT = "__AIOGD_ID_CONTEXT"
+
+LAST_MESSAGE_ID = "LAST_MESSAGE_ID"
+
+FORBID = object()
 
 
-class DialogData:
-    STATE_FIELD = "old_state"
-    MSG_FIELD = "last_message"
-    DATA_FIELD = "data"
+def reset_dialog_contexts(proxy: FSMContextProxy):
+    proxy.pop(DIALOG_CONTEXT, None)
+    proxy.pop(DIALOG_INTERNAL_CONTEXT, None)
 
-    def __init__(self, dialog_field: Optional[str], state: FSMContext):
-        self.dialog_field = dialog_field
-        self.state = state
-        self.field_changes = {}
-        self.field_deletes = set()
-        self.changes = {}
-        self._data: Union[Dict, NOT_FILLED] = NOT_FILLED  # cache of field data
 
-    def _dialog_data(self, data):
-        if not self.dialog_field:
-            return data
-        field_data = data.get(self.dialog_field)
-        if not field_data:
-            field_data = {}
-            data[self.dialog_field] = field_data
-        return field_data
+class DialogContext:
+    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: Optional[StatesGroup]):
+        self.proxy = proxy
+        self.dialog_id = dialog_id
+        self.states_group = states_group
 
-    async def set_old_state(self):
-        self.changes[self.STATE_FIELD] = await self.state.get_state()
+    @property
+    def state(self) -> State:
+        if not self.states_group:
+            raise ValueError("No states group in current context")
+        state = self.proxy.state
+        for s in self.states_group.states:
+            if s.state == state:
+                return s
+        raise ValueError("Unknown state `%s`" % state)
 
-    async def old_state(self) -> Optional[str]:
-        data = await self.state.get_data()
-        return self._dialog_data(data).get(self.STATE_FIELD)
+    @state.setter
+    def state(self, state: State):
+        self.proxy.state = state.state
 
-    def set_message_id(self, msg_id: int):
-        self.changes[self.MSG_FIELD] = msg_id
+    @property
+    def last_message_id(self) -> int:
+        gcontext = self.proxy.get(GLOBAL_CONTEXT) or {}
+        return gcontext.get(LAST_MESSAGE_ID)
 
-    async def message_id(self) -> Optional[int]:
-        data = await self.state.get_data()
-        return self._dialog_data(data).get(self.MSG_FIELD)
+    @last_message_id.setter
+    def last_message_id(self, last_message_id: int):
+        self.proxy.setdefault(GLOBAL_CONTEXT, {})
+        g_context = self.proxy[GLOBAL_CONTEXT]
+        g_context[LAST_MESSAGE_ID] = last_message_id
 
-    def update(self, data):
-        if data:
-            self.field_changes.update(data)
+    def set_data(self, key: str, value: Any, *, internal: bool = False):
+        context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
+        self.proxy.setdefault(context_name, {})
+        d_context = self.proxy[context_name]
+        d_context.setdefault(self.dialog_id, {})
+        d_context[self.dialog_id][key] = value
 
-    def __setitem__(self, key, value):
-        if not key:
-            return
-        self.field_changes[key] = value
-        if self._data not in (None, NOT_FILLED):
-            self._data[key] = value
-        self.field_deletes.discard(key)
-
-    def __delitem__(self, key):
-        if not key:
-            return
-        if self._data not in (None, NOT_FILLED):
-            self._data.pop(key, None)
-        self.field_changes.pop(key, None)
-        self.field_deletes.add(key)
-
-    async def reset(self):
-        async with self.state.proxy() as data:
-            dialog_data = self._dialog_data(data)
-            old_state = dialog_data.get(self.STATE_FIELD)
-            if self.dialog_field:
-                del data[self.dialog_field]
-            else:
-                data.clear()
-        await self.state.set_state(old_state)
-        self.changes = {}
-        self.field_changes = {}
-
-    async def commit(self):
-        if not self.changes and not self.field_changes and not self.field_deletes:
-            return
-        async with self.state.proxy() as state_data:
-            data = self._dialog_data(state_data)
-            data.update(self.changes)
-            field_data = data.get(self.DATA_FIELD)
-            if self.field_changes:
-                if not field_data:
-                    data[self.DATA_FIELD] = self.field_changes
-                else:
-                    field_data.update(self.field_changes)
-            if self.field_deletes and field_data:
-                field_data = data.get(self.DATA_FIELD)
-                for field in self.field_deletes:
-                    field_data.pop(field, None)
-        self.changes = {}
-        self.field_changes = {}
-        self.field_deletes = set()
-
-    async def data(self, force: bool = False):
-        if not force and self._data != NOT_FILLED:
-            result = self._data
+    def data(self, key, default=FORBID, *, internal: bool = False, ):
+        context_name = DIALOG_INTERNAL_CONTEXT if internal else DIALOG_CONTEXT
+        d_context = self.proxy.get(context_name) or {}
+        dialog_data = d_context.get(self.dialog_id) or {}
+        if default is FORBID:
+            return dialog_data[key]
         else:
-            async with self.state.proxy() as data:
-                data = self._dialog_data(data)
-                result = data.get(self.DATA_FIELD) or {}
-        result.update(self.field_changes)
-        self._data = result
-        return self._data
+            return dialog_data.get(key, default)
+
+    def clear(self):
+        if DIALOG_CONTEXT in self.proxy:
+            if self.dialog_id in self.proxy[DIALOG_CONTEXT]:
+                del self.proxy[DIALOG_CONTEXT][self.dialog_id]
+        if DIALOG_INTERNAL_CONTEXT in self.proxy:
+            if self.dialog_id in self.proxy[DIALOG_INTERNAL_CONTEXT]:
+                del self.proxy[DIALOG_INTERNAL_CONTEXT][self.dialog_id]

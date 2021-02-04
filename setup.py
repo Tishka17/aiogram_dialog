@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
+  #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from os import path
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 this_directory = path.abspath(path.dirname(__file__))
 
@@ -10,7 +10,7 @@ this_directory = path.abspath(path.dirname(__file__))
 setup(
     name='aiogram_dialog',
     description='Mini-framework for dialogs on top of aiogram',
-    version='0.1',
+    version='0.2',
     url='https://github.com/tishka17/aiogram_dialog',
     author='A. Tikhonov',
     author_email='17@itishka.org',
@@ -21,7 +21,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3'
     ],
-    packages=['aiogram_dialog'],
+    packages=find_packages(include=['aiogram_dialog']),
     install_requires=[
         'aiogram<3',
     ],
