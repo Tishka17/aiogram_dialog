@@ -1,7 +1,7 @@
 from typing import Dict, Callable, Optional
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 from aiogram.utils.exceptions import MessageNotModified
 
 from .dialog import Dialog, Window as WindowProtocol, DataGetter
@@ -15,7 +15,8 @@ class Window(WindowProtocol):
 
     def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
                  getter: DataGetter = None,
-                 on_message: Optional[Callable] = None):
+                 on_message: Optional[Callable] = None,
+                 parse_mode: ParseMode = None):
         if text is None:
             text = Const("")
         self.text = text
@@ -25,6 +26,7 @@ class Window(WindowProtocol):
         self.getter = getter
         self.state = state
         self.on_message = on_message
+        self.parse_mode = parse_mode
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)
@@ -59,16 +61,16 @@ class Window(WindowProtocol):
                 else:
                     return event.message
             else:
-                return await event.message.edit_text(text=text, reply_markup=kbd)
+                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
         else:
             context = manager.context
             if context.last_message_id:
                 try:
                     await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
-                                                                  chat_id=manager.event.chat.id)
+                                                                      chat_id=manager.event.chat.id)
                 except MessageNotModified:
                     pass  # nothing to remove
-            return await manager.event.answer(text=text, reply_markup=kbd)
+            return await manager.event.answer(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
 
     def get_state(self) -> State:
         return self.state
