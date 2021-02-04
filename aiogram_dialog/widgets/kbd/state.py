@@ -73,13 +73,15 @@ class Start(Button):
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,
+                 reset_stack: bool = False,
                  when: WhenCondition = None):
         super().__init__(text, id, self._on_click, when)
         self.text = text
         self.user_on_click = on_click
         self.state = state
+        self.reset_stack = reset_stack
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.start(self.state)
+        await manager.start(self.state, reset_stack=self.reset_stack)
