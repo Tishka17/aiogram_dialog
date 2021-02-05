@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type
 from typing import Protocol
 
 from aiogram import Dispatcher
@@ -44,8 +44,15 @@ class Window(Protocol):
 
 
 class Dialog:
-    def __init__(self, *windows: Window, on_process_result: Optional[OnProcessResult] = None):
-        self._states_group = windows[0].get_state().group
+    def __init__(self, *windows: Window, on_process_result: Optional[OnProcessResult] = None,
+                 states_group: Optional[Type[StatesGroup]] = None):
+        """
+
+        :param windows:
+        :param on_process_result:
+        :param states_group: only pass it here if you don't pass any window
+        """
+        self._states_group = states_group or windows[0].get_state().group
         self.states: List[State] = []
         self.windows: Dict[State, Window] = {}
         self.states_by_windows: Dict[Window, State] = {}
