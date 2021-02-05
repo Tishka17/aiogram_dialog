@@ -55,6 +55,7 @@ class Dialog:
                 raise ValueError(f"Multiple windows with state {state}")
             self.states.append(state)
         self.windows: Dict[State, Window] = dict(zip(self.states, windows))
+        self.states_by_windows: Dict[Window, State] = dict(zip(windows, self.states))
         self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
@@ -71,6 +72,9 @@ class Dialog:
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
         await self.show(manager)
+
+    async def switch_to_window(self, window: Window, manager: DialogManager):
+        manager.context.state = self.states_by_windows[window]
 
     async def switch_to(self, state: State, manager: DialogManager):
         manager.context.state = state

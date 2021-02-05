@@ -7,6 +7,7 @@ from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Const
 from .button import Button, OnClick
 from ..when import WhenCondition
+from ...dialog import Window
 
 
 class SwitchState(Button):
@@ -23,6 +24,22 @@ class SwitchState(Button):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
         await manager.dialog().switch_to(self.state, manager)
+
+
+class SwitchWindow(Button):
+    def __init__(self, text: Text, id: str,
+                 window: Window,
+                 on_click: Optional[OnClick] = None,
+                 when: WhenCondition = None):
+        super().__init__(text, id, self._on_click, when)
+        self.text = text
+        self.user_on_click = on_click
+        self.window = window
+
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
+        if self.user_on_click:
+            await self.user_on_click(c, self, manager)
+        await manager.dialog().switch_to_window(self.window, manager)
 
 
 class Next(Button):
