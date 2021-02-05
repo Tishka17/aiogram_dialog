@@ -182,6 +182,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Row` - simplified version of group. All buttons placed in single row. 
 * `Uri` - single inline button with uri
 * `SwitchState` - switches window within a dialog using provided state
+* `SwitchWindow` - switches window within a dialog to the provided window
 * `Next`/`Back` - switches state forward or backward
 * `Start` - starts a new dialog with no params
 * `Cancel` - closes the current dialog with no result. An underlying dialog is shown
