@@ -47,16 +47,23 @@ class Dialog:
     def __init__(self, *windows: Window, on_process_result: Optional[OnProcessResult] = None):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
+        self.windows: Dict[State, Window] = {}
+        self.states_by_windows: Dict[Window, State] = {}
+        self.push_windows(*windows)
+        self.on_process_result = on_process_result
+
+    def push_windows(self, *windows):
+        states = []
         for w in windows:
             if w.get_state().group != self._states_group:
                 raise ValueError("All windows must be attached to same StatesGroup")
             state = w.get_state()
             if state in self.states:
                 raise ValueError(f"Multiple windows with state {state}")
-            self.states.append(state)
-        self.windows: Dict[State, Window] = dict(zip(self.states, windows))
-        self.states_by_windows: Dict[Window, State] = dict(zip(windows, self.states))
-        self.on_process_result = on_process_result
+            states.append(state)
+        self.states.extend(states)
+        self.windows.update(dict(zip(states, windows)))
+        self.states_by_windows.update(dict(zip(windows, states)))
 
     async def next(self, manager: DialogManager):
         new_state = self.states[self.states.index(manager.context.state) + 1]
