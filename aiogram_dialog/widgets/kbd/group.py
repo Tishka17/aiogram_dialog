@@ -61,3 +61,8 @@ class Group(Keyboard):
 class Row(Group):
     def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
         super().__init__(*buttons, id=id, keep_rows=False, when=when)
+
+
+class Column(Group):
+    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
+        super().__init__(*buttons, id=id, keep_rows=False, when=when, width=1)
