@@ -1,4 +1,4 @@
-from typing import Optional, Any, Protocol, Dict, Union
+from typing import Optional, Any, Protocol, Dict, Union, Type
 
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -12,14 +12,14 @@ from ..data import DialogContext, reset_dialog_contexts
 ChatEvent = Union[CallbackQuery, Message]
 
 
-class Dialog(Protocol):
+class ManagedDialogProto(Protocol):
     def register(self, dp: Dispatcher, *args, **kwargs):
         pass
 
     def states_group_name(self) -> str:
         pass
 
-    def states_group(self) -> StatesGroup:
+    def states_group(self) -> Type[StatesGroup]:
         pass
 
     async def start(self, manager: "DialogManager", state: Optional[State] = None):
@@ -32,8 +32,8 @@ class Dialog(Protocol):
         pass
 
 
-class DialogRegistry(Protocol):
-    def find_dialog(self, state: Union[State, str]) -> Dialog:
+class DialogRegistryProto(Protocol):
+    def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
 
 
@@ -50,7 +50,7 @@ async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
 class DialogManager:
     def __init__(
             self, event: ChatEvent, stack: DialogStack,
-            proxy: FSMContextProxy, registry: DialogRegistry,
+            proxy: FSMContextProxy, registry: DialogRegistryProto,
             data: Dict
     ):
         self.proxy = proxy

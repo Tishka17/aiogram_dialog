@@ -5,14 +5,14 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
 
-from .manager import Dialog, DialogManager
+from .manager import ManagedDialogProto, DialogManager, DialogRegistryProto
 from .stack import DialogStack
 
 
-class DialogRegistry(BaseMiddleware):
-    dialogs: Dict[str, Dialog]
+class DialogRegistry(BaseMiddleware, DialogRegistryProto):
+    dialogs: Dict[str, ManagedDialogProto]
 
-    def __init__(self, dp: Dispatcher, dialogs: Optional[Dict[str, Dialog]] = None):
+    def __init__(self, dp: Dispatcher, dialogs: Optional[Dict[str, ManagedDialogProto]] = None):
         super().__init__()
         self.dp = dp
         if dialogs is None:
@@ -20,7 +20,7 @@ class DialogRegistry(BaseMiddleware):
         self.dialogs = dialogs
         self._register_middleware()
 
-    def register(self, dialog: Dialog, *args, **kwargs):
+    def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         name = dialog.states_group_name()
         if name in self.dialogs:
             raise ValueError(f"StatesGroup `{name}` is already used")
@@ -30,7 +30,7 @@ class DialogRegistry(BaseMiddleware):
     def _register_middleware(self):
         self.dp.setup_middleware(self)
 
-    def find_dialog(self, state: Union[str, State]) -> Dialog:
+    def find_dialog(self, state: Union[str, State]) -> ManagedDialogProto:
         if isinstance(state, str):
             group, *_ = state.partition(":")
         else:

@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 from aiogram.utils.exceptions import MessageNotModified
 
-from .dialog import Dialog, Window as WindowProtocol, DataGetter
+from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
@@ -14,8 +14,7 @@ from .widgets.text import Text, Const
 logger = getLogger(__name__)
 
 
-class Window(WindowProtocol):
-
+class Window(DialogWindowProto):
     def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
                  getter: DataGetter = None,
                  on_message: Optional[Callable] = None,
