@@ -6,6 +6,7 @@ aiogram-dialog
    :caption: Contents:
 
    overview
+   widgets
 
 
 Indices and tables

@@ -57,3 +57,7 @@ At this point we have configured everything. But dialog won't start itself. We w
 To start dialog we need **DialogManager** which is automatically injected by library. Also mind the ``reset_stack`` argument. The library can start multiple dialogs stacking one above other. Currently we do not want this feature, so we will reset stack on each start:
 
 .. literalinclude:: examples/quickstart/start.py
+
+The result will look like:
+
+.. image:: resources/quickstart.png
