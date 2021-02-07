@@ -6,7 +6,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager, DialogRegistryProto
 from aiogram_dialog.widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -99,7 +99,11 @@ class Dialog:
             await self.show(dialog_manager)
         await c.answer()
 
-    def register(self, dp: Dispatcher, **filters):
+    async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
+        await self.show(dialog_manager)
+
+    def register(self, registry: DialogRegistryProto, dp: Dispatcher, **filters):
+        registry.register_update_handler(self._update_handler, state=self.states, **filters)
         dp.register_callback_query_handler(self._callback_handler, state=self.states, **filters)
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY

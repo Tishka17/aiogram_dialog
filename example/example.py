@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, time
 from operator import itemgetter
 
 from aiogram import Bot, Dispatcher
@@ -29,11 +29,23 @@ class Sub(StatesGroup):
 # ----- Dialog 1
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    return {"name": "Tishka17", "age": 19}
+    return {"name": "Tishka17", "age": 19, "now": datetime.now().time().strftime("%H:%M:%S")}
 
 
 async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
     await c.message.answer("It is fun!")
+    asyncio.create_task(background(c, manager))
+
+
+async def background(c: CallbackQuery, manager: DialogManager):
+    await asyncio.sleep(1)
+    await manager.refresh()
+    await asyncio.sleep(1)
+    await manager.refresh()
+    await asyncio.sleep(1)
+    await manager.refresh()
+    await asyncio.sleep(1)
+    await manager.refresh()
 
 
 async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
@@ -60,6 +72,7 @@ dialog1 = Dialog(Window(
     Multi(
         Const("Hello, {name}!"),
         Format("Hello, {name}!", when=lambda data, w, m: data["age"] > 18),
+        Format("Now: {now}"),
         sep="\n\n",
     ),
     Group(
@@ -71,7 +84,7 @@ dialog1 = Dialog(Window(
         ),
         select,
         multiselect,
-        Button(Const("3. {name}"), "b3"),
+        Button(Format("{now}"), "b3"),
         Next(),
     ),
     getter=get_data,

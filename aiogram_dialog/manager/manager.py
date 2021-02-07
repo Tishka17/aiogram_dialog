@@ -13,7 +13,7 @@ ChatEvent = Union[CallbackQuery, Message]
 
 
 class ManagedDialogProto(Protocol):
-    def register(self, dp: Dispatcher, *args, **kwargs):
+    def register(self, registry: "DialogRegistryProto", dp: Dispatcher, *args, **kwargs):
         pass
 
     def states_group_name(self) -> str:
@@ -34,6 +34,9 @@ class ManagedDialogProto(Protocol):
 
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
+        pass
+
+    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs):
         pass
 
 
@@ -103,3 +106,6 @@ class DialogManager:
         if not dialog:
             return None
         return DialogContext(self.proxy, dialog.states_group_name(), dialog.states_group())
+
+    async def refresh(self):
+        await self.registry.update_handler.notify(self.event)
