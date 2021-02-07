@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from typing import Union, List
 
 from aiogram import Bot
@@ -33,7 +33,7 @@ class DialogUpdateEvent:
     message: Optional[Message]
     action: Action
     current_intent: Intent
-    data: Dict
+    data: Any
 
 
 @dataclass

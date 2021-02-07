@@ -45,7 +45,8 @@ class DialogManager(DialogManagerProto):
 
     async def done(self, result: Any = None):
         self.stack.pop()
-        self.context.clear()
+        if self.context:
+            self.context.clear()
         intent = self.current_intent()
         if intent:
             self.proxy.state = intent.name

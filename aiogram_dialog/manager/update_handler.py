@@ -17,6 +17,9 @@ async def handle_update(event: DialogUpdateEvent, dialog_manager: DialogManager)
         await dialog_manager.switch_to(state=event.new_state)
         await dialog_manager.dialog().show(dialog_manager)
     elif event.action is Action.UPDATE:
+        if not dialog_manager.context:
+            logger.warning("No context found")
+            return
         if event.data:
             for k, v in event.data.items():
                 dialog_manager.context.set_data(k, v)
