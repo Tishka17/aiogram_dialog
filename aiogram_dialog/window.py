@@ -66,14 +66,14 @@ class Window(DialogWindowProto):
                     return event.message
             else:
                 return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
-        elif isinstance(event, DialogUpdateEvent):  # cannot really check if something changed
+        elif isinstance(event, DialogUpdateEvent) and event.message:  # cannot really check if something changed
             try:
                 return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
             except MessageNotModified:
                 pass  # nothing to update
         else:
             context = manager.context
-            if context.last_message_id:
+            if context and context.last_message_id:
                 try:
                     await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
                                                                       chat_id=manager.event.chat.id)
@@ -88,6 +88,7 @@ class Window(DialogWindowProto):
     def find(self, widget_id) -> Optional[Actionable]:
         if self.kbd:
             return self.kbd.find(widget_id)
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.state})>"

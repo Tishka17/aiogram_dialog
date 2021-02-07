@@ -38,7 +38,7 @@ class DialogContext:
         self.proxy.state = state.state
 
     @property
-    def last_message_id(self) -> int:
+    def last_message_id(self) -> Optional[int]:
         gcontext = self.proxy.get(GLOBAL_CONTEXT) or {}
         return gcontext.get(LAST_MESSAGE_ID)
 

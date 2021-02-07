@@ -15,7 +15,7 @@ DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
-OnProcessResult = Callable[[Any, DialogManager], Awaitable]
+OnProcessResult = Callable[[Any, DialogManagerProto], Awaitable]
 
 
 class DialogWindowProto(Protocol):
@@ -59,10 +59,14 @@ class Dialog(ManagedDialogProto):
         self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
+        if not manager.context:
+            raise ValueError("No context")
         new_state = self.states[self.states.index(manager.context.state) + 1]
         await self.switch_to(new_state, manager)
 
     async def back(self, manager: DialogManager):
+        if not manager.context:
+            raise ValueError("No context")
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
@@ -126,6 +130,7 @@ class Dialog(ManagedDialogProto):
             widget = w.find(widget_id)
             if widget:
                 return widget
+        return
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.states_group()})>"
