@@ -10,7 +10,7 @@ from aiogram_dialog.widgets.text import Const
 storage = MemoryStorage()
 bot = Bot(token='BOT TOKEN HERE')
 dp = Dispatcher(bot, storage=storage)
-registry = DialogRegistry(dp)  # this is required to use `aiogram_dialog`
+registry = DialogRegistry(dp)
 
 
 class MySG(StatesGroup):
@@ -24,13 +24,14 @@ dialog = Dialog(
         MySG.main,
     )
 )
-registry.register(dialog)  # register a dialog
+registry.register(dialog)
 
 
 @dp.message_handler(commands=["/start"])
 async def start(m: Message, dialog_manager: DialogManager):
     # Important: always set `reset_stack=True` if you don't want to stack dialogs
     await dialog_manager.start(MySG.main, reset_stack=True)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
