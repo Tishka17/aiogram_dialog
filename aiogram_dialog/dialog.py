@@ -105,7 +105,6 @@ class Dialog:
         await self.show(dialog_manager)
 
     def register(self, registry: DialogRegistryProto, dp: Dispatcher, **filters):
-        registry.register_update_handler(self._update_handler, state=self.states, **filters)
         dp.register_callback_query_handler(self._callback_handler, state=self.states, **filters)
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY

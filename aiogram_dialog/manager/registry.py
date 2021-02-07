@@ -10,6 +10,7 @@ from .intent import DialogUpdateEvent
 from .manager import DialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from .stack import DialogStack
+from .update_handler import handle_update
 
 
 class DialogRegistry(BaseMiddleware, DialogRegistryProto):
@@ -23,6 +24,7 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
         self.dialogs = dialogs
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
         self._register_middleware()
+        self.register_update_handler(handle_update, state="*")
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         name = dialog.states_group_name()
@@ -62,11 +64,12 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
     on_post_process_callback_query = on_post_process_message
     on_post_process_aiogd_update = on_post_process_message
 
-    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs):
+    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
         filters_set = self.dp.filters_factory.resolve(self.update_handler,
                                                       *custom_filters,
                                                       **kwargs)
         self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
 
-    async def notify(self, event: DialogUpdateEvent):
+    async def notify(self, event: DialogUpdateEvent) -> None:
+        print("notify", event)
         await self.update_handler.notify(event)

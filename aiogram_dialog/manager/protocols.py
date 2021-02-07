@@ -30,9 +30,6 @@ class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
 
-    async def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
-        pass
-
     async def notify(self, event: DialogUpdateEvent) -> None:
         pass
 

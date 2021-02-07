@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, time
+from datetime import datetime
 from operator import itemgetter
 
 from aiogram import Bot, Dispatcher
@@ -9,8 +9,8 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, BgManager
-from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Select
-from aiogram_dialog.widgets.text import Const, Format, Multi
+from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Select, Row
+from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
 
 API_TOKEN = ""
 
@@ -29,7 +29,13 @@ class Sub(StatesGroup):
 # ----- Dialog 1
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    return {"name": "Tishka17", "age": 19, "now": datetime.now().time().strftime("%H:%M:%S")}
+    return {
+        "name": "Tishka17",
+        "age": 19,
+        "now": datetime.now().time().strftime("%H:%M:%S"),
+        "progress": dialog_manager.context.data("progress", 0),
+        "progress2": dialog_manager.context.data("progress2", 0),
+    }
 
 
 async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
@@ -38,14 +44,13 @@ async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
 
 
 async def background(c: CallbackQuery, manager: BgManager):
-    await asyncio.sleep(1)
-    await manager.refresh()
-    await asyncio.sleep(1)
-    await manager.refresh()
-    await asyncio.sleep(1)
-    await manager.refresh()
-    await asyncio.sleep(1)
-    await manager.refresh()
+    count = 20
+    for i in range(1, count + 1):
+        await asyncio.sleep(1)
+        await manager.update({
+            "progress": i * 100 / count,
+            "progress2": min(100, i * 200 / count)
+        })
 
 
 async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
@@ -71,9 +76,11 @@ multiselect = Select(
 dialog1 = Dialog(Window(
     Multi(
         Const("Hello, {name}!"),
-        Format("Hello, {name}!", when=lambda data, w, m: data["age"] > 18),
+        Format("Hello, {name}!\n", when=lambda data, w, m: data["age"] > 18),
         Format("Now: {now}"),
-        sep="\n\n",
+        Progress("progress", 10),
+        Progress("progress2", 10, filled="🟩"),
+        sep="\n",
     ),
     Group(
         Group(
@@ -85,6 +92,7 @@ dialog1 = Dialog(Window(
         select,
         multiselect,
         Button(Format("{now}"), "b3"),
+        Row(Button(Progress("progress", 5), "b3"), Button(Progress("progress2", 5, filled="🟩"), "b4")),
         Next(),
     ),
     getter=get_data,

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import Message, CallbackQuery, Chat
@@ -68,7 +68,7 @@ class BgManager(DialogManagerProto):
             state,
         ))
 
-    async def refresh(self):
+    async def update(self, data: Dict):
         await self.registry.notify(DialogUpdateEvent(
             self.event.bot,
             self.event.from_user,
@@ -76,5 +76,5 @@ class BgManager(DialogManagerProto):
             getattr(self.event, "message", None),
             Action.UPDATE,
             self.intent,
-            {},
+            data,
         ))
