@@ -90,11 +90,11 @@ Window(
 
 More complex window with multiple texts, button groups and selects can look like:
 
-![window example](doc/resources/window_example.png)
+![window example](docs/resources/window_example.png)
 
 And if we draw red border around each widget it will be:
 
-![window example](doc/resources/layout_example.png)
+![window example](docs/resources/layout_example.png)
 
 ### Declaring dialog
 
@@ -162,7 +162,7 @@ All keyboards are also Actionable.
 
 For picture above we have such widgets:
 
-![window example](doc/resources/layout_example2.png)
+![window example](docs/resources/layout_example2.png)
 
 ### Text widget types
 
