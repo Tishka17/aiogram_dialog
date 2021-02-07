@@ -6,6 +6,7 @@ from aiogram.dispatcher.handler import Handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
 
+from .intent import DialogUpdateEvent
 from .manager import DialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from .stack import DialogStack
@@ -66,3 +67,6 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
                                                       *custom_filters,
                                                       **kwargs)
         self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
+
+    async def notify(self, event: DialogUpdateEvent):
+        await self.update_handler.notify(event)

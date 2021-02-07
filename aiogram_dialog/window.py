@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMod
 from aiogram.utils.exceptions import MessageNotModified
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
+from .manager.intent import DialogUpdateEvent
 from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
@@ -57,7 +58,7 @@ class Window(DialogWindowProto):
         text = await self.render_text(current_data, manager)
         kbd = await self.render_kbd(current_data, manager)
         event = manager.event
-        if isinstance(event, CallbackQuery):
+        if isinstance(event, (CallbackQuery, DialogUpdateEvent)):
             if text == event.message.text:
                 if kbd != event.message.reply_markup:
                     return await event.message.edit_reply_markup(reply_markup=kbd)
@@ -73,7 +74,8 @@ class Window(DialogWindowProto):
                                                                       chat_id=manager.event.chat.id)
                 except MessageNotModified:
                     pass  # nothing to remove
-            return await manager.event.answer(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            return await manager.event.bot.send_message(chat_id=event.chat.id, text=text, reply_markup=kbd,
+                                                        parse_mode=self.parse_mode)
 
     def get_state(self) -> State:
         return self.state

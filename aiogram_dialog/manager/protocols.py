@@ -3,7 +3,7 @@ from typing import Optional, Any, Protocol, Union, Type
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from aiogram_dialog.manager.intent import Intent, Data
+from aiogram_dialog.manager.intent import Intent, Data, DialogUpdateEvent
 
 
 class ManagedDialogProto(Protocol):
@@ -30,7 +30,10 @@ class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
 
-    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs):
+    async def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
+        pass
+
+    async def notify(self, event: DialogUpdateEvent) -> None:
         pass
 
 
@@ -42,14 +45,14 @@ class DialogManagerProto(Protocol):
     def current_intent(self) -> Intent:
         pass
 
-    async def close(self, intent: Intent):
+    async def close(self):
         pass
 
-    async def done(self, result: Any = None, intent: Optional[Intent] = None):
+    async def done(self, result: Any = None):
         pass
 
     async def start(self, state: State, data: Data = None, reset_stack: bool = False):
         pass
 
-    def switch_to(self, state):
+    async def switch_to(self, state):
         pass

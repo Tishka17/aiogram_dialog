@@ -1,15 +1,14 @@
-from typing import Optional, Any, Dict, Union
+from typing import Optional, Any, Dict
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.storage import FSMContextProxy
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 
-from .intent import Data, Intent
+from .bg_manager import BgManager
+from .intent import Data, Intent, ChatEvent
 from .protocols import DialogRegistryProto, DialogManagerProto
 from .stack import DialogStack
 from ..data import DialogContext, reset_dialog_contexts
-
-ChatEvent = Union[CallbackQuery, Message]
 
 
 async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
@@ -44,8 +43,8 @@ class DialogManager(DialogManagerProto):
         self.context = self.load_context()
         await dialog.start(self, state)
 
-    async def done(self, result: Any = None, intent: Optional[Intent] = None):
-        self.stack.pop(intent)
+    async def done(self, result: Any = None):
+        self.stack.pop()
         self.context.clear()
         intent = self.current_intent()
         if intent:
@@ -60,9 +59,9 @@ class DialogManager(DialogManagerProto):
         else:
             await remove_kbd_safe(self.event, self.proxy)
 
-    async def close(self, intent: Intent):
+    async def close(self):
         self.context.clear()
-        self.stack.pop(intent)
+        self.stack.pop()
 
     def current_intent(self) -> Intent:
         return self.stack.current()
@@ -79,8 +78,13 @@ class DialogManager(DialogManagerProto):
             return None
         return DialogContext(self.proxy, dialog.states_group_name(), dialog.states_group())
 
-    async def refresh(self):
-        await self.registry.update_handler.notify(self.event)
-
-    def switch_to(self, state):
+    async def switch_to(self, state):
         self.context.state = state
+
+    def bg(self) -> BgManager:
+        return BgManager(
+            self.event,
+            self.registry,
+            self.current_intent(),
+            self.dialog(),
+        )

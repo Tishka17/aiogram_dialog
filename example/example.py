@@ -8,7 +8,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, BgManager
 from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Select
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
@@ -34,10 +34,10 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
     await c.message.answer("It is fun!")
-    asyncio.create_task(background(c, manager))
+    asyncio.create_task(background(c, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: DialogManager):
+async def background(c: CallbackQuery, manager: BgManager):
     await asyncio.sleep(1)
     await manager.refresh()
     await asyncio.sleep(1)
