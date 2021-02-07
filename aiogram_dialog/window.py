@@ -58,7 +58,7 @@ class Window(DialogWindowProto):
         text = await self.render_text(current_data, manager)
         kbd = await self.render_kbd(current_data, manager)
         event = manager.event
-        if isinstance(event, (CallbackQuery, DialogUpdateEvent)):
+        if isinstance(event, CallbackQuery):
             if text == event.message.text:
                 if kbd != event.message.reply_markup:
                     return await event.message.edit_reply_markup(reply_markup=kbd)
@@ -66,6 +66,11 @@ class Window(DialogWindowProto):
                     return event.message
             else:
                 return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+        elif isinstance(event, DialogUpdateEvent):  # cannot really check if something changed
+            try:
+                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            except MessageNotModified:
+                pass  # nothing to update
         else:
             context = manager.context
             if context.last_message_id:

@@ -71,5 +71,4 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
         self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
 
     async def notify(self, event: DialogUpdateEvent) -> None:
-        print("notify", event)
         await self.update_handler.notify(event)

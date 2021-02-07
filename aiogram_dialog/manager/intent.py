@@ -19,7 +19,7 @@ class Intent:
 
 
 class Action(Enum):
-    DONE = "CLOSE"
+    DONE = "DONE"
     START = "START"
     UPDATE = "UPDATE"
     SWITCH = "SWITCH"

@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from aiogram_dialog.manager.manager import DialogManager, DialogRegistryProto
+from aiogram_dialog.manager.protocols import ManagedDialogProto, DialogManagerProto
 from aiogram_dialog.widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -43,7 +44,7 @@ class DialogWindowProto(Protocol):
         raise NotImplementedError
 
 
-class Dialog:
+class Dialog(ManagedDialogProto):
     def __init__(self, *windows: DialogWindowProto, on_process_result: Optional[OnProcessResult] = None):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -65,22 +66,22 @@ class Dialog:
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def start(self, manager: DialogManager, state: Optional[State] = None):
+    async def start(self, manager: DialogManagerProto, state: Optional[State] = None) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
         await self.show(manager)
 
-    async def switch_to(self, state: State, manager: DialogManager):
+    async def switch_to(self, state: State, manager: DialogManagerProto):
         if state.group != self.states_group():
             raise ValueError("Cannot switch from %s to another states group %s" % (state.group, self.states_group()))
         await manager.switch_to(state)
 
-    async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
+    async def _current_window(self, manager: DialogManagerProto) -> DialogWindowProto:
         return self.windows[manager.context.state]
 
-    async def show(self, manager: DialogManager):
+    async def show(self, manager: DialogManagerProto) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
         message = await window.show(self, manager)
@@ -104,7 +105,7 @@ class Dialog:
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
 
-    def register(self, registry: DialogRegistryProto, dp: Dispatcher, **filters):
+    def register(self, registry: DialogRegistryProto, dp: Dispatcher, **filters) -> None:
         dp.register_callback_query_handler(self._callback_handler, state=self.states, **filters)
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY
@@ -116,7 +117,7 @@ class Dialog:
     def states_group_name(self) -> str:
         return self._states_group.__full_group_name__
 
-    async def process_result(self, result: Any, manager: DialogManager):
+    async def process_result(self, result: Any, manager: DialogManagerProto):
         if self.on_process_result:
             await self.on_process_result(result, manager)
 
