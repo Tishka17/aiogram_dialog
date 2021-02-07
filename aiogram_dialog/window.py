@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMod
 from aiogram.utils.exceptions import MessageNotModified
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
+from .manager.intent import DialogUpdateEvent
 from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
@@ -65,6 +66,11 @@ class Window(DialogWindowProto):
                     return event.message
             else:
                 return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+        elif isinstance(event, DialogUpdateEvent):  # cannot really check if something changed
+            try:
+                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            except MessageNotModified:
+                pass  # nothing to update
         else:
             context = manager.context
             if context.last_message_id:
@@ -73,7 +79,8 @@ class Window(DialogWindowProto):
                                                                       chat_id=manager.event.chat.id)
                 except MessageNotModified:
                     pass  # nothing to remove
-            return await manager.event.answer(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            return await manager.event.bot.send_message(chat_id=event.chat.id, text=text, reply_markup=kbd,
+                                                        parse_mode=self.parse_mode)
 
     def get_state(self) -> State:
         return self.state
