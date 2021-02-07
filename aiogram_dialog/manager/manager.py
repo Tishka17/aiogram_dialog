@@ -1,43 +1,15 @@
-from typing import Optional, Any, Protocol, Dict, Union, Type
+from typing import Optional, Any, Dict, Union
 
-from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery, Message
 
 from .intent import Data, Intent
+from .protocols import DialogRegistryProto, DialogManagerProto
 from .stack import DialogStack
 from ..data import DialogContext, reset_dialog_contexts
 
 ChatEvent = Union[CallbackQuery, Message]
-
-
-class ManagedDialogProto(Protocol):
-    def register(self, registry: "DialogRegistryProto", dp: Dispatcher, *args, **kwargs):
-        pass
-
-    def states_group_name(self) -> str:
-        pass
-
-    def states_group(self) -> Type[StatesGroup]:
-        pass
-
-    async def start(self, manager: "DialogManager", state: Optional[State] = None):
-        pass
-
-    async def show(self, manager: "DialogManager"):
-        pass
-
-    async def process_result(self, result: Any, manager: "DialogManager"):
-        pass
-
-
-class DialogRegistryProto(Protocol):
-    def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
-        pass
-
-    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs):
-        pass
 
 
 async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
@@ -50,7 +22,7 @@ async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
             await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
 
 
-class DialogManager:
+class DialogManager(DialogManagerProto):
     def __init__(
             self, event: ChatEvent, stack: DialogStack,
             proxy: FSMContextProxy, registry: DialogRegistryProto,
@@ -109,3 +81,6 @@ class DialogManager:
 
     async def refresh(self):
         await self.registry.update_handler.notify(self.event)
+
+    def switch_to(self, state):
+        self.context.state = state

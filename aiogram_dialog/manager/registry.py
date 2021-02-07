@@ -6,7 +6,8 @@ from aiogram.dispatcher.handler import Handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
 
-from .manager import ManagedDialogProto, DialogManager, DialogRegistryProto
+from .manager import DialogManager
+from .protocols import ManagedDialogProto, DialogRegistryProto
 from .stack import DialogStack
 
 

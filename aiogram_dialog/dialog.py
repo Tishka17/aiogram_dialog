@@ -73,7 +73,9 @@ class Dialog:
         await self.show(manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
-        manager.context.state = state
+        if state.group != self.states_group():
+            raise ValueError("Cannot switch from %s to another states group %s" % (state.group, self.states_group()))
+        manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
         return self.windows[manager.context.state]
