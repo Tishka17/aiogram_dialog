@@ -1,0 +1,1 @@
+pip install git+https://github.com/Tishka17/aiogram_dialog.git
