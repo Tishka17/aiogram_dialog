@@ -172,6 +172,8 @@ Every time you need to render text use any of text widgets:
 * `Format` - formats text using `format` function. If used in window the data is retrived via `getter` funcion.
 * `Multi` - multiple texts, joined with a separator (`sep=`)
 * `Case` - shows one of texts based on condition
+* `Progress` - shows a progress bar
+* `Jinja` - represents a HTML rendered using jinja2 template
 
 ### Keyboard widget types
 
