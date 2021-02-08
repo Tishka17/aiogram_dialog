@@ -6,9 +6,9 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BgManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BgManager
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
 
