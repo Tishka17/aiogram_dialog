@@ -8,7 +8,7 @@ WhenCondition = Union[str, Predicate, None]
 
 def new_when_field(fieldname: str) -> Predicate:
     def when_field(data: Dict, widget: "Whenable", manager: DialogManager) -> bool:
-        return data.get(fieldname)
+        return bool(data.get(fieldname))
 
     return when_field
 
@@ -17,10 +17,10 @@ def true(data: Dict, widget: "Whenable", manager: DialogManager):
     return True
 
 
-class Whenable():
-    condition: Predicate
+class Whenable:
 
     def __init__(self, when: WhenCondition = None):
+        self.condition: Predicate
         if when is None:
             self.condition = true
         elif isinstance(when, str):

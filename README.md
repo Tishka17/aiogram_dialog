@@ -90,11 +90,11 @@ Window(
 
 More complex window with multiple texts, button groups and selects can look like:
 
-![window example](doc/resources/window_example.png)
+![window example](docs/resources/window_example.png)
 
 And if we draw red border around each widget it will be:
 
-![window example](doc/resources/layout_example.png)
+![window example](docs/resources/layout_example.png)
 
 ### Declaring dialog
 
@@ -162,7 +162,7 @@ All keyboards are also Actionable.
 
 For picture above we have such widgets:
 
-![window example](doc/resources/layout_example2.png)
+![window example](docs/resources/layout_example2.png)
 
 ### Text widget types
 
@@ -180,6 +180,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Button` - single inline button. User provided `on_click` method is called when it is clicked.
 * `Group` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
 * `Row` - simplified version of group. All buttons placed in single row. 
+* `Column` - another simplified version of group. All buttons placed in single column (one per row). 
 * `Uri` - single inline button with uri
 * `SwitchState` - switches window within a dialog using provided state
 * `Next`/`Back` - switches state forward or backward

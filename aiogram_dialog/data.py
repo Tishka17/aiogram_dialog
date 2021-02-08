@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import FSMContextProxy
@@ -18,7 +18,7 @@ def reset_dialog_contexts(proxy: FSMContextProxy):
 
 
 class DialogContext:
-    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: Optional[StatesGroup]):
+    def __init__(self, proxy: FSMContextProxy, dialog_id: str, states_group: Optional[Type[StatesGroup]]):
         self.proxy = proxy
         self.dialog_id = dialog_id
         self.states_group = states_group
@@ -38,7 +38,7 @@ class DialogContext:
         self.proxy.state = state.state
 
     @property
-    def last_message_id(self) -> int:
+    def last_message_id(self) -> Optional[int]:
         gcontext = self.proxy.get(GLOBAL_CONTEXT) or {}
         return gcontext.get(LAST_MESSAGE_ID)
 

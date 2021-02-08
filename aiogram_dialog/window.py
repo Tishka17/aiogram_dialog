@@ -5,7 +5,8 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 from aiogram.utils.exceptions import MessageNotModified
 
-from .dialog import Dialog, Window as WindowProtocol, DataGetter
+from .dialog import Dialog, DialogWindowProto, DataGetter
+from .manager.intent import DialogUpdateEvent
 from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
@@ -14,8 +15,7 @@ from .widgets.text import Text, Const
 logger = getLogger(__name__)
 
 
-class Window(WindowProtocol):
-
+class Window(DialogWindowProto):
     def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
                  getter: DataGetter = None,
                  on_message: Optional[Callable] = None,
@@ -66,15 +66,21 @@ class Window(WindowProtocol):
                     return event.message
             else:
                 return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+        elif isinstance(event, DialogUpdateEvent) and event.message:  # cannot really check if something changed
+            try:
+                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            except MessageNotModified:
+                pass  # nothing to update
         else:
             context = manager.context
-            if context.last_message_id:
+            if context and context.last_message_id:
                 try:
                     await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
                                                                       chat_id=manager.event.chat.id)
                 except MessageNotModified:
                     pass  # nothing to remove
-            return await manager.event.answer(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
+            return await manager.event.bot.send_message(chat_id=event.chat.id, text=text, reply_markup=kbd,
+                                                        parse_mode=self.parse_mode)
 
     def get_state(self) -> State:
         return self.state
@@ -82,6 +88,7 @@ class Window(WindowProtocol):
     def find(self, widget_id) -> Optional[Actionable]:
         if self.kbd:
             return self.kbd.find(widget_id)
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.state})>"
