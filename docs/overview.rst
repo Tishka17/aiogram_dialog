@@ -58,6 +58,14 @@ To start dialog we need **DialogManager** which is automatically injected by lib
 
 .. literalinclude:: examples/quickstart/start.py
 
+Last step, you need to start your bot as usual:
+
+.. literalinclude:: examples/quickstart/start_bot.py
+
+Summary:
+
+.. literalinclude:: examples/quickstart/summary.py
+
 The result will look like:
 
 .. image:: resources/quickstart.png
