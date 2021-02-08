@@ -73,6 +73,22 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * ``Cancel`` - closes the current dialog with no result. An underlying dialog is shown
 * ``Select`` - select one or multiple items. Items can be provided in constructor or passed from data getter of a window
 
+Combining texts
+=================
+
+To combine multiple texts you can use ``Multi`` widget. You can use any texts inside it. Also you can provide a string separator
+
+.. literalinclude:: examples/widgets/multi.py
+
+To select one of the texts depending on some condition you should use ``Case``.
+The condition can be either a data key or a function:
+
+.. literalinclude:: examples/widgets/case.py
+
+Keyboards
+================
+
+
 Hiding widgets
 ====================
 
