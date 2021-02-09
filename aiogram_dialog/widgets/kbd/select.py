@@ -64,6 +64,7 @@ class Select(Keyboard):
         self.set_checked(item_id, not self.is_checked(item_id, manager), manager)
         if self.on_state_changed:
             await self.on_state_changed(c, item_id, self, manager)
+        return True
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = self.item_id_getter(data["item"])

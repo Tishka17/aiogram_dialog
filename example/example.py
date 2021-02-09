@@ -9,6 +9,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, BgManager
+from aiogram_dialog.manager.protocols import BgManagerProto
 from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Select, Row
 from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
 
@@ -43,7 +44,7 @@ async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
     asyncio.create_task(background(c, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: BgManager):
+async def background(c: CallbackQuery, manager: BgManagerProto):
     count = 20
     for i in range(1, count + 1):
         await asyncio.sleep(1)

@@ -1,12 +1,13 @@
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, Protocol, Type
 
-from aiogram.dispatcher.filters.state import State
+from aiogram import Dispatcher
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery
 
 from .bg_manager import BgManager
 from .intent import Data, Intent, ChatEvent
-from .protocols import DialogRegistryProto, DialogManagerProto
+from .protocols import DialogRegistryProto, DialogManager, BgManagerProto
 from .stack import DialogStack
 from ..data import DialogContext, reset_dialog_contexts
 
@@ -21,7 +22,7 @@ async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
             await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
 
 
-class DialogManager(DialogManagerProto):
+class DialogManagerImpl(DialogManager):
     def __init__(
             self, event: ChatEvent, stack: DialogStack,
             proxy: FSMContextProxy, registry: DialogRegistryProto,
@@ -82,10 +83,10 @@ class DialogManager(DialogManagerProto):
     async def switch_to(self, state):
         self.context.state = state
 
-    def bg(self) -> BgManager:
+    def bg(self) -> BgManagerProto:
         return BgManager(
             self.event,
             self.registry,
             self.current_intent(),
-            self.dialog(),
+            self.context.state,
         )

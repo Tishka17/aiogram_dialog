@@ -11,6 +11,7 @@ from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
 from .widgets.text import Text, Const
+from aiogram_dialog.manager.protocols import DialogManager
 
 logger = getLogger(__name__)
 
