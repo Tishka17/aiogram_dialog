@@ -106,11 +106,41 @@ Unlike normal handlers you should not call callback.answer(), as it is done auto
 
 .. literalinclude:: examples/widgets/button.py
 
+.. image:: resources/button.png
+
 If it is unclear to you where to put button, check :ref:`quickstart`
 
 Grouping buttons
 ******************
 
+Normally you will have more than one button in your keyboard.
+
+Simplest way to deal with it - unite multiple buttons in a ``Row``, ``Column`` or other ``Group``. All these widgets can be used anywhere you can place a button.
+
+**Row** widget is used to place all buttons inside single row.
+You can place any keyboard widgets inside it (for example buttons or groups) and it will ignore any hierarchy and just place telegram buttons in a row.
+
+.. literalinclude:: examples/widgets/row.py
+
+.. image:: resources/row.png
+
+**Column** widget is like a row, but places everything in a column, also ignoring hierarchy.
+
+.. literalinclude:: examples/widgets/column.py
+
+.. image:: resources/column.png
+
+**Group** widget does more complex unions. By default, it places one keyboard below another. For example, you can stack multiple rows (or groups, or whatever)
+
+.. literalinclude:: examples/widgets/group.py
+
+.. image:: resources/group.png
+
+Also it can be used to produce rows of fixed width. To do it set ``keep_rows=False`` and ``width`` to desired value. Honestly, ``Row`` and ``Column`` widgets are groups with disabled ``keep_rows``
+
+.. literalinclude:: examples/widgets/group_width.py
+
+.. image:: resources/group_width.png
 
 Hiding widgets
 ====================
