@@ -38,7 +38,7 @@ Currently there are 2 kinds of widgets: `texts <Text widget types_>`_ and `keybo
 
 Also there are 2 general types:
 
-* ``Whenable`` is used to hide widget depending on data or some conditions. Currently al widgets are whenable.
+* ``Whenable`` can be hidden or shown depending on data or some conditions. Currently al widgets are whenable.
   See: `Hiding widgets`_
 * ``Actionable`` is any widget with action (currently only any type of keyboard). It has ``id`` and can be found by that id.
   It recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog.
