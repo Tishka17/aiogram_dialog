@@ -44,6 +44,12 @@ Also there are 2 general types:
   It recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog.
   Buttons with different behavior also must have different ids.
 
+.. note::
+
+  Widget id can contain only ascii letters, numbers, underscore and dot symbol.
+
+  * ``123``, ``com.mysite.id``, ``my_item`` - valid ids
+  * ``hello world``, ``my:item``, ``птичка`` - invalid ids
 
 Text widget types
 *****************************
@@ -87,6 +93,23 @@ The condition can be either a data key or a function:
 
 Keyboards
 ================
+
+Button
+*************
+
+In simple case you can use keyboard consisting of single button. Button consts of text, id, on-click callback and when condition.
+
+Text can be any ``Text`` widget, that represents plain text. It will receive window data so you button will have dynamic caption
+
+Callback is normal async function. It is called when user clicks a button
+Unlike normal handlers you should not call callback.answer(), as it is done automatically.
+
+.. literalinclude:: examples/widgets/button.py
+
+If it is unclear to you where to put button, check :ref:`quickstart`
+
+Grouping buttons
+******************
 
 
 Hiding widgets

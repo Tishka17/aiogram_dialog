@@ -22,6 +22,8 @@ You combine windows into **Dialog**. This allows you to switch between windows c
 
 In more complex cases you can create more than one dialog. Then you can start new dialogs without closing previous one and automatically return back when it is closed. You can pass data between dialogs keeping they state isolated at the same time.
 
+.. _quickstart:
+
 Quickstart
 ===============
 
