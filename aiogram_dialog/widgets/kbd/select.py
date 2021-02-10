@@ -2,12 +2,11 @@ from operator import itemgetter
 from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequence
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
-
+from aiogram_dialog.dialog import Dialog
+from aiogram_dialog.manager.intent import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Case
 from .base import Keyboard
-from ... import ChatEvent
-from ...dialog import Dialog
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]

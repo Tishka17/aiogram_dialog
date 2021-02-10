@@ -183,7 +183,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Group` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
 * `Row` - simplified version of group. All buttons placed in single row. 
 * `Column` - another simplified version of group. All buttons placed in single column (one per row). 
-* `Uri` - single inline button with uri
+* `Url` - single inline button with url
 * `SwitchState` - switches window within a dialog using provided state
 * `Next`/`Back` - switches state forward or backward
 * `Start` - starts a new dialog with no params

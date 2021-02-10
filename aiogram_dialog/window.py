@@ -7,7 +7,6 @@ from aiogram.utils.exceptions import MessageNotModified
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.intent import DialogUpdateEvent
-from .manager.manager import DialogManager
 from .widgets.action import Actionable
 from .widgets.kbd import Keyboard, Row
 from .widgets.text import Text, Const

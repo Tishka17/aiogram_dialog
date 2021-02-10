@@ -68,16 +68,17 @@ Keyboard widget types
 
 Each keyboard provides one or multiple inline buttons. Text on button is rendered using text widget
 
-* `Button <Button_>`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
-* :ref:`Group<group>` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
+* `Button`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
+* `Url`_ - single inline button with url
+* :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
-* :ref:`Column<column>` - another simplified version of group. All buttons placed in single column (one per row).
-* ``Uri`` - single inline button with uri
+* :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
+* `Checkbox`_ - button with two states
+* `Select`_ - select one or multiple items
 * ``SwitchState`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
 * ``Start`` - starts a new dialog with no params
 * ``Cancel`` - closes the current dialog with no result. An underlying dialog is shown
-* ``Select`` - select one or multiple items. Items can be provided in constructor or passed from data getter of a window
 
 Combining texts
 =================
@@ -113,6 +114,17 @@ Unlike normal handlers you should not call callback.answer(), as it is done auto
 .. image:: resources/button.png
 
 If it is unclear to you where to put button, check :ref:`quickstart`
+
+Url
+*****
+
+Url represents a button with an url. It has no callbacks because telegram does not provide any notifications on click.
+
+Url itself can be any text (including ``Const`` or ``Format``)
+
+.. literalinclude:: examples/widgets/url.py
+
+.. image:: resources/url.png
 
 Grouping buttons
 ******************
