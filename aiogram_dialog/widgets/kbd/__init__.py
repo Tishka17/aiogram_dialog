@@ -1,5 +1,5 @@
 from .base import Keyboard
-from .button import Button, Uri
+from .button import Button, Url
 from .checkbox import Checkbox
 from .group import Group, Row, Column
 from .select import Select
@@ -7,7 +7,7 @@ from .state import Back, Cancel, Next, Start, SwitchState
 
 __all__ = [
     "Keyboard",
-    "Button", "Uri",
+    "Button", "Url",
     "Back", "Cancel", "Next", "Start", "SwitchState",
     "Group", "Row", "Column",
     "Checkbox",

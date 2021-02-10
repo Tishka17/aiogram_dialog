@@ -34,16 +34,16 @@ class Button(Keyboard):
         ]]
 
 
-class Uri(Keyboard):
-    def __init__(self, text: Text, uri: Text, when: Union[str, Callable, None] = None):
-        super().__init__(when)
+class Url(Keyboard):
+    def __init__(self, text: Text, url: Text, id: Optional[str] = None, when: Union[str, Callable, None] = None):
+        super().__init__(id, when)
         self.text = text
-        self.uri = uri
+        self.url = url
 
     async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                uri=await self.uri.render_text(data, manager)
+                url=await self.url.render_text(data, manager)
             )
         ]]

@@ -7,8 +7,8 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
 
 from .intent import DialogUpdateEvent
-from .manager import DialogManager
-from .protocols import ManagedDialogProto, DialogRegistryProto
+from .manager import DialogManagerImpl
+from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
 from .stack import DialogStack
 from .update_handler import handle_update
 
@@ -45,7 +45,7 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
 
     async def on_pre_process_message(self, event, data: dict):
         proxy = await FSMContextProxy.create(self.dp.current_state())  # there is no state in data at this moment
-        manager = DialogManager(
+        manager = DialogManagerImpl(
             event,
             DialogStack(proxy),
             proxy,
