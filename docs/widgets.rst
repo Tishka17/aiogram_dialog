@@ -58,8 +58,8 @@ Every time you need to render text use any of text widgets:
 
 * ``Const`` - returns text with no midifications
 * ``Format`` - formats text using ``format`` function. If used in window the data is retrived via ``getter`` funcion.
-* ``Multi`` - multiple texts, joined with a separator (``sep=``)
-* ``Case`` - shows one of texts based on condition
+* :ref:`Multi<multi_text>` - multiple texts, joined with a separator
+* :ref:`Case<case_text>` - shows one of texts based on condition
 * ``Progress`` - shows a progress bar
 * ``Jinja`` - represents a HTML rendered using jinja2 template
 
@@ -68,10 +68,10 @@ Keyboard widget types
 
 Each keyboard provides one or multiple inline buttons. Text on button is rendered using text widget
 
-* ``Button`` - single inline button. User provided ``on_click`` method is called when it is clicked.
-* ``Group`` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
-* ``Row`` - simplified version of group. All buttons placed in single row.
-* ``Column`` - another simplified version of group. All buttons placed in single column (one per row).
+* `Button <Button_>`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
+* :ref:`Group<group>` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
+* :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
+* :ref:`Column<column>` - another simplified version of group. All buttons placed in single column (one per row).
 * ``Uri`` - single inline button with uri
 * ``SwitchState`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
@@ -82,9 +82,13 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 Combining texts
 =================
 
+.. _multi_text:
+
 To combine multiple texts you can use ``Multi`` widget. You can use any texts inside it. Also you can provide a string separator
 
 .. literalinclude:: examples/widgets/multi.py
+
+.. _case_text:
 
 To select one of the texts depending on some condition you should use ``Case``.
 The condition can be either a data key or a function:
@@ -117,6 +121,8 @@ Normally you will have more than one button in your keyboard.
 
 Simplest way to deal with it - unite multiple buttons in a ``Row``, ``Column`` or other ``Group``. All these widgets can be used anywhere you can place a button.
 
+.. _row:
+
 **Row** widget is used to place all buttons inside single row.
 You can place any keyboard widgets inside it (for example buttons or groups) and it will ignore any hierarchy and just place telegram buttons in a row.
 
@@ -124,11 +130,15 @@ You can place any keyboard widgets inside it (for example buttons or groups) and
 
 .. image:: resources/row.png
 
+.. _column:
+
 **Column** widget is like a row, but places everything in a column, also ignoring hierarchy.
 
 .. literalinclude:: examples/widgets/column.py
 
 .. image:: resources/column.png
+
+.. _group:
 
 **Group** widget does more complex unions. By default, it places one keyboard below another. For example, you can stack multiple rows (or groups, or whatever)
 
