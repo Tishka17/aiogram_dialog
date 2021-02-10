@@ -210,7 +210,21 @@ Other useful options are:
 * ``multiple`` enables multi select. If not set (default) it deselects previously selected item when other is clicked.
 * ``min_selected`` - limits minimal number of selected items ignoring clicks if this restriction is violated. It does not affect initial state.
 * ``max_selected`` - limits maximal number of selected items
-* ``on_state_changed`` - callback function similar to the one in `Checkbox`_.
+* ``on_state_changed`` - callback function similar to the one in `Checkbox`_. Typical case is to switch state in single select mode
+
+To work with selection you can use this methods:
+
+* ``get_checked`` - returns string id of one selected item or ``None``. Useful whe ``multi=False``
+* ``get_multichecked`` - returns a list of ids of all selected items. Useful whe ``multi=True``
+* ``is_checked`` - returns if certain id is currently selected
+* ``set_checked`` - changes selection state of provided id
+* ``reset_checked`` - resets all checked items to unchecked state
+
+.. warning::
+
+    ``Select`` widgets stores state of all checked items even if they disappear from window data.
+    It is very useful when you have pagination, but might be unexpected when data is really removed.
+
 
 Hiding widgets
 ====================

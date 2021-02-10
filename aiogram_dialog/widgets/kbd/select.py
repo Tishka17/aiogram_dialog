@@ -81,9 +81,9 @@ class Select(Keyboard):
     def get_multichecked(self, manager: DialogManager) -> List[str]:
         return manager.context.data(self.widget_id, [], internal=True)
 
-    def is_checked(self, item_id: str, manager: DialogManager) -> bool:
+    def is_checked(self, item_id: Union[str, int], manager: DialogManager) -> bool:
         data: List = self.get_multichecked(manager)
-        return item_id in data
+        return str(item_id) in data
 
     async def _process_on_state_changed(self, event: ChatEvent, item_id: str, manager: DialogManager):
         if self.on_state_changed:
