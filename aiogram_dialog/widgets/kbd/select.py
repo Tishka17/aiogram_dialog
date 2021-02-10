@@ -10,7 +10,7 @@ from .base import Keyboard
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
-OnStateChanged = Callable[[CallbackQuery, str, "Select", DialogManager], Awaitable]
+OnStateChanged = Callable[[ChatEvent, str, "Select", DialogManager], Awaitable]
 
 
 def get_identity(items: Sequence) -> ItemsGetter:
@@ -61,7 +61,7 @@ class Select(Keyboard):
         if not c.data.startswith(self.callback_data_prefix):
             return False
         item_id = c.data[len(self.callback_data_prefix):]
-        self.set_checked(c, item_id, not self.is_checked(item_id, manager), manager)
+        await self.set_checked(c, item_id, not self.is_checked(item_id, manager), manager)
         return True
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
@@ -88,20 +88,20 @@ class Select(Keyboard):
         if self.on_state_changed:
             await self.on_state_changed(event, item_id, self, manager)
 
-    def set_checked(self, event: ChatEvent, item_id: str, checked: bool, manager: DialogManager) -> None:
+    async def set_checked(self, event: ChatEvent, item_id: str, checked: bool, manager: DialogManager) -> None:
         data: List = self.get_multichecked(manager)
         if item_id in data:
             if not checked:
                 if len(data) > self.min_selected:
                     data.remove(item_id)
-                    self._process_on_state_changed(event, item_id, manager)
+                    await self._process_on_state_changed(event, item_id, manager)
         else:
             if checked:
                 if self.multiple:
                     if self.max_selected == 0 or self.max_selected > len(data):
                         data.append(item_id)
-                        self._process_on_state_changed(event, item_id, manager)
+                        await self._process_on_state_changed(event, item_id, manager)
                 else:
                     data = [item_id]
-                    self._process_on_state_changed(event, item_id, manager)
+                    await self._process_on_state_changed(event, item_id, manager)
         manager.context.set_data(self.widget_id, data, internal=True)

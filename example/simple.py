@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent
 from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchState, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
@@ -40,7 +40,7 @@ async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
     await manager.done()
 
 
-async def on_age_changed(c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
+async def on_age_changed(c: ChatEvent, item_id: str, select: Select, manager: DialogManager):
     await manager.dialog().next(manager)
 
 
