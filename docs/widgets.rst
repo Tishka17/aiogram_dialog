@@ -156,10 +156,10 @@ Also it can be used to produce rows of fixed width. To do it set ``keep_rows=Fal
 Checkbox
 **************
 
-Some of the widgets are stateful. They have own reaction on user clicks.
+Some of the widgets are stateful. They have some state which is affected by on user clicks.
 
 On of such widgets is **Checkbox**. It can be in checked and unchecked state represented by two texts.
-On each click it changes its state.
+On each click it inverses its state.
 
 If a dialog with checkbox is visible, you can check its state by calling ``is_checked`` method and change it calling ``set_checked``
 
@@ -167,8 +167,8 @@ As button has ``on_click`` callback, checkbox has ``on_state_changed`` which is 
 
 .. literalinclude:: examples/widgets/checkbox.py
 
-.. image:: resources/checkbox-checked.png
-.. image:: resources/checkbox-unchecked.png
+.. image:: resources/checkbox_checked.png
+.. image:: resources/checkbox_unchecked.png
 
 
 .. note::
@@ -176,7 +176,41 @@ As button has ``on_click`` callback, checkbox has ``on_state_changed`` which is 
     State of widget is stored separately for each separate opened dialog. But all windows in dialog share same storage. So, multiple widgets with same id will share state.
     But at the same time if you open several copies of same dialogs they will not mix their states
 
+Select
+**********
 
+**Select** is another kind of stateful widget. It acts like a group of checkboxes with two significant differences:
+
+1. Set of buttons can be dynamic (using window data getter)
+2. Buttons can affect each other. You can limit maximum/minimum simultaneously selected items ignoring extra clicks. Or you can use it as a radiobutton deselecting one item by clicks on the other one.
+
+To create select you should pass two texts. Usually it is ``Format``.
+Unlike in normal buttons and window they are used to render an item, but not the window data itself.
+So the received data differs.
+When rendering item button in select it passes a dictionary with ``item`` itself, ``data`` - original window data and ``pos`` - position of item in list starting from 1 (``pos0`` - position starting from 0).
+
+The next required thing is items. Normally it is a string with key in your window data. The value by this key must be a collection of any objects.
+If you have a static list of items you can pass it directly to a select widget instead of providing data key.
+
+Last important thing is ids. Besides a widget id you need a function which can return id (string or integer type) for any item.
+
+
+.. literalinclude:: examples/widgets/select_simple.py
+
+After few clicks it will look like:
+
+.. image::  resources/select_simple.png
+
+.. note::
+
+    Select places everything in single row. If it is not suitable for your case - simply wrap it with `Group`_ or `Column`_
+
+Other useful options are:
+
+* ``multiple`` enables multi select. If not set (default) it deselects previously selected item when other is clicked.
+* ``min_selected`` - limits minimal number of selected items ignoring clicks if this restriction is violated. It does not affect initial state.
+* ``max_selected`` - limits maximal number of selected items
+* ``on_state_changed`` - callback function similar to the one in `Checkbox`_.
 
 Hiding widgets
 ====================
