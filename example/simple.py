@@ -20,8 +20,7 @@ class DialogSG(StatesGroup):
 
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    age_select: Select = dialog_manager.dialog().find("w_age")
-    age = age_select.get_checked(dialog_manager)
+    age = dialog_manager.context.data("age", None)
     return {
         "name": dialog_manager.context.data("name", ""),
         "age": age,
@@ -41,6 +40,7 @@ async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
 
 
 async def on_age_changed(c: ChatEvent, item_id: str, select: Select, manager: DialogManager):
+    manager.context.set_data("age", item_id)
     await manager.dialog().next(manager)
 
 
@@ -54,12 +54,11 @@ dialog = Dialog(
     Window(
         text=Format("{name}! How old are you?"),
         kbd=Select(
-            checked_text=Format("✓ {item}"), unchecked_text=Format("{item}"),
+            Format("{item}"),
             items=["0-12", "12-18", "18-25", "25-40", "40+"],
             item_id_getter=lambda x: x,
-            min_selected=1,
             id="w_age",
-            on_state_changed=on_age_changed,
+            on_click=on_age_changed,
         ),
         state=DialogSG.age,
         getter=get_data,
