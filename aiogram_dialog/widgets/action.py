@@ -3,7 +3,7 @@ from typing import Optional
 
 from .when import Whenable, WhenCondition
 
-ID_PATTERN = re.compile("[a-zA-Z0-9_.]")
+ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 
 
 class Actionable(Whenable):

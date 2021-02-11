@@ -74,7 +74,9 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
 * :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
 * `Checkbox`_ - button with two states
-* `Select`_ - select one or multiple items
+* `Select`_ - dynamic group of buttons intended for selection use.
+* `Radio`_ - switch between multiple items. Like select but stores chosen item and renders it differently.
+* `Multiselect`_ - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.
 * ``SwitchState`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
 * ``Start`` - starts a new dialog with no params
@@ -191,50 +193,88 @@ As button has ``on_click`` callback, checkbox has ``on_state_changed`` which is 
 Select
 **********
 
-**Select** is another kind of stateful widget. It acts like a group of checkboxes with two significant differences:
+**Select** acts like a group of buttons but data is provided dynamically.
+It is mainly intended to use for selection a item from a list.
 
-1. Set of buttons can be dynamic (using window data getter)
-2. Buttons can affect each other. You can limit maximum/minimum simultaneously selected items ignoring extra clicks. Or you can use it as a radiobutton deselecting one item by clicks on the other one.
+Normally text of selection buttons is dynamic (e.g. ``Format``).
+During rendering an item text, it is passed a dictionary with:
 
-To create select you should pass two texts. Usually it is ``Format``.
-Unlike in normal buttons and window they are used to render an item, but not the window data itself.
-So the received data differs.
-When rendering item button in select it passes a dictionary with ``item`` itself, ``data`` - original window data and ``pos`` - position of item in list starting from 1 (``pos0`` - position starting from 0).
+* ``item`` - current item itself
+* ``data`` - original window data
+* ``pos`` - position of item in current items list starting from 1
+* ``pos0`` - position starting from 0
 
-The next required thing is items. Normally it is a string with key in your window data. The value by this key must be a collection of any objects.
+
+So the main required thing is items. Normally it is a string with key in your window data. The value by this key must be a collection of any objects.
 If you have a static list of items you can pass it directly to a select widget instead of providing data key.
 
-Last important thing is ids. Besides a widget id you need a function which can return id (string or integer type) for any item.
+Next important thing is ids. Besides a widget id you need a function which can return id (string or integer type) for any item.
 
 
-.. literalinclude:: examples/widgets/select_simple.py
+.. literalinclude:: examples/widgets/select.py
 
-After few clicks it will look like:
+.. image::  resources/select.png
 
-.. image::  resources/select_simple.png
 
 .. note::
 
     Select places everything in single row. If it is not suitable for your case - simply wrap it with `Group`_ or `Column`_
 
+
+Radio
+********
+
+**Radio** is staeful version of select widget. It marks each clicked item as checked deselecting others.
+It stores which item is selected so it can be accessed later
+
+Unlike for the ``Select`` you need two texts. First one is used to render checked item, second one is for unchecked.  Passed data is the same as for ``Select``
+
+Unlike in normal buttons and window they are used to render an item, but not the window data itself.
+
+Also you can provide ``on_state_changed`` callback function. It will be called when selected item is changed.
+
+.. literalinclude:: examples/widgets/radio.py
+
+.. image::  resources/radio.png
+
+Useful methods:
+
+* ``get_checked`` - returns an id of selected items
+* ``is_checked`` - returns if certain id is currently selected
+* ``set_checked`` - sets the selected item by id
+
+
+Multiselect
+************
+
+**Multiselect** is another kind of stateful selection widget.
+It very similar to ``Radio`` but remembers multiple selected items
+
+Same as for ``Radio`` you should pass two texts (for checked and unchecked items). Passed data is the same as for ``Select``
+
+
+.. literalinclude:: examples/widgets/multiselect.py
+
+After few clicks it will look like:
+
+.. image::  resources/multiselect.png
+
 Other useful options are:
 
-* ``multiple`` enables multi select. If not set (default) it deselects previously selected item when other is clicked.
 * ``min_selected`` - limits minimal number of selected items ignoring clicks if this restriction is violated. It does not affect initial state.
 * ``max_selected`` - limits maximal number of selected items
-* ``on_state_changed`` - callback function similar to the one in `Checkbox`_. Typical case is to switch state in single select mode
+* ``on_state_changed`` - callback function. Called when item changes selected state
 
 To work with selection you can use this methods:
 
-* ``get_checked`` - returns string id of one selected item or ``None``. Useful whe ``multi=False``
-* ``get_multichecked`` - returns a list of ids of all selected items. Useful whe ``multi=True``
+* ``get_checked`` - returns a list of ids of all selected items
 * ``is_checked`` - returns if certain id is currently selected
 * ``set_checked`` - changes selection state of provided id
 * ``reset_checked`` - resets all checked items to unchecked state
 
 .. warning::
 
-    ``Select`` widgets stores state of all checked items even if they disappear from window data.
+    ``Multiselect`` widgets stores state of all checked items even if they disappear from window data.
     It is very useful when you have pagination, but might be unexpected when data is really removed.
 
 

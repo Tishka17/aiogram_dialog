@@ -2,7 +2,7 @@ from .base import Keyboard
 from .button import Button, Url
 from .checkbox import Checkbox
 from .group import Group, Row, Column
-from .select import Select
+from .select import Select, Radio, Multiselect
 from .state import Back, Cancel, Next, Start, SwitchState
 
 __all__ = [
@@ -11,5 +11,5 @@ __all__ = [
     "Back", "Cancel", "Next", "Start", "SwitchState",
     "Group", "Row", "Column",
     "Checkbox",
-    "Select"
+    "Select", "Radio", "Multiselect",
 ]

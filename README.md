@@ -188,4 +188,6 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Next`/`Back` - switches state forward or backward
 * `Start` - starts a new dialog with no params
 * `Cancel` - closes the current dialog with no result. An underlying dialog is shown
-* `Select` - select one or multiple items. Items can be provided in constructor or passed from data getter of a window
+* `Select` - dynamic group of buttons
+* `Radio` - switch between multiple items. Like select but stores chosen item and renders it differently.   
+* `Multiselect` - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.   
