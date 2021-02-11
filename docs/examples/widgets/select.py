@@ -1,5 +1,6 @@
 import operator
 
+from aiogram_dialog import ChatEvent, DialogManager
 from aiogram_dialog.widgets.kbd import Select
 from aiogram_dialog.widgets.text import Format
 
@@ -18,11 +19,14 @@ async def get_data(**kwargs):
     }
 
 
+async def on_fruit_selected(c: ChatEvent, item_id: str, select: Select, manager: DialogManager):
+    print("Fruit selected: ", item_id)
+
+
 check = Select(
-    Format("✓ {item[0]} ({pos}/{data[count]})"),  # E.g `✓ Apple (1/4)`
-    Format("{item[0]} ({pos}/{data[count]})"),
+    Format("{item[0]} ({pos}/{data[count]})"),  # E.g `✓ Apple (1/4)`
     id="check",
     item_id_getter=operator.itemgetter(1),  # each item is a tuple with id on a first position
     items="fruits",  # we will use items from window data at a key `fruits`
-    multiple=True,  # enable multiple items selection
+    on_click=on_fruit_selected,
 )

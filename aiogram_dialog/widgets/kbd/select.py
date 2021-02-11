@@ -91,8 +91,10 @@ class Radio(StatefulSelect):
         return manager.context.data(self.widget_id, None, internal=True)
 
     async def set_checked(self, event: ChatEvent, item_id: Optional[str], manager: DialogManager):
+        checked = self.get_checked(manager)
         manager.context.set_data(self.widget_id, item_id, internal=True)
-        await self._process_on_state_changed(event, item_id, manager)
+        if checked != item_id:
+            await self._process_on_state_changed(event, item_id, manager)
 
     def is_checked(self, item_id: Union[str, int], manager: DialogManager) -> bool:
         return str(item_id) == self.get_checked(manager)
