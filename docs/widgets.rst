@@ -274,7 +274,7 @@ To work with selection you can use this methods:
 
 .. warning::
 
-    ``Select`` widgets stores state of all checked items even if they disappear from window data.
+    ``Multiselect`` widgets stores state of all checked items even if they disappear from window data.
     It is very useful when you have pagination, but might be unexpected when data is really removed.
 
 
