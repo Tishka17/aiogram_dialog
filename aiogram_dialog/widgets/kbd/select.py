@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from operator import itemgetter
 from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequence
 
@@ -62,7 +63,7 @@ class Select(Keyboard):
         return True
 
 
-class StatefulSelect(Select):
+class StatefulSelect(Select, ABC):
     def __init__(self, checked_text: Text, unchecked_text: Text,
                  id: str, item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
@@ -76,9 +77,11 @@ class StatefulSelect(Select):
         if self.on_state_changed:
             await self.on_state_changed(event, item_id, self, manager)
 
+    @abstractmethod
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
     async def _on_click(self, c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
         raise NotImplementedError
 
