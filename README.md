@@ -139,7 +139,7 @@ should provide corresponding state to switch into (usually it is state of first 
 For example in `/start` command handler:
 
 ```python
-@dp.message_handler(commands=["/start"])
+@dp.message_handler(commands=["start"])
 async def user_start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.first, reset_stack=True)
 ```
