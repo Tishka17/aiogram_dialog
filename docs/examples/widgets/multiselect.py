@@ -18,10 +18,10 @@ async def get_data(**kwargs):
     }
 
 
-check = Multiselect(
+fruits_kbd = Multiselect(
     Format("✓ {item[0]}"),  # E.g `✓ Apple`
     Format("{item[0]}"),
-    id="check",
+    id="m_fruits",
     item_id_getter=operator.itemgetter(1),
     items="fruits",
 )

@@ -18,10 +18,10 @@ async def get_data(**kwargs):
     }
 
 
-check = Radio(
+fruits_kbd = Radio(
     Format("🔘 {item[0]}"),  # E.g `🔘 Apple`
     Format("⚪️ {item[0]}"),
-    id="check",
+    id="r_fruits",
     item_id_getter=operator.itemgetter(1),
     items="fruits",
 )

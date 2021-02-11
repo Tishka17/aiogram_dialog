@@ -23,9 +23,9 @@ async def on_fruit_selected(c: ChatEvent, item_id: str, select: Select, manager:
     print("Fruit selected: ", item_id)
 
 
-check = Select(
+fruits_kbd = Select(
     Format("{item[0]} ({pos}/{data[count]})"),  # E.g `✓ Apple (1/4)`
-    id="check",
+    id="s_fruits",
     item_id_getter=operator.itemgetter(1),  # each item is a tuple with id on a first position
     items="fruits",  # we will use items from window data at a key `fruits`
     on_click=on_fruit_selected,
