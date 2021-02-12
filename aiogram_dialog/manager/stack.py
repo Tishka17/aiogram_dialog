@@ -60,6 +60,9 @@ class DialogStack:
         else:
             stack.remove(intent)
 
+    def clear(self):
+        self._stack().clear()
+
 
 if __name__ == '__main__':
     print(id_to_str(10000000000 - 1))

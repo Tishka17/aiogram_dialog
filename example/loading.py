@@ -69,7 +69,7 @@ main_menu = Dialog(
 
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MainSG.main)
+    await dialog_manager.start(MainSG.main, reset_stack=True)
 
 
 async def main():

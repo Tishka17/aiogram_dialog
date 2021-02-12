@@ -39,6 +39,7 @@ class DialogManagerImpl(DialogManager):
         if reset_stack:
             await remove_kbd_safe(self.event, self.proxy)
             reset_dialog_contexts(self.proxy)
+            self.stack.clear()
         dialog = self.registry.find_dialog(state)
         self.stack.push(state.state, data)
         self.context = self.load_context()
