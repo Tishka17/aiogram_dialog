@@ -10,7 +10,7 @@ this_directory = path.abspath(path.dirname(__file__))
 setup(
     name='aiogram_dialog',
     description='Mini-framework for dialogs on top of aiogram',
-    version='0.2',
+    version='0.9',
     url='https://github.com/tishka17/aiogram_dialog',
     author='A. Tikhonov',
     author_email='17@itishka.org',
