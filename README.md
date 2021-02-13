@@ -1,9 +1,15 @@
+
+[![PyPI version](https://badge.fury.io/py/aiogram-dialog.svg)](https://badge.fury.io/py/aiogram-dialog)
+[![downloads](https://img.shields.io/pypi/dm/aiogram_dialog.svg)](https://pypistats.org/packages/aiogram_dialog)
+[![license](https://img.shields.io/github/license/Tishka17/aiogram_dialog.svg)](https://github.com/Tishka17/aiogram_dialog/blob/master/LICENSE)
+
+
 ### Quickstart
 
 1. Install:
 
 ```bash
-pip install git+https://github.com/Tishka17/aiogram_dialog.git
+pip install aiogram_dialog
 ```
 
 2. See [examples](example)
