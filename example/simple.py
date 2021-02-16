@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent
-from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchState, Back
+from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -71,7 +71,7 @@ dialog = Dialog(
         ),
         kbd=Row(
             Back(),
-            SwitchState(Const("Restart"), id="restart", state=DialogSG.greeting),
+            SwitchTo(Const("Restart"), id="restart", state=DialogSG.greeting),
             Button(Const("Finish"), on_click=on_finish, id="finish"),
         ),
         getter=get_data,

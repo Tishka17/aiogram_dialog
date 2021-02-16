@@ -190,7 +190,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Row` - simplified version of group. All buttons placed in single row. 
 * `Column` - another simplified version of group. All buttons placed in single column (one per row). 
 * `Url` - single inline button with url
-* `SwitchState` - switches window within a dialog using provided state
+* `SwitchTo` - switches window within a dialog using provided state
 * `Next`/`Back` - switches state forward or backward
 * `Start` - starts a new dialog with no params
 * `Cancel` - closes the current dialog with no result. An underlying dialog is shown

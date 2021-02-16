@@ -9,7 +9,7 @@ from .button import Button, OnClick
 from ..when import WhenCondition
 
 
-class SwitchState(Button):
+class SwitchTo(Button):
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,

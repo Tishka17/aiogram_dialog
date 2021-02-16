@@ -77,7 +77,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Select`_ - dynamic group of buttons intended for selection use.
 * `Radio`_ - switch between multiple items. Like select but stores chosen item and renders it differently.
 * `Multiselect`_ - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.
-* ``SwitchState`` - switches window within a dialog using provided state
+* ``SwitchTo`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
 * ``Start`` - starts a new dialog with no params
 * ``Cancel`` - closes the current dialog with no result. An underlying dialog is shown
