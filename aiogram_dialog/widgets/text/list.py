@@ -29,7 +29,7 @@ class List(Text):
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
         texts = [
-            await self.field.render_text({"item": item}, manager)
-            for item in self.items_getter(data)
+            await self.field.render_text({"data": data, "item": item, "pos": pos + 1, "pos0": pos}, manager)
+            for pos, item in enumerate(self.items_getter(data))
         ]
         return self.sep.join(filter(None, texts))
