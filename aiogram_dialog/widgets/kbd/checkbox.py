@@ -16,11 +16,9 @@ class BaseCheckbox(Keyboard, ABC):
     def __init__(self, checked_text: Text, unchecked_text: Text,
                  id: str,
                  on_state_changed: Optional[OnStateChanged] = None,
-                 default: bool = False,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
         self.text = Case({True: checked_text, False: unchecked_text}, selector=self._is_text_checked)
-        self.default = default
         self.on_state_changed = on_state_changed
         self._callback_data_prefix = f"{self.widget_id}:"
 
@@ -55,6 +53,12 @@ class BaseCheckbox(Keyboard, ABC):
 
 
 class Checkbox(BaseCheckbox):
+    def __init__(self, checked_text: Text, unchecked_text: Text, id: str,
+                 on_state_changed: Optional[OnStateChanged] = None, default: bool = False,
+                 when: Union[str, Callable] = None):
+        super().__init__(checked_text, unchecked_text, id, on_state_changed, when)
+        self.default = default
+
     def is_checked(self, data: Dict, manager: DialogManager) -> bool:
         return manager.context.data(self.widget_id, self.default, internal=True)
 
