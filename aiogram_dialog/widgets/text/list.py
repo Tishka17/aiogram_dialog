@@ -1,6 +1,5 @@
-from collections import Sequence, Callable
 from operator import itemgetter
-from typing import Dict, Union
+from typing import Dict, Union, Sequence, Callable
 
 from .base import Text
 from ..when import WhenCondition
