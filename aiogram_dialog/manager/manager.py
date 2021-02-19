@@ -1,7 +1,6 @@
-from typing import Optional, Any, Dict, Protocol, Type
+from typing import Optional, Any, Dict
 
-from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery
 
@@ -43,12 +42,11 @@ class DialogManagerImpl(DialogManager):
         dialog = self.registry.find_dialog(state)
         self.stack.push(state.state, data)
         self.context = self.load_context()
-        await dialog.start(self, state)
+        await dialog.process_start(self, data, state)
 
     async def done(self, result: Any = None):
-        self.stack.pop()
-        if self.context:
-            self.context.clear()
+        await self.dialog().process_close(result, self)
+        await self.mark_closed()
         intent = self.current_intent()
         if intent:
             self.proxy.state = intent.name
@@ -62,8 +60,9 @@ class DialogManagerImpl(DialogManager):
         else:
             await remove_kbd_safe(self.event, self.proxy)
 
-    async def close(self):
-        self.context.clear()
+    async def mark_closed(self):
+        if self.context:
+            self.context.clear()
         self.stack.pop()
 
     def current_intent(self) -> Intent:

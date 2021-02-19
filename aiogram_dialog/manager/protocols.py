@@ -18,7 +18,10 @@ class ManagedDialogProto(Protocol):
     def states_group(self) -> Type[StatesGroup]:
         pass
 
-    async def start(self, manager: "DialogManager", state: Optional[State] = None) -> None:
+    async def process_close(self, result: Any, manager: "DialogManager"):
+        pass
+
+    async def process_start(self, manager: "DialogManager", start_data: Any, state: Optional[State] = None) -> None:
         pass
 
     async def show(self, manager: "DialogManager"):
