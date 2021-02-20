@@ -13,21 +13,21 @@ class DialogSG(StatesGroup):
 
 dialog = Dialog(
     Window(
-        text=Const("First"),
-        kbd=SwitchTo(Const("To second"), id="sec", state=DialogSG.second),
+        Const("First"),
+        SwitchTo(Const("To second"), id="sec", state=DialogSG.second),
         state=DialogSG.first,
     ),
     Window(
-        text=Const("Second"),
-        kbd=Row(
+        Const("Second"),
+        Row(
             Back(),
             Next(),
         ),
         state=DialogSG.second,
     ),
     Window(
-        text=Const("Third"),
-        kbd=Back(),
+        Const("Third"),
+        Back(),
         state=DialogSG.third,
     )
 )

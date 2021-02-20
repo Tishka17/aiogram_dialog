@@ -22,7 +22,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.on_state_changed = on_state_changed
         self._callback_data_prefix = f"{self.widget_id}:"
 
-    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         checked = int(self.is_checked(data, manager))
         # store current checked status in callback data
         return [[

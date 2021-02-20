@@ -26,21 +26,21 @@ async def go_next(c: CallbackQuery, button: Button, manager: DialogManager):
 
 dialog = Dialog(
     Window(
-        text=Const("First"),
-        kbd=Button(Const("To second"), id="sec", on_click=to_second),
+        Const("First"),
+        Button(Const("To second"), id="sec", on_click=to_second),
         state=DialogSG.first,
     ),
     Window(
-        text=Const("Second"),
-        kbd=Row(
+        Const("Second"),
+        Row(
             Button(Const("Back"), id="back2", on_click=go_back),
             Button(Const("Next"), id="next2", on_click=go_next),
         ),
         state=DialogSG.second,
     ),
     Window(
-        text=Const("Third"),
-        kbd=Button(Const("Back"), id="back3", on_click=go_back),
+        Const("Third"),
+        Button(Const("Back"), id="back3", on_click=go_back),
         state=DialogSG.third,
     )
 )

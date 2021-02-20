@@ -25,7 +25,7 @@ class Button(Keyboard):
             await self.on_click(c, self, manager)
         return True
 
-    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
@@ -40,7 +40,7 @@ class Url(Keyboard):
         self.text = text
         self.url = url
 
-    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),

@@ -31,8 +31,7 @@ bg_dialog = Dialog(
             Const("Your click is processing, please wait..."),
             Progress("progress", 10),
         ),
-        None,
-        Bg.progress,
+        state=Bg.progress,
         getter=get_bg_data,
     ),
 )
@@ -63,7 +62,7 @@ main_menu = Dialog(
     Window(
         Const("Press button to start processing"),
         Button(Const("Start"), id="start", on_click=start_bg),
-        MainSG.main,
+        state=MainSG.main,
     ),
 )
 

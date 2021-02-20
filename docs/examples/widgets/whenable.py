@@ -37,6 +37,6 @@ window = Window(
         ),
         Button(Const("Admin mode"), id="nothing", when=is_tishka17),
     ),
-    MySG.main,
+    state=MySG.main,
     getter=get_data,
 )

@@ -40,13 +40,13 @@ name_dialog = Dialog(
     Window(
         Const("What is your name?"),
         Cancel(),
-        NameSG.input,
+        state=NameSG.input,
         on_message=name_handler,
     ),
     Window(
         Format("Your name is `{name}`, it is correct?"),
         Row(Back(Const("No")), Button(Const("Yes"), id="yes", on_click=on_finish)),
-        NameSG.confirm,
+        state=NameSG.confirm,
         getter=get_name_data
     )
 )
@@ -82,7 +82,7 @@ main_menu = Dialog(
             Start(Const("Enter name"), id="set", state=NameSG.input),
             Button(Const("Reset name"), id="reset", on_click=on_reset_name, when="name")
         ),
-        MainSG.main,
+        state=MainSG.main,
         getter=get_main_data,
     ),
     on_process_result=process_result,
@@ -99,10 +99,10 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
+    dp.register_message_handler(start, text="/start", state="*")
     registry = DialogRegistry(dp)
     registry.register(name_dialog)
     registry.register(main_menu)
-    dp.register_message_handler(start, text="/start", state="*")
 
     await dp.start_polling()
 

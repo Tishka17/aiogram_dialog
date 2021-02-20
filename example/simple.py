@@ -46,14 +46,13 @@ async def on_age_changed(c: ChatEvent, item_id: str, select: Select, manager: Di
 
 dialog = Dialog(
     Window(
-        text=Const("Greetings! Please, introduce yourself:"),
-        kbd=None,
+        Const("Greetings! Please, introduce yourself:"),
         state=DialogSG.greeting,
         on_message=name_handler,
     ),
     Window(
-        text=Format("{name}! How old are you?"),
-        kbd=Select(
+        Format("{name}! How old are you?"),
+        Select(
             Format("{item}"),
             items=["0-12", "12-18", "18-25", "25-40", "40+"],
             item_id_getter=lambda x: x,
@@ -64,12 +63,12 @@ dialog = Dialog(
         getter=get_data,
     ),
     Window(
-        text=Multi(
+        Multi(
             Format("{name}! Thank you for your answers."),
             Const("Hope you are not smoking", when="can_smoke"),
             sep="\n\n",
         ),
-        kbd=Row(
+        Row(
             Back(),
             SwitchTo(Const("Restart"), id="restart", state=DialogSG.greeting),
             Button(Const("Finish"), on_click=on_finish, id="finish"),
@@ -90,9 +89,9 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
+    dp.register_message_handler(start, text="/start", state="*")
     registry = DialogRegistry(dp)
     registry.register(dialog)
-    dp.register_message_handler(start, text="/start", state="*")
 
     await dp.start_polling()
 

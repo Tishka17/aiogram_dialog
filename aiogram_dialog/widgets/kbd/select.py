@@ -41,7 +41,7 @@ class Select(Keyboard):
         else:
             self.items_getter = get_identity(items)
 
-    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         return [[
             await self._render_button(pos, item, data, manager)
             for pos, item in enumerate(self.items_getter(data))

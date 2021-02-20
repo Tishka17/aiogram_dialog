@@ -11,7 +11,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
 from aiogram_dialog.manager.protocols import BgManagerProto
 from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
-from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
+from aiogram_dialog.widgets.text import Const, Format, Progress
 
 API_TOKEN = ""
 
@@ -81,42 +81,35 @@ multiselect = Multiselect(
 
 dialog1 = Dialog(
     Window(
-        Multi(
-            Const("Hello, {name}!"),
-            Format("Hello, {name}!\n", when=lambda data, w, m: data["age"] > 18),
-            Format("Now: {now}"),
-            Progress("progress", 10),
-            Progress("progress2", 10, filled="🟩"),
-            sep="\n",
-        ),
+        Const("Hello, {name}!"),
+        Format("Hello, {name}!\n", when=lambda data, w, m: data["age"] > 18),
+        Format("Now: {now}"),
+        Progress("progress", 10),
+        Progress("progress2", 10, filled="🟩"),
         Group(
-            Group(
-                Button(Format("{name}"), "b1"),
-                Button(Const("Is it Fun?"), "b2", on_click=fun),
-                Checkbox(Const("Yes"), Const("No"), "check"),
-                keep_rows=False
-            ),
-            select,
-            radio,
-            multiselect,
-            Button(Format("{now}"), "b3"),
-            Row(Button(Progress("progress", 5), "b3"), Button(Progress("progress2", 5, filled="🟩"), "b4")),
-            Next(),
+            Button(Format("{name}"), "b1"),
+            Button(Const("Is it Fun?"), "b2", on_click=fun),
+            Checkbox(Const("Yes"), Const("No"), "check"),
+            keep_rows=False
         ),
+        select,
+        radio,
+        multiselect,
+        Button(Format("{now}"), "b3"),
+        Row(Button(Progress("progress", 5), "b3"), Button(Progress("progress2", 5, filled="🟩"), "b4")),
+        Next(),
         getter=get_data,
         state=Register.hello,
         on_message=input_fun,
     ),
     Window(
         Const("Выберите время начала"),
-        Group(
-            Group(*[
-                Button(Const(f"{h % 24:2}:{m:02}"), f"{h}_{m}")
-                for h in range(20, 26) for m in range(0, 60, 15)
-            ], keep_rows=False, width=4),
-            Group(Button(Const("Позже"), "ltr"), Button(Const("Раньше"), "erl"), keep_rows=False),
-            Back(Const("Назад")),
-        ),
+        Group(*[
+            Button(Const(f"{h % 24:2}:{m:02}"), f"{h}_{m}")
+            for h in range(20, 26) for m in range(0, 60, 15)
+        ], keep_rows=False, width=4),
+        Group(Button(Const("Позже"), "ltr"), Button(Const("Раньше"), "erl"), keep_rows=False),
+        Back(Const("Назад")),
         state=Register.name
     )
 )
