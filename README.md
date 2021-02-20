@@ -3,6 +3,9 @@
 [![downloads](https://img.shields.io/pypi/dm/aiogram_dialog.svg)](https://pypistats.org/packages/aiogram_dialog)
 [![license](https://img.shields.io/github/license/Tishka17/aiogram_dialog.svg)](https://github.com/Tishka17/aiogram_dialog/blob/master/LICENSE)
 
+### About
+
+Aiogram-dialog is a GUI framework for telegram bot. It is inspired by ideas of Android SDK and React.js
 
 ### Quickstart
 
@@ -14,29 +17,9 @@ pip install aiogram_dialog
 
 2. See [examples](example)
 
-3. If necessary, create custom controls like here: https://paste.ubuntu.com/p/zHwXGdgyqG/
+3. Read the [documetntation](https://aiogram_dialog.readthedocs.org)
 
 ### Usage
-
-The concept of library based on three ideas:
-
-1. Split data retrieving and message rendering
-2. Unite rendering buttons and processing clicks
-3. Better states routing
-
-To start using the library you need to learn base kinds of objects:
-
-UI:
-
-* **Widget** - UI build block, such as text, button or group of elements
-* **Window** - Single message. It consists of one or more widgets
-* **Dialog** - Several windows in a line that share data and can be switched one to another
-
-Technical:
-
-* **DialogRegistry** - container of all your dialogs, used to register them in dispatcher
-* **DialogManager** - main class used to manipulate dialogs in runtime
-* **DialogContext** - storage of all your dialog data. Can be accessed via dialog manager instance
 
 #### Declaring Window
 
@@ -64,8 +47,7 @@ class MySG(StatesGroup):
 
 Window(
     Const("Hello, unknown person"),
-    None,
-    MySG.main,
+    state=MySG.main,
 ),
 ```
 
@@ -153,24 +135,13 @@ async def user_start(message: Message, dialog_manager: DialogManager):
 **Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
 on your mobile phone, so you can reach stackoverflow error
 
-### Base widgets
-
-Base widgets are `Whenable` and `Actionable`.
-
-* `Whenable` can be hidden or shown when a condition is not satisfied. Condition is set via `when` parameter. 
-  It can be either a data field name or a predicate
-  
-* `Actionable` is any widget with action (currently only any type of keyboard). It has `id` and can be found by that id. 
-  It recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog. Buttons with different behavior also must have different ids. 
-
-All currently implemented texts and keyboards are `Whenable`
-All keyboards are also Actionable.
+### Widgets
 
 For picture above we have such widgets:
 
 ![window example](docs/resources/layout_example2.png)
 
-### Text widget types
+#### Text widget types
 
 Every time you need to render text use any of text widgets:
 
@@ -181,7 +152,7 @@ Every time you need to render text use any of text widgets:
 * `Progress` - shows a progress bar
 * `Jinja` - represents a HTML rendered using jinja2 template
 
-### Keyboard widget types
+#### Keyboard widget types
 
 Each keyboard provides one or multiple inline buttons. Text on button is rendered using text widget
 
