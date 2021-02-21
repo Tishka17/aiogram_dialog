@@ -41,9 +41,9 @@ class Window(DialogWindowProto):
             return {}
         return await self.getter(**manager.data)
 
-    async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager):
+    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager):
         if self.on_message:
-            await self.on_message.process_message(m, dialog, manager)
+            await self.on_message.process_message(message, dialog, manager)
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
         if self.keyboard:

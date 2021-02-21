@@ -1,6 +1,7 @@
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, List
 
-from aiogram.types import Message
+from aiogram.dispatcher.filters import ContentTypeFilter
+from aiogram.types import Message, ContentTypes
 
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
@@ -15,10 +16,13 @@ class BaseInput(Actionable):
 
 
 class MessageInput(BaseInput):
-    def __init__(self, func: MessageHandlerFunc):
+    def __init__(self, func: MessageHandlerFunc, content_types: List[str] = ContentTypes.TEXT):
         super().__init__()
         self.func = func
+        self.filter = ContentTypeFilter(content_types)
 
-    async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager) -> bool:
-        await self.func(m, dialog, manager)
+    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager) -> bool:
+        if not await self.filter.check(message):
+            return False
+        await self.func(message, dialog, manager)
         return True
