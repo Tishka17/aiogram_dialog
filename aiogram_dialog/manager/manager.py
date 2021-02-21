@@ -4,6 +4,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery
+from aiogram.utils.exceptions import MessageNotModified
 
 from .bg_manager import BgManager
 from .intent import Data, Intent, ChatEvent
@@ -13,13 +14,16 @@ from ..data import DialogContext, reset_dialog_contexts
 
 
 async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
-    if isinstance(event, CallbackQuery):
-        await event.message.edit_reply_markup()
-    else:
-        stub_context = DialogContext(proxy, "", None)
-        last_message_id = stub_context.last_message_id
-        if last_message_id:
-            await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
+    try:
+        if isinstance(event, CallbackQuery):
+            await event.message.edit_reply_markup()
+        else:
+            stub_context = DialogContext(proxy, "", None)
+            last_message_id = stub_context.last_message_id
+            if last_message_id:
+                await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
+    except MessageNotModified:
+        pass  # nothing to modify
 
 
 class DialogManagerImpl(DialogManager):
