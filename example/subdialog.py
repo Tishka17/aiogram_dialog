@@ -8,6 +8,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry
+from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
@@ -40,8 +41,8 @@ name_dialog = Dialog(
     Window(
         Const("What is your name?"),
         Cancel(),
+        MessageInput(name_handler),
         state=NameSG.input,
-        on_message=name_handler,
     ),
     Window(
         Format("Your name is `{name}`, it is correct?"),

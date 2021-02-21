@@ -9,6 +9,7 @@ from aiogram_dialog.manager.protocols import DialogManager
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.intent import DialogUpdateEvent
 from .widgets.action import Actionable
+from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
 from .widgets.text import Text
 from .widgets.utils import ensure_widgets
@@ -18,15 +19,13 @@ logger = getLogger(__name__)
 
 class Window(DialogWindowProto):
     def __init__(self,
-                 *widgets: Union[str, Text, Keyboard],
+                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
-                 on_message: Optional[Callable] = None,
                  parse_mode: ParseMode = None):
-        self.text, self.keyboard = ensure_widgets(widgets)
+        self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
-        self.on_message = on_message
         self.parse_mode = parse_mode
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
@@ -44,7 +43,7 @@ class Window(DialogWindowProto):
 
     async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager):
         if self.on_message:
-            await self.on_message(m, dialog, manager)
+            await self.on_message.process_message(m, dialog, manager)
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
         if self.keyboard:

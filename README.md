@@ -25,10 +25,10 @@ pip install aiogram_dialog
 
 Each window consists of:
 
-* Text widget (`text=`). Renders text of message.
-* Keyboard widget (`kbd=`). Render inline keyboard
+* Text widget. Renders text of message.
+* Keyboard widget. Render inline keyboard
+* Message handler. Called when user sends a message when window is shown
 * Data getter function (`getter=`). Loads data from any source which can be used in text/keyboard
-* Message handler (`on_message=`). Called when user sends a message when window is shown
 * State. Used when switching between windows
 
 **Info:** always create `State` inside `StatesGroup`

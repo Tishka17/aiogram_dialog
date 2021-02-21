@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent
+from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
@@ -47,8 +48,8 @@ async def on_age_changed(c: ChatEvent, item_id: str, select: Select, manager: Di
 dialog = Dialog(
     Window(
         Const("Greetings! Please, introduce yourself:"),
+        MessageInput(name_handler),
         state=DialogSG.greeting,
-        on_message=name_handler,
     ),
     Window(
         Format("{name}! How old are you?"),

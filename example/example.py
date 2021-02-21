@@ -10,6 +10,7 @@ from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
 from aiogram_dialog.manager.protocols import BgManagerProto
+from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
 from aiogram_dialog.widgets.text import Const, Format, Progress
 
@@ -98,9 +99,9 @@ dialog1 = Dialog(
         Button(Format("{now}"), "b3"),
         Row(Button(Progress("progress", 5), "b3"), Button(Progress("progress2", 5, filled="🟩"), "b4")),
         Next(),
+        MessageInput(input_fun),
         getter=get_data,
         state=Register.hello,
-        on_message=input_fun,
     ),
     Window(
         Const("Выберите время начала"),
@@ -127,8 +128,10 @@ async def get_data2(dialog_manager: DialogManager, **kwargs):
 dialog2 = Dialog(
     Window(
         Format("Your text is: {text}\nCurrent time: {now}"),
-        Cancel(), state=Sub.text, getter=get_data2,
-        on_message=input_fun
+        MessageInput(input_fun),
+        Cancel(),
+        state=Sub.text,
+        getter=get_data2,
     )
 )
 
