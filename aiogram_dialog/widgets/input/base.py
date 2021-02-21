@@ -16,7 +16,7 @@ class BaseInput(Actionable):
 
 
 class MessageInput(BaseInput):
-    def __init__(self, func: MessageHandlerFunc, content_types: List[str] = ContentTypes.TEXT):
+    def __init__(self, func: MessageHandlerFunc, content_types: List[str] = ContentTypeFilter.default):
         super().__init__()
         self.func = func
         self.filter = ContentTypeFilter(content_types)
