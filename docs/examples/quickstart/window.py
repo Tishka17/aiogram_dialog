@@ -12,5 +12,5 @@ class MySG(StatesGroup):
 main_window = Window(
     Const("Hello, unknown person"),  # just a constant text
     Button(Const("Useless button"), id="nothing"),  # button with text and id
-    MySG.main,  # state is used to identify window between dialogs
+    state=MySG.main,  # state is used to identify window between dialogs
 )

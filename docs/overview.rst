@@ -50,7 +50,7 @@ It is important you have a storage because **aiogram_dialog** uses ``FSMContext`
 
 .. literalinclude:: examples/quickstart/bot.py
 
-To start using your dialog you need to register it. Also library needs some additional registartions for its internals.
+To start using your dialog you need to register it. Also library needs some additional registrations for its internals.
 To do it we will create **DialogRegistry** and use it to register our dialog
 
 .. literalinclude:: examples/quickstart/register.py

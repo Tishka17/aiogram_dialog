@@ -20,7 +20,7 @@ class MySG(StatesGroup):
 main_window = Window(
     Const("Hello, unknown person"),
     Button(Const("Useless button"), id="nothing"),
-    MySG.main,
+    state=MySG.main,
 )
 dialog = Dialog(main_window)
 registry.register(dialog)

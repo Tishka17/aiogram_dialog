@@ -19,7 +19,7 @@ dialog = Dialog(
     Window(
         Format("Hello, {name}!"),
         Button(Const("Useless button"), id="nothing"),
-        MySG.main,
+        state=MySG.main,
         getter=get_data,  # here we set our data getter
     )
 )

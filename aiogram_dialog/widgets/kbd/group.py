@@ -27,10 +27,10 @@ class Group(Keyboard):
                 return widget
         return None
 
-    async def _render_kbd(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for b in self.buttons:
-            b_kbd = await b.render_kbd(data, manager)
+            b_kbd = await b.render_keyboard(data, manager)
             if self.keep_rows or not kbd:
                 kbd += b_kbd
             else:

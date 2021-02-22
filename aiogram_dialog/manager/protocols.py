@@ -18,13 +18,28 @@ class ManagedDialogProto(Protocol):
     def states_group(self) -> Type[StatesGroup]:
         pass
 
-    async def start(self, manager: "DialogManager", state: Optional[State] = None) -> None:
+    async def process_close(self, result: Any, manager: "DialogManager"):
+        pass
+
+    async def process_start(self, manager: "DialogManager", start_data: Any, state: Optional[State] = None) -> None:
         pass
 
     async def show(self, manager: "DialogManager"):
         pass
 
     async def process_result(self, result: Any, manager: "DialogManager"):
+        pass
+
+    async def next(self, manager: "DialogManager"):
+        pass
+
+    async def back(self, manager: "DialogManager"):
+        pass
+
+    async def switch_to(self, state: State, manager: "DialogManager"):
+        pass
+
+    def find(self, widget_id) -> Optional[Any]:
         pass
 
 
@@ -61,6 +76,9 @@ class DialogManager(Protocol):
         pass
 
     def bg(self) -> "BgManagerProto":
+        pass
+
+    async def close_manager(self) -> None:
         pass
 
 

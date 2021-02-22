@@ -1,34 +1,32 @@
 from logging import getLogger
-from typing import Dict, Callable, Optional
+from typing import Dict, Callable, Optional, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 from aiogram.utils.exceptions import MessageNotModified
 
+from aiogram_dialog.manager.protocols import DialogManager
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.intent import DialogUpdateEvent
 from .widgets.action import Actionable
-from .widgets.kbd import Keyboard, Row
-from .widgets.text import Text, Const
-from aiogram_dialog.manager.protocols import DialogManager
+from .widgets.input import BaseInput, MessageHandlerFunc
+from .widgets.kbd import Keyboard
+from .widgets.text import Text
+from .widgets.utils import ensure_widgets
+from .widgets.widget_event import WidgetEventProcessor
 
 logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
-    def __init__(self, text: Optional[Text], kbd: Optional[Keyboard], state: State,
+    def __init__(self,
+                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
+                 state: State,
                  getter: DataGetter = None,
-                 on_message: Optional[Callable] = None,
                  parse_mode: ParseMode = None):
-        if text is None:
-            text = Const("")
-        self.text = text
-        if kbd is None:
-            kbd = Row()
-        self.kbd = kbd
+        self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
-        self.on_message = on_message
         self.parse_mode = parse_mode
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
@@ -36,7 +34,7 @@ class Window(DialogWindowProto):
 
     async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
-            inline_keyboard=await self.kbd.render_kbd(data, manager)
+            inline_keyboard=await self.keyboard.render_keyboard(data, manager)
         )
 
     async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
@@ -44,13 +42,13 @@ class Window(DialogWindowProto):
             return {}
         return await self.getter(**manager.data)
 
-    async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager):
+    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager):
         if self.on_message:
-            await self.on_message(m, dialog, manager)
+            await self.on_message.process_message(message, dialog, manager)
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
-        if self.kbd:
-            await self.kbd.process_callback(c, dialog, manager)
+        if self.keyboard:
+            await self.keyboard.process_callback(c, dialog, manager)
 
     async def show(self, dialog: Dialog, manager: DialogManager) -> Message:
         logger.debug("Show window: %s", self)
@@ -86,8 +84,12 @@ class Window(DialogWindowProto):
         return self.state
 
     def find(self, widget_id) -> Optional[Actionable]:
-        if self.kbd:
-            return self.kbd.find(widget_id)
+        if self.keyboard:
+            res = self.keyboard.find(widget_id)
+            if res:
+                return res
+        if self.on_message:
+            return self.on_message.find(widget_id)
         return None
 
     def __repr__(self):

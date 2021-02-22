@@ -14,7 +14,7 @@ DIALOG_CONTEXT = "DIALOG_CONTEXT"
 DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
-OnProcessResult = Callable[[Any, DialogManager], Awaitable]
+OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 
 
 class DialogWindowProto(Protocol):
@@ -44,7 +44,13 @@ class DialogWindowProto(Protocol):
 
 
 class Dialog(ManagedDialogProto):
-    def __init__(self, *windows: DialogWindowProto, on_process_result: Optional[OnProcessResult] = None):
+    def __init__(
+            self,
+            *windows: DialogWindowProto,
+            on_start: Optional[OnDialogEvent] = None,
+            on_close: Optional[OnDialogEvent] = None,
+            on_process_result: Optional[OnDialogEvent] = None
+    ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
         for w in windows:
@@ -55,6 +61,8 @@ class Dialog(ManagedDialogProto):
                 raise ValueError(f"Multiple windows with state {state}")
             self.states.append(state)
         self.windows: Dict[State, DialogWindowProto] = dict(zip(self.states, windows))
+        self.on_start = on_start
+        self.on_close = on_close
         self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
@@ -69,12 +77,17 @@ class Dialog(ManagedDialogProto):
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def start(self, manager: DialogManager, state: Optional[State] = None) -> None:
+    async def process_start(self, manager: DialogManager, start_data: Any, state: Optional[State] = None) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
+        await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
+
+    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any, manager: DialogManager):
+        if callback:
+            await callback(data, manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
@@ -121,8 +134,10 @@ class Dialog(ManagedDialogProto):
         return self._states_group.__full_group_name__
 
     async def process_result(self, result: Any, manager: DialogManager):
-        if self.on_process_result:
-            await self.on_process_result(result, manager)
+        await self._process_callback(self.on_process_result, result, manager)
+
+    async def process_close(self, result: Any, manager: DialogManager):
+        await self._process_callback(self.on_close, result, manager)
 
     def find(self, widget_id) -> Optional[Actionable]:
         for w in self.windows.values():

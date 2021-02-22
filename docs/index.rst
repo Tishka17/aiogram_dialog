@@ -7,6 +7,7 @@ aiogram-dialog
 
    overview
    widgets
+   transitions
 
 
 Indices and tables
