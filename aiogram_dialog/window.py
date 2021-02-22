@@ -85,7 +85,11 @@ class Window(DialogWindowProto):
 
     def find(self, widget_id) -> Optional[Actionable]:
         if self.keyboard:
-            return self.keyboard.find(widget_id)
+            res = self.keyboard.find(widget_id)
+            if res:
+                return res
+        if self.on_message:
+            return self.on_message.find(widget_id)
         return None
 
     def __repr__(self):

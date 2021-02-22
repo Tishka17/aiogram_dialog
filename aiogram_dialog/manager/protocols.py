@@ -39,6 +39,9 @@ class ManagedDialogProto(Protocol):
     async def switch_to(self, state: State, manager: "DialogManager"):
         pass
 
+    def find(self, widget_id) -> Optional[Any]:
+        pass
+
 
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
