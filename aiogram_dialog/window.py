@@ -13,13 +13,14 @@ from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
 from .widgets.text import Text
 from .widgets.utils import ensure_widgets
+from .widgets.widget_event import WidgetEventProcessor
 
 logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
     def __init__(self,
-                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
+                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, WidgetEventProcessor, BaseInput],
                  state: State,
                  getter: DataGetter = None,
                  parse_mode: ParseMode = None):
