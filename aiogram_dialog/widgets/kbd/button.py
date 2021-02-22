@@ -5,6 +5,7 @@ from aiogram.types import InlineKeyboardButton, CallbackQuery
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text
+from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from ..when import WhenCondition
 
@@ -12,17 +13,17 @@ OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 
 class Button(Keyboard):
-    def __init__(self, text: Text, id: str, on_click: Optional[OnClick] = None,
+    def __init__(self, text: Text, id: str,
+                 on_click: Union[OnClick, WidgetEventProcessor, None] = None,
                  when: WhenCondition = None):
         super().__init__(id, when)
         self.text = text
-        self.on_click = on_click
+        self.on_click = ensure_event_processor(on_click)
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         if c.data != self.widget_id:
             return False
-        if self.on_click:
-            await self.on_click(c, self, manager)
+        await self.on_click.process_event(c, self, manager)
         return True
 
     async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:

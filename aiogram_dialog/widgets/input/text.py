@@ -1,4 +1,4 @@
-from typing import Callable, TypeVar, Generic, Optional, Awaitable, Union
+from typing import Callable, TypeVar, Generic, Awaitable, Union
 
 from aiogram.types import Message, ContentType
 
@@ -6,6 +6,7 @@ from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
+
 
 class BaseInput(Actionable):
     async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager):
@@ -32,12 +33,10 @@ class TextInput(BaseInput, Generic[T]):
             return False
         try:
             value = self.type_factory(message.text)
-            if self.on_success:
-                self.on_success.process_event(message, self, manager, value)
+            self.on_success.process_event(message, self, manager, value)
             manager.context.set_data(self.widget_id, message.text, internal=True)  # store original text
         except ValueError:
-            if self.on_error:
-                await self.on_error.process_event(message, self, manager)
+            await self.on_error.process_event(message, self, manager)
 
     def get_value(self, manager: DialogManager):
         return self.type_factory(manager.context.data(self.widget_id, internal=True))

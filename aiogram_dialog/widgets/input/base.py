@@ -17,7 +17,7 @@ class BaseInput(Actionable):
 
 
 class MessageInput(BaseInput):
-    def __init__(self, func: Union[MessageHandlerFunc, WidgetEventProcessor],
+    def __init__(self, func: Union[MessageHandlerFunc, WidgetEventProcessor, None],
                  content_types: List[str] = ContentTypeFilter.default):
         super().__init__()
         self.func = ensure_event_processor(func)
