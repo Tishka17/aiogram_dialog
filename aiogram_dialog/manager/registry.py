@@ -59,7 +59,8 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
 
     async def on_post_process_message(self, _, result, data: dict):
         manager: DialogManager = data.pop("dialog_manager")
-        await manager.proxy.save()
+        await manager.close_manager()
+
 
     on_post_process_callback_query = on_post_process_message
     on_post_process_aiogd_update = on_post_process_message

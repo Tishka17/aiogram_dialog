@@ -75,6 +75,9 @@ class DialogManager(Protocol):
     def bg(self) -> "BgManagerProto":
         pass
 
+    async def close_manager(self) -> None:
+        pass
+
 
 class BgManagerProto(Protocol):
     def current_intent(self) -> Intent:
