@@ -20,7 +20,7 @@ logger = getLogger(__name__)
 
 class Window(DialogWindowProto):
     def __init__(self,
-                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, WidgetEventProcessor, BaseInput],
+                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
                  parse_mode: ParseMode = None):

@@ -13,7 +13,10 @@ from ..when import WhenCondition
 
 class EventProcessorButton(Button, WidgetEventProcessor):
     async def process_event(self, event: ChatEvent, source: Any, manager: DialogManager, *args, **kwargs):
-        await self.on_click(event, self, manager)
+        await self._on_click(event, self, manager)
+
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
+        raise NotImplementedError
 
 
 class SwitchTo(EventProcessorButton):

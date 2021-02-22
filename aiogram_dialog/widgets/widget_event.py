@@ -15,7 +15,7 @@ class SimpleEventProcessor(WidgetEventProcessor):
 
     async def process_event(self, event: ChatEvent, source: Any, manager: DialogManager, *args, **kwargs):
         if self.callback:
-            self.callback(event, source, manager, *args, **kwargs)
+            await self.callback(event, source, manager, *args, **kwargs)
 
 
 def ensure_event_processor(processor: Union[Callable, WidgetEventProcessor, None]) -> WidgetEventProcessor:

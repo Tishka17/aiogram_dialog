@@ -52,7 +52,7 @@ def ensure_widgets(
             texts.append(ensure_text(w))
         elif isinstance(w, Keyboard):
             keyboards.append(ensure_keyboard(w))
-        elif isinstance(w, (BaseInput, Callable, WidgetEventProcessor)):
+        elif isinstance(w, (BaseInput, Callable)):
             inputs.append(ensure_input(w))
         else:
             raise TypeError("Invalid widget type: %s" % type(w))
