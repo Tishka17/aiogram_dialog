@@ -13,7 +13,7 @@ MessageHandlerFunc = Callable[[Message, Dialog, DialogManager], Awaitable]
 
 class BaseInput(Actionable):
     async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager) -> bool:
-        return False
+        raise NotImplementedError
 
 
 class MessageInput(BaseInput):

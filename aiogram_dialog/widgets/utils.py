@@ -1,6 +1,6 @@
 from typing import Union, Sequence, Tuple, Callable
 
-from .input import MessageHandlerFunc, BaseInput, MessageInput
+from .input import MessageHandlerFunc, BaseInput, MessageInput, TextInput
 from .kbd import Keyboard, Group
 from .text import Multi, Format, Text
 from .widget_event import WidgetEventProcessor

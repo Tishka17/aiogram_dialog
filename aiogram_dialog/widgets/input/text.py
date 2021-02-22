@@ -4,14 +4,8 @@ from aiogram.types import Message, ContentType
 
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
-
-
-class BaseInput(Actionable):
-    async def process_message(self, m: Message, dialog: Dialog, manager: DialogManager):
-        raise NotImplementedError
-
+from .base import BaseInput
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
