@@ -12,8 +12,8 @@ from .base import Keyboard
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
-OnStateChanged = Callable[[ChatEvent, str, "Select", DialogManager], Awaitable]
-OnClick = Callable[[CallbackQuery, str, "Select", DialogManager], Awaitable]
+OnItemStateChanged = Callable[[ChatEvent, "Select", DialogManager, str], Awaitable]
+OnItemClick = Callable[[CallbackQuery, "Select", DialogManager, str], Awaitable]
 
 
 def get_identity(items: Sequence) -> ItemsGetter:
@@ -28,7 +28,7 @@ class Select(Keyboard):
                  id: str,
                  item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
-                 on_click: Optional[OnClick] = None,
+                 on_click: Optional[OnItemClick] = None,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
         self.text = text
@@ -59,7 +59,7 @@ class Select(Keyboard):
             return False
         if self.on_click:
             item_id = c.data[len(self.callback_data_prefix):]
-            await self.on_click(c, item_id, self, manager)
+            await self.on_click(c, self, manager, item_id)
         return True
 
 
@@ -67,22 +67,29 @@ class StatefulSelect(Select, ABC):
     def __init__(self, checked_text: Text, unchecked_text: Text,
                  id: str, item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
-                 on_state_changed: Optional[OnStateChanged] = None,
+                 on_click: Optional[OnItemClick] = None,
+                 on_state_changed: Optional[OnItemStateChanged] = None,
                  when: Union[str, Callable] = None):
         text = Case({True: checked_text, False: unchecked_text}, selector=self._is_text_checked)
         super().__init__(text, id, item_id_getter, items, self._on_click, when)
+        self.on_item_click = on_click
         self.on_state_changed = on_state_changed
 
     async def _process_on_state_changed(self, event: ChatEvent, item_id: str, manager: DialogManager):
         if self.on_state_changed:
-            await self.on_state_changed(event, item_id, self, manager)
+            await self.on_state_changed(event, self, manager, item_id)
 
     @abstractmethod
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         raise NotImplementedError
 
+    async def _process_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
+        if self.on_item_click:
+            await self.on_item_click(c, select, manager, item_id)
+        await self._on_click(c, select, manager, item_id)
+
     @abstractmethod
-    async def _on_click(self, c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
         raise NotImplementedError
 
 
@@ -103,7 +110,7 @@ class Radio(StatefulSelect):
         item_id = str(self.item_id_getter(data["item"]))
         return self.is_checked(item_id, manager)
 
-    async def _on_click(self, c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
         print(self, item_id)
         await self.set_checked(c, item_id, manager)
 
@@ -111,7 +118,8 @@ class Radio(StatefulSelect):
 class Multiselect(StatefulSelect):
     def __init__(self, checked_text: Text, unchecked_text: Text, id: str, item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence], min_selected: int = 0, max_selected: int = 0,
-                 on_state_changed: Optional[OnStateChanged] = None, when: Union[str, Callable] = None):
+                 on_click: Optional[OnItemClick] = None, on_state_changed: Optional[OnItemStateChanged] = None,
+                 when: Union[str, Callable] = None):
         super().__init__(checked_text, unchecked_text, id, item_id_getter, items, on_state_changed, when)
         self.min_selected = min_selected
         self.max_selected = max_selected
@@ -144,5 +152,5 @@ class Multiselect(StatefulSelect):
                     await self._process_on_state_changed(event, item_id, manager)
         manager.context.set_data(self.widget_id, data, internal=True)
 
-    async def _on_click(self, c: CallbackQuery, item_id: str, select: Select, manager: DialogManager):
+    async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
         await self.set_checked(c, item_id, not self.is_checked(item_id, manager), manager)

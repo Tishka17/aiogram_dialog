@@ -40,7 +40,7 @@ async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
     await manager.done()
 
 
-async def on_age_changed(c: ChatEvent, item_id: str, select: Select, manager: DialogManager):
+async def on_age_changed(c: ChatEvent, select: Select, manager: DialogManager, item_id: str):
     manager.context.set_data("age", item_id)
     await manager.dialog().next(manager)
 

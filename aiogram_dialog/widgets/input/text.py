@@ -14,8 +14,8 @@ class BaseInput(Actionable):
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
-OnSuccess = Callable[[T, "TextInput", DialogManager], Awaitable]
-OnError = Callable[[str, "TextInput", DialogManager], Awaitable]
+OnSuccess = Callable[[Message, "TextInput", DialogManager, T], Awaitable]
+OnError = Callable[[Message, "TextInput", DialogManager], Awaitable]
 
 
 class TextInput(BaseInput, Generic[T]):
@@ -32,11 +32,11 @@ class TextInput(BaseInput, Generic[T]):
         try:
             value = self.type_factory(message.text)
             if self.on_success:
-                self.on_success(value, self, manager)
+                self.on_success(message, self, manager, value)
             manager.context.set_data(self.widget_id, message.text, internal=True)  # store original text
         except ValueError:
             if self.on_error:
-                await self.on_error(message.text, self, manager)
+                await self.on_error(message, self, manager)
 
     def get_value(self, manager: DialogManager):
         return self.type_factory(manager.context.data(self.widget_id, internal=True))
