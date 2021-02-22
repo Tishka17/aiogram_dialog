@@ -30,6 +30,15 @@ class ManagedDialogProto(Protocol):
     async def process_result(self, result: Any, manager: "DialogManager"):
         pass
 
+    async def next(self, manager: "DialogManager"):
+        pass
+
+    async def back(self, manager: "DialogManager"):
+        pass
+
+    async def switch_to(self, state: State, manager: "DialogManager"):
+        pass
+
 
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
