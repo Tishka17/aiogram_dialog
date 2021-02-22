@@ -40,7 +40,7 @@ class BaseCheckbox(Keyboard, ABC):
             return False
         # remove prefix and cast "0" as False, "1" as True
         checked = c.data[len(self._callback_data_prefix):] != "0"
-        self.on_click.process_event(c, self, manager)
+        await self.on_click.process_event(c, self, manager)
         await self.set_checked(c, not checked, manager)
         return True
 

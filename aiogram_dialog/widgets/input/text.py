@@ -33,7 +33,7 @@ class TextInput(BaseInput, Generic[T]):
             return False
         try:
             value = self.type_factory(message.text)
-            self.on_success.process_event(message, self, manager, value)
+            await self.on_success.process_event(message, self, manager, value)
             manager.context.set_data(self.widget_id, message.text, internal=True)  # store original text
         except ValueError:
             await self.on_error.process_event(message, self, manager)

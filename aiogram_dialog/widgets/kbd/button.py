@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Union, Dict, Awaitable
+from typing import List, Callable, Optional, Union, Dict, Awaitable, Any
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
