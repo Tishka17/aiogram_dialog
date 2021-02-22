@@ -1,15 +1,26 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
+from aiogram_dialog.manager.intent import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Const
+from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 from .button import Button, OnClick
 from ..when import WhenCondition
 
 
-class SwitchTo(Button):
+class EventProcessorButton(Button, WidgetEventProcessor):
+    async def process_event(self, event: ChatEvent, source: Any, manager: DialogManager, *args, **kwargs):
+        await self._on_click(event, self, manager)
+
+    async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
+        raise NotImplementedError
+
+
+class SwitchTo(EventProcessorButton):
+
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,
@@ -25,7 +36,7 @@ class SwitchTo(Button):
         await manager.dialog().switch_to(self.state, manager)
 
 
-class Next(Button):
+class Next(EventProcessorButton):
     def __init__(self, text: Text = Const("Next"), callback_data: str = "__next__",
                  on_click: Optional[Callable] = None,
                  when: WhenCondition = None):
@@ -36,11 +47,11 @@ class Next(Button):
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, button, manager)
+            await self.user_on_click(c, self, manager)
         await manager.dialog().next(manager)
 
 
-class Back(Button):
+class Back(EventProcessorButton):
     def __init__(self, text: Text = Const("Back"), id: str = "__back__",
                  on_click: Optional[Callable] = None,
                  when: WhenCondition = None):
@@ -51,11 +62,11 @@ class Back(Button):
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, button, manager)
+            await self.user_on_click(c, self, manager)
         await manager.dialog().back(manager)
 
 
-class Cancel(Button):
+class Cancel(EventProcessorButton):
     def __init__(self, text: Text = Const("Cancel"), id: str = "__cancel__",
                  on_click: Optional[Callable] = None,
                  when: WhenCondition = None):
@@ -65,11 +76,11 @@ class Cancel(Button):
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
-            await self.user_on_click(c, button, manager)
+            await self.user_on_click(c, self, manager)
         await manager.done()
 
 
-class Start(Button):
+class Start(EventProcessorButton):
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,

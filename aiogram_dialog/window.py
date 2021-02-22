@@ -13,6 +13,7 @@ from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
 from .widgets.text import Text
 from .widgets.utils import ensure_widgets
+from .widgets.widget_event import WidgetEventProcessor
 
 logger = getLogger(__name__)
 

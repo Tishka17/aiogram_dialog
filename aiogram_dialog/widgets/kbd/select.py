@@ -8,6 +8,7 @@ from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.intent import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Case
+from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
@@ -28,12 +29,12 @@ class Select(Keyboard):
                  id: str,
                  item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
-                 on_click: Optional[OnItemClick] = None,
+                 on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
         self.text = text
         self.widget_id = id
-        self.on_click = on_click
+        self.on_click = ensure_event_processor(on_click)
         self.callback_data_prefix = id + ":"
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
@@ -57,9 +58,8 @@ class Select(Keyboard):
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         if not c.data.startswith(self.callback_data_prefix):
             return False
-        if self.on_click:
-            item_id = c.data[len(self.callback_data_prefix):]
-            await self.on_click(c, self, manager, item_id)
+        item_id = c.data[len(self.callback_data_prefix):]
+        await self.on_click.process_event(c, self, manager, item_id)
         return True
 
 
@@ -67,17 +67,17 @@ class StatefulSelect(Select, ABC):
     def __init__(self, checked_text: Text, unchecked_text: Text,
                  id: str, item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
-                 on_click: Optional[OnItemClick] = None,
-                 on_state_changed: Optional[OnItemStateChanged] = None,
+                 on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+                 on_state_changed: Union[OnItemStateChanged, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
         text = Case({True: checked_text, False: unchecked_text}, selector=self._is_text_checked)
-        super().__init__(text, id, item_id_getter, items, self._on_click, when)
-        self.on_item_click = on_click
-        self.on_state_changed = on_state_changed
+        super().__init__(text, id, item_id_getter, items, self._process_click, when)
+        self.on_item_click = ensure_event_processor(on_click)
+        self.on_state_changed = ensure_event_processor(on_state_changed)
 
     async def _process_on_state_changed(self, event: ChatEvent, item_id: str, manager: DialogManager):
         if self.on_state_changed:
-            await self.on_state_changed(event, self, manager, item_id)
+            await self.on_state_changed.process_event(event, self, manager, item_id)
 
     @abstractmethod
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
@@ -85,7 +85,7 @@ class StatefulSelect(Select, ABC):
 
     async def _process_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
         if self.on_item_click:
-            await self.on_item_click(c, select, manager, item_id)
+            await self.on_item_click.process_event(c, select, manager, item_id)
         await self._on_click(c, select, manager, item_id)
 
     @abstractmethod
@@ -118,7 +118,8 @@ class Radio(StatefulSelect):
 class Multiselect(StatefulSelect):
     def __init__(self, checked_text: Text, unchecked_text: Text, id: str, item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence], min_selected: int = 0, max_selected: int = 0,
-                 on_click: Optional[OnItemClick] = None, on_state_changed: Optional[OnItemStateChanged] = None,
+                 on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+                 on_state_changed: Union[OnItemStateChanged, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
         super().__init__(checked_text, unchecked_text, id, item_id_getter, items, on_state_changed, when)
         self.min_selected = min_selected

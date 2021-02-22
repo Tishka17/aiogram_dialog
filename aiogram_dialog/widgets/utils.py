@@ -3,6 +3,7 @@ from typing import Union, Sequence, Tuple, Callable
 from .input import MessageHandlerFunc, BaseInput, MessageInput
 from .kbd import Keyboard, Group
 from .text import Multi, Format, Text
+from .widget_event import WidgetEventProcessor
 
 
 def ensure_text(widget: Union[str, Text, Sequence[Text]]) -> Text:
@@ -23,7 +24,9 @@ def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
     return widget
 
 
-def ensure_input(widget: Union[MessageHandlerFunc, BaseInput, Sequence[BaseInput]]) -> BaseInput:
+def ensure_input(
+        widget: Union[MessageHandlerFunc, WidgetEventProcessor, BaseInput, Sequence[BaseInput]]
+) -> BaseInput:
     if isinstance(widget, BaseInput):
         return widget
     elif isinstance(widget, Sequence):
