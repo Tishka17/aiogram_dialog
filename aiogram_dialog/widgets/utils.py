@@ -31,7 +31,7 @@ def ensure_input(
         return widget
     elif isinstance(widget, Sequence):
         if len(widget) == 0:
-            return BaseInput()
+            return MessageInput(None)
         elif len(widget) == 1:
             return widget[0]
         else:
