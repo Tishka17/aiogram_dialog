@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
 
 from aiogram import Dispatcher
@@ -15,6 +15,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
+W = TypeVar("W", bound=Awaitable)
 
 
 class DialogWindowProto(Protocol):
@@ -139,7 +140,7 @@ class Dialog(ManagedDialogProto):
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)
 
-    def find(self, widget_id) -> Optional[Actionable]:
+    def find(self, widget_id) -> Optional[W]:
         for w in self.windows.values():
             widget = w.find(widget_id)
             if widget:

@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Callable, Optional, Union
+from typing import Dict, Optional, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
@@ -13,7 +13,6 @@ from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
 from .widgets.text import Text
 from .widgets.utils import ensure_widgets
-from .widgets.widget_event import WidgetEventProcessor
 
 logger = getLogger(__name__)
 
@@ -56,6 +55,7 @@ class Window(DialogWindowProto):
         text = await self.render_text(current_data, manager)
         kbd = await self.render_kbd(current_data, manager)
         event = manager.event
+        context = manager.context
         if isinstance(event, CallbackQuery):
             if text == event.message.text:
                 if kbd != event.message.reply_markup:
@@ -63,22 +63,29 @@ class Window(DialogWindowProto):
                 else:
                     return event.message
             else:
-                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
-        elif isinstance(event, DialogUpdateEvent) and event.message:  # cannot really check if something changed
-            try:
-                return await event.message.edit_text(text=text, reply_markup=kbd, parse_mode=self.parse_mode)
-            except MessageNotModified:
-                pass  # nothing to update
-        else:
-            context = manager.context
+                return await event.message.edit_text(
+                    text=text, reply_markup=kbd, parse_mode=self.parse_mode
+                )
+        elif isinstance(event, DialogUpdateEvent):
             if context and context.last_message_id:
                 try:
-                    await manager.event.bot.edit_message_reply_markup(message_id=context.last_message_id,
-                                                                      chat_id=manager.event.chat.id)
+                    return await event.bot.edit_message_text(
+                        message_id=context.last_message_id, chat_id=event.chat.id,
+                        text=text, reply_markup=kbd, parse_mode=self.parse_mode
+                    )
+                except MessageNotModified:
+                    pass  # nothing to update
+        else:
+            if context and context.last_message_id:
+                try:
+                    await manager.event.bot.edit_message_reply_markup(
+                        message_id=context.last_message_id, chat_id=manager.event.chat.id
+                    )
                 except MessageNotModified:
                     pass  # nothing to remove
-            return await manager.event.bot.send_message(chat_id=event.chat.id, text=text, reply_markup=kbd,
-                                                        parse_mode=self.parse_mode)
+            return await manager.event.bot.send_message(
+                chat_id=event.chat.id, text=text, reply_markup=kbd, parse_mode=self.parse_mode
+            )
 
     def get_state(self) -> State:
         return self.state

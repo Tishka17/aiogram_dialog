@@ -1,8 +1,9 @@
 import asyncio
 from contextvars import copy_context
+from functools import partial
 from typing import Dict, Optional, Union
 
-from aiogram import Dispatcher
+from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.handler import Handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -76,9 +77,15 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
         self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
 
     async def notify(self, event: DialogUpdateEvent) -> None:
-        asyncio.get_running_loop().call_soon(self._process_update, event, context=copy_context())
+        callback = lambda: asyncio.create_task(self._process_update(event))
+
+        asyncio.get_running_loop().call_soon(
+            callback,
+            context=copy_context()
+        )
 
     async def _process_update(self, event: DialogUpdateEvent):
+        Bot.set_current(event.bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
         await self.update_handler.notify(event)

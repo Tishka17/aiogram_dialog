@@ -2,10 +2,10 @@ from typing import Optional, Any, Dict
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.storage import FSMContextProxy
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Chat, User
 from aiogram.utils.exceptions import MessageNotModified
 
-from .bg_manager import BgManager
+from .bg_manager import BgManager, get_chat
 from .intent import Data, Intent, ChatEvent
 from .protocols import DialogRegistryProto, DialogManager, BgManagerProto
 from .stack import DialogStack
@@ -107,15 +107,27 @@ class DialogManagerImpl(DialogManager):
         self.check_disabled()
         self.context.state = state
 
-    def bg(self) -> BgManagerProto:
+    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> BgManagerProto:
         if self.disabled:
             raise IncorrectBackgroundError(
                 "Please call `manager.bg()` "
                 "before starting background task"
             )
         self.check_disabled()
+
+        if user_id is not None:
+            user = User(id=user_id)
+        else:
+            user = self.event.from_user
+        if chat_id is not None:
+            chat = Chat(id=chat_id)
+        else:
+            chat = get_chat(self.event)
+
         return BgManager(
-            self.event,
+            user,
+            chat,
+            self.event.bot,
             self.registry,
             self.current_intent(),
             self.context.state,
