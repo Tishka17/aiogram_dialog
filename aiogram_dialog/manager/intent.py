@@ -30,9 +30,7 @@ class DialogUpdateEvent:
     bot: Bot
     from_user: User
     chat: Chat
-    message: Optional[Message]
     action: Action
-    current_intent: Intent
     data: Any
 
 

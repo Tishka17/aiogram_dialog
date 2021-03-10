@@ -7,10 +7,6 @@ logger = getLogger(__name__)
 
 
 async def handle_update(event: DialogUpdateEvent, dialog_manager: DialogManager):
-    if dialog_manager.current_intent() != event.current_intent:
-        logger.info("Current intent changed, skipping update processing")
-        return
-
     if isinstance(event, DialogStartEvent):
         await dialog_manager.start(state=event.new_state, data=event.data, reset_stack=event.reset_stack)
     elif isinstance(event, DialogSwitchEvent):

@@ -21,7 +21,8 @@ class ManagedDialogProto(Protocol):
     async def process_close(self, result: Any, manager: "DialogManager"):
         pass
 
-    async def process_start(self, manager: "DialogManager", start_data: Any, state: Optional[State] = None) -> None:
+    async def process_start(self, manager: "DialogManager", start_data: Any,
+                            state: Optional[State] = None) -> None:
         pass
 
     async def show(self, manager: "DialogManager"):
@@ -75,7 +76,7 @@ class DialogManager(Protocol):
     async def switch_to(self, state):
         pass
 
-    def bg(self) -> "BgManagerProto":
+    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> "BgManagerProto":
         pass
 
     async def close_manager(self) -> None:
