@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
@@ -36,6 +36,25 @@ class BgManager(BgManagerProto):
 
     def current_intent(self) -> Intent:
         return self.intent
+
+    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> BgManagerProto:
+        if user_id is not None:
+            user = User(id=user_id)
+        else:
+            user = self.user
+        if chat_id is not None:
+            chat = Chat(id=chat_id)
+        else:
+            chat = self.chat
+
+        return BgManager(
+            user,
+            chat,
+            self.bot,
+            self.registry,
+            self.current_intent(),
+            self.current_state,
+        )
 
     async def done(self, result: Any = None):
         await self.registry.notify(DialogUpdateEvent(
