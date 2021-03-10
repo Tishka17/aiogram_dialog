@@ -1,3 +1,5 @@
+import asyncio
+from contextvars import copy_context
 from typing import Dict, Optional, Union
 
 from aiogram import Dispatcher
@@ -5,6 +7,7 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.handler import Handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import FSMContextProxy
+from aiogram.types import User, Chat
 
 from .intent import DialogUpdateEvent
 from .manager import DialogManagerImpl
@@ -44,7 +47,9 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
         return self.dialogs[group]
 
     async def on_pre_process_message(self, event, data: dict):
-        proxy = await FSMContextProxy.create(self.dp.current_state())  # there is no state in data at this moment
+        proxy = await FSMContextProxy.create(
+            self.dp.current_state()  # there is no state in data at this moment
+        )
         manager = DialogManagerImpl(
             event,
             DialogStack(proxy),
@@ -61,15 +66,19 @@ class DialogRegistry(BaseMiddleware, DialogRegistryProto):
         manager: DialogManager = data.pop("dialog_manager")
         await manager.close_manager()
 
-
     on_post_process_callback_query = on_post_process_message
     on_post_process_aiogd_update = on_post_process_message
 
     def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
-        filters_set = self.dp.filters_factory.resolve(self.update_handler,
-                                                      *custom_filters,
-                                                      **kwargs)
+        filters_set = self.dp.filters_factory.resolve(
+            self.update_handler, *custom_filters, **kwargs
+        )
         self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
 
     async def notify(self, event: DialogUpdateEvent) -> None:
+        asyncio.get_running_loop().call_soon(self._process_update, event, context=copy_context())
+
+    async def _process_update(self, event: DialogUpdateEvent):
+        User.set_current(event.from_user)
+        Chat.set_current(event.chat)
         await self.update_handler.notify(event)
