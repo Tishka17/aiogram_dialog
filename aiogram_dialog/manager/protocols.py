@@ -98,3 +98,6 @@ class BgManagerProto(Protocol):
 
     async def update(self, data: Dict):
         pass
+
+    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> "BgManagerProto":
+        pass
