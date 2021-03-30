@@ -121,7 +121,7 @@ class Multiselect(StatefulSelect):
                  on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
                  on_state_changed: Union[OnItemStateChanged, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
-        super().__init__(checked_text, unchecked_text, id, item_id_getter, items, on_state_changed, when)
+        super().__init__(checked_text, unchecked_text, id, item_id_getter, items, on_click, on_state_changed, when)
         self.min_selected = min_selected
         self.max_selected = max_selected
 
