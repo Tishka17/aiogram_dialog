@@ -6,6 +6,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
+from aiogram_dialog.manager.intent import Intent
 from aiogram_dialog.manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
 from aiogram_dialog.widgets.action import Actionable
 
@@ -16,6 +17,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Awaitable)
+CB_SEP = "\x1D"
 
 
 class DialogWindowProto(Protocol):
@@ -50,7 +52,8 @@ class Dialog(ManagedDialogProto):
             *windows: DialogWindowProto,
             on_start: Optional[OnDialogEvent] = None,
             on_close: Optional[OnDialogEvent] = None,
-            on_process_result: Optional[OnDialogEvent] = None
+            on_process_result: Optional[OnDialogEvent] = None,
+            on_invalid_callback: Optional[OnDialogEvent] = None,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -65,6 +68,7 @@ class Dialog(ManagedDialogProto):
         self.on_start = on_start
         self.on_close = on_close
         self.on_process_result = on_process_result
+        self.on_invalid_callback = on_invalid_callback
 
     async def next(self, manager: DialogManager):
         if not manager.context:
@@ -78,7 +82,8 @@ class Dialog(ManagedDialogProto):
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def process_start(self, manager: DialogManager, start_data: Any, state: Optional[State] = None) -> None:
+    async def process_start(self, manager: DialogManager, start_data: Any,
+                            state: Optional[State] = None) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
@@ -86,13 +91,17 @@ class Dialog(ManagedDialogProto):
         await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any, manager: DialogManager):
+    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any,
+                                manager: DialogManager):
         if callback:
             await callback(data, manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
-            raise ValueError("Cannot switch from %s to another states group %s" % (state.group, self.states_group()))
+            raise ValueError(
+                "Cannot switch from %s to another states group %s" %
+                (state.group, self.states_group())
+            )
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
@@ -111,8 +120,22 @@ class Dialog(ManagedDialogProto):
         if dialog_manager.current_intent() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
+    def intent_callback_data(self, intent: Intent, callback_data: Optional[str]) -> Optional[str]:
+        if callback_data is None:
+            return None
+        return intent.id + CB_SEP + callback_data
+
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
+        if CB_SEP in c.data:
+            intent_id, new_data = c.data.split(CB_SEP, maxsplit=1)
+            if intent_id != intent.id:
+                logger.info("Invalid intent ID, skipping")
+                await self._process_callback(self.on_invalid_callback, c, dialog_manager)
+                await c.answer()
+                return
+            c.data = new_data
+
         window = await self._current_window(dialog_manager)
         await window.process_callback(c, self, dialog_manager)
         if dialog_manager.current_intent() == intent:  # no new dialog started
