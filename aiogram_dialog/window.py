@@ -3,7 +3,7 @@ from typing import Dict, Optional, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited
 
 from aiogram_dialog.manager.protocols import DialogManager
 from .dialog import Dialog, DialogWindowProto, DataGetter
@@ -73,7 +73,7 @@ class Window(DialogWindowProto):
                         message_id=context.last_message_id, chat_id=event.chat.id,
                         text=text, reply_markup=kbd, parse_mode=self.parse_mode
                     )
-                except MessageNotModified:
+                except (MessageNotModified, MessageCantBeEdited):
                     pass  # nothing to update
         else:
             if context and context.last_message_id:
@@ -81,7 +81,7 @@ class Window(DialogWindowProto):
                     await manager.event.bot.edit_message_reply_markup(
                         message_id=context.last_message_id, chat_id=manager.event.chat.id
                     )
-                except MessageNotModified:
+                except (MessageNotModified, MessageCantBeEdited):
                     pass  # nothing to remove
             return await manager.event.bot.send_message(
                 chat_id=event.chat.id, text=text, reply_markup=kbd, parse_mode=self.parse_mode
