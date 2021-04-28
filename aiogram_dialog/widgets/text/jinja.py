@@ -15,14 +15,11 @@ Filters = Union[Iterable[Tuple[str, Filter]], Mapping[str, Filter]]
 
 class Jinja(Text):
     def __init__(self, text: str, when: WhenCondition = None):
-        # TODO Environment
-        # from file
-        # custom filters
         super().__init__(when)
         self.template_text = text
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
-        env: Environment = manager.event.bot[BOT_ENV_FIELD]
+        env: Environment = manager.event.bot.get(BOT_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
         return template.render(data)
 
@@ -32,12 +29,10 @@ class StubLoader(BaseLoader):
         return template, template, lambda: True
 
 
-def setup_jinja(
-        bot: Bot,
+def _create_env(
         *args: Any,
         filters: Optional[Filters] = None,
-        **kwargs: Any,
-) -> Environment:
+        **kwargs: Any) -> Environment:
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)
     kwargs.setdefault("trim_blocks", True)
@@ -46,6 +41,17 @@ def setup_jinja(
     env = Environment(*args, **kwargs)
     if filters is not None:
         env.filters.update(filters)
-
-    bot[BOT_ENV_FIELD] = env
     return env
+
+
+def setup_jinja(
+        bot: Bot,
+        *args: Any,
+        filters: Optional[Filters] = None,
+        **kwargs: Any,
+) -> Environment:
+    bot[BOT_ENV_FIELD] = _create_env(*args, filters=filters, **kwargs)
+    return bot[BOT_ENV_FIELD]
+
+
+default_env = _create_env()
