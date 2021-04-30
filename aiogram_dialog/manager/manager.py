@@ -5,12 +5,12 @@ from aiogram.dispatcher.storage import FSMContextProxy
 from aiogram.types import CallbackQuery, Chat, User
 from aiogram.utils.exceptions import MessageNotModified
 
-from .bg_manager import BgManager, get_chat
+from .bg_manager import BgManager
 from .intent import Data, Intent, ChatEvent
 from .protocols import DialogRegistryProto, DialogManager, BgManagerProto
 from .stack import DialogStack
 from ..data import DialogContext, reset_dialog_contexts
-
+from ..utils import get_chat
 
 async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
     try:

@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMod
 
 from aiogram_dialog.manager.protocols import DialogManager
 from .dialog import Dialog, DialogWindowProto, DataGetter, MessageParams
+from .utils import get_chat
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
@@ -50,12 +51,8 @@ class Window(DialogWindowProto):
     async def render(self, dialog: Dialog, manager: DialogManager) -> Tuple[Message, MessageParams]:
         logger.debug("Show window: %s", self)
         current_data = await self.load_data(dialog, manager)
-        if isinstance(manager.event, CallbackQuery):
-            chat = manager.event.message.chat
-        else:
-            chat = manager.event.chat
         msg = Message(
-            chat=chat,
+            chat=get_chat(manager.event),
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
         )
