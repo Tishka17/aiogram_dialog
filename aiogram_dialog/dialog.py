@@ -1,15 +1,14 @@
-from dataclasses import dataclass
 from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar, Tuple
 from typing import Protocol
 
-from aiogram import Dispatcher, Bot
+from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes, ParseMode
-from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from aiogram_dialog.manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from aiogram_dialog.widgets.action import Actionable
+from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
+from .utils import MessageParams, show_message
+from .widgets.action import Actionable
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -18,12 +17,6 @@ DataGetter = Callable[..., Awaitable[Dict]]
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Awaitable)
-
-
-@dataclass
-class MessageParams:
-    parse_mode: Optional[ParseMode] = None
-    force_new: bool = False
 
 
 class DialogWindowProto(Protocol):
@@ -51,40 +44,6 @@ class DialogWindowProto(Protocol):
 
     def find(self, widget_id) -> Optional[Actionable]:
         raise NotImplementedError
-
-
-async def show_message(bot: Bot, new_message: Message, old_message: Message, params: MessageParams):
-    if not old_message or params.force_new:
-        return await send_message(bot, new_message, old_message, params)
-    if new_message.text == old_message.text and new_message.reply_markup == old_message.reply_markup:
-        return old_message
-    try:
-        return await bot.edit_message_text(
-            message_id=old_message.message_id, chat_id=old_message.chat.id,
-            text=new_message.text, reply_markup=new_message.reply_markup,
-            parse_mode=params.parse_mode,
-        )
-    except MessageNotModified:
-        return old_message
-    except MessageCantBeEdited:
-        return await send_message(bot, new_message, None, params)
-
-
-async def send_message(bot: Bot, new_message: Message, old_message: Optional[Message],
-                       params: MessageParams):
-    if old_message:
-        try:
-            await bot.edit_message_reply_markup(
-                message_id=old_message.message_id, chat_id=old_message.chat.id
-            )
-        except (MessageNotModified, MessageCantBeEdited):
-            pass  # nothing to remove
-    return await bot.send_message(
-        chat_id=new_message.chat.id,
-        text=new_message.text,
-        reply_markup=new_message.reply_markup,
-        parse_mode=params.parse_mode,
-    )
 
 
 class Dialog(ManagedDialogProto):

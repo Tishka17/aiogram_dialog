@@ -4,9 +4,9 @@ from typing import Dict, Optional, Union, Tuple
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 
-from aiogram_dialog.manager.protocols import DialogManager
-from .dialog import Dialog, DialogWindowProto, DataGetter, MessageParams
-from .utils import get_chat
+from .manager.protocols import DialogManager
+from .dialog import Dialog, DialogWindowProto, DataGetter
+from .utils import get_chat, MessageParams
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard

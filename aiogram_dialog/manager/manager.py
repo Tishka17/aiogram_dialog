@@ -2,27 +2,14 @@ from typing import Optional, Any, Dict
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.storage import FSMContextProxy
-from aiogram.types import CallbackQuery, Chat, User
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.types import CallbackQuery, Chat, User, Message
 
 from .bg_manager import BgManager
 from .intent import Data, Intent, ChatEvent
 from .protocols import DialogRegistryProto, DialogManager, BgManagerProto
 from .stack import DialogStack
 from ..data import DialogContext, reset_dialog_contexts
-from ..utils import get_chat
-
-async def remove_kbd_safe(event: ChatEvent, proxy: FSMContextProxy):
-    try:
-        if isinstance(event, CallbackQuery):
-            await event.message.edit_reply_markup()
-        else:
-            stub_context = DialogContext(proxy, "", None)
-            last_message_id = stub_context.last_message_id
-            if last_message_id:
-                await event.bot.edit_message_reply_markup(event.chat.id, last_message_id)
-    except MessageNotModified:
-        pass  # nothing to modify
+from ..utils import get_chat, remove_kbd
 
 
 class IncorrectBackgroundError(RuntimeError):
@@ -51,10 +38,19 @@ class DialogManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
+    async def _remove_kbd(self):
+        chat = get_chat(self.event)
+        if isinstance(self.event, CallbackQuery):
+            message = self.event.message
+        else:
+            stub_context = DialogContext(self.proxy, "", None)
+            message = Message(chat=chat, message_id=stub_context.last_message_id)
+        await remove_kbd(self.event.bot, message)
+
     async def start(self, state: State, data: Data = None, reset_stack: bool = False):
         self.check_disabled()
         if reset_stack:
-            await remove_kbd_safe(self.event, self.proxy)
+            await self._remove_kbd()
             reset_dialog_contexts(self.proxy)
             self.stack.clear()
         dialog = self.registry.find_dialog(state)
@@ -77,7 +73,7 @@ class DialogManagerImpl(DialogManager):
             await dialog.process_result(result, self)
             await dialog.show(self)
         else:
-            await remove_kbd_safe(self.event, self.proxy)
+            await self._remove_kbd()
 
     async def mark_closed(self):
         self.check_disabled()
