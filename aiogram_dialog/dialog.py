@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar, Tuple
 from typing import Protocol
 
-from aiogram import Dispatcher
+from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes, ParseMode
+from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited
 
 from aiogram_dialog.manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
 from aiogram_dialog.widgets.action import Actionable
@@ -16,6 +18,12 @@ DataGetter = Callable[..., Awaitable[Dict]]
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Awaitable)
+
+
+@dataclass
+class MessageParams:
+    parse_mode: Optional[ParseMode] = None
+    force_new: bool = False
 
 
 class DialogWindowProto(Protocol):
@@ -34,7 +42,8 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def show(self, dialog: "Dialog", manager: DialogManager) -> Message:
+    async def render(self, dialog: "Dialog", manager: DialogManager) -> Tuple[
+        Message, MessageParams]:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -42,6 +51,40 @@ class DialogWindowProto(Protocol):
 
     def find(self, widget_id) -> Optional[Actionable]:
         raise NotImplementedError
+
+
+async def show_message(bot: Bot, new_message: Message, old_message: Message, params: MessageParams):
+    if not old_message or params.force_new:
+        return await send_message(bot, new_message, old_message, params)
+    if new_message.text == old_message.text and new_message.reply_markup == old_message.reply_markup:
+        return old_message
+    try:
+        return await bot.edit_message_text(
+            message_id=old_message.message_id, chat_id=old_message.chat.id,
+            text=new_message.text, reply_markup=new_message.reply_markup,
+            parse_mode=params.parse_mode,
+        )
+    except MessageNotModified:
+        return old_message
+    except MessageCantBeEdited:
+        return await send_message(bot, new_message, None, params)
+
+
+async def send_message(bot: Bot, new_message: Message, old_message: Optional[Message],
+                       params: MessageParams):
+    if old_message:
+        try:
+            await bot.edit_message_reply_markup(
+                message_id=old_message.message_id, chat_id=old_message.chat.id
+            )
+        except (MessageNotModified, MessageCantBeEdited):
+            pass  # nothing to remove
+    return await bot.send_message(
+        chat_id=new_message.chat.id,
+        text=new_message.text,
+        reply_markup=new_message.reply_markup,
+        parse_mode=params.parse_mode,
+    )
 
 
 class Dialog(ManagedDialogProto):
@@ -78,7 +121,8 @@ class Dialog(ManagedDialogProto):
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def process_start(self, manager: DialogManager, start_data: Any, state: Optional[State] = None) -> None:
+    async def process_start(self, manager: DialogManager, start_data: Any,
+                            state: Optional[State] = None) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
@@ -86,13 +130,15 @@ class Dialog(ManagedDialogProto):
         await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any, manager: DialogManager):
+    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any,
+                                manager: DialogManager):
         if callback:
             await callback(data, manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
-            raise ValueError("Cannot switch from %s to another states group %s" % (state.group, self.states_group()))
+            raise ValueError("Cannot switch from %s to another states group %s" % (
+                state.group, self.states_group()))
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
@@ -101,8 +147,20 @@ class Dialog(ManagedDialogProto):
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        message = await window.show(self, manager)
+        message, params = await window.render(self, manager)
+        message = await self._show(message, manager, params)
         manager.context.last_message_id = message.message_id
+
+    async def _show(self, message: Message, manager: DialogManager, params: MessageParams):
+        if isinstance(manager.event, CallbackQuery):
+            old_message = manager.event.message
+        else:
+            if manager.context and manager.context.last_message_id:
+                old_message = Message(message_id=manager.context.last_message_id,
+                                      chat=manager.event.chat)
+            else:
+                old_message = None
+        return await show_message(manager.event.bot, message, old_message, params)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
