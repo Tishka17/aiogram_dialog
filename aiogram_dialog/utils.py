@@ -25,7 +25,8 @@ class MessageParams:
 
 async def show_message(bot: Bot, new_message: Message, old_message: Message, params: MessageParams):
     if not old_message or params.force_new:
-        return await send_message(bot, new_message, old_message, params)
+        await remove_kbd(bot, old_message)
+        return await send_message(bot, new_message, params)
     if new_message.text == old_message.text and new_message.reply_markup == old_message.reply_markup:
         return old_message
     try:
@@ -37,7 +38,7 @@ async def show_message(bot: Bot, new_message: Message, old_message: Message, par
     except MessageNotModified:
         return old_message
     except (MessageCantBeEdited, MessageToEditNotFound):
-        return await send_message(bot, new_message, None, params)
+        return await send_message(bot, new_message, params)
 
 
 async def remove_kbd(bot: Bot, old_message: Optional[Message]):
@@ -50,10 +51,7 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             pass  # nothing to remove
 
 
-async def send_message(bot: Bot,
-                       new_message: Message, old_message: Optional[Message],
-                       params: MessageParams):
-    await remove_kbd(bot, old_message)
+async def send_message(bot: Bot, new_message: Message, params: MessageParams):
     return await bot.send_message(
         chat_id=new_message.chat.id,
         text=new_message.text,
