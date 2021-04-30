@@ -38,12 +38,14 @@ class DialogManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
-    async def _remove_kbd(self):
+    async def _remove_kbd(self) -> None:
         chat = get_chat(self.event)
         if isinstance(self.event, CallbackQuery):
             message = self.event.message
         else:
             stub_context = DialogContext(self.proxy, "", None)
+            if not stub_context.last_message_id:
+                return
             message = Message(chat=chat, message_id=stub_context.last_message_id)
         await remove_kbd(self.event.bot, message)
 

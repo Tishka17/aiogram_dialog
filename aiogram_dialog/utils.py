@@ -3,7 +3,7 @@ from typing import Optional
 
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, ParseMode
-from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited
+from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
 
 from .manager.intent import (
     DialogUpdateEvent, ChatEvent
@@ -36,7 +36,7 @@ async def show_message(bot: Bot, new_message: Message, old_message: Message, par
         )
     except MessageNotModified:
         return old_message
-    except MessageCantBeEdited:
+    except (MessageCantBeEdited, MessageToEditNotFound):
         return await send_message(bot, new_message, None, params)
 
 
@@ -46,11 +46,12 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             await bot.edit_message_reply_markup(
                 message_id=old_message.message_id, chat_id=old_message.chat.id
             )
-        except (MessageNotModified, MessageCantBeEdited):
+        except (MessageNotModified, MessageCantBeEdited, MessageToEditNotFound):
             pass  # nothing to remove
 
 
-async def send_message(bot: Bot, new_message: Message, old_message: Optional[Message],
+async def send_message(bot: Bot,
+                       new_message: Message, old_message: Optional[Message],
                        params: MessageParams):
     await remove_kbd(bot, old_message)
     return await bot.send_message(
