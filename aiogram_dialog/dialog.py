@@ -16,7 +16,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
-W = TypeVar("W", bound=Awaitable)
+W = TypeVar("W", bound=Actionable)
 
 
 class DialogWindowProto(Protocol):
@@ -105,11 +105,11 @@ class Dialog(ManagedDialogProto):
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        message, params = await window.render(self, manager)
-        message = await self._show(message, manager, params)
+        new_message = await window.render(self, manager)
+        message = await self._show(new_message, manager)
         manager.context.last_message_id = message.message_id
 
-    async def _show(self, message: Message, manager: DialogManager, params: NewMessage):
+    async def _show(self, new_message: NewMessage, manager: DialogManager):
         if isinstance(manager.event, CallbackQuery):
             old_message = manager.event.message
         else:
@@ -118,7 +118,7 @@ class Dialog(ManagedDialogProto):
                                       chat=manager.event.chat)
             else:
                 old_message = None
-        return await show_message(manager.event.bot, message, old_message, params)
+        return await show_message(manager.event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
@@ -161,7 +161,7 @@ class Dialog(ManagedDialogProto):
             widget = w.find(widget_id)
             if widget:
                 return widget
-        return
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.states_group()})>"
