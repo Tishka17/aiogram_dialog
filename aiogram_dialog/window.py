@@ -1,12 +1,12 @@
 from logging import getLogger
-from typing import Dict, Optional, Union, Tuple
+from typing import Dict, Optional, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
 
-from .manager.protocols import DialogManager
 from .dialog import Dialog, DialogWindowProto, DataGetter
-from .utils import get_chat, MessageParams
+from .manager.protocols import DialogManager
+from .utils import get_chat, NewMessage
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
@@ -48,19 +48,16 @@ class Window(DialogWindowProto):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager) -> Tuple[Message, MessageParams]:
+    async def render(self, dialog: Dialog, manager: DialogManager) -> NewMessage:
         logger.debug("Show window: %s", self)
         current_data = await self.load_data(dialog, manager)
-        msg = Message(
+        return NewMessage(
             chat=get_chat(manager.event),
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
+            parse_mode=self.parse_mode,
+            force_new=isinstance(manager.event, Message)
         )
-        params = MessageParams(
-            self.parse_mode,
-            isinstance(manager.event, Message)
-        )
-        return msg, params
 
     def get_state(self) -> State:
         return self.state

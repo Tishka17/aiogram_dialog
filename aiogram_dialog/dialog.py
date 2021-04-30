@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar, Tuple
+from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
 
 from aiogram import Dispatcher
@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import MessageParams, show_message
+from .utils import NewMessage, show_message
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -35,8 +35,7 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog", manager: DialogManager) -> Tuple[
-        Message, MessageParams]:
+    async def render(self, dialog: "Dialog", manager: DialogManager) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -110,7 +109,7 @@ class Dialog(ManagedDialogProto):
         message = await self._show(message, manager, params)
         manager.context.last_message_id = message.message_id
 
-    async def _show(self, message: Message, manager: DialogManager, params: MessageParams):
+    async def _show(self, message: Message, manager: DialogManager, params: NewMessage):
         if isinstance(manager.event, CallbackQuery):
             old_message = manager.event.message
         else:
