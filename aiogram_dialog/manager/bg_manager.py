@@ -2,19 +2,12 @@ from typing import Any, Dict, Optional
 
 from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import Message, CallbackQuery, Chat, User
+from aiogram.types import Chat, User
 
 from .intent import (
-    Intent, Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent, ChatEvent
+    Intent, Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent
 )
 from .protocols import DialogRegistryProto, BgManagerProto
-
-
-def get_chat(event: ChatEvent) -> Chat:
-    if isinstance(event, (Message, DialogUpdateEvent)):
-        return event.chat
-    elif isinstance(event, CallbackQuery):
-        return event.message.chat
 
 
 class BgManager(BgManagerProto):

@@ -6,8 +6,9 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from aiogram_dialog.manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from aiogram_dialog.widgets.action import Actionable
+from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
+from .utils import NewMessage, show_message
+from .widgets.action import Actionable
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -15,7 +16,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
-W = TypeVar("W", bound=Awaitable)
+W = TypeVar("W", bound=Actionable)
 
 
 class DialogWindowProto(Protocol):
@@ -34,7 +35,7 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def show(self, dialog: "Dialog", manager: DialogManager) -> Message:
+    async def render(self, dialog: "Dialog", manager: DialogManager) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -78,7 +79,8 @@ class Dialog(ManagedDialogProto):
         new_state = self.states[self.states.index(manager.context.state) - 1]
         await self.switch_to(new_state, manager)
 
-    async def process_start(self, manager: DialogManager, start_data: Any, state: Optional[State] = None) -> None:
+    async def process_start(self, manager: DialogManager, start_data: Any,
+                            state: Optional[State] = None) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
@@ -86,13 +88,15 @@ class Dialog(ManagedDialogProto):
         await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any, manager: DialogManager):
+    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any,
+                                manager: DialogManager):
         if callback:
             await callback(data, manager)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
-            raise ValueError("Cannot switch from %s to another states group %s" % (state.group, self.states_group()))
+            raise ValueError("Cannot switch from %s to another states group %s" % (
+                state.group, self.states_group()))
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
@@ -101,8 +105,20 @@ class Dialog(ManagedDialogProto):
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        message = await window.show(self, manager)
+        new_message = await window.render(self, manager)
+        message = await self._show(new_message, manager)
         manager.context.last_message_id = message.message_id
+
+    async def _show(self, new_message: NewMessage, manager: DialogManager):
+        if isinstance(manager.event, CallbackQuery):
+            old_message = manager.event.message
+        else:
+            if manager.context and manager.context.last_message_id:
+                old_message = Message(message_id=manager.context.last_message_id,
+                                      chat=manager.event.chat)
+            else:
+                old_message = None
+        return await show_message(manager.event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
@@ -145,7 +161,7 @@ class Dialog(ManagedDialogProto):
             widget = w.find(widget_id)
             if widget:
                 return widget
-        return
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.states_group()})>"
