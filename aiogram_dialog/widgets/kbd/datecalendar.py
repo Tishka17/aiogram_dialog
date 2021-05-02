@@ -4,9 +4,12 @@ from calendar import monthcalendar
 from typing import List, Callable, Union, Awaitable
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
+
+from aiogram_dialog.dialog import Dialog
+from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.intent import ChatEvent
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
-from aiogram_dialog.widgets.kbd.base import Keyboard
-from aiogram_dialog import Dialog, DialogManager, ChatEvent
+from .base import Keyboard
 
 OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
 
