@@ -135,7 +135,7 @@ class Dialog(ManagedDialogProto):
         intent = dialog_manager.current_intent()
         callback_data = c.data
         intent_id, new_data = remove_indent_id(callback_data)
-        if intent_id != intent.id:
+        if intent_id and intent_id != intent.id:
             logger.info("Invalid intent ID, skipping")
             await self._process_callback(self.on_invalid_callback, c, dialog_manager)
             await c.answer()
