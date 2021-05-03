@@ -7,8 +7,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from aiogram_dialog.manager.intent import Intent
-from aiogram_dialog.manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from aiogram_dialog.widgets.action import Actionable
+from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
+from .utils import NewMessage, show_message
+from .widgets.action import Actionable
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -16,7 +17,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
-W = TypeVar("W", bound=Awaitable)
+W = TypeVar("W", bound=Actionable)
 CB_SEP = "\x1D"
 
 
@@ -36,7 +37,7 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def show(self, dialog: "Dialog", manager: DialogManager) -> Message:
+    async def render(self, dialog: "Dialog", manager: DialogManager) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -110,8 +111,20 @@ class Dialog(ManagedDialogProto):
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        message = await window.show(self, manager)
+        new_message = await window.render(self, manager)
+        message = await self._show(new_message, manager)
         manager.context.last_message_id = message.message_id
+
+    async def _show(self, new_message: NewMessage, manager: DialogManager):
+        if isinstance(manager.event, CallbackQuery):
+            old_message = manager.event.message
+        else:
+            if manager.context and manager.context.last_message_id:
+                old_message = Message(message_id=manager.context.last_message_id,
+                                      chat=manager.event.chat)
+            else:
+                old_message = None
+        return await show_message(manager.event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
@@ -168,7 +181,7 @@ class Dialog(ManagedDialogProto):
             widget = w.find(widget_id)
             if widget:
                 return widget
-        return
+        return None
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.states_group()})>"
