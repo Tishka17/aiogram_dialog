@@ -13,13 +13,14 @@ from .base import Keyboard
 
 OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
 
+LEVEL = "LEVEL"
 YEARS_LEVEL = "Y"
 MONTHS_LEVEL = "M"
-LEVEL = "LEVEL"
-YEAR = "YEAR:"
-MONTH = "MONTH:"
-PLUS = "+"
-MINUS = "-"
+YEAR_PREFIX = "YEAR:"
+MONTH_PREFIX = "MONTH:"
+NEXT_MONTH = "+"
+PREV_MONTH = "-"
+OFFSET = "OFFSET"
 MONTHS_LIST = [range(i, i + 3) for i in range(1, 13, 3)]
 
 class MonthCalendar(Keyboard):
@@ -51,9 +52,9 @@ class MonthCalendar(Keyboard):
         if not c.data.startswith(prefix):
             return False
         data = c.data[len(prefix):]
-        if data == PLUS:
+        if data == NEXT_MONTH:
             self.set_offset(datetime(offset.year + (offset.month // 12), ((offset.month % 12) + 1), 1), manager)
-        elif data == MINUS:
+        elif data == PREV_MONTH:
             if offset.month == 1:
                 self.set_offset(datetime(offset.year - 1, 12, 1), manager)
             else:
@@ -62,17 +63,15 @@ class MonthCalendar(Keyboard):
             manager.context.set_data(f"{self.widget_id}:{LEVEL}", data, internal=True)
         elif data == YEARS_LEVEL:
             manager.context.set_data(f"{self.widget_id}:{LEVEL}", data, internal=True)
-        elif data.startswith(MONTH):
-            data = int(c.data[len(prefix) + len(MONTH):])
-            manager.context.set_data(f"{self.widget_id}:{LEVEL}", False, internal=True)
-            self.set_offset(datetime(offset.year, data, 1), manager)
-        elif data.startswith(YEAR):
-            data = int(c.data[len(prefix) + len(YEAR):])
-            manager.context.set_data(f"{self.widget_id}:{LEVEL}", MONTHS_LEVEL, internal=True)
-            self.set_offset(datetime(data, 1, 1), manager)
+        elif data.startswith(MONTH_PREFIX):
+            data = int(c.data[len(prefix) + len(MONTH_PREFIX):])
+            self.set_month(offset, data, manager)
+        elif data.startswith(YEAR_PREFIX):
+            data = int(c.data[len(prefix) + len(YEAR_PREFIX):])
+            self.set_year(offset, data, manager)
         else:
             raw_date = int(data)
-            manager.context.set_data(self.widget_id, raw_date)
+            manager.context.set_data(self.widget_id, date.fromtimestamp(raw_date), internal=True)
             await self.on_click.process_event(c, self, manager, date.fromtimestamp(raw_date))
 
     def years_kbd(self, offset) -> List[List[InlineKeyboardButton]]:
@@ -82,7 +81,7 @@ class MonthCalendar(Keyboard):
             for y in range(n, n+3):
                 year_text = date(y, 1, 1).strftime("%Y")
                 year_row.append(InlineKeyboardButton(text=f"{year_text}",
-                                                     callback_data=f"{self.widget_id}:{YEAR}{y}"))
+                                                     callback_data=f"{self.widget_id}:{YEAR_PREFIX}{y}"))
             years.append(year_row)
         return years
 
@@ -94,7 +93,7 @@ class MonthCalendar(Keyboard):
             for m in n:
                 month_text = date(offset.year, m, 1).strftime("%B")
                 season.append(InlineKeyboardButton(text=f"{month_text}",
-                                                   callback_data=f"{self.widget_id}:{MONTH}{m}"))
+                                                   callback_data=f"{self.widget_id}:{MONTH_PREFIX}{m}"))
             months.append(season)
         return [[InlineKeyboardButton(text=header_year, callback_data=f"{self.widget_id}:{YEARS_LEVEL}"),],
                 *months]
@@ -124,17 +123,17 @@ class MonthCalendar(Keyboard):
             *days,
             [
                 InlineKeyboardButton(text="Prev month",
-                                     callback_data=f"{self.widget_id}:{MINUS}"),
+                                     callback_data=f"{self.widget_id}:{PREV_MONTH}"),
                 InlineKeyboardButton(text="Zoom out",
                                      callback_data=f"{self.widget_id}:{MONTHS_LEVEL}"),
                 InlineKeyboardButton(text="Next month",
-                                     callback_data=f"{self.widget_id}:{PLUS}"),
+                                     callback_data=f"{self.widget_id}:{NEXT_MONTH}"),
             ],
         ]
 
     def get_offset(self, 
                    manager: DialogManager) -> date:
-        raw_date = manager.context.data(self.widget_id, None, internal=True)
+        raw_date = manager.context.data(f"{self.widget_id}:{OFFSET}", None, internal=True)
         if raw_date is None:
             return date.today()
         return date.fromtimestamp(raw_date)
@@ -143,11 +142,22 @@ class MonthCalendar(Keyboard):
                    offset: date, 
                    manager: DialogManager) -> None:
         raw_date = int(mktime(offset.timetuple()))
-        manager.context.set_data(self.widget_id, raw_date, internal=True)
+        manager.context.set_data(f"{self.widget_id}:{OFFSET}", raw_date, internal=True)
+    
+    def set_month(self,
+                  offset: date,
+                  data: int,
+                  manager: DialogManager) -> None:
+        manager.context.set_data(f"{self.widget_id}:{LEVEL}", False, internal=True)
+        self.set_offset(datetime(offset.year, data, 1), manager)
+    
+    def set_year(self,
+                 offset: date,
+                 data: int,
+                 manager: DialogManager) -> None:
+        manager.context.set_data(f"{self.widget_id}:{LEVEL}", MONTHS_LEVEL, internal=True)
+        self.set_offset(datetime(data, 1, 1), manager)
 
     def get_date(self, 
                  manager: DialogManager) -> Optional[date]:
-        selected_date = manager.context.data(self.widget_id, None, internal=True)
-        if selected_date is None:
-            return None
-        return date.fromtimestamp(selected_date)
+        return manager.context.data(self.widget_id, None, internal=True)
