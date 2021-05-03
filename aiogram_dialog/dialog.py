@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, remove_indent_id
+from .utils import NewMessage, show_message, remove_indent_id, add_indent_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -110,6 +110,7 @@ class Dialog(ManagedDialogProto):
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
+        add_indent_id(new_message, manager.current_intent().id)
         message = await self._show(new_message, manager)
         manager.context.last_message_id = message.message_id
 
