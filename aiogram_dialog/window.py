@@ -31,15 +31,7 @@ class Window(DialogWindowProto):
         return await self.text.render_text(data, manager)
 
     async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
-        dialog = manager.dialog()
-        intent = manager.current_intent()
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        # fix callback data for keyboard
-        for row in keyboard:
-            for button in row:
-                button.callback_data = dialog.intent_callback_data(
-                    intent, button.callback_data
-                )
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
     async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:

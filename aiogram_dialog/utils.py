@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple
 
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup
@@ -8,6 +8,8 @@ from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, Me
 from .manager.intent import (
     DialogUpdateEvent, ChatEvent
 )
+
+CB_SEP = "\x1D"
 
 
 def get_chat(event: ChatEvent) -> Chat:
@@ -24,6 +26,29 @@ class NewMessage:
     reply_markup: Optional[InlineKeyboardMarkup] = None
     parse_mode: Optional[ParseMode] = None
     force_new: bool = False
+
+
+def intent_callback_data(intent_id: str, callback_data: Optional[str]) -> Optional[str]:
+    if callback_data is None:
+        return None
+    return intent_id + CB_SEP + callback_data
+
+
+def add_indent_id(message: NewMessage, intent_id: str):
+    if not message.reply_markup:
+        return
+    for row in message.reply_markup:
+        for button in row:
+            button.callback_data = intent_callback_data(
+                intent_id, button.callback_data
+            )
+
+
+def remove_indent_id(callback_data: str) -> Tuple[str, str]:
+    if CB_SEP in callback_data:
+        intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
+        return intent_id, new_data
+    return "", callback_data
 
 
 async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):

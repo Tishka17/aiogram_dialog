@@ -43,8 +43,6 @@ class ManagedDialogProto(Protocol):
     def find(self, widget_id) -> Optional[Any]:
         pass
 
-    def intent_callback_data(self, intent: Intent, callback_data: Optional[str]) -> Optional[str]:
-        pass
 
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:

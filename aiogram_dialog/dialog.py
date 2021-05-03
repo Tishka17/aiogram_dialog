@@ -6,9 +6,8 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
-from aiogram_dialog.manager.intent import Intent
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message
+from .utils import NewMessage, show_message, remove_indent_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -18,7 +17,6 @@ DataGetter = Callable[..., Awaitable[Dict]]
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
-CB_SEP = "\x1D"
 
 
 class DialogWindowProto(Protocol):
@@ -133,27 +131,24 @@ class Dialog(ManagedDialogProto):
         if dialog_manager.current_intent() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
-    def intent_callback_data(self, intent: Intent, callback_data: Optional[str]) -> Optional[str]:
-        if callback_data is None:
-            return None
-        return intent.id + CB_SEP + callback_data
-
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
-        if CB_SEP in c.data:
-            intent_id, new_data = c.data.split(CB_SEP, maxsplit=1)
-            if intent_id != intent.id:
-                logger.info("Invalid intent ID, skipping")
-                await self._process_callback(self.on_invalid_callback, c, dialog_manager)
-                await c.answer()
-                return
+        callback_data = c.data
+        intent_id, new_data = remove_indent_id(callback_data)
+        if intent_id != intent.id:
+            logger.info("Invalid intent ID, skipping")
+            await self._process_callback(self.on_invalid_callback, c, dialog_manager)
+            await c.answer()
+            return
+        try:
             c.data = new_data
-
-        window = await self._current_window(dialog_manager)
-        await window.process_callback(c, self, dialog_manager)
-        if dialog_manager.current_intent() == intent:  # no new dialog started
-            await self.show(dialog_manager)
-        await c.answer()
+            window = await self._current_window(dialog_manager)
+            await window.process_callback(c, self, dialog_manager)
+            if dialog_manager.current_intent() == intent:  # no new dialog started
+                await self.show(dialog_manager)
+            await c.answer()
+        finally:
+            c.data = callback_data
 
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
