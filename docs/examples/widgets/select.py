@@ -19,7 +19,7 @@ async def get_data(**kwargs):
     }
 
 
-async def on_fruit_selected(c: ChatEvent, item_id: str, select: Select, manager: DialogManager):
+async def on_fruit_selected(c: ChatEvent, select: Select, manager: DialogManager, item_id: str):
     print("Fruit selected: ", item_id)
 
 
