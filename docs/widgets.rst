@@ -61,7 +61,7 @@ Every time you need to render text use any of text widgets:
 * :ref:`Multi<multi_text>` - multiple texts, joined with a separator
 * :ref:`Case<case_text>` - shows one of texts based on condition
 * ``Progress`` - shows a progress bar
-* ``Jinja`` - represents a HTML rendered using jinja2 template
+* :ref:`Jinja<jinja>` - represents a HTML rendered using jinja2 template
 
 Keyboard widget types
 *****************************
@@ -97,6 +97,30 @@ To select one of the texts depending on some condition you should use ``Case``.
 The condition can be either a data key or a function:
 
 .. literalinclude:: examples/widgets/case.py
+
+
+Jinja HTML rendering
+=========================
+
+.. _jinja:
+
+It is very easy to create safe HTML messages using Jinja2 templates.
+Documentation for template language is available at `official jinja web page <https://jinja.palletsprojects.com>`_
+
+To use it you need to create text using ``Jinja`` class instead of ``Format`` and set proper ``parse_mode``.
+If you do not want to set default parse mode for whole bot you can set it per-window.
+
+For example you can use environment substitution, cycles and filters:
+
+.. literalinclude:: examples/widgets/jinja.py
+
+It will be rendered to this HTML:
+
+.. literalinclude:: examples/widgets/jinja.html
+
+If you want to add custom `filters <https://jinja.palletsprojects.com/en/2.11.x/api/#custom-filters>`_
+or do some configuration of jinja Environment you can setup it using ``aiogram_dialog.widgets.text.setup_jinja`` function
+
 
 Keyboards
 ================
