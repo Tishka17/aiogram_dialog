@@ -1,4 +1,4 @@
-from typing import Dict, Type
+from typing import Dict, Type, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import BaseStorage
@@ -35,7 +35,9 @@ class StorageProxy:
             raise ValueError(f"Unknown stack id: {stack_id}")
         return Stack(**data)
 
-    async def save_intent(self, intent: Intent) -> None:
+    async def save_intent(self, intent: Optional[Intent]) -> None:
+        if not intent:
+            return
         data = vars(intent)
         data["state"] = data["state"].state
         await self.storage.set_data(
@@ -44,7 +46,15 @@ class StorageProxy:
             data=data,
         )
 
-    async def save_stack(self, stack: Stack) -> None:
+    async def remove_intent(self, intent_id: str):
+        await self.storage.reset_data(chat=self.chat_id, user=self._intent_key(intent_id))
+
+    async def remove_stack(self, stack_id: str):
+        await self.storage.reset_data(chat=self.chat_id, user=self._stack_key(stack_id))
+
+    async def save_stack(self, stack: Optional[Stack]) -> None:
+        if not stack:
+            return
         data = vars(stack)
         await self.storage.set_data(
             chat=self.chat_id,
