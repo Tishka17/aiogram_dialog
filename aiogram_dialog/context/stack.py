@@ -56,10 +56,8 @@ class Stack:
     def pop(self):
         return self.intents.pop()
 
-    @property
     def last_intent_id(self):
         return self.intents[-1]
 
-    @property
     def empty(self):
         return not self.intents
