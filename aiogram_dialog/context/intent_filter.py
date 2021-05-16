@@ -1,8 +1,9 @@
 import typing
+from logging import getLogger
 
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher.filters.state import StatesGroup
-from aiogram.dispatcher.handler import ctx_data
+from aiogram.dispatcher.handler import ctx_data, CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import BaseStorage
 from aiogram.types import Message, CallbackQuery
@@ -16,6 +17,8 @@ STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
 INTENT_KEY = "aiogd_intent"
 CALLBACK_DATA_KEY = "aiogd_original_callback_data"
+
+logger = getLogger(__name__)
 
 
 class IntentFilter(BoundFilter):
@@ -76,6 +79,9 @@ class IntentMiddleware(BaseMiddleware):
         event.data = callback_data
         intent = await proxy.load_intent(intent_id)
         stack = await proxy.load_stack(intent.stack_id)
+        if stack.last_intent_id() != intent_id:
+            logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
+            raise CancelHandler()
         data[STACK_KEY] = stack
         data[INTENT_KEY] = intent
         data[CALLBACK_DATA_KEY] = original_data
