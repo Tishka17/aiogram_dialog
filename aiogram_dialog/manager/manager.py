@@ -77,7 +77,7 @@ class ManagerImpl(DialogManager):
         await storage.remove_intent(stack.pop())
         if not stack.empty():
             intent_id = stack.last_intent_id()
-            self.data[INTENT_KEY] = storage.load_intent(intent_id)
+            self.data[INTENT_KEY] = await storage.load_intent(intent_id)
 
     async def start(
             self,
