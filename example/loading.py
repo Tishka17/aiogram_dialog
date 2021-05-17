@@ -6,9 +6,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BaseDialogManager
+from aiogram_dialog.context.events import StartMode
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BgManager
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
 
@@ -47,7 +48,7 @@ async def start_bg(c: CallbackQuery, button: Button, manager: DialogManager):
     asyncio.create_task(background(c, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: BgManager):
+async def background(c: CallbackQuery, manager: BaseDialogManager):
     count = 10
     for i in range(1, count + 1):
         await asyncio.sleep(1)
@@ -68,7 +69,7 @@ main_menu = Dialog(
 
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MainSG.main, reset_stack=True)
+    await dialog_manager.start(MainSG.main, mode=StartMode.RESET)
 
 
 async def main():

@@ -9,6 +9,7 @@ from aiogram.dispatcher.storage import BaseStorage
 from aiogram.types import Message, CallbackQuery
 from aiogram.types.base import TelegramObject
 
+from .events import DialogUpdateEvent
 from .intent import Intent
 from .storage import StorageProxy
 from ..utils import remove_indent_id
@@ -64,6 +65,37 @@ class IntentMiddleware(BaseMiddleware):
         await proxy.save_intent(data.pop(INTENT_KEY))
         await proxy.save_stack(data.pop(STACK_KEY))
 
+    async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
+        proxy = StorageProxy(
+            storage=self.storage,
+            user_id=event.from_user.id,
+            chat_id=event.chat.id,
+            state_groups=self.state_groups,
+        )
+        data[STORAGE_KEY] = proxy
+        if event.intent_id is not None:
+            intent = await proxy.load_intent(event.intent_id)
+            stack = await proxy.load_stack(intent.stack_id)
+        elif event.stack_id is not None:
+            stack = await proxy.load_stack(event.stack_id)
+            if stack.empty():
+                if event.intent_id is not None:
+                    logger.warning(f"Outdated intent id ({event.intent_id}) "
+                                   f"for empty stack ({stack.id})")
+                    raise CancelHandler()
+                intent = None
+            else:
+                if event.intent_id != stack.last_intent_id():
+                    logger.warning(f"Outdated intent id ({event.intent_id}) "
+                                   f"for stack ({stack.id})")
+                    raise CancelHandler()
+                intent = await proxy.load_intent(stack.last_intent_id())
+        else:
+            raise ValueError(f"Both stack id and intent id are None: {event}")
+
+        data[STACK_KEY] = stack
+        data[INTENT_KEY] = intent
+
     async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
         proxy = StorageProxy(
             storage=self.storage,
@@ -88,3 +120,4 @@ class IntentMiddleware(BaseMiddleware):
         data[CALLBACK_DATA_KEY] = original_data
 
     on_post_process_callback_query = on_post_process_message
+    on_post_process_aiogd_update = on_post_process_message

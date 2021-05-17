@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from typing import Union, List
 
 from aiogram import Bot
@@ -30,13 +30,14 @@ class DialogUpdateEvent:
     chat: Chat
     action: Action
     data: Any
-    # intent_id: str  # FIXME
+    intent_id: Optional[str]
+    stack_id: Optional[str]
 
 
 @dataclass
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
-    reset_stack: bool
+    mode: StartMode
 
 
 @dataclass

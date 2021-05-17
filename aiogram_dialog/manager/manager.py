@@ -1,15 +1,18 @@
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
+from aiogram.types import User, Chat
 
-from .events import ChatEvent, StartMode
+from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context_compat import ContextCompat
+from ..context.events import ChatEvent, StartMode
 from ..context.intent import Intent, Data
 from ..context.intent_filter import INTENT_KEY, STORAGE_KEY, STACK_KEY
-from ..context.stack import DEFAULT_STACK_ID, Stack
+from ..context.stack import Stack
 from ..context.storage import StorageProxy
+from ..utils import get_chat
 
 
 class IncorrectBackgroundError(RuntimeError):
@@ -121,9 +124,31 @@ class ManagerImpl(DialogManager):
             self,
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
-            stack_id: str = DEFAULT_STACK_ID,
+            stack_id: Optional[str] = None,
     ) -> "BaseDialogManager":
-        pass
+        if user_id is not None:
+            user = User(id=user_id)
+        else:
+            user = self.event.from_user
+        if chat_id is not None:
+            chat = Chat(id=chat_id)
+        else:
+            chat = get_chat(self.event)
+
+        intent_id = None
+        if stack_id is None:
+            stack_id = self.current_stack().id
+            if not self.current_stack().empty():
+                intent_id = self.current_intent().id
+
+        return BgManager(
+            user=user,
+            chat=chat,
+            bot=self.event.bot,
+            registry=self.registry,
+            intent_id=intent_id,
+            stack_id=stack_id,
+        )
 
     async def close_manager(self) -> None:
         self.check_disabled()

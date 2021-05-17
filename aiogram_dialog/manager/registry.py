@@ -7,11 +7,11 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.handler import Handler
 from aiogram.types import User, Chat
 
-from aiogram_dialog.context.intent_filter import IntentFilter, IntentMiddleware
-from aiogram_dialog.manager.events import DialogUpdateEvent
-from aiogram_dialog.manager.manager_middleware import ManagerMiddleware
-from aiogram_dialog.manager.protocols import ManagedDialogProto, DialogRegistryProto
-from aiogram_dialog.manager.update_handler import handle_update
+from .manager_middleware import ManagerMiddleware
+from .protocols import ManagedDialogProto, DialogRegistryProto
+from .update_handler import handle_update
+from ..context.events import DialogUpdateEvent
+from ..context.intent_filter import IntentFilter, IntentMiddleware
 
 
 class DialogRegistry(DialogRegistryProto):

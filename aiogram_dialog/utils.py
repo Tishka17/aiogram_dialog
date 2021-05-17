@@ -5,7 +5,7 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup
 from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
 
-from .manager.events import (
+from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
 

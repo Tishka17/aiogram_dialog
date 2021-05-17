@@ -3,10 +3,10 @@ from typing import Optional, Any, Protocol, Union, Type, Dict
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from .events import DialogUpdateEvent, StartMode, ChatEvent
 from ..context.context_compat import ContextCompat
+from ..context.events import DialogUpdateEvent, StartMode, ChatEvent
 from ..context.intent import Intent, Data
-from ..context.stack import DEFAULT_STACK_ID, Stack
+from ..context.stack import Stack
 
 
 class ManagedDialogProto(Protocol):
@@ -56,12 +56,6 @@ class DialogRegistryProto(Protocol):
 class BaseDialogManager(Protocol):
     event: ChatEvent
 
-    def current_intent(self) -> Optional[Intent]:
-        pass
-
-    def current_stack(self) -> Optional[Stack]:
-        pass
-
     async def done(self, result: Any = None) -> None:
         pass
 
@@ -86,13 +80,19 @@ class BaseDialogManager(Protocol):
             self,
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
-            stack_id: str = DEFAULT_STACK_ID,
+            stack_id: Optional[str] = None,
     ) -> "BaseDialogManager":
         pass
 
 
 class DialogManager(BaseDialogManager):
     context: ContextCompat
+
+    def current_intent(self) -> Optional[Intent]:
+        pass
+
+    def current_stack(self) -> Optional[Stack]:
+        pass
 
     def dialog(self) -> ManagedDialogProto:
         pass

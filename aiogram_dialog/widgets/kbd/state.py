@@ -3,7 +3,7 @@ from typing import Callable, Optional, Any
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog.manager.events import ChatEvent
+from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Const
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor

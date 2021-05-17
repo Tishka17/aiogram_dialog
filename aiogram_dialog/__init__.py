@@ -1,14 +1,13 @@
+from .context.events import ChatEvent
 from .dialog import Dialog
-from .manager.protocols import DialogManager
+from .manager.protocols import DialogManager, BaseDialogManager
 from .manager.registry import DialogRegistry
-# from .manager.bg_manager import BgManagerProto as BgManager
 from .window import Window
-from .manager.events import ChatEvent
 
 __all__ = [
     "Dialog",
     "ChatEvent",
-    # "BgManager",
+    "BaseDialogManager",
     "DialogManager",
     "DialogRegistry",
     "Window",
