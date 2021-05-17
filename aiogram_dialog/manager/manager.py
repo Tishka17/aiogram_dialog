@@ -104,7 +104,7 @@ class ManagerImpl(DialogManager):
         elif mode is StartMode.NEW_STACK:
             stack = Stack()
             await storage.save_stack(stack)
-            await self.bg().start(state, data, StartMode.NORMAL)
+            await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
         else:
             raise ValueError(f"Unknown start mode: {mode}")
 
