@@ -3,7 +3,7 @@ from typing import Callable, Optional, Any
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog.context.events import ChatEvent
+from aiogram_dialog.context.events import ChatEvent, StartMode
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Const
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
@@ -12,7 +12,8 @@ from ..when import WhenCondition
 
 
 class EventProcessorButton(Button, WidgetEventProcessor):
-    async def process_event(self, event: ChatEvent, source: Any, manager: DialogManager, *args, **kwargs):
+    async def process_event(self, event: ChatEvent, source: Any, manager: DialogManager,
+                            *args, **kwargs):
         await self._on_click(event, self, manager)
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
@@ -84,15 +85,15 @@ class Start(EventProcessorButton):
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,
-                 reset_stack: bool = False,  # TODO mode
+                 mode: StartMode = StartMode.NORMAL,
                  when: WhenCondition = None):
         super().__init__(text, id, self._on_click, when)
         self.text = text
         self.user_on_click = on_click
         self.state = state
-        self.reset_stack = reset_stack
+        self.mode = mode
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.start(self.state)
+        await manager.start(self.state, mode=self.mode)
