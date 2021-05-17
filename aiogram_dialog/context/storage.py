@@ -1,3 +1,4 @@
+from copy import copy
 from typing import Dict, Type, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -32,13 +33,15 @@ class StorageProxy:
             user=self._stack_key(stack_id)
         )
         if not data:
+            if stack_id == DEFAULT_STACK_ID:
+                return Stack(_id=DEFAULT_STACK_ID)
             raise ValueError(f"Unknown stack id: {stack_id}")
         return Stack(**data)
 
     async def save_intent(self, intent: Optional[Intent]) -> None:
         if not intent:
             return
-        data = vars(intent)
+        data = copy(vars(intent))
         data["state"] = data["state"].state
         await self.storage.set_data(
             chat=self.chat_id,
@@ -55,10 +58,10 @@ class StorageProxy:
     async def save_stack(self, stack: Optional[Stack]) -> None:
         if not stack:
             return
-        data = vars(stack)
+        data = copy(vars(stack))
         await self.storage.set_data(
             chat=self.chat_id,
-            user=self._intent_key(stack.id),
+            user=self._stack_key(stack.id),
             data=data,
         )
 

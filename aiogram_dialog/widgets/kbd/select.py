@@ -5,7 +5,7 @@ from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequen
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.intent import ChatEvent
+from aiogram_dialog.manager.events import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Case
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
@@ -111,7 +111,6 @@ class Radio(StatefulSelect):
         return self.is_checked(item_id, manager)
 
     async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
-        print(self, item_id)
         await self.set_checked(c, item_id, manager)
 
 

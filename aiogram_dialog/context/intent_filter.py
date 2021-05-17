@@ -1,5 +1,5 @@
-import typing
 from logging import getLogger
+from typing import Optional, Type, Dict
 
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher.filters.state import StatesGroup
@@ -9,8 +9,8 @@ from aiogram.dispatcher.storage import BaseStorage
 from aiogram.types import Message, CallbackQuery
 from aiogram.types.base import TelegramObject
 
-from storage import StorageProxy
 from .intent import Intent
+from .storage import StorageProxy
 from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
@@ -22,22 +22,23 @@ logger = getLogger(__name__)
 
 
 class IntentFilter(BoundFilter):
-    key = 'diodg_intent_state_group'
+    key = 'aiogd_intent_state_group'
 
-    def __init__(self, diodg_intent_state_group: typing.Optional[bool] = None):
-        self.intent_state_group = diodg_intent_state_group
+    def __init__(self, aiogd_intent_state_group: Optional[Type[StatesGroup]] = None):
+        self.intent_state_group = aiogd_intent_state_group
 
     async def check(self, obj: TelegramObject):
         if self.intent_state_group is None:
             return True
         data = ctx_data.get()
         intent: Intent = data.get(INTENT_KEY)
+        if not intent:
+            return False
         return intent and intent.state.group == self.intent_state_group
 
 
 class IntentMiddleware(BaseMiddleware):
-    def __init__(self, storage: BaseStorage,
-                 state_groups: typing.Dict[str, typing.Type[StatesGroup]]):
+    def __init__(self, storage: BaseStorage, state_groups: Dict[str, Type[StatesGroup]]):
         super().__init__()
         self.storage = storage
         self.state_groups = state_groups

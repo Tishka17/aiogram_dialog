@@ -5,7 +5,7 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup
 from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
 
-from .manager.intent import (
+from .manager.events import (
     DialogUpdateEvent, ChatEvent
 )
 
@@ -37,7 +37,7 @@ def intent_callback_data(intent_id: str, callback_data: Optional[str]) -> Option
 def add_indent_id(message: NewMessage, intent_id: str):
     if not message.reply_markup:
         return
-    for row in message.reply_markup:
+    for row in message.reply_markup.inline_keyboard:
         for button in row:
             button.callback_data = intent_callback_data(
                 intent_id, button.callback_data

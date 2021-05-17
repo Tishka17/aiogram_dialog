@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from dataclasses import field
-from enum import Enum
-from typing import Dict, Optional, Any
+from enum import Enum, auto
+from typing import Dict, Any
 from typing import Union, List
 
 from aiogram import Bot
@@ -11,11 +10,10 @@ from aiogram.types import Message, User, CallbackQuery, Chat
 Data = Union[Dict, List, int, str, None]
 
 
-@dataclass(frozen=True)
-class Intent:
-    id: str = field(compare=True)
-    name: str = field(compare=False)
-    data: Data = field(compare=False)
+class StartMode(Enum):
+    NORMAL = auto()
+    RESET = auto()
+    NEW_STACK = auto()
 
 
 class Action(Enum):
@@ -32,6 +30,7 @@ class DialogUpdateEvent:
     chat: Chat
     action: Action
     data: Any
+    # intent_id: str  # FIXME
 
 
 @dataclass

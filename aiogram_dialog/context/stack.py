@@ -46,11 +46,12 @@ class Stack:
         if len(self.intents) >= STACK_LIMIT:
             raise RuntimeError(f"Task stack overflow. Max size is {STACK_LIMIT}")
         intent = Intent(
-            new_id(),
-            self.id,
-            state,
-            data
+            _id=new_id(),
+            _stack_id=self.id,
+            state=state,
+            start_data=data,
         )
+        self.intents.append(intent.id)
         return intent
 
     def pop(self):

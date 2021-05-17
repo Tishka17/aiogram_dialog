@@ -3,7 +3,7 @@ from typing import Callable, Optional, Any
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog.manager.intent import ChatEvent
+from aiogram_dialog.manager.events import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Const
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
@@ -84,7 +84,7 @@ class Start(EventProcessorButton):
     def __init__(self, text: Text, id: str,
                  state: State,
                  on_click: Optional[OnClick] = None,
-                 reset_stack: bool = False,
+                 reset_stack: bool = False,  # TODO mode
                  when: WhenCondition = None):
         super().__init__(text, id, self._on_click, when)
         self.text = text
@@ -95,4 +95,4 @@ class Start(EventProcessorButton):
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.start(self.state, reset_stack=self.reset_stack)
+        await manager.start(self.state)

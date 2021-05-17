@@ -33,4 +33,4 @@ class TextInput(BaseInput, Generic[T]):
             await self.on_error.process_event(message, self, manager)
 
     def get_value(self, manager: DialogManager):
-        return self.type_factory(manager.context.data(self.widget_id, internal=True))
+        return self.type_factory(manager.context.dialog_data(self.widget_id, internal=True))

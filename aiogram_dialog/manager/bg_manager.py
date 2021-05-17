@@ -4,13 +4,14 @@ from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import Chat, User
 
-from .intent import (
-    Intent, Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent
+from .events import (
+    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent
 )
-from .protocols import DialogRegistryProto, BgManagerProto
+from .protocols import DialogRegistryProto, BaseDialogManager
+from ..context.intent import Intent
 
 
-class BgManager(BgManagerProto):
+class BgManager(BaseDialogManager):
     def __init__(
             self,
             user: User,
@@ -30,7 +31,7 @@ class BgManager(BgManagerProto):
     def current_intent(self) -> Intent:
         return self.intent
 
-    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> BgManagerProto:
+    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> BaseDialogManager:
         if user_id is not None:
             user = User(id=user_id)
         else:
@@ -49,7 +50,7 @@ class BgManager(BgManagerProto):
             self.current_state,
         )
 
-    async def done(self, result: Any = None):
+    async def done(self, result: Any = None) -> None:
         await self.registry.notify(DialogUpdateEvent(
             self.bot,
             self.user,
@@ -58,7 +59,7 @@ class BgManager(BgManagerProto):
             result,
         ))
 
-    async def start(self, state: State, data: Data = None, reset_stack: bool = False):
+    async def start(self, state: State, data: Data = None, reset_stack: bool = False) -> None:
         await self.registry.notify(DialogStartEvent(
             self.bot,
             self.user,
@@ -69,7 +70,7 @@ class BgManager(BgManagerProto):
             reset_stack,
         ))
 
-    async def switch_to(self, state: State):
+    async def switch_to(self, state: State) -> None:
         await self.registry.notify(DialogSwitchEvent(
             self.bot,
             self.user,
@@ -79,7 +80,7 @@ class BgManager(BgManagerProto):
             state,
         ))
 
-    async def update(self, data: Dict):
+    async def update(self, data: Dict) -> None:
         await self.registry.notify(DialogUpdateEvent(
             self.bot,
             self.user,

@@ -1,14 +1,15 @@
 from logging import getLogger
 
-from .intent import DialogUpdateEvent, DialogStartEvent, Action, DialogSwitchEvent
-from .manager import DialogManager
+from .events import DialogUpdateEvent, DialogStartEvent, Action, DialogSwitchEvent
+from .manager import ManagerImpl
 
 logger = getLogger(__name__)
 
 
-async def handle_update(event: DialogUpdateEvent, dialog_manager: DialogManager):
+# FIXME
+async def handle_update(event: DialogUpdateEvent, dialog_manager: ManagerImpl):
     if isinstance(event, DialogStartEvent):
-        await dialog_manager.start(state=event.new_state, data=event.data, reset_stack=event.reset_stack)
+        await dialog_manager.start(state=event.new_state, data=event.data)  # TODO mode
     elif isinstance(event, DialogSwitchEvent):
         await dialog_manager.switch_to(state=event.new_state)
         await dialog_manager.dialog().show(dialog_manager)

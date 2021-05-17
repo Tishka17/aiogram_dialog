@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent
+from aiogram_dialog.manager.events import StartMode
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
@@ -81,7 +82,7 @@ dialog = Dialog(
 
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(DialogSG.greeting, reset_stack=True)
+    await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET)
 
 
 async def main():

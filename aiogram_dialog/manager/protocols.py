@@ -2,10 +2,11 @@ from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.storage import FSMContextProxy
 
-from aiogram_dialog.data import DialogContext
-from .intent import Intent, Data, DialogUpdateEvent, ChatEvent
+from .events import DialogUpdateEvent, StartMode, ChatEvent
+from ..context.context_compat import ContextCompat
+from ..context.intent import Intent, Data
+from ..context.stack import DEFAULT_STACK_ID, Stack
 
 
 class ManagedDialogProto(Protocol):
@@ -52,52 +53,49 @@ class DialogRegistryProto(Protocol):
         pass
 
 
-class DialogManager(Protocol):
-    context: Optional[DialogContext]
-    proxy: FSMContextProxy
+class BaseDialogManager(Protocol):
     event: ChatEvent
-    data: Dict
+
+    def current_intent(self) -> Optional[Intent]:
+        pass
+
+    def current_stack(self) -> Optional[Stack]:
+        pass
+
+    async def done(self, result: Any = None) -> None:
+        pass
+
+    async def mark_closed(self) -> None:
+        pass
+
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+    ) -> None:
+        pass
+
+    async def switch_to(self, state: State) -> None:
+        pass
+
+    async def update(self, data: Dict) -> None:
+        pass
+
+    def bg(
+            self,
+            user_id: Optional[int] = None,
+            chat_id: Optional[int] = None,
+            stack_id: str = DEFAULT_STACK_ID,
+    ) -> "BaseDialogManager":
+        pass
+
+
+class DialogManager(BaseDialogManager):
+    context: ContextCompat
 
     def dialog(self) -> ManagedDialogProto:
         pass
 
-    def current_intent(self) -> Intent:
-        pass
-
-    async def close(self):
-        pass
-
-    async def done(self, result: Any = None):
-        pass
-
-    async def start(self, state: State, data: Data = None, reset_stack: bool = False):
-        pass
-
-    async def switch_to(self, state):
-        pass
-
-    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> "BgManagerProto":
-        pass
-
     async def close_manager(self) -> None:
-        pass
-
-
-class BgManagerProto(Protocol):
-    def current_intent(self) -> Intent:
-        pass
-
-    async def done(self, result: Any = None):
-        pass
-
-    async def start(self, state: State, data: Data = None, reset_stack: bool = False):
-        pass
-
-    async def switch_to(self, state: State):
-        pass
-
-    async def update(self, data: Dict):
-        pass
-
-    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None) -> "BgManagerProto":
         pass
