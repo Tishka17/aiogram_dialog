@@ -107,14 +107,16 @@ class IntentMiddleware(BaseMiddleware):
 
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
-        if not intent_id:
-            return
-        event.data = callback_data
-        intent = await proxy.load_intent(intent_id)
-        stack = await proxy.load_stack(intent.stack_id)
-        if stack.last_intent_id() != intent_id:
-            logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
-            raise CancelHandler()
+        if intent_id:
+            intent = await proxy.load_intent(intent_id)
+            stack = await proxy.load_stack(intent.stack_id)
+            if stack.last_intent_id() != intent_id:
+                logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
+                raise CancelHandler()
+            event.data = callback_data
+        else:
+            intent = None
+            stack = await proxy.load_stack()
         data[STACK_KEY] = stack
         data[INTENT_KEY] = intent
         data[CALLBACK_DATA_KEY] = original_data

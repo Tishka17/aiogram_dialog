@@ -143,6 +143,8 @@ class Dialog(ManagedDialogProto):
         await self.show(dialog_manager)
 
     def register(self, registry: DialogRegistryProto, dp: Dispatcher, *args, **filters) -> None:
+        if "state" not in filters:
+            filters["state"] = "*"
         dp.register_callback_query_handler(self._callback_handler, *args, **filters)
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY
