@@ -52,7 +52,6 @@ class Dialog(ManagedDialogProto):
             on_start: Optional[OnDialogEvent] = None,
             on_close: Optional[OnDialogEvent] = None,
             on_process_result: Optional[OnDialogEvent] = None,
-            on_invalid_callback: Optional[OnDialogEvent] = None,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -67,7 +66,6 @@ class Dialog(ManagedDialogProto):
         self.on_start = on_start
         self.on_close = on_close
         self.on_process_result = on_process_result
-        self.on_invalid_callback = on_invalid_callback
 
     async def next(self, manager: DialogManager):
         if not manager.current_intent():
