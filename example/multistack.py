@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import logging
+import operator
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -10,7 +11,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
 from aiogram_dialog.context.events import StartMode
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel
 from aiogram_dialog.widgets.text import Const, Format
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -25,7 +26,13 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
         "stack": dialog_manager.current_stack(),
         "intent": dialog_manager.current_intent(),
         "now": datetime.datetime.now(),
-        "counter": dialog_manager.context.data("counter", 0)
+        "counter": dialog_manager.context.data("counter", 0),
+        "fruits": [
+            ("Apple", 1),
+            ("Pear", 2),
+            ("Orange", 3),
+            ("Banana", 4),
+        ]
     }
 
 
@@ -38,10 +45,20 @@ async def on_click(c: CallbackQuery, button: Button, manager: DialogManager):
     manager.context.set_data("counter", counter + 1)
 
 
+multi = Multiselect(
+    Format("✓ {item[0]}"),  # E.g `✓ Apple`
+    Format("{item[0]}"),
+    id="check",
+    item_id_getter=operator.itemgetter(1),
+    items="fruits",
+)
+
 dialog = Dialog(
     Window(
         Format("Clicked: {counter}\n\n{stack}\n\n{intent}\n\n{now}"),
         Button(Const("Click me!"), id="btn1", on_click=on_click),
+        multi,
+        Cancel(),
         MessageInput(name_handler),
         state=DialogSG.greeting,
         getter=get_data,

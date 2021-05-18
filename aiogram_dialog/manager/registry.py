@@ -1,9 +1,9 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence
+from typing import Sequence, Type, Dict
 
 from aiogram import Dispatcher, Bot
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.handler import Handler
 from aiogram.types import User, Chat
 
@@ -21,8 +21,8 @@ class DialogRegistry(DialogRegistryProto):
         self.dialogs = {
             d.states_group(): d for d in dialogs
         }
-        self.state_groups = {
-            d.states_group(): d.states_group_name() for d in dialogs
+        self.state_groups: Dict[str, Type[StatesGroup]] = {
+            d.states_group_name(): d.states_group() for d in dialogs
         }
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
         self.register_update_handler(handle_update, state="*")
