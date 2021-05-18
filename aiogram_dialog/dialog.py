@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id
+from .utils import NewMessage, show_message, add_indent_id, get_chat
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -113,16 +113,17 @@ class Dialog(ManagedDialogProto):
         manager.current_stack().last_message_id = message.message_id
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
-        if isinstance(manager.event, CallbackQuery):
-            old_message = manager.event.message
+        stack = manager.current_stack()
+        event = manager.event
+        if isinstance(event, CallbackQuery) and stack.last_message_id == event.message.message_id:
+            old_message = event.message
         else:
-            stack = manager.current_stack()
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
-                                      chat=manager.event.chat)
+                                      chat=get_chat(event))
             else:
                 old_message = None
-        return await show_message(manager.event.bot, new_message, old_message)
+        return await show_message(event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_intent()
