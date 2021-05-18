@@ -33,9 +33,7 @@ class StorageProxy:
             user=self._stack_key(stack_id)
         )
         if not data:
-            if stack_id == DEFAULT_STACK_ID:
-                return Stack(_id=DEFAULT_STACK_ID)
-            raise ValueError(f"Unknown stack id: {stack_id}")
+            return Stack(_id=stack_id)
         return Stack(**data)
 
     async def save_intent(self, intent: Optional[Intent]) -> None:
@@ -58,12 +56,18 @@ class StorageProxy:
     async def save_stack(self, stack: Optional[Stack]) -> None:
         if not stack:
             return
-        data = copy(vars(stack))
-        await self.storage.set_data(
-            chat=self.chat_id,
-            user=self._stack_key(stack.id),
-            data=data,
-        )
+        if stack.empty() and not stack.last_message_id:
+            await self.storage.reset_data(
+                chat=self.chat_id,
+                user=self._stack_key(stack.id),
+            )
+        else:
+            data = copy(vars(stack))
+            await self.storage.set_data(
+                chat=self.chat_id,
+                user=self._stack_key(stack.id),
+                data=data,
+            )
 
     def _intent_key(self, intent_id: str) -> str:
         return f"{self.user_id}:aiogd:context:{intent_id}"

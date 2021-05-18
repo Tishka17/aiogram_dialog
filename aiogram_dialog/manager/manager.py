@@ -1,7 +1,8 @@
+from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat
+from aiogram.types import User, Chat, CallbackQuery, Message
 
 from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
@@ -12,7 +13,9 @@ from ..context.intent import Intent, Data
 from ..context.intent_filter import INTENT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack
 from ..context.storage import StorageProxy
-from ..utils import get_chat
+from ..utils import get_chat, remove_kbd
+
+logger = getLogger(__name__)
 
 
 class IncorrectBackgroundError(RuntimeError):
@@ -50,9 +53,6 @@ class ManagerImpl(DialogManager):
             raise RuntimeError
         return self.registry.find_dialog(current.state)
 
-    async def _remove_kbd(self) -> None:
-        pass
-
     def current_intent(self) -> Optional[Intent]:
         return self.data[INTENT_KEY]
 
@@ -61,6 +61,15 @@ class ManagerImpl(DialogManager):
 
     def storage(self) -> StorageProxy:
         return self.data[STORAGE_KEY]
+
+    async def _remove_kbd(self) -> None:
+        chat = get_chat(self.event)
+        if isinstance(self.event, CallbackQuery):
+            message = self.event.message
+        else:
+            message = Message(chat=chat, message_id=self.current_stack().last_message_id)
+        await remove_kbd(self.event.bot, message)
+        self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
         await self.dialog().process_close(result, self)
@@ -78,7 +87,9 @@ class ManagerImpl(DialogManager):
         storage = self.storage()
         stack = self.current_stack()
         await storage.remove_intent(stack.pop())
-        if not stack.empty():
+        if stack.empty():
+            self.data[INTENT_KEY] = None
+        else:
             intent_id = stack.last_intent_id()
             self.data[INTENT_KEY] = await storage.load_intent(intent_id)
 
@@ -103,7 +114,6 @@ class ManagerImpl(DialogManager):
             return await self.start(state, data, StartMode.NORMAL)
         elif mode is StartMode.NEW_STACK:
             stack = Stack()
-            await storage.save_stack(stack)
             await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
         else:
             raise ValueError(f"Unknown start mode: {mode}")

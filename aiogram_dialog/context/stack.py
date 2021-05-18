@@ -62,3 +62,6 @@ class Stack:
 
     def empty(self):
         return not self.intents
+
+    def default(self):
+        return self.id == DEFAULT_STACK_ID
