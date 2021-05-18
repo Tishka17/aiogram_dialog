@@ -1,3 +1,4 @@
+import warnings
 from dataclasses import dataclass, field
 from typing import Union, Dict, List
 
@@ -23,3 +24,11 @@ class Intent:
     @property
     def stack_id(self):
         return self._stack_id
+
+    @property
+    def data(self):
+        warnings.warn(
+            "use `intent.start_data` instead",
+            DeprecationWarning
+        )
+        return self.start_data

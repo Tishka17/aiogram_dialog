@@ -7,8 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry
-from aiogram_dialog.context.events import StartMode
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, StartMode
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format, Multi
