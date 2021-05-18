@@ -6,6 +6,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
+from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
 from .utils import NewMessage, show_message, add_indent_id, get_chat
 from .widgets.action import Actionable
@@ -16,6 +17,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
+OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
 
 
@@ -51,7 +53,7 @@ class Dialog(ManagedDialogProto):
             *windows: DialogWindowProto,
             on_start: Optional[OnDialogEvent] = None,
             on_close: Optional[OnDialogEvent] = None,
-            on_process_result: Optional[OnDialogEvent] = None,
+            on_process_result: Optional[OnResultEvent] = None,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -88,10 +90,9 @@ class Dialog(ManagedDialogProto):
         await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any,
-                                manager: DialogManager):
+    async def _process_callback(self, callback: Optional[OnDialogEvent], *args, **kwargs):
         if callback:
-            await callback(data, manager)
+            await callback(*args, **kwargs)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
@@ -157,8 +158,8 @@ class Dialog(ManagedDialogProto):
     def states_group_name(self) -> str:
         return self._states_group.__full_group_name__
 
-    async def process_result(self, result: Any, manager: DialogManager):
-        await self._process_callback(self.on_process_result, result, manager)
+    async def process_result(self, start_data: Data, result: Any, manager: DialogManager):
+        await self._process_callback(self.on_process_result, start_data, result, manager)
 
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)

@@ -4,8 +4,8 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from ..context.context_compat import ContextCompat
-from ..context.events import DialogUpdateEvent, StartMode, ChatEvent
-from ..context.intent import Intent, Data
+from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
+from ..context.intent import Intent
 from ..context.stack import Stack
 
 
@@ -29,7 +29,7 @@ class ManagedDialogProto(Protocol):
     async def show(self, manager: "DialogManager"):
         pass
 
-    async def process_result(self, result: Any, manager: "DialogManager"):
+    async def process_result(self, start_data: Data, result: Any, manager: "DialogManager"):
         pass
 
     async def next(self, manager: "DialogManager"):

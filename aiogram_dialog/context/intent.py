@@ -1,10 +1,11 @@
 import warnings
 from dataclasses import dataclass, field
-from typing import Union, Dict, List
+from typing import Dict
 
 from aiogram.dispatcher.filters.state import State
 
-Data = Union[Dict, List, int, str, None]
+from .events import Data
+
 DataDict = Dict[str, Data]
 
 

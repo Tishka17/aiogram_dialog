@@ -8,8 +8,8 @@ from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context_compat import ContextCompat
-from ..context.events import ChatEvent, StartMode
-from ..context.intent import Intent, Data
+from ..context.events import ChatEvent, StartMode, Data
+from ..context.intent import Intent
 from ..context.intent_filter import INTENT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack
 from ..context.storage import StorageProxy
@@ -73,14 +73,15 @@ class ManagerImpl(DialogManager):
 
     async def done(self, result: Any = None) -> None:
         await self.dialog().process_close(result, self)
+        old_intent = self.current_intent()
         await self.mark_closed()
         intent = self.current_intent()
         if not intent:
             await self._remove_kbd()
             return
         dialog = self.dialog()
-        await dialog.process_result(result, self)
-        await dialog.show(self)  # TODO remove stack if empty
+        await dialog.process_result(old_intent.start_data, result, self)
+        await dialog.show(self)
 
     async def mark_closed(self) -> None:
         self.check_disabled()

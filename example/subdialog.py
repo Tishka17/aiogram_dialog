@@ -7,7 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, StartMode
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, StartMode, Data
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format, Multi
@@ -58,7 +58,7 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def process_result(result: Any, manager: DialogManager):
+async def process_result(start_data: Data, result: Any, manager: DialogManager):
     if result:
         manager.context.set_data("name", result["name"])
 

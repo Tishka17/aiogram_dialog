@@ -6,7 +6,8 @@ from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State
 
-from .intent import Intent, Data
+from .intent import Intent
+from .events import Data
 
 DEFAULT_STACK_ID = ""
 STACK_LIMIT = 100
