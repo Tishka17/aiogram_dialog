@@ -87,6 +87,8 @@ class BaseDialogManager(Protocol):
 
 class DialogManager(BaseDialogManager):
     context: ContextCompat
+    event: ChatEvent  # current processing event
+    data: Dict  # data from middleware
 
     def current_intent(self) -> Optional[Intent]:
         pass
