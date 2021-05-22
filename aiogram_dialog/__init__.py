@@ -1,3 +1,4 @@
+from . import exceptions
 from .context.events import ChatEvent, StartMode, Data
 from .dialog import Dialog
 from .manager.protocols import DialogManager, BaseDialogManager
@@ -13,4 +14,5 @@ __all__ = [
     "DialogManager",
     "DialogRegistry",
     "Window",
+    "exceptions",
 ]

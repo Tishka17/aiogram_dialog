@@ -13,6 +13,7 @@ from .events import DialogUpdateEvent
 from .intent import Intent
 from .storage import StorageProxy
 from ..utils import remove_indent_id
+from ..exceptions import InvalidStackIdError
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -91,7 +92,7 @@ class IntentMiddleware(BaseMiddleware):
                     raise CancelHandler()
                 intent = await proxy.load_intent(stack.last_intent_id())
         else:
-            raise ValueError(f"Both stack id and intent id are None: {event}")
+            raise InvalidStackIdError(f"Both stack id and intent id are None: {event}")
 
         data[STACK_KEY] = stack
         data[INTENT_KEY] = intent

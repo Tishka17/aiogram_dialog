@@ -6,8 +6,9 @@ from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State
 
-from .intent import Intent
 from .events import Data
+from .intent import Intent
+from ..exceptions import DialogStackOverflow
 
 DEFAULT_STACK_ID = ""
 STACK_LIMIT = 100
@@ -45,7 +46,9 @@ class Stack:
 
     def push(self, state: State, data: Data) -> Intent:
         if len(self.intents) >= STACK_LIMIT:
-            raise RuntimeError(f"Task stack overflow. Max size is {STACK_LIMIT}")
+            raise DialogStackOverflow(
+                f"Cannot open more dialogs in current stack. Max count is {STACK_LIMIT}"
+            )
         intent = Intent(
             _id=new_id(),
             _stack_id=self.id,

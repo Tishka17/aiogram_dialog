@@ -14,12 +14,10 @@ from ..context.intent_filter import INTENT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack
 from ..context.storage import StorageProxy
 from ..utils import get_chat, remove_kbd
+from ..exceptions import IncorrectBackgroundError
 
 logger = getLogger(__name__)
 
-
-class IncorrectBackgroundError(RuntimeError):
-    pass
 
 
 class ManagerImpl(DialogManager):

@@ -6,6 +6,7 @@ from aiogram.dispatcher.storage import BaseStorage
 
 from .intent import Intent
 from .stack import Stack, DEFAULT_STACK_ID
+from ..exceptions import UnknownState, UnknownIntent
 
 
 class StorageProxy:
@@ -23,7 +24,7 @@ class StorageProxy:
             user=self._intent_key(intent_id)
         )
         if not data:
-            raise ValueError(f"Unknown intent id: {intent_id}")
+            raise UnknownIntent(f"Intent not found for id: {intent_id}")
         data["state"] = self._state(data["state"])
         return Intent(**data)
 
@@ -80,4 +81,4 @@ class StorageProxy:
         for real_state in self.state_groups[group].all_states:
             if real_state.state == state:
                 return real_state
-        raise ValueError(f"Unknown state {state}")
+        raise UnknownState(f"Unknown state {state}")
