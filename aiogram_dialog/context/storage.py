@@ -4,7 +4,7 @@ from typing import Dict, Type, Optional
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import BaseStorage
 
-from .intent import Intent
+from .context import Context
 from .stack import Stack, DEFAULT_STACK_ID
 from ..exceptions import UnknownState, UnknownIntent
 
@@ -18,15 +18,15 @@ class StorageProxy:
         self.user_id = user_id
         self.chat_id = chat_id
 
-    async def load_intent(self, intent_id: str) -> Intent:
+    async def load_context(self, intent_id: str) -> Context:
         data = await self.storage.get_data(
             chat=self.chat_id,
-            user=self._intent_key(intent_id)
+            user=self._context_key(intent_id)
         )
         if not data:
-            raise UnknownIntent(f"Intent not found for id: {intent_id}")
+            raise UnknownIntent(f"Context not found for intent id: {intent_id}")
         data["state"] = self._state(data["state"])
-        return Intent(**data)
+        return Context(**data)
 
     async def load_stack(self, stack_id: str = DEFAULT_STACK_ID) -> Stack:
         data = await self.storage.get_data(
@@ -37,19 +37,19 @@ class StorageProxy:
             return Stack(_id=stack_id)
         return Stack(**data)
 
-    async def save_intent(self, intent: Optional[Intent]) -> None:
-        if not intent:
+    async def save_context(self, context: Optional[Context]) -> None:
+        if not context:
             return
-        data = copy(vars(intent))
+        data = copy(vars(context))
         data["state"] = data["state"].state
         await self.storage.set_data(
             chat=self.chat_id,
-            user=self._intent_key(intent.id),
+            user=self._context_key(context.id),
             data=data,
         )
 
-    async def remove_intent(self, intent_id: str):
-        await self.storage.reset_data(chat=self.chat_id, user=self._intent_key(intent_id))
+    async def remove_context(self, intent_id: str):
+        await self.storage.reset_data(chat=self.chat_id, user=self._context_key(intent_id))
 
     async def remove_stack(self, stack_id: str):
         await self.storage.reset_data(chat=self.chat_id, user=self._stack_key(stack_id))
@@ -70,7 +70,7 @@ class StorageProxy:
                 data=data,
             )
 
-    def _intent_key(self, intent_id: str) -> str:
+    def _context_key(self, intent_id: str) -> str:
         return f"{self.user_id}:aiogd:context:{intent_id}"
 
     def _stack_key(self, stack_id: str) -> str:

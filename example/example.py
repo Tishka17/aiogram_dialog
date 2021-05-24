@@ -123,7 +123,7 @@ dialog1 = Dialog(
 
 async def get_data2(dialog_manager: DialogManager, **kwargs):
     return {
-        "text": dialog_manager.current_intent().start_data,
+        "text": dialog_manager.current_context().start_data,
         "now": datetime.now().isoformat(),
     }
 

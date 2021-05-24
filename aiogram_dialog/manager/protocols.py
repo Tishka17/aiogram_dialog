@@ -3,9 +3,8 @@ from typing import Optional, Any, Protocol, Union, Type, Dict
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from ..context.context_compat import ContextCompat
+from ..context.context import Context
 from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
-from ..context.intent import Intent
 from ..context.stack import Stack
 
 
@@ -86,11 +85,10 @@ class BaseDialogManager(Protocol):
 
 
 class DialogManager(BaseDialogManager):
-    context: ContextCompat
     event: ChatEvent  # current processing event
     data: Dict  # data from middleware
 
-    def current_intent(self) -> Optional[Intent]:
+    def current_context(self) -> Optional[Context]:
         pass
 
     def current_stack(self) -> Optional[Stack]:

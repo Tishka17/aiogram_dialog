@@ -70,15 +70,15 @@ class Dialog(ManagedDialogProto):
         self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
-        if not manager.current_intent():
+        if not manager.current_context():
             raise ValueError("No intent")
-        new_state = self.states[self.states.index(manager.current_intent().state) + 1]
+        new_state = self.states[self.states.index(manager.current_context().state) + 1]
         await self.switch_to(new_state, manager)
 
     async def back(self, manager: DialogManager):
-        if not manager.current_intent():
+        if not manager.current_context():
             raise ValueError("No intent")
-        new_state = self.states[self.states.index(manager.current_intent().state) - 1]
+        new_state = self.states[self.states.index(manager.current_context().state) - 1]
         await self.switch_to(new_state, manager)
 
     async def process_start(self, manager: DialogManager, start_data: Any,
@@ -103,13 +103,13 @@ class Dialog(ManagedDialogProto):
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
-        return self.windows[manager.current_intent().state]
+        return self.windows[manager.current_context().state]
 
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
-        add_indent_id(new_message, manager.current_intent().id)
+        add_indent_id(new_message, manager.current_context().id)
         message = await self._show(new_message, manager)
         manager.current_stack().last_message_id = message.message_id
 
@@ -127,17 +127,17 @@ class Dialog(ManagedDialogProto):
         return await show_message(event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
-        intent = dialog_manager.current_intent()
+        intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_message(m, self, dialog_manager)
-        if dialog_manager.current_intent() == intent:  # no new dialog started
+        if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
-        intent = dialog_manager.current_intent()
+        intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_callback(c, self, dialog_manager)
-        if dialog_manager.current_intent() == intent:  # no new dialog started
+        if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
         await c.answer()
 

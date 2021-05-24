@@ -2,24 +2,24 @@ from typing import Optional, Any
 
 from aiogram.dispatcher.filters.state import State
 
-from .intent import Intent
+from .context import Context
 from .stack import Stack
 
 FORBID = object()
 
 
 class ContextCompat:
-    def __init__(self, intent: Intent, stack: Stack):
-        self.intent = intent
+    def __init__(self, context: Context, stack: Stack):
+        self.context = context
         self.stack = stack
 
     @property
     def state(self) -> State:
-        return self.intent.state
+        return self.context.state
 
     @state.setter
     def state(self, state: State):
-        self.intent.state = state
+        self.context.state = state
 
     @property
     def last_message_id(self) -> Optional[int]:
@@ -31,15 +31,15 @@ class ContextCompat:
 
     def set_data(self, key: str, value: Any, *, internal: bool = False):
         if internal:
-            self.intent.widget_data[key] = value
+            self.context.widget_data[key] = value
         else:
-            self.intent.dialog_data[key] = value
+            self.context.dialog_data[key] = value
 
     def data(self, key, default=FORBID, *, internal: bool = False, ):
         if internal:
-            data = self.intent.widget_data
+            data = self.context.widget_data
         else:
-            data = self.intent.dialog_data
+            data = self.context.dialog_data
         if default is FORBID:
             return data[key]
         else:

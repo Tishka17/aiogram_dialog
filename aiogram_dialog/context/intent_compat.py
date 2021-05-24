@@ -1,17 +1,17 @@
-from .intent import Intent
+from .context import Context
 
 
 class IntentCompat:
-    def __init__(self, intent: Intent):
-        self.intent = intent
+    def __init__(self, context: Context):
+        self.context = context
 
     @property
     def id(self):
-        return self.intent.id
+        return self.context.id
 
     @property
     def name(self):
-        return self.intent.state.state
+        return self.context.state.state
 
     def data(self):
-        return self.intent.start_data
+        return self.context.start_data

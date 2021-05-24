@@ -23,7 +23,7 @@ class DialogSG(StatesGroup):
 async def get_data(dialog_manager: DialogManager, **kwargs):
     return {
         "stack": dialog_manager.current_stack(),
-        "intent": dialog_manager.current_intent(),
+        "context": dialog_manager.current_context(),
         "now": datetime.datetime.now(),
         "counter": dialog_manager.context.data("counter", 0),
         "fruits": [

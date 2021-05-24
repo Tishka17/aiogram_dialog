@@ -1,3 +1,4 @@
+import warnings
 from logging import getLogger
 from typing import Any, Optional, Dict
 
@@ -7,17 +8,16 @@ from aiogram.types import User, Chat, CallbackQuery, Message
 from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
-from ..context.context_compat import ContextCompat
+from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
-from ..context.intent import Intent
-from ..context.intent_filter import INTENT_KEY, STORAGE_KEY, STACK_KEY
+from ..context.intent_compat import IntentCompat
+from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack
 from ..context.storage import StorageProxy
-from ..utils import get_chat, remove_kbd
 from ..exceptions import IncorrectBackgroundError
+from ..utils import get_chat, remove_kbd
 
 logger = getLogger(__name__)
-
 
 
 class ManagerImpl(DialogManager):
@@ -27,14 +27,15 @@ class ManagerImpl(DialogManager):
         self.event = event
         self.data = data
 
-    @property
-    def context(self) -> Optional[ContextCompat]:
-        if not self.current_stack():
-            return None
-        return ContextCompat(
-            self.current_intent(),
-            self.current_stack(),
+    def current_intent(self) -> Optional[IntentCompat]:
+        warnings.warn(
+            "use `manager.current_context()` instead",
+            DeprecationWarning
         )
+        context = self.current_context()
+        if not context:
+            return None
+        return IntentCompat(context)
 
     def check_disabled(self):
         if self.disabled:
@@ -46,13 +47,13 @@ class ManagerImpl(DialogManager):
 
     def dialog(self) -> ManagedDialogProto:
         self.check_disabled()
-        current = self.current_intent()
+        current = self.current_context()
         if not current:
             raise RuntimeError
         return self.registry.find_dialog(current.state)
 
-    def current_intent(self) -> Optional[Intent]:
-        return self.data[INTENT_KEY]
+    def current_context(self) -> Optional[Context]:
+        return self.data[CONTEXT_KEY]
 
     def current_stack(self) -> Optional[Stack]:
         return self.data[STACK_KEY]
@@ -71,26 +72,26 @@ class ManagerImpl(DialogManager):
 
     async def done(self, result: Any = None) -> None:
         await self.dialog().process_close(result, self)
-        old_intent = self.current_intent()
+        old_context = self.current_context()
         await self.mark_closed()
-        intent = self.current_intent()
-        if not intent:
+        context = self.current_context()
+        if not context:
             await self._remove_kbd()
             return
         dialog = self.dialog()
-        await dialog.process_result(old_intent.start_data, result, self)
+        await dialog.process_result(old_context.start_data, result, self)
         await dialog.show(self)
 
     async def mark_closed(self) -> None:
         self.check_disabled()
         storage = self.storage()
         stack = self.current_stack()
-        await storage.remove_intent(stack.pop())
+        await storage.remove_context(stack.pop())
         if stack.empty():
-            self.data[INTENT_KEY] = None
+            self.data[CONTEXT_KEY] = None
         else:
             intent_id = stack.last_intent_id()
-            self.data[INTENT_KEY] = await storage.load_intent(intent_id)
+            self.data[CONTEXT_KEY] = await storage.load_context(intent_id)
 
     async def start(
             self,
@@ -101,15 +102,15 @@ class ManagerImpl(DialogManager):
         self.check_disabled()
         storage = self.storage()
         if mode is StartMode.NORMAL:
-            await self.storage().save_intent(self.current_intent())
+            await self.storage().save_context(self.current_context())
             stack = self.current_stack()
-            intent = stack.push(state, data)
-            self.data[INTENT_KEY] = intent
+            context = stack.push(state, data)
+            self.data[CONTEXT_KEY] = context
             await self.dialog().process_start(self, data, state)
         elif mode is StartMode.RESET_STACK:
             stack = self.current_stack()
             while not stack.empty():
-                await storage.remove_intent(stack.pop())
+                await storage.remove_context(stack.pop())
             return await self.start(state, data, StartMode.NORMAL)
         elif mode is StartMode.NEW_STACK:
             stack = Stack()
@@ -119,14 +120,14 @@ class ManagerImpl(DialogManager):
 
     async def switch_to(self, state: State) -> None:
         self.check_disabled()
-        intent = self.current_intent()
-        if intent.state.group != state.group:
+        context = self.current_context()
+        if context.state.group != state.group:
             raise ValueError(f"Cannot switch to another state group. "
-                             f"Current state: {intent.state}, asked for {state}")
-        intent.state = state
+                             f"Current state: {context.state}, asked for {state}")
+        context.state = state
 
     async def update(self, data: Dict) -> None:
-        self.current_intent().dialog_data.update(data)
+        self.current_context().dialog_data.update(data)
         await self.dialog().show(self)
 
     def bg(
@@ -148,7 +149,7 @@ class ManagerImpl(DialogManager):
         if stack_id is None:
             stack_id = self.current_stack().id
             if not self.current_stack().empty():
-                intent_id = self.current_intent().id
+                intent_id = self.current_context().id
 
         return BgManager(
             user=user,

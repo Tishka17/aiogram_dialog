@@ -10,14 +10,14 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.types.base import TelegramObject
 
 from .events import DialogUpdateEvent
-from .intent import Intent
+from .context import Context
 from .storage import StorageProxy
 from ..utils import remove_indent_id
 from ..exceptions import InvalidStackIdError
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
-INTENT_KEY = "aiogd_intent"
+CONTEXT_KEY = "aiogd_context"
 CALLBACK_DATA_KEY = "aiogd_original_callback_data"
 
 logger = getLogger(__name__)
@@ -33,10 +33,10 @@ class IntentFilter(BoundFilter):
         if self.intent_state_group is None:
             return True
         data = ctx_data.get()
-        intent: Intent = data.get(INTENT_KEY)
-        if not intent:
+        context: Context = data.get(CONTEXT_KEY)
+        if not context:
             return False
-        return intent and intent.state.group == self.intent_state_group
+        return context and context.state.group == self.intent_state_group
 
 
 class IntentMiddleware(BaseMiddleware):
@@ -54,16 +54,16 @@ class IntentMiddleware(BaseMiddleware):
         )
         stack = await proxy.load_stack()
         if stack.empty():
-            intent = None
+            context = None
         else:
-            intent = await proxy.load_intent(stack.last_intent_id())
+            context = await proxy.load_context(stack.last_intent_id())
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
-        data[INTENT_KEY] = intent
+        data[CONTEXT_KEY] = context
 
     async def on_post_process_message(self, _, result, data: dict):
         proxy: StorageProxy = data.pop(STORAGE_KEY)
-        await proxy.save_intent(data.pop(INTENT_KEY))
+        await proxy.save_context(data.pop(CONTEXT_KEY))
         await proxy.save_stack(data.pop(STACK_KEY))
 
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
@@ -75,8 +75,8 @@ class IntentMiddleware(BaseMiddleware):
         )
         data[STORAGE_KEY] = proxy
         if event.intent_id is not None:
-            intent = await proxy.load_intent(event.intent_id)
-            stack = await proxy.load_stack(intent.stack_id)
+            context = await proxy.load_context(event.intent_id)
+            stack = await proxy.load_stack(context.stack_id)
         elif event.stack_id is not None:
             stack = await proxy.load_stack(event.stack_id)
             if stack.empty():
@@ -84,18 +84,18 @@ class IntentMiddleware(BaseMiddleware):
                     logger.warning(f"Outdated intent id ({event.intent_id}) "
                                    f"for empty stack ({stack.id})")
                     raise CancelHandler()
-                intent = None
+                context = None
             else:
                 if event.intent_id != stack.last_intent_id():
                     logger.warning(f"Outdated intent id ({event.intent_id}) "
                                    f"for stack ({stack.id})")
                     raise CancelHandler()
-                intent = await proxy.load_intent(stack.last_intent_id())
+                context = await proxy.load_context(stack.last_intent_id())
         else:
             raise InvalidStackIdError(f"Both stack id and intent id are None: {event}")
 
         data[STACK_KEY] = stack
-        data[INTENT_KEY] = intent
+        data[CONTEXT_KEY] = context
 
     async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
         proxy = StorageProxy(
@@ -109,17 +109,17 @@ class IntentMiddleware(BaseMiddleware):
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
         if intent_id:
-            intent = await proxy.load_intent(intent_id)
-            stack = await proxy.load_stack(intent.stack_id)
+            context = await proxy.load_context(intent_id)
+            stack = await proxy.load_stack(context.stack_id)
             if stack.last_intent_id() != intent_id:
                 logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
                 raise CancelHandler()
             event.data = callback_data
         else:
-            intent = None
+            context = None
             stack = await proxy.load_stack()
         data[STACK_KEY] = stack
-        data[INTENT_KEY] = intent
+        data[CONTEXT_KEY] = context
         data[CALLBACK_DATA_KEY] = original_data
 
     on_post_process_callback_query = on_post_process_message

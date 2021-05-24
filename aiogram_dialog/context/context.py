@@ -10,8 +10,8 @@ DataDict = Dict[str, Data]
 
 
 @dataclass(unsafe_hash=True)
-class Intent:
-    _id: str = field(compare=True)
+class Context:
+    _intent_id: str = field(compare=True)
     _stack_id: str = field(compare=True)
     state: State = field(compare=False)
     start_data: Data = field(compare=False)
@@ -20,7 +20,7 @@ class Intent:
 
     @property
     def id(self):
-        return self._id
+        return self._intent_id
 
     @property
     def stack_id(self):
@@ -29,7 +29,7 @@ class Intent:
     @property
     def data(self):
         warnings.warn(
-            "use `intent.start_data` instead",
+            "use `context.start_data` instead",
             DeprecationWarning
         )
         return self.start_data
