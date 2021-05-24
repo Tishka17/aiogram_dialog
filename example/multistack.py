@@ -25,7 +25,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
         "stack": dialog_manager.current_stack(),
         "context": dialog_manager.current_context(),
         "now": datetime.datetime.now(),
-        "counter": dialog_manager.context.data("counter", 0),
+        "counter": dialog_manager.current_context().dialog_data.get("counter", 0),
         "fruits": [
             ("Apple", 1),
             ("Pear", 2),
@@ -40,8 +40,8 @@ async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
 
 
 async def on_click(c: CallbackQuery, button: Button, manager: DialogManager):
-    counter = manager.context.data("counter", 0)
-    manager.context.set_data("counter", counter + 1)
+    counter = manager.current_context().dialog_data.get("counter", 0)
+    manager.current_context().dialog_data["counter"] = counter + 1
 
 
 multi = Multiselect(
@@ -54,11 +54,11 @@ multi = Multiselect(
 
 dialog = Dialog(
     Window(
-        Format("Clicked: {counter}\n\n{stack}\n\n{intent}\n\n{now}"),
+        Format("Clicked: {counter}\n\n{stack}\n\n{context}\n\n{now}"),
         Button(Const("Click me!"), id="btn1", on_click=on_click),
         multi,
         Cancel(),
-        MessageInput(name_handler),
+        MessageInput(name_handler),  # Inputs work only in default stack!
         state=DialogSG.greeting,
         getter=get_data,
     ),

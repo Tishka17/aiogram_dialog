@@ -28,9 +28,10 @@ class TextInput(BaseInput, Generic[T]):
         try:
             value = self.type_factory(message.text)
             await self.on_success.process_event(message, self, manager, value)
-            manager.context.set_data(self.widget_id, message.text, internal=True)  # store original text
+            # store original text
+            manager.current_context().widget_data[self.widget_id] = message.text
         except ValueError:
             await self.on_error.process_event(message, self, manager)
 
     def get_value(self, manager: DialogManager):
-        return self.type_factory(manager.context.data(self.widget_id, internal=True))
+        return self.type_factory(manager.current_context().widget_data[self.widget_id])

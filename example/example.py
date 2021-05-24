@@ -38,8 +38,8 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
         "name": "Tishka17",
         "age": 19,
         "now": datetime.now().time().strftime("%H:%M:%S"),
-        "progress": dialog_manager.context.data("progress", 0),
-        "progress2": dialog_manager.context.data("progress2", 0),
+        "progress": dialog_manager.current_context().dialog_data.get("progress", 0),
+        "progress2": dialog_manager.current_context().dialog_data.get("progress2", 0),
     }
 
 
