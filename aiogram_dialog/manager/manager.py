@@ -1,4 +1,3 @@
-import warnings
 from logging import getLogger
 from typing import Any, Optional, Dict
 
@@ -10,7 +9,6 @@ from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
-from ..context.intent_compat import IntentCompat
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack
 from ..context.storage import StorageProxy
@@ -26,16 +24,6 @@ class ManagerImpl(DialogManager):
         self.registry = registry
         self.event = event
         self.data = data
-
-    def current_intent(self) -> Optional[IntentCompat]:
-        warnings.warn(
-            "use `manager.current_context()` instead",
-            DeprecationWarning
-        )
-        context = self.current_context()
-        if not context:
-            return None
-        return IntentCompat(context)
 
     def check_disabled(self):
         if self.disabled:
