@@ -81,7 +81,7 @@ dialog = Dialog(
 
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET)
+    await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 
 
 async def main():

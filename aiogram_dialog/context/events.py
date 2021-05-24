@@ -12,7 +12,7 @@ Data = Union[Dict, List, int, str, None]
 
 class StartMode(Enum):
     NORMAL = auto()
-    RESET = auto()
+    RESET_STACK = auto()
     NEW_STACK = auto()
 
 

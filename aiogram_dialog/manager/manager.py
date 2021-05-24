@@ -106,7 +106,7 @@ class ManagerImpl(DialogManager):
             intent = stack.push(state, data)
             self.data[INTENT_KEY] = intent
             await self.dialog().process_start(self, data, state)
-        elif mode is StartMode.RESET:
+        elif mode is StartMode.RESET_STACK:
             stack = self.current_stack()
             while not stack.empty():
                 await storage.remove_intent(stack.pop())
