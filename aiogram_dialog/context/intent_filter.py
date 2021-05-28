@@ -86,7 +86,7 @@ class IntentMiddleware(BaseMiddleware):
                     raise CancelHandler()
                 context = None
             else:
-                if event.intent_id != stack.last_intent_id():
+                if event.intent_id is not None and event.intent_id != stack.last_intent_id():
                     logger.warning(f"Outdated intent id ({event.intent_id}) "
                                    f"for stack ({stack.id})")
                     raise CancelHandler()

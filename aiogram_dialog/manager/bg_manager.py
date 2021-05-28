@@ -72,7 +72,8 @@ class BgManager(BaseDialogManager):
             **self._base_event_params()
         ))
 
-    async def start(self, state: State, data: Data = None, mode: StartMode = False) -> None:
+    async def start(self, state: State, data: Data = None,
+                    mode: StartMode = StartMode.NORMAL) -> None:
         await self.registry.notify(DialogStartEvent(
             action=Action.START,
             data=data,
