@@ -10,7 +10,7 @@ from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
-from ..context.stack import Stack
+from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
 from ..utils import get_chat, remove_kbd
@@ -133,12 +133,15 @@ class ManagerImpl(DialogManager):
         else:
             chat = get_chat(self.event)
 
+        same_chat = (user.id == self.event.from_user.id and chat.id == get_chat(self.event).id)
         intent_id = None
         if stack_id is None:
-            stack_id = self.current_stack().id
-            if not self.current_stack().empty():
-                intent_id = self.current_context().id
-
+            if same_chat:
+                stack_id = self.current_stack().id
+                if not self.current_stack().empty():
+                    intent_id = self.current_context().id
+            else:
+                stack_id = DEFAULT_STACK_ID
         return BgManager(
             user=user,
             chat=chat,

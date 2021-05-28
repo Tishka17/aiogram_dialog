@@ -8,6 +8,7 @@ from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
     Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent, StartMode
 )
+from ..context.stack import DEFAULT_STACK_ID
 
 
 class BgManager(BaseDialogManager):
@@ -41,9 +42,15 @@ class BgManager(BaseDialogManager):
             chat = Chat(id=chat_id)
         else:
             chat = self.chat
+
+        same_chat = (user.id == self.user.id and chat.id == self.chat.id)
         if stack_id is None:
-            stack_id = self.stack_id
-            intent_id = self.intent_id
+            if same_chat:
+                stack_id = self.stack_id
+                intent_id = self.intent_id
+            else:
+                stack_id = DEFAULT_STACK_ID
+                intent_id = None
         else:
             intent_id = None
 
