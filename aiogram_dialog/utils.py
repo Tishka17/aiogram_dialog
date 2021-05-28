@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from aiogram import Bot
-from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup
+from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup, \
+    ChatMemberUpdated
 from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
 
 from .context.events import (
@@ -13,7 +14,7 @@ CB_SEP = "\x1D"
 
 
 def get_chat(event: ChatEvent) -> Chat:
-    if isinstance(event, (Message, DialogUpdateEvent)):
+    if isinstance(event, (Message, DialogUpdateEvent, ChatMemberUpdated)):
         return event.chat
     elif isinstance(event, CallbackQuery):
         return event.message.chat

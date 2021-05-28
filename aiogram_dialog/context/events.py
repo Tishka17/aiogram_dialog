@@ -5,7 +5,7 @@ from typing import Union, List
 
 from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import Message, User, CallbackQuery, Chat
+from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
 
 Data = Union[Dict, List, int, str, None]
 
@@ -45,4 +45,4 @@ class DialogSwitchEvent(DialogUpdateEvent):
     new_state: State
 
 
-ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent]
+ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent, ChatMemberUpdated]

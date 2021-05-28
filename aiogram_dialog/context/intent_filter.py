@@ -1,19 +1,19 @@
 from logging import getLogger
-from typing import Optional, Type, Dict
+from typing import Optional, Type, Dict, Union
 
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher.filters.state import StatesGroup
 from aiogram.dispatcher.handler import ctx_data, CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.storage import BaseStorage
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ChatMemberUpdated
 from aiogram.types.base import TelegramObject
 
-from .events import DialogUpdateEvent
 from .context import Context
+from .events import DialogUpdateEvent
 from .storage import StorageProxy
-from ..utils import remove_indent_id
 from ..exceptions import InvalidStackIdError
+from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -45,7 +45,7 @@ class IntentMiddleware(BaseMiddleware):
         self.storage = storage
         self.state_groups = state_groups
 
-    async def on_pre_process_message(self, event: Message, data: dict):
+    async def on_pre_process_message(self, event: Union[Message, ChatMemberUpdated], data: dict):
         proxy = StorageProxy(
             storage=self.storage,
             user_id=event.from_user.id,
@@ -122,5 +122,8 @@ class IntentMiddleware(BaseMiddleware):
         data[CONTEXT_KEY] = context
         data[CALLBACK_DATA_KEY] = original_data
 
+    on_pre_process_my_chat_member = on_pre_process_message
+
     on_post_process_callback_query = on_post_process_message
     on_post_process_aiogd_update = on_post_process_message
+    on_post_process_my_chat_member = on_post_process_message
