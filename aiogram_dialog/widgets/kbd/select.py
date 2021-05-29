@@ -150,17 +150,20 @@ class Multiselect(StatefulSelect):
     async def set_checked(self, event: ChatEvent,
                           item_id: str, checked: bool, manager: DialogManager) -> None:
         data: List = self.get_checked(manager)
+        changed = False
         if item_id in data:
             if not checked:
                 if len(data) > self.min_selected:
                     data.remove(item_id)
-                    await self._process_on_state_changed(event, item_id, manager)
+                    changed = True
         else:
             if checked:
                 if self.max_selected == 0 or self.max_selected > len(data):
                     data.append(item_id)
-                    await self._process_on_state_changed(event, item_id, manager)
-        manager.current_context().widget_data[self.widget_id] = data
+                    changed = True
+        if changed:
+            manager.current_context().widget_data[self.widget_id] = data
+            await self._process_on_state_changed(event, item_id, manager)
 
     async def _on_click(self, c: CallbackQuery, select: Select,
                         manager: DialogManager, item_id: str):
