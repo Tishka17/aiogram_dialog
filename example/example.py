@@ -8,10 +8,13 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
-from aiogram_dialog.manager.protocols import BgManagerProto
+from aiogram_dialog import (
+    Dialog, DialogManager, DialogRegistry, Window, StartMode, BaseDialogManager
+)
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
+from aiogram_dialog.widgets.kbd import (
+    Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
+)
 from aiogram_dialog.widgets.text import Const, Format, Progress
 
 API_TOKEN = ""
@@ -35,8 +38,8 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
         "name": "Tishka17",
         "age": 19,
         "now": datetime.now().time().strftime("%H:%M:%S"),
-        "progress": dialog_manager.context.data("progress", 0),
-        "progress2": dialog_manager.context.data("progress2", 0),
+        "progress": dialog_manager.current_context().dialog_data.get("progress", 0),
+        "progress2": dialog_manager.current_context().dialog_data.get("progress2", 0),
     }
 
 
@@ -45,7 +48,7 @@ async def fun(c: CallbackQuery, button: Button, manager: DialogManager):
     asyncio.create_task(background(c, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: BgManagerProto):
+async def background(c: CallbackQuery, manager: BaseDialogManager):
     count = 20
     for i in range(1, count + 1):
         await asyncio.sleep(1)
@@ -120,7 +123,7 @@ dialog1 = Dialog(
 
 async def get_data2(dialog_manager: DialogManager, **kwargs):
     return {
-        "text": dialog_manager.current_intent().data,
+        "text": dialog_manager.current_context().start_data,
         "now": datetime.now().isoformat(),
     }
 
@@ -139,7 +142,7 @@ dialog2 = Dialog(
 # --------------
 
 async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(Register.hello, reset_stack=True)
+    await dialog_manager.start(Register.hello, mode=StartMode.RESET_STACK)
 
 
 async def main():

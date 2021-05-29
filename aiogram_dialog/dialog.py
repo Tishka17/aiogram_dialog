@@ -6,8 +6,9 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
+from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message
+from .utils import NewMessage, show_message, add_indent_id, get_chat
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -16,6 +17,7 @@ DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
+OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
 
 
@@ -51,7 +53,7 @@ class Dialog(ManagedDialogProto):
             *windows: DialogWindowProto,
             on_start: Optional[OnDialogEvent] = None,
             on_close: Optional[OnDialogEvent] = None,
-            on_process_result: Optional[OnDialogEvent] = None
+            on_process_result: Optional[OnResultEvent] = None,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -68,15 +70,15 @@ class Dialog(ManagedDialogProto):
         self.on_process_result = on_process_result
 
     async def next(self, manager: DialogManager):
-        if not manager.context:
-            raise ValueError("No context")
-        new_state = self.states[self.states.index(manager.context.state) + 1]
+        if not manager.current_context():
+            raise ValueError("No intent")
+        new_state = self.states[self.states.index(manager.current_context().state) + 1]
         await self.switch_to(new_state, manager)
 
     async def back(self, manager: DialogManager):
-        if not manager.context:
-            raise ValueError("No context")
-        new_state = self.states[self.states.index(manager.context.state) - 1]
+        if not manager.current_context():
+            raise ValueError("No intent")
+        new_state = self.states[self.states.index(manager.current_context().state) - 1]
         await self.switch_to(new_state, manager)
 
     async def process_start(self, manager: DialogManager, start_data: Any,
@@ -88,50 +90,54 @@ class Dialog(ManagedDialogProto):
         await self._process_callback(self.on_start, start_data, manager)
         await self.show(manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], data: Any,
-                                manager: DialogManager):
+    async def _process_callback(self, callback: Optional[OnDialogEvent], *args, **kwargs):
         if callback:
-            await callback(data, manager)
+            await callback(*args, **kwargs)
 
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
-            raise ValueError("Cannot switch from %s to another states group %s" % (
-                state.group, self.states_group()))
+            raise ValueError(
+                "Cannot switch from %s to another states group %s" %
+                (state.group, self.states_group())
+            )
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
-        return self.windows[manager.context.state]
+        return self.windows[manager.current_context().state]
 
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
+        add_indent_id(new_message, manager.current_context().id)
         message = await self._show(new_message, manager)
-        manager.context.last_message_id = message.message_id
+        manager.current_stack().last_message_id = message.message_id
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
-        if isinstance(manager.event, CallbackQuery):
-            old_message = manager.event.message
+        stack = manager.current_stack()
+        event = manager.event
+        if isinstance(event, CallbackQuery) and stack.last_message_id == event.message.message_id:
+            old_message = event.message
         else:
-            if manager.context and manager.context.last_message_id:
-                old_message = Message(message_id=manager.context.last_message_id,
-                                      chat=manager.event.chat)
+            if stack and stack.last_message_id:
+                old_message = Message(message_id=stack.last_message_id,
+                                      chat=get_chat(event))
             else:
                 old_message = None
-        return await show_message(manager.event.bot, new_message, old_message)
+        return await show_message(event.bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
-        intent = dialog_manager.current_intent()
+        intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_message(m, self, dialog_manager)
-        if dialog_manager.current_intent() == intent:  # no new dialog started
+        if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
-        intent = dialog_manager.current_intent()
+        intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_callback(c, self, dialog_manager)
-        if dialog_manager.current_intent() == intent:  # no new dialog started
+        if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
         await c.answer()
 
@@ -139,10 +145,12 @@ class Dialog(ManagedDialogProto):
         await self.show(dialog_manager)
 
     def register(self, registry: DialogRegistryProto, dp: Dispatcher, *args, **filters) -> None:
-        dp.register_callback_query_handler(self._callback_handler, state=self.states, **filters)
+        if "state" not in filters:
+            filters["state"] = "*"
+        dp.register_callback_query_handler(self._callback_handler, *args, **filters)
         if "content_types" not in filters:
             filters["content_types"] = ContentTypes.ANY
-        dp.register_message_handler(self._message_handler, state=self.states, *args, **filters)
+        dp.register_message_handler(self._message_handler, *args, **filters)
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group
@@ -150,8 +158,8 @@ class Dialog(ManagedDialogProto):
     def states_group_name(self) -> str:
         return self._states_group.__full_group_name__
 
-    async def process_result(self, result: Any, manager: DialogManager):
-        await self._process_callback(self.on_process_result, result, manager)
+    async def process_result(self, start_data: Data, result: Any, manager: DialogManager):
+        await self._process_callback(self.on_process_result, start_data, result, manager)
 
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)

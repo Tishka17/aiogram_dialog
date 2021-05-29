@@ -1,9 +1,10 @@
 from typing import Union, Sequence, Tuple, Callable
 
-from .input import MessageHandlerFunc, BaseInput, MessageInput, TextInput
+from .input import MessageHandlerFunc, BaseInput, MessageInput
 from .kbd import Keyboard, Group
 from .text import Multi, Format, Text
 from .widget_event import WidgetEventProcessor
+from ..exceptions import InvalidWidgetType, InvalidWidget
 
 
 def ensure_text(widget: Union[str, Text, Sequence[Text]]) -> Text:
@@ -35,7 +36,7 @@ def ensure_input(
         elif len(widget) == 1:
             return widget[0]
         else:
-            raise ValueError(f"Only 1 input supported, got {len(widget)}")
+            raise InvalidWidget(f"Only 1 input supported, got {len(widget)}")
     else:
         return MessageInput(widget)
 
@@ -55,5 +56,8 @@ def ensure_widgets(
         elif isinstance(w, (BaseInput, Callable)):
             inputs.append(ensure_input(w))
         else:
-            raise TypeError("Invalid widget type: %s" % type(w))
+            raise InvalidWidgetType(
+                f"Cannot add widget of type {type(w)}. "
+                f"Only str, Text, Keyboard, BaseInput and Callable are supported"
+            )
     return ensure_text(texts), ensure_keyboard(keyboards), ensure_input(inputs)
