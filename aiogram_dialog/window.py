@@ -21,11 +21,13 @@ class Window(DialogWindowProto):
                  *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
-                 parse_mode: Optional[ParseMode] = None):
+                 parse_mode: Optional[ParseMode] = None,
+                 disable_web_page_preview: Optional[bool] = None):
         self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
         self.parse_mode = parse_mode
+        self.disable_web_page_preview = disable_web_page_preview
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)
@@ -55,7 +57,8 @@ class Window(DialogWindowProto):
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,
-            force_new=isinstance(manager.event, Message)
+            force_new=isinstance(manager.event, Message),
+            disable_web_page_preview=self.disable_web_page_preview,
         )
 
     def get_state(self) -> State:

@@ -27,6 +27,7 @@ class NewMessage:
     reply_markup: Optional[InlineKeyboardMarkup] = None
     parse_mode: Optional[ParseMode] = None
     force_new: bool = False
+    disable_web_page_preview: Optional[bool] = None
 
 
 def intent_callback_data(intent_id: str, callback_data: Optional[str]) -> Optional[str]:
@@ -60,9 +61,12 @@ async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):
         return old_message
     try:
         return await bot.edit_message_text(
-            message_id=old_message.message_id, chat_id=old_message.chat.id,
-            text=new_message.text, reply_markup=new_message.reply_markup,
+            message_id=old_message.message_id,
+            chat_id=old_message.chat.id,
+            text=new_message.text,
+            reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            disable_web_page_preview=new_message.disable_web_page_preview,
         )
     except MessageNotModified:
         return old_message
@@ -86,4 +90,5 @@ async def send_message(bot: Bot, new_message: NewMessage):
         text=new_message.text,
         reply_markup=new_message.reply_markup,
         parse_mode=new_message.parse_mode,
+        disable_web_page_preview=new_message.disable_web_page_preview,
     )
