@@ -2,7 +2,7 @@
 Migration from previous versions
 ***********************************
 
-Incompatibale changes with 0.10:
+Incompatible changes with 0.11:
 
 * ``reset_stack`` was replaced with ``StartMode``. E.g. ``reset_stack=true`` is now ``mode=StartMode.RESET_STACK``
 * dialog no more changes current aiogram state

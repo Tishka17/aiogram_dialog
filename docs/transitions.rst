@@ -5,22 +5,25 @@ Transitions
 Types of transitions
 ========================
 
-Talking to user you will need to switch between different chat states. It can be done using three types of transitions:
+Talking to user you will need to switch between different chat states. It can be done using four types of transitions:
 
 * *State switch* inside dialog. Doing so you will just show another window.
-* *Start* new dialog. In this case dialog will be added to task stack with empty dialog context and corresponding window will be shown
+* *Start* a dialog in same stack. In this case dialog will be added to task stack with empty dialog context and corresponding window will be shown instead on previously visible one
+* *Start* a dialog in new stack. In this case dialog will be shown in a new message and behave independently from current one.
 * *Close* dialog. Dialog will be removed from stack, its data erased. underlying dialog will be shown
 
 Task stack
 ===============
 
-To deal with multiple opened dialogs **aiogram_dialog** has such thing as task stack. It contains all information about how dialogs were started and their data.
+To deal with multiple opened dialogs **aiogram_dialog** has such thing as dialog stack. It allows dialogs to be opened one over another ("stacked") so only one of them is visible.
 
 * Each time you start a dialog new task is added on top of a stack and new dialog context is created.
 * Each time you close a dialog, task and dialog context are removed.
 
-You can start same dialog multiple times, and multiple tasks will be added to stack preserving the order.
+You can start same dialog multiple times, and multiple contexts (identified by ``intent_id``) will be added to stack preserving the order.
 So you must be careful restarting you dialogs: do not forget to clear stack or it will eat all your memory
+
+Starting with version 1.0 you can create new stacks but default one exists always.
 
 State switch
 =================
