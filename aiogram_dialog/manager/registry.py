@@ -5,12 +5,12 @@ from typing import Sequence, Type, Dict
 from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.handler import Handler
-from aiogram.types import User, Chat
+from aiogram.types import User, Chat, Message
 
 from .manager_middleware import ManagerMiddleware
-from .protocols import ManagedDialogProto, DialogRegistryProto
+from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
 from .update_handler import handle_update
-from ..context.events import DialogUpdateEvent
+from ..context.events import DialogUpdateEvent, StartMode
 from ..context.intent_filter import IntentFilter, IntentMiddleware
 
 
@@ -27,12 +27,7 @@ class DialogRegistry(DialogRegistryProto):
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
         self.register_update_handler(handle_update, state="*")
         self.dp.filters_factory.bind(IntentFilter)
-        self.dp.setup_middleware(
-            ManagerMiddleware(self)
-        )
-        self.dp.setup_middleware(
-            IntentMiddleware(storage=dp.storage, state_groups=self.state_groups)
-        )
+        self._register_middleware()
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         group = dialog.states_group()
@@ -48,8 +43,18 @@ class DialogRegistry(DialogRegistryProto):
             **kwargs
         )
 
+    def register_start_handler(self, state: State):
+        @self.dp.message_handler(commands=["start"], state="*")
+        async def start_dialog(m: Message, dialog_manager: DialogManager):
+            await dialog_manager.start(state, mode=StartMode.RESET_STACK)
+
     def _register_middleware(self):
-        self.dp.setup_middleware(self)
+        self.dp.setup_middleware(
+            ManagerMiddleware(self)
+        )
+        self.dp.setup_middleware(
+            IntentMiddleware(storage=self.dp.storage, state_groups=self.state_groups)
+        )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
         return self.dialogs[state.group]

@@ -90,18 +90,14 @@ main_menu = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
-
-
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
-    dp.register_message_handler(start, text="/start", state="*")
     registry = DialogRegistry(dp)
+    registry.register_start_handler(MainSG.main)  # resets stack and start dialogs on /start command
     registry.register(name_dialog)
     registry.register(main_menu)
 

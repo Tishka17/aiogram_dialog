@@ -81,6 +81,7 @@ dialog = Dialog(
 
 
 async def start(m: Message, dialog_manager: DialogManager):
+    # it is important to reset stack because user wants to restart everything
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 
 
