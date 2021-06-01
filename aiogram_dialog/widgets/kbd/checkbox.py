@@ -28,7 +28,7 @@ class BaseCheckbox(Keyboard, ABC):
 
     async def _render_keyboard(self, data: Dict,
                                manager: DialogManager) -> List[List[InlineKeyboardButton]]:
-        checked = int(self.is_checked(data, manager))
+        checked = int(self.is_checked(manager))
         # store current checked status in callback data
         return [[
             InlineKeyboardButton(
@@ -48,10 +48,10 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
-        return self.is_checked(data, manager)
+        return self.is_checked(manager)
 
     @abstractmethod
-    def is_checked(self, data: Dict, manager: DialogManager) -> bool:
+    def is_checked(self, manager: DialogManager) -> bool:
         raise NotImplementedError
 
     @abstractmethod
@@ -66,7 +66,7 @@ class Checkbox(BaseCheckbox):
         super().__init__(checked_text, unchecked_text, id, on_state_changed, when)
         self.default = default
 
-    def is_checked(self, data: Dict, manager: DialogManager) -> bool:
+    def is_checked(self, manager: DialogManager) -> bool:
         return manager.current_context().widget_data.get(self.widget_id, self.default)
 
     async def set_checked(self, event: ChatEvent, checked: bool, manager: DialogManager):
