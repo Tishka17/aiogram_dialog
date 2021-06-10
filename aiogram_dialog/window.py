@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
@@ -17,20 +17,25 @@ logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
+    async def render_text(self, data: Dict, manager: DialogManager) -> str:
+        return await self.text.render_text(data, manager)
+
     def __init__(self,
                  *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
                  parse_mode: Optional[ParseMode] = None,
-                 disable_web_page_preview: Optional[bool] = None):
+                 disable_web_page_preview: Optional[bool] = None,
+                 preview_add_transitions: Optional[List[Keyboard]] = None,
+                 preview_data: Optional[Dict] = None,
+                 ):
         self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
-
-    async def render_text(self, data: Dict, manager: DialogManager) -> str:
-        return await self.text.render_text(data, manager)
+        self.preview_add_transitions = preview_add_transitions
+        self.preview_data = preview_data
 
     async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
@@ -49,9 +54,12 @@ class Window(DialogWindowProto):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager, preview: bool = False) -> NewMessage:
         logger.debug("Show window: %s", self)
-        current_data = await self.load_data(dialog, manager)
+        if preview:
+            current_data = self.preview_data
+        else:
+            current_data = await self.load_data(dialog, manager)
         return NewMessage(
             chat=get_chat(manager.event),
             text=await self.render_text(current_data, manager),
