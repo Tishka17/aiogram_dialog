@@ -63,19 +63,19 @@ class Calendar(Keyboard, ABC):
                                dialog: Dialog,
                                manager: DialogManager) -> None:
         prefix = f"{self.widget_id}:"
-        offset = self.get_offset(manager)
+        current_offset = self.get_offset(manager)
         data = c.data[len(prefix):]
 
         if data == MONTH_NEXT:
-            new_offset = datetime(offset.year + (offset.month // 12), ((offset.month % 12) + 1), 1)
+            new_offset = datetime(current_offset.year + (current_offset.month // 12), ((current_offset.month % 12) + 1), 1)
             self.set_offset(new_offset, manager)
 
         elif data == MONTH_PREV:
-            if offset.month == 1:
-                new_offset = datetime(offset.year - 1, 12, 1)
+            if current_offset.month == 1:
+                new_offset = datetime(current_offset.year - 1, 12, 1)
                 self.set_offset(new_offset, manager)
             else:
-                new_offset = datetime(offset.year, (offset.month - 1), 1)
+                new_offset = datetime(current_offset.year, (current_offset.month - 1), 1)
                 self.set_offset(new_offset, manager)
 
         elif data in [SCOPE_MONTHS, SCOPE_YEARS]:
@@ -83,7 +83,7 @@ class Calendar(Keyboard, ABC):
 
         elif data.startswith(PREFIX_MONTH):
             data = int(c.data[len(prefix) + len(PREFIX_MONTH):])
-            new_offset = datetime(offset.year, data, 1)
+            new_offset = datetime(current_offset.year, data, 1)
             self.set_scope(SCOPE_DAYS, manager)
             self.set_offset(new_offset, manager)
 
