@@ -12,13 +12,11 @@ from .base import Keyboard
 from ..when import WhenCondition
 
 
-(
-    # Constants for navigating pages with buttons
-    PAGE_FIRST,
-    PAGE_LAST,
-    PAGE_NEXT,
-    PAGE_PREV,
-) = map(chr, range(0, 4))
+# Constants for navigating pages with buttons
+PAGE_FIRST = "0"
+PAGE_LAST = "-1"
+PAGE_NEXT = "+"
+PAGE_PREV = "-"
 
 
 class BiDirCollection(object):
