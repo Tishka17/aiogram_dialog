@@ -14,20 +14,19 @@ from .base import Keyboard
 
 OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
 
-(
-    # Constants for managing widget rendering scope
-    SCOPE_DAYS,
-    SCOPE_MONTHS,
-    SCOPE_YEARS,
 
-    # Constants for scrolling months
-    MONTH_NEXT,
-    MONTH_PREV,
+# Constants for managing widget rendering scope
+SCOPE_DAYS = "SCOPE_DAYS"
+SCOPE_MONTHS = "SCOPE_MONTHS"
+SCOPE_YEARS = "SCOPE_YEARS"
 
-    # Constants for prefixing month and year values
-    PREFIX_MONTH,
-    PREFIX_YEAR,
-) = map(chr, range(0, 7))
+# Constants for scrolling months
+MONTH_NEXT = "+"
+MONTH_PREV = "-"
+
+# Constants for prefixing month and year values
+PREFIX_MONTH = "MONTH"
+PREFIX_YEAR = "YEAR"
 
 MONTHS_NUMBERS = [(1, 2, 3), (4, 5, 6), (7, 8, 9), (10, 11, 12)]
 
