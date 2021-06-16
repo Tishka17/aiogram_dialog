@@ -22,27 +22,25 @@ T = TypeVar("T")
 
 
 class BiDirCollection(Generic[T]):
-    def __init__(self, collection):
+    def __init__(self, collection: List[T]):
         self.collection = collection
         self.current_index = 0
         self.last_index = len(collection) - 1
 
-    def current_state(self):
+    def current_state(self) -> T:
         return self.collection[self.current_index]
 
     def first(self) -> None:
         self.current_index = 0
 
-    def next(self) -> T:
+    def next(self) -> None:
         if self.current_index < self.last_index:
             self.current_index += 1
-        return self.collection[self.current_index]
 
-    def prev(self) -> T:
+    def prev(self) -> None:
         if self.current_index == 0:
-            return self.collection[self.current_index]
+            return None
         self.current_index -= 1
-        return self.collection[self.current_index]
 
     def last(self) -> None:
         self.current_index = self.last_index
