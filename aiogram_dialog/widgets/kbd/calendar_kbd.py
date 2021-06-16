@@ -8,7 +8,7 @@ from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.manager.intent import ChatEvent
+from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 
