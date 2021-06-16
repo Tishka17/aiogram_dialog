@@ -1,21 +1,19 @@
 from dataclasses import dataclass
-from dataclasses import field
-from enum import Enum
-from typing import Dict, Optional, Any
+from enum import Enum, auto
+from typing import Dict, Any, Optional
 from typing import Union, List
 
 from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import Message, User, CallbackQuery, Chat
+from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
 
 Data = Union[Dict, List, int, str, None]
 
 
-@dataclass(frozen=True)
-class Intent:
-    id: str = field(compare=True)
-    name: str = field(compare=False)
-    data: Data = field(compare=False)
+class StartMode(Enum):
+    NORMAL = auto()
+    RESET_STACK = auto()
+    NEW_STACK = auto()
 
 
 class Action(Enum):
@@ -32,12 +30,14 @@ class DialogUpdateEvent:
     chat: Chat
     action: Action
     data: Any
+    intent_id: Optional[str]
+    stack_id: Optional[str]
 
 
 @dataclass
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
-    reset_stack: bool
+    mode: StartMode
 
 
 @dataclass
@@ -45,4 +45,4 @@ class DialogSwitchEvent(DialogUpdateEvent):
     new_state: State
 
 
-ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent]
+ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent, ChatMemberUpdated]

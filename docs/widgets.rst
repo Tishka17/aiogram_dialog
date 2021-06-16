@@ -61,7 +61,7 @@ Every time you need to render text use any of text widgets:
 * :ref:`Multi<multi_text>` - multiple texts, joined with a separator
 * :ref:`Case<case_text>` - shows one of texts based on condition
 * ``Progress`` - shows a progress bar
-* ``Jinja`` - represents a HTML rendered using jinja2 template
+* :ref:`Jinja<jinja>` - represents a HTML rendered using jinja2 template
 
 Keyboard widget types
 *****************************
@@ -71,12 +71,14 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Button`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
 * `Url`_ - single inline button with url
 * :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
+* :ref:`ScrollingGroup<scrolling_group>` - the same as the ``Group``, but with the ability to scroll through pages with buttons.
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
 * :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
 * `Checkbox`_ - button with two states
 * `Select`_ - dynamic group of buttons intended for selection use.
 * `Radio`_ - switch between multiple items. Like select but stores chosen item and renders it differently.
 * `Multiselect`_ - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.
+* `Calendar`_ - simulates a calendar in the form of a keyboard.
 * ``SwitchTo`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
 * ``Start`` - starts a new dialog with no params
@@ -97,6 +99,30 @@ To select one of the texts depending on some condition you should use ``Case``.
 The condition can be either a data key or a function:
 
 .. literalinclude:: examples/widgets/case.py
+
+
+Jinja HTML rendering
+=========================
+
+.. _jinja:
+
+It is very easy to create safe HTML messages using Jinja2 templates.
+Documentation for template language is available at `official jinja web page <https://jinja.palletsprojects.com>`_
+
+To use it you need to create text using ``Jinja`` class instead of ``Format`` and set proper ``parse_mode``.
+If you do not want to set default parse mode for whole bot you can set it per-window.
+
+For example you can use environment substitution, cycles and filters:
+
+.. literalinclude:: examples/widgets/jinja.py
+
+It will be rendered to this HTML:
+
+.. literalinclude:: examples/widgets/jinja.html
+
+If you want to add custom `filters <https://jinja.palletsprojects.com/en/2.11.x/api/#custom-filters>`_
+or do some configuration of jinja Environment you can setup it using ``aiogram_dialog.widgets.text.setup_jinja`` function
+
 
 Keyboards
 ================
@@ -166,6 +192,15 @@ Also it can be used to produce rows of fixed width. To do it set ``keep_rows=Fal
 
 .. image:: resources/group_width.png
 
+.. _scrolling_group:
+
+**ScrollingGroup** widget combines buttons into pages with the ability to scroll forward and backward and go to the last or first page with buttons.
+You can set the ``height`` and ``width`` of the keyboard. If there are not enough buttons for the last page, the keyboard will be filled with empty buttons keeping the specified height and width.
+
+.. literalinclude:: examples/widgets/scrolling_group.py
+
+.. image:: resources/scrolling_group1.png
+.. image:: resources/scrolling_group2.png
 
 Checkbox
 **************
@@ -276,6 +311,20 @@ To work with selection you can use this methods:
 
     ``Multiselect`` widgets stores state of all checked items even if they disappear from window data.
     It is very useful when you have pagination, but might be unexpected when data is really removed.
+
+
+Calendar
+*********
+
+**Calendar** widget allows you to display the keyboard in the form of a calendar, flip through the months and select the date.
+The initial state looks like the days of the current month.
+It is possible to switch to the state for choosing the month of the current year or in the state of choosing years.
+
+.. literalinclude:: examples/widgets/calendar.py
+
+.. image::  resources/calendar1.png
+.. image::  resources/calendar2.png
+.. image::  resources/calendar3.png
 
 
 Hiding widgets

@@ -7,9 +7,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
+from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
+from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -23,18 +24,18 @@ class NameSG(StatesGroup):
 
 
 async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
-    manager.context.set_data("name", m.text)
+    manager.current_context().dialog_data["name"] = m.text
     await dialog.next(manager)
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "name": dialog_manager.context.data("name", None)
+        "name": dialog_manager.current_context().dialog_data.get("name")
     }
 
 
 async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.done({"name": manager.context.data("name")})
+    await manager.done({"name": manager.current_context().dialog_data["name"]})
 
 
 name_dialog = Dialog(
@@ -43,12 +44,14 @@ name_dialog = Dialog(
         Cancel(),
         MessageInput(name_handler),
         state=NameSG.input,
+        preview_add_transitions=[Next()],  # hint for graph rendering
     ),
     Window(
         Format("Your name is `{name}`, it is correct?"),
         Row(Back(Const("No")), Button(Const("Yes"), id="yes", on_click=on_finish)),
         state=NameSG.confirm,
-        getter=get_name_data
+        getter=get_name_data,
+        preview_add_transitions=[Cancel()],  # hint for graph rendering
     )
 )
 
@@ -58,19 +61,19 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def process_result(result: Any, manager: DialogManager):
+async def process_result(start_data: Data, result: Any, manager: DialogManager):
     if result:
-        manager.context.set_data("name", result["name"])
+        manager.current_context().dialog_data["name"] = result["name"]
 
 
 async def get_main_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "name": dialog_manager.context.data("name", None),
+        "name": dialog_manager.current_context().dialog_data.get("name"),
     }
 
 
 async def on_reset_name(c: CallbackQuery, button: Button, manager: DialogManager):
-    manager.context.set_data("name", None)
+    del manager.current_context().dialog_data["name"]
 
 
 main_menu = Dialog(
@@ -90,20 +93,17 @@ main_menu = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MainSG.main, reset_stack=True)
-
-
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot, storage=storage)
-    dp.register_message_handler(start, text="/start", state="*")
     registry = DialogRegistry(dp)
+    registry.register_start_handler(MainSG.main)  # resets stack and start dialogs on /start command
     registry.register(name_dialog)
     registry.register(main_menu)
+    render_transitions(registry)  # render graph with current transtions
 
     await dp.start_polling()
 

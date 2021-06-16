@@ -1,80 +1,71 @@
 import asyncio
 from contextvars import copy_context
-from functools import partial
-from typing import Dict, Optional, Union
+from typing import Sequence, Type, Dict
 
 from aiogram import Dispatcher, Bot
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.handler import Handler
-from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.dispatcher.storage import FSMContextProxy
-from aiogram.types import User, Chat
+from aiogram.types import User, Chat, Message
 
-from .intent import DialogUpdateEvent
-from .manager import DialogManagerImpl
+from .manager_middleware import ManagerMiddleware
 from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
-from .stack import DialogStack
 from .update_handler import handle_update
+from ..context.events import DialogUpdateEvent, StartMode
+from ..context.intent_filter import IntentFilter, IntentMiddleware
 
 
-class DialogRegistry(BaseMiddleware, DialogRegistryProto):
-    dialogs: Dict[str, ManagedDialogProto]
-
-    def __init__(self, dp: Dispatcher, dialogs: Optional[Dict[str, ManagedDialogProto]] = None):
+class DialogRegistry(DialogRegistryProto):
+    def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
         super().__init__()
         self.dp = dp
-        if dialogs is None:
-            dialogs = {}
-        self.dialogs = dialogs
+        self.dialogs = {
+            d.states_group(): d for d in dialogs
+        }
+        self.state_groups: Dict[str, Type[StatesGroup]] = {
+            d.states_group_name(): d.states_group() for d in dialogs
+        }
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
-        self._register_middleware()
         self.register_update_handler(handle_update, state="*")
+        self.dp.filters_factory.bind(IntentFilter)
+        self._register_middleware()
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
-        name = dialog.states_group_name()
-        if name in self.dialogs:
-            raise ValueError(f"StatesGroup `{name}` is already used")
-        self.dialogs[name] = dialog
-        dialog.register(self, self.dp, *args, **kwargs)
+        group = dialog.states_group()
+        if group in self.dialogs:
+            raise ValueError(f"StatesGroup `{group}` is already used")
+        self.dialogs[group] = dialog
+        self.state_groups[dialog.states_group_name()] = group
+        dialog.register(
+            self,
+            self.dp,
+            *args,
+            aiogd_intent_state_group=group,
+            **kwargs
+        )
+
+    def register_start_handler(self, state: State):
+        @self.dp.message_handler(commands=["start"], state="*")
+        async def start_dialog(m: Message, dialog_manager: DialogManager):
+            await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
     def _register_middleware(self):
-        self.dp.setup_middleware(self)
-
-    def find_dialog(self, state: Union[str, State]) -> ManagedDialogProto:
-        if isinstance(state, str):
-            group, *_ = state.partition(":")
-        else:
-            group = state.group.__full_group_name__
-        return self.dialogs[group]
-
-    async def on_pre_process_message(self, event, data: dict):
-        proxy = await FSMContextProxy.create(
-            self.dp.current_state()  # there is no state in data at this moment
+        self.dp.setup_middleware(
+            ManagerMiddleware(self)
         )
-        manager = DialogManagerImpl(
-            event,
-            DialogStack(proxy),
-            proxy,
-            self,
-            data,
+        self.dp.setup_middleware(
+            IntentMiddleware(storage=self.dp.storage, state_groups=self.state_groups)
         )
-        data["dialog_manager"] = manager
 
-    on_pre_process_callback_query = on_pre_process_message
-    on_pre_process_aiogd_update = on_pre_process_message
-
-    async def on_post_process_message(self, _, result, data: dict):
-        manager: DialogManager = data.pop("dialog_manager")
-        await manager.close_manager()
-
-    on_post_process_callback_query = on_post_process_message
-    on_post_process_aiogd_update = on_post_process_message
+    def find_dialog(self, state: State) -> ManagedDialogProto:
+        return self.dialogs[state.group]
 
     def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
         filters_set = self.dp.filters_factory.resolve(
             self.update_handler, *custom_filters, **kwargs
         )
-        self.update_handler.register(self.dp._wrap_async_task(callback, run_task), filters_set)
+        self.update_handler.register(
+            self.dp._wrap_async_task(callback, run_task), filters_set
+        )
 
     async def notify(self, event: DialogUpdateEvent) -> None:
         callback = lambda: asyncio.create_task(self._process_update(event))

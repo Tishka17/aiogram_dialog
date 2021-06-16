@@ -10,7 +10,7 @@ this_directory = path.abspath(path.dirname(__file__))
 setup(
     name='aiogram_dialog',
     description='Mini-framework for dialogs on top of aiogram',
-    version='0.11.1',
+    version='1.0rc1',
     url='https://github.com/tishka17/aiogram_dialog',
     author='A. Tikhonov',
     author_email='17@itishka.org',
@@ -23,8 +23,13 @@ setup(
     ],
     packages=find_packages(include=['aiogram_dialog', 'aiogram_dialog.*']),
     install_requires=[
-        'aiogram<3',
+        'aiogram>=2.12,<3',
         'jinja2',
     ],
+    extras_require={
+        "tools": [
+            "diagrams"
+        ]
+    },
     python_requires=">=3.6",
 )
