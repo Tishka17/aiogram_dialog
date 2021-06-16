@@ -35,7 +35,7 @@ Only transitions, done by special buttons are shown.
 
 To fix this behavior you can set ``preview_add_transitions`` parameter of window:
 
-.. literalinclude:: examples/tools/render.py
+.. literalinclude:: examples/tools/render_hints.py
 
 Run the code and check updated rendering result:
 
