@@ -26,5 +26,10 @@ setup(
         'aiogram>=2.12,<3',
         'jinja2',
     ],
+    extras_require={
+        "tools": [
+            "diagrams"
+        ]
+    },
     python_requires=">=3.6",
 )

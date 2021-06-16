@@ -9,6 +9,7 @@ aiogram-dialog
    widgets
    transitions
    migration
+   tools
 
 
 Indices and tables

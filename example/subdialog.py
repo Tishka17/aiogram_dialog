@@ -7,9 +7,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, StartMode, Data
+from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
+from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start
+from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -25,6 +26,7 @@ class NameSG(StatesGroup):
 async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
     manager.current_context().dialog_data["name"] = m.text
     await dialog.next(manager)
+    await manager.done({"name": manager.current_context().dialog_data["name"]})
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
@@ -43,12 +45,14 @@ name_dialog = Dialog(
         Cancel(),
         MessageInput(name_handler),
         state=NameSG.input,
+        preview_add_transitions=[Next()],  # hint for graph rendering
     ),
     Window(
         Format("Your name is `{name}`, it is correct?"),
         Row(Back(Const("No")), Button(Const("Yes"), id="yes", on_click=on_finish)),
         state=NameSG.confirm,
-        getter=get_name_data
+        getter=get_name_data,
+        preview_add_transitions=[Cancel()],  # hint for graph rendering
     )
 )
 
@@ -100,6 +104,7 @@ async def main():
     registry.register_start_handler(MainSG.main)  # resets stack and start dialogs on /start command
     registry.register(name_dialog)
     registry.register(main_menu)
+    render_transitions(registry)  # render graph with current transtions
 
     await dp.start_polling()
 

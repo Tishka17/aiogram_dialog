@@ -1,0 +1,1 @@
+pip install aiogram_dialog[tools]
