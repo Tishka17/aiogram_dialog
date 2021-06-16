@@ -37,7 +37,7 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog", manager: DialogManager) -> NewMessage:
+    async def render(self, dialog: "Dialog", manager: DialogManager, preview: bool = False) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:

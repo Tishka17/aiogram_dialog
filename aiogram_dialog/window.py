@@ -17,8 +17,6 @@ logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
-    async def render_text(self, data: Dict, manager: DialogManager) -> str:
-        return await self.text.render_text(data, manager)
 
     def __init__(self,
                  *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
@@ -36,6 +34,9 @@ class Window(DialogWindowProto):
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
         self.preview_data = preview_data
+
+    async def render_text(self, data: Dict, manager: DialogManager) -> str:
+        return await self.text.render_text(data, manager)
 
     async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
