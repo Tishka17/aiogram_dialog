@@ -38,9 +38,8 @@ class BiDirCollection(Generic[T]):
             self.current_index += 1
 
     def prev(self) -> None:
-        if self.current_index == 0:
-            return None
-        self.current_index -= 1
+        if self.current_index > 0:
+            self.current_index -= 1
 
     def last(self) -> None:
         self.current_index = self.last_index
