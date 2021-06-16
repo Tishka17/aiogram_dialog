@@ -1,5 +1,5 @@
 from itertools import chain, zip_longest
-from typing import List, Dict, Optional, Any, Tuple
+from typing import List, Dict, Optional, Any, Tuple, TypeVar, Generic
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -18,8 +18,10 @@ PAGE_LAST = "-1"
 PAGE_NEXT = "+"
 PAGE_PREV = "-"
 
+T = TypeVar("T")
 
-class BiDirCollection(object):
+
+class BiDirCollection(Generic[T]):
     def __init__(self, collection):
         self.collection = collection
         self.current_index = 0
@@ -31,13 +33,12 @@ class BiDirCollection(object):
     def first(self) -> None:
         self.current_index = 0
 
-    def next(self) -> List[Any]:
-        if self.current_index == self.last_index:
-            return self.collection[self.last_index]
-        self.current_index += 1
+    def next(self) -> T:
+        if self.current_index < self.last_index:
+            self.current_index += 1
         return self.collection[self.current_index]
 
-    def prev(self) -> List[Any]:
+    def prev(self) -> T:
         if self.current_index == 0:
             return self.collection[self.current_index]
         self.current_index -= 1
