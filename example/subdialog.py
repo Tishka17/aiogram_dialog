@@ -26,7 +26,6 @@ class NameSG(StatesGroup):
 async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
     manager.current_context().dialog_data["name"] = m.text
     await dialog.next(manager)
-    await manager.done({"name": manager.current_context().dialog_data["name"]})
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
