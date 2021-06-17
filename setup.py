@@ -31,5 +31,8 @@ setup(
             "diagrams"
         ]
     },
+    package_data={
+        'aiogram_dialog.tools': ['calculator.png'],
+    },
     python_requires=">=3.6",
 )
