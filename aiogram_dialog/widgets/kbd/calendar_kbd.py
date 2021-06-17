@@ -87,7 +87,7 @@ class Calendar(Keyboard, ABC):
             self.set_offset(new_offset, manager)
 
         elif data.startswith(PREFIX_YEAR):
-            data = int(c.data[len(prefix) + len(PREFIX_MONTH):])
+            data = int(c.data[len(prefix) + len(PREFIX_YEAR):])
             new_offset = datetime(data, 1, 1)
             self.set_scope(SCOPE_MONTHS, manager)
             self.set_offset(new_offset, manager)
