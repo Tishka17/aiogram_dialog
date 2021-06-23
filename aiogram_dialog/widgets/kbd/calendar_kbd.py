@@ -14,7 +14,6 @@ from .base import Keyboard
 
 OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
 
-
 # Constants for managing widget rendering scope
 SCOPE_DAYS = "SCOPE_DAYS"
 SCOPE_MONTHS = "SCOPE_MONTHS"
@@ -60,13 +59,19 @@ class Calendar(Keyboard, ABC):
     async def process_callback(self,
                                c: CallbackQuery,
                                dialog: Dialog,
-                               manager: DialogManager) -> None:
+                               manager: DialogManager) -> bool:
         prefix = f"{self.widget_id}:"
+        if not c.data.startswith(prefix):
+            return False
         current_offset = self.get_offset(manager)
         data = c.data[len(prefix):]
 
         if data == MONTH_NEXT:
-            new_offset = datetime(current_offset.year + (current_offset.month // 12), ((current_offset.month % 12) + 1), 1)
+            new_offset = datetime(
+                year=current_offset.year + (current_offset.month // 12),
+                month=((current_offset.month % 12) + 1),
+                day=1,
+            )
             self.set_offset(new_offset, manager)
 
         elif data == MONTH_PREV:
@@ -95,6 +100,7 @@ class Calendar(Keyboard, ABC):
         else:
             raw_date = int(data)
             await self.on_click.process_event(c, self, manager, date.fromtimestamp(raw_date))
+        return True
 
     def years_kbd(self, offset) -> List[List[InlineKeyboardButton]]:
         years = []

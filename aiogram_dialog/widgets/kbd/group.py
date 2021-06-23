@@ -10,11 +10,10 @@ from ..when import WhenCondition
 
 
 class Group(Keyboard):
-    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, keep_rows: bool = True, width: int = 0,
+    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, width: int = None,
                  when: WhenCondition = None):
         super().__init__(id, when)
         self.buttons = buttons
-        self.keep_rows = keep_rows
         self.width = width
 
     def find(self, widget_id):
@@ -31,11 +30,11 @@ class Group(Keyboard):
         kbd: List[List[InlineKeyboardButton]] = []
         for b in self.buttons:
             b_kbd = await b.render_keyboard(data, manager)
-            if self.keep_rows or not kbd:
+            if self.width is None or not kbd:
                 kbd += b_kbd
             else:
                 kbd[0].extend(chain.from_iterable(b_kbd))
-        if not self.keep_rows and self.width:
+        if self.width:
             kbd = self._wrap_kbd(kbd[0])
         return kbd
 
@@ -60,9 +59,9 @@ class Group(Keyboard):
 
 class Row(Group):
     def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
-        super().__init__(*buttons, id=id, keep_rows=False, when=when)
+        super().__init__(*buttons, id=id, width=9999, when=when)  # telegram doe not allow even 100 columns
 
 
 class Column(Group):
     def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
-        super().__init__(*buttons, id=id, keep_rows=False, when=when, width=1)
+        super().__init__(*buttons, id=id, when=when, width=1)
