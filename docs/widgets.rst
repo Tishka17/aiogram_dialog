@@ -186,7 +186,7 @@ You can place any keyboard widgets inside it (for example buttons or groups) and
 
 .. image:: resources/group.png
 
-Also it can be used to produce rows of fixed width. To do it set ``keep_rows=False`` and ``width`` to desired value. Honestly, ``Row`` and ``Column`` widgets are groups with disabled ``keep_rows``
+Also it can be used to produce rows of fixed width. To do it just set ``width`` to desired value. Honestly, ``Row`` and ``Column`` widgets are groups with predefined width.
 
 .. literalinclude:: examples/widgets/group_width.py
 

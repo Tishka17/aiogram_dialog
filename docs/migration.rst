@@ -13,3 +13,4 @@ Incompatible changes with 0.11:
     * ``state`` is current dialog state
 * When subdialog finishes parent is restored with previous state, not which it was started
 * Changed signature of ``on_process_result`` callback. It now accepts start data used to start subdialog
+* ``Group.keep_rows`` option removed. Set ``width=None`` (default value) if you want to keep rows.
