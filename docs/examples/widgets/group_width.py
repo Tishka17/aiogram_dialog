@@ -7,6 +7,5 @@ group = Group(
     Button(Const("Run"), id="run"),
     Button(Const("Fly"), id="fly"),
     Button(Const("Teleport"), id="tele"),
-    keep_rows=False,
     width=2,
 )

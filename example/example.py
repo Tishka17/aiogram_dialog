@@ -94,7 +94,7 @@ dialog1 = Dialog(
             Button(Format("{name}"), "b1"),
             Button(Const("Is it Fun?"), "b2", on_click=fun),
             Checkbox(Const("Yes"), Const("No"), "check"),
-            keep_rows=False
+            width=100,
         ),
         select,
         radio,
@@ -111,8 +111,8 @@ dialog1 = Dialog(
         Group(*[
             Button(Const(f"{h % 24:2}:{m:02}"), f"{h}_{m}")
             for h in range(20, 26) for m in range(0, 60, 15)
-        ], keep_rows=False, width=4),
-        Group(Button(Const("Позже"), "ltr"), Button(Const("Раньше"), "erl"), keep_rows=False),
+        ], width=4),
+        Group(Button(Const("Позже"), "ltr"), Button(Const("Раньше"), "erl"), width=100),
         Back(Const("Назад")),
         state=Register.name
     )
