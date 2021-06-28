@@ -129,7 +129,7 @@ For example in `/start` command handler:
 ```python
 @dp.message_handler(commands=["start"])
 async def user_start(message: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(MySG.first, reset_stack=True)
+    await dialog_manager.start(MySG.first, mode=StartMode.RESET_STACK)
 ```
 
 **Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
@@ -139,7 +139,17 @@ on your mobile phone, so you can reach stackoverflow error
 
 For picture above we have such widgets:
 
-![window example](docs/resources/layout_example2.png)
+* `Const` for constant first line
+* `Format` for name substitution
+* `Mutli` for grouping multiple texts
+* `Button` for processing user click
+* `Checkbox` for button with changing state
+* `Radio` to select one item from group
+* `Multiselect` to select multiple items from group
+* `Next` for switching to next state
+* `Group` for grouping multiple buttons on one screen
+ 
+![window example](docs/resources/layout_example.png)
 
 #### Text widget types
 
