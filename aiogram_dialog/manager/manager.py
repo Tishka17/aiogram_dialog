@@ -51,10 +51,7 @@ class ManagerImpl(DialogManager):
 
     async def _remove_kbd(self) -> None:
         chat = get_chat(self.event)
-        if isinstance(self.event, CallbackQuery):
-            message = self.event.message
-        else:
-            message = Message(chat=chat, message_id=self.current_stack().last_message_id)
+        message = Message(chat=chat, message_id=self.current_stack().last_message_id)
         await remove_kbd(self.event.bot, message)
         self.current_stack().last_message_id = None
 
@@ -99,6 +96,7 @@ class ManagerImpl(DialogManager):
             stack = self.current_stack()
             while not stack.empty():
                 await storage.remove_context(stack.pop())
+            await self._remove_kbd()
             return await self.start(state, data, StartMode.NORMAL)
         elif mode is StartMode.NEW_STACK:
             stack = Stack()
@@ -138,7 +136,7 @@ class ManagerImpl(DialogManager):
         if stack_id is None:
             if same_chat:
                 stack_id = self.current_stack().id
-                if not self.current_stack().empty():
+                if self.current_context():
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID

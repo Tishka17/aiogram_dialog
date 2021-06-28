@@ -7,6 +7,9 @@ State diagram
 
 You can generate image with your states and transitions.
 
+Firstly you need to install [graphviz](https://graphviz.org/download/) into your system.
+Check installation instructions on official site.
+
 Install library with tools extras:
 
 .. literalinclude:: examples/tools/install.sh

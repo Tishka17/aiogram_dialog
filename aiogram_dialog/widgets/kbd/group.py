@@ -34,7 +34,7 @@ class Group(Keyboard):
                 kbd += b_kbd
             else:
                 kbd[0].extend(chain.from_iterable(b_kbd))
-        if self.width:
+        if self.width and kbd:
             kbd = self._wrap_kbd(kbd[0])
         return kbd
 
