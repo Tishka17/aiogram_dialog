@@ -30,12 +30,12 @@ class ScrollingGroup(Group):
         last_page = pages - 1
         if pages == 0:
             return kbd
-        current_page = min(last_page, self.get_page(manager))
+        current_page = self.get_page(manager)
         pager = [[
             InlineKeyboardButton(text="1", callback_data=f"{self.widget_id}:0"),
-            InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{PAGE_PREV}"),
+            InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{PAGE_PREV if current_page > 0 else current_page}"),
             InlineKeyboardButton(text=str(current_page + 1), callback_data=f"{self.widget_id}:{current_page}"),
-            InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{PAGE_NEXT}"),
+            InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{PAGE_NEXT if current_page < last_page else last_page}"),
             InlineKeyboardButton(text=str(last_page + 1), callback_data=f"{self.widget_id}:{last_page}"),
         ]]
         return kbd[current_page * self.height: (current_page + 1) * self.height] + pager
