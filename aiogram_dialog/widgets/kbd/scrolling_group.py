@@ -58,7 +58,7 @@ class ScrollingGroup(Group):
             await self.set_page(c, new_page, manager)
         return True
 
-    def get_page(self, manager: DialogManager) -> bool:
+    def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
     async def set_page(self, event: ChatEvent, page: int, manager: DialogManager):
