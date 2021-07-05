@@ -50,9 +50,7 @@ class ScrollingGroup(Group):
         if data == PAGE_NEXT:
             await self.set_page(c, page + 1, manager)
         elif data == PAGE_PREV:
-            await self.set_page(
-                c, page - 1, manager
-            ) if page > 0 else await self.set_page(c, 0, manager)
+            await self.set_page(c, max(0, page - 1), manager)
         else:
             new_page = int(data)
             await self.set_page(c, new_page, manager)
