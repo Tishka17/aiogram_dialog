@@ -17,7 +17,7 @@ OnStateChanged = Callable[[ChatEvent, "ScrollingGroup", DialogManager], Awaitabl
 
 
 class ScrollingGroup(Group):
-    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, width: Optional[int] = None,
+    def __init__(self, *buttons: Keyboard, id: str, width: Optional[int] = None,
                  height: int = 0, when: WhenCondition = None,
                  on_page_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None):
         super().__init__(*buttons, id=id, width=width, when=when)
