@@ -17,7 +17,7 @@ OnStateChanged = Callable[[ChatEvent, "ScrollingGroup", DialogManager], Awaitabl
 
 
 class ScrollingGroup(Group):
-    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, width: Optional[int] = None,
+    def __init__(self, *buttons: Keyboard, id: str, width: Optional[int] = None,
                  height: int = 0, when: WhenCondition = None,
                  on_page_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None):
         super().__init__(*buttons, id=id, width=width, when=when)
@@ -50,13 +50,13 @@ class ScrollingGroup(Group):
         if data == PAGE_NEXT:
             await self.set_page(c, page + 1, manager)
         elif data == PAGE_PREV:
-            await self.set_page(c, page - 1, manager)
+            await self.set_page(c, max(0, page - 1), manager)
         else:
             new_page = int(data)
             await self.set_page(c, new_page, manager)
         return True
 
-    def get_page(self, manager: DialogManager) -> bool:
+    def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
     async def set_page(self, event: ChatEvent, page: int, manager: DialogManager):

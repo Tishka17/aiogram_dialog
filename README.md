@@ -17,7 +17,7 @@ pip install aiogram_dialog
 
 2. See [examples](example)
 
-3. Read the [documetntation](https://aiogram_dialog.readthedocs.org)
+3. Read the [documentation](https://aiogram_dialog.readthedocs.org)
 
 ### Usage
 
