@@ -116,7 +116,11 @@ class Dialog(ManagedDialogProto):
     async def _show(self, new_message: NewMessage, manager: DialogManager):
         stack = manager.current_stack()
         event = manager.event
-        if isinstance(event, CallbackQuery) and stack.last_message_id == event.message.message_id:
+        if (
+                isinstance(event, CallbackQuery)
+                and event.message
+                and stack.last_message_id == event.message.message_id
+        ):
             old_message = event.message
         else:
             if stack and stack.last_message_id:
