@@ -13,7 +13,7 @@ from .context import Context
 from .events import DialogUpdateEvent
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError
-from ..utils import remove_indent_id
+from ..utils import remove_indent_id, get_chat
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -46,10 +46,11 @@ class IntentMiddleware(BaseMiddleware):
         self.state_groups = state_groups
 
     async def on_pre_process_message(self, event: Union[Message, ChatMemberUpdated], data: dict):
+        chat = get_chat(event)
         proxy = StorageProxy(
             storage=self.storage,
             user_id=event.from_user.id,
-            chat_id=event.chat.id,
+            chat_id=chat.id,
             state_groups=self.state_groups,
         )
         stack = await proxy.load_stack()
@@ -67,10 +68,11 @@ class IntentMiddleware(BaseMiddleware):
         await proxy.save_stack(data.pop(STACK_KEY))
 
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
+        chat = get_chat(event)
         proxy = StorageProxy(
             storage=self.storage,
             user_id=event.from_user.id,
-            chat_id=event.chat.id,
+            chat_id=chat.id,
             state_groups=self.state_groups,
         )
         data[STORAGE_KEY] = proxy
@@ -98,10 +100,11 @@ class IntentMiddleware(BaseMiddleware):
         data[CONTEXT_KEY] = context
 
     async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
+        chat = get_chat(event)
         proxy = StorageProxy(
             storage=self.storage,
             user_id=event.from_user.id,
-            chat_id=event.message.chat.id,
+            chat_id=chat.id,
             state_groups=self.state_groups,
         )
         data[STORAGE_KEY] = proxy

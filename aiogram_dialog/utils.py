@@ -17,6 +17,8 @@ def get_chat(event: ChatEvent) -> Chat:
     if isinstance(event, (Message, DialogUpdateEvent, ChatMemberUpdated)):
         return event.chat
     elif isinstance(event, CallbackQuery):
+        if not event.message:
+            return Chat(id=event.from_user.id)
         return event.message.chat
 
 
