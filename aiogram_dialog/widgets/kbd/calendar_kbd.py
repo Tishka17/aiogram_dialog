@@ -32,7 +32,7 @@ MONTHS_NUMBERS = [(1, 2, 3), (4, 5, 6), (7, 8, 9), (10, 11, 12)]
 
 class CalendarData(TypedDict):
     current_scope: str
-    current_offset: date
+    current_offset: str
 
 
 class Calendar(Keyboard, ABC):
@@ -47,7 +47,7 @@ class Calendar(Keyboard, ABC):
                               data,
                               manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
-        current_scope = manager.current_context().widget_data.get(self.widget_id)["current_scope"]
+        current_scope = self.get_scope(manager)
 
         if current_scope == SCOPE_DAYS:
             return self.days_kbd(offset)
@@ -67,7 +67,7 @@ class Calendar(Keyboard, ABC):
         data = c.data[len(prefix):]
 
         if data == MONTH_NEXT:
-            new_offset = datetime(
+            new_offset = date(
                 year=current_offset.year + (current_offset.month // 12),
                 month=((current_offset.month % 12) + 1),
                 day=1,
@@ -76,10 +76,10 @@ class Calendar(Keyboard, ABC):
 
         elif data == MONTH_PREV:
             if current_offset.month == 1:
-                new_offset = datetime(current_offset.year - 1, 12, 1)
+                new_offset = date(current_offset.year - 1, 12, 1)
                 self.set_offset(new_offset, manager)
             else:
-                new_offset = datetime(current_offset.year, (current_offset.month - 1), 1)
+                new_offset = date(current_offset.year, (current_offset.month - 1), 1)
                 self.set_offset(new_offset, manager)
 
         elif data in [SCOPE_MONTHS, SCOPE_YEARS]:
@@ -87,13 +87,13 @@ class Calendar(Keyboard, ABC):
 
         elif data.startswith(PREFIX_MONTH):
             data = int(c.data[len(prefix) + len(PREFIX_MONTH):])
-            new_offset = datetime(current_offset.year, data, 1)
+            new_offset = date(current_offset.year, data, 1)
             self.set_scope(SCOPE_DAYS, manager)
             self.set_offset(new_offset, manager)
 
         elif data.startswith(PREFIX_YEAR):
             data = int(c.data[len(prefix) + len(PREFIX_YEAR):])
-            new_offset = datetime(data, 1, 1)
+            new_offset = date(data, 1, 1)
             self.set_scope(SCOPE_MONTHS, manager)
             self.set_offset(new_offset, manager)
 
@@ -163,23 +163,22 @@ class Calendar(Keyboard, ABC):
             ],
         ]
 
-    def get_offset(self,
-                   manager: DialogManager) -> date:
-        calendar_data = manager.current_context().widget_data.get(self.widget_id, None)
-        if calendar_data is None:
-            calendar_data: CalendarData = {"current_scope": SCOPE_DAYS,
-                                           "current_offset": date.today()}
-            manager.current_context().widget_data[self.widget_id] = calendar_data
-            return calendar_data["current_offset"]
-        current_offset = calendar_data["current_offset"]
-        return date.fromtimestamp(mktime(current_offset.timetuple()))
+    def get_scope(self, manager: DialogManager) -> str:
+        calendar_data: CalendarData = manager.current_context().widget_data.get(self.widget_id, {})
+        current_scope = calendar_data.get("current_scope")
+        return current_scope or SCOPE_DAYS
 
-    def set_offset(self,
-                   new_offset: date,
-                   manager: DialogManager) -> None:
-        manager.current_context().widget_data[self.widget_id]["current_offset"] = new_offset
+    def get_offset(self, manager: DialogManager) -> date:
+        calendar_data: CalendarData = manager.current_context().widget_data.get(self.widget_id, {})
+        current_offset = calendar_data.get("current_offset")
+        if current_offset is None:
+            return date.today()
+        return date.fromisoformat(current_offset)
 
-    def set_scope(self,
-                  new_scope: str,
-                  manager: DialogManager) -> None:
-        manager.current_context().widget_data[self.widget_id]["current_scope"] = new_scope
+    def set_offset(self, new_offset: date, manager: DialogManager) -> None:
+        data = manager.current_context().widget_data.setdefault(self.widget_id, {})
+        data["current_offset"] = new_offset.isoformat()
+
+    def set_scope(self, new_scope: str, manager: DialogManager) -> None:
+        data = manager.current_context().widget_data.setdefault(self.widget_id, {})
+        data["current_scope"] = new_scope
