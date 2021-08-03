@@ -9,15 +9,11 @@ from .base import Keyboard
 from .group import Group
 from ..when import WhenCondition
 
-# Constants for navigating pages with buttons
-PAGE_NEXT = "+"
-PAGE_PREV = "-"
-
 OnStateChanged = Callable[[ChatEvent, "ScrollingGroup", DialogManager], Awaitable]
 
 
 class ScrollingGroup(Group):
-    def __init__(self, *buttons: Keyboard, id: Optional[str] = None, width: Optional[int] = None,
+    def __init__(self, *buttons: Keyboard, id: str, width: Optional[int] = None,
                  height: int = 0, when: WhenCondition = None,
                  on_page_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None):
         super().__init__(*buttons, id=id, width=width, when=when)
@@ -31,11 +27,13 @@ class ScrollingGroup(Group):
         if pages == 0:
             return kbd
         current_page = min(last_page, self.get_page(manager))
+        next_page = min(last_page, current_page + 1)
+        prev_page = max(0, current_page - 1)
         pager = [[
             InlineKeyboardButton(text="1", callback_data=f"{self.widget_id}:0"),
-            InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{PAGE_PREV}"),
+            InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{prev_page}"),
             InlineKeyboardButton(text=str(current_page + 1), callback_data=f"{self.widget_id}:{current_page}"),
-            InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{PAGE_NEXT}"),
+            InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{next_page}"),
             InlineKeyboardButton(text=str(last_page + 1), callback_data=f"{self.widget_id}:{last_page}"),
         ]]
         return kbd[current_page * self.height: (current_page + 1) * self.height] + pager
@@ -44,19 +42,11 @@ class ScrollingGroup(Group):
         prefix = f"{self.widget_id}:"
         if not c.data.startswith(prefix):
             return await super().process_callback(c, dialog, manager)
-        data = c.data[len(prefix):]
-        page = self.get_page(manager)
-
-        if data == PAGE_NEXT:
-            await self.set_page(c, page + 1, manager)
-        elif data == PAGE_PREV:
-            await self.set_page(c, page - 1, manager)
-        else:
-            new_page = int(data)
-            await self.set_page(c, new_page, manager)
+        new_page = int(c.data[len(prefix):])
+        await self.set_page(c, new_page, manager)
         return True
 
-    def get_page(self, manager: DialogManager) -> bool:
+    def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
     async def set_page(self, event: ChatEvent, page: int, manager: DialogManager):
