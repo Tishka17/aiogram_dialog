@@ -14,6 +14,7 @@ test_buttons = test_buttons_creator(range(0, 100))
 
 scrolling_group = ScrollingGroup(
     *test_buttons,
+    id="numbers",
     width=6,
     height=6,
 )
