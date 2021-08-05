@@ -21,11 +21,12 @@ html_text = Jinja("""
 <b>{{title}}</b>
 {% for animal in animals %}
 * <a href="https://yandex.ru/search/?text={{ animal }}">{{ animal|capitalize }}</a>
-{% end for %}
+{% endfor %}
 """)
 
 window = Window(
     html_text,
     parse_mode=ParseMode.HTML,  # do not forget to set parse mode
-    state=DialogSG.ANIMALS
+    state=DialogSG.ANIMALS,
+    getter=get_data
 )
