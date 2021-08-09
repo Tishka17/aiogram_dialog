@@ -69,16 +69,18 @@ class Back(EventProcessorButton):
 
 class Cancel(EventProcessorButton):
     def __init__(self, text: Text = Const("Cancel"), id: str = "__cancel__",
+                 result: Any = None,
                  on_click: Optional[Callable] = None,
                  when: WhenCondition = None):
         super().__init__(text, id, self._on_click, when)
         self.text = text
+        self.result = result
         self.user_on_click = on_click
 
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.done()
+        await manager.done(self.result)
 
 
 class Start(EventProcessorButton):
