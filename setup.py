@@ -23,7 +23,7 @@ setup(
     ],
     packages=find_packages(include=['aiogram_dialog', 'aiogram_dialog.*']),
     install_requires=[
-        'aiogram>=2.12,<3',
+        'aiogram==3.*',
         'jinja2',
     ],
     extras_require={
