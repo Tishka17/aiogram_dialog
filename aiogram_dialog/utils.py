@@ -86,7 +86,6 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             pass  # nothing to remove"""
         except BadRequest as err:  # MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
             if 'message is not modified' in err.message:
-                print("Here")
                 pass
             else:
                 raise err
