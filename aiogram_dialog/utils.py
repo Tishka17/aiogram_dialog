@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, InlineKeyboardMarkup, \
     ChatMemberUpdated
-from aiogram.utils.exceptions.base import TelegramAPIError
+from aiogram.utils.exceptions.bad_request import BadRequest
 
 from .context.events import (
     DialogUpdateEvent, ChatEvent
