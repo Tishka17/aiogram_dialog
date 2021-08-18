@@ -82,8 +82,14 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             await bot.edit_message_reply_markup(
                 message_id=old_message.message_id, chat_id=old_message.chat.id
             )
-        except (MessageNotModified, MessageCantBeEdited, MessageToEditNotFound):
-            pass  # nothing to remove
+            """except (MessageNotModified, MessageCantBeEdited, MessageToEditNotFound):
+            pass  # nothing to remove"""
+        except BadRequest as err:  # MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
+            if 'message is not modified' in err.message:
+                print("Here")
+                pass
+            else:
+                raise err
 
 
 async def send_message(bot: Bot, new_message: NewMessage):

@@ -57,7 +57,7 @@ class StorageProxy:
         await self.storage.set_data(
             bot=self.bot,
             chat_id=self.chat_id,
-            user_id=self._context_key(context.id),
+            user_id=self._context_key(intent_id),
             data=dict(),
         )
 

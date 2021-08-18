@@ -125,7 +125,8 @@ class Dialog(ManagedDialogProto):
         else:
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
-                                      chat=get_chat(event))
+                                      chat=manager.data.get('event_chat'),
+                                      date=event.date)  # Todo?
             else:
                 old_message = None
         return await show_message(manager.data.get('bot'), new_message, old_message)

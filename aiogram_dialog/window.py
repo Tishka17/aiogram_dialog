@@ -62,7 +62,7 @@ class Window(DialogWindowProto):
         else:
             current_data = await self.load_data(dialog, manager)
         return NewMessage(
-            chat=get_chat(manager.event),
+            chat=manager.data.get('event_chat'),
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,

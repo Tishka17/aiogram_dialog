@@ -50,9 +50,9 @@ class ManagerImpl(DialogManager):
         return self.data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
-        chat = get_chat(self.event)
-        message = Message(chat=chat, message_id=self.current_stack().last_message_id)
-        await remove_kbd(self.event.bot, message)
+        chat = self.data.get('event_chat')
+        # message = Message(chat=chat, message_id=self.current_stack().last_message_id) # ToDo
+        # await remove_kbd(self.event.bot, message)
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:

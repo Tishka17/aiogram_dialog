@@ -1,3 +1,4 @@
+import warnings
 from logging import getLogger
 from typing import Optional, Type, Dict, Union, Any, Callable, Awaitable
 
@@ -30,14 +31,11 @@ class IntentFilter(BaseFilter):
     aiogd_intent_state_group: Optional[Type[StatesGroup]]
 
     async def __call__(
-            self,
-            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
-            event: Update,
-            data: Dict[str, Any],
-    ) -> Any:
+            self, message: Update, aiogd_stack, aiogd_context, **kwargs
+    ) -> bool:
         if self.aiogd_intent_state_group is None:
             return True
-        context: Context = data.get(CONTEXT_KEY)
+        context: Context = aiogd_context
         if not context:
             return False
         return context and context.state.group == self.aiogd_intent_state_group
@@ -72,6 +70,8 @@ class IntentMiddleware(BaseMiddleware):
             await self.on_post_process_message(data)
         if event.callback_query:
             await self.on_post_process_message(data)
+
+        return result
 
     async def on_pre_process_message(self, event: Union[Message, ChatMemberUpdated], data: dict):
         chat = get_chat(event)
@@ -141,6 +141,7 @@ class IntentMiddleware(BaseMiddleware):
         data[STORAGE_KEY] = proxy
 
         original_data = event.data
+        print(event.data)
         intent_id, callback_data = remove_indent_id(event.data)
         if intent_id:
             context = await proxy.load_context(intent_id)
@@ -148,7 +149,9 @@ class IntentMiddleware(BaseMiddleware):
             if stack.last_intent_id() != intent_id:
                 logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
                 raise CancelHandler()
+            event.Config.allow_mutation = True  # ToDo
             event.data = callback_data
+            event.Config.allow_mutation = False
         else:
             context = None
             stack = await proxy.load_stack()
