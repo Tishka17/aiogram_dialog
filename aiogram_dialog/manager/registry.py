@@ -3,8 +3,8 @@ from contextvars import copy_context
 from typing import Sequence, Type, Dict
 
 from aiogram import Dispatcher, Bot
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.handler import Handler
+from aiogram.dispatcher.event.telegram import TelegramEventObserver
+from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
 
 from .manager_middleware import ManagerMiddleware
@@ -24,9 +24,13 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
-        self.update_handler = Handler(dp, middleware_key="aiogd_update")
-        self.register_update_handler(handle_update, state="*")
-        self.dp.filters_factory.bind(IntentFilter)
+        self.update_handler = self.dp.update  # ToDO
+        self.register_update_handler(handle_update, any_state)
+
+        observer: TelegramEventObserver
+        for observer in self.dp.observers.values():
+            observer.bind_filter(IntentFilter)
+
         self._register_middleware()
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
@@ -44,27 +48,27 @@ class DialogRegistry(DialogRegistryProto):
         )
 
     def register_start_handler(self, state: State):
-        @self.dp.message_handler(commands=["start"], state="*")
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
+        self.dp.message.register((start_dialog, any_state))
 
     def _register_middleware(self):
-        self.dp.setup_middleware(
+        self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
-        self.dp.setup_middleware(
-            IntentMiddleware(storage=self.dp.storage, state_groups=self.state_groups)
+        self.dp.update.outer_middleware(
+            IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
         return self.dialogs[state.group]
 
     def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
-        filters_set = self.dp.filters_factory.resolve(
-            self.update_handler, *custom_filters, **kwargs
-        )
+        filters_set = self.update_handler.resolve_filters(kwargs)  # Todo
+        filters_set.append(*custom_filters)
+
         self.update_handler.register(
-            self.dp._wrap_async_task(callback, run_task), filters_set
+            callback, *filters_set
         )
 
     async def notify(self, event: DialogUpdateEvent) -> None:
@@ -79,4 +83,4 @@ class DialogRegistry(DialogRegistryProto):
         Bot.set_current(event.bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.update_handler.notify(event)
+        await self.update_handler.trigger(event)

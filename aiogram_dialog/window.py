@@ -1,8 +1,8 @@
 from logging import getLogger
 from typing import Dict, Optional, Union, List
 
-from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
+from aiogram.dispatcher.fsm.state import State
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
@@ -22,7 +22,7 @@ class Window(DialogWindowProto):
                  *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
-                 parse_mode: Optional[ParseMode] = None,
+                 parse_mode: Optional[str] = None,
                  disable_web_page_preview: Optional[bool] = None,
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: Optional[Dict] = None,

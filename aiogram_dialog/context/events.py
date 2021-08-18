@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 from typing import Union, List
 
 from aiogram import Bot
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
 
 Data = Union[Dict, List, int, str, None]

@@ -1,7 +1,7 @@
 import os.path
 from typing import List, Sequence, Tuple, Union
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 from diagrams import Diagram, Cluster, Edge
 from diagrams.custom import Custom
 

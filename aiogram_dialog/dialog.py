@@ -3,8 +3,8 @@ from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, 
 from typing import Protocol
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
+from aiogram.dispatcher.fsm.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
 
 from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
@@ -128,7 +128,7 @@ class Dialog(ManagedDialogProto):
                                       chat=get_chat(event))
             else:
                 old_message = None
-        return await show_message(event.bot, new_message, old_message)
+        return await show_message(manager.data.get('bot'), new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_context()
@@ -149,12 +149,10 @@ class Dialog(ManagedDialogProto):
         await self.show(dialog_manager)
 
     def register(self, registry: DialogRegistryProto, dp: Dispatcher, *args, **filters) -> None:
-        if "state" not in filters:
-            filters["state"] = "*"
-        dp.register_callback_query_handler(self._callback_handler, *args, **filters)
+        dp.callback_query.register(self._callback_handler, *args, **filters)
         if "content_types" not in filters:
-            filters["content_types"] = ContentTypes.ANY
-        dp.register_message_handler(self._message_handler, *args, **filters)
+            filters["content_types"] = ContentType.ANY
+        dp.message.register(self._message_handler, *args, **filters)
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group

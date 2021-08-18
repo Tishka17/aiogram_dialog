@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, Callable, Dict, Awaitable
 
-from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram.dispatcher.middlewares.base import BaseMiddleware
+from aiogram.types import Update
 
 from .manager import ManagerImpl
 from .protocols import DialogManager, DialogRegistryProto
@@ -13,21 +14,21 @@ class ManagerMiddleware(BaseMiddleware):
         super().__init__()
         self.registry = registry
 
-    async def on_pre_process_message(self, event: Any, data: dict):
+    async def __call__(
+            self,
+            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            event: Update,
+            data: Dict[str, Any],
+    ) -> Any:
         data[MANAGER_KEY] = ManagerImpl(
             event=event,
             registry=self.registry,
             data=data,
         )
 
-    on_pre_process_callback_query = on_pre_process_message
-    on_pre_process_aiogd_update = on_pre_process_message
-    on_pre_process_my_chat_member = on_pre_process_message
+        result = await handler(event, data)
 
-    async def on_post_process_message(self, _, result, data: dict):
         manager: DialogManager = data.pop("dialog_manager")
         await manager.close_manager()
 
-    on_post_process_callback_query = on_post_process_message
-    on_post_process_aiogd_update = on_post_process_message
-    on_post_process_my_chat_member = on_post_process_message
+        return result

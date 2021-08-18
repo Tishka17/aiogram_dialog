@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from aiogram import Bot
-from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup, \
+from aiogram.types import Message, CallbackQuery, Chat, InlineKeyboardMarkup, \
     ChatMemberUpdated
-from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
+from aiogram.utils.exceptions.base import TelegramAPIError
 
 from .context.events import (
     DialogUpdateEvent, ChatEvent
@@ -27,7 +27,7 @@ class NewMessage:
     chat: Chat
     text: Optional[str] = None
     reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[ParseMode] = None
+    parse_mode: Optional[str] = None
     force_new: bool = False
     disable_web_page_preview: Optional[bool] = None
 

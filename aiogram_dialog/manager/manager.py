@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any, Optional, Dict
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 from aiogram.types import User, Chat, CallbackQuery, Message
 
 from .bg_manager import BgManager
