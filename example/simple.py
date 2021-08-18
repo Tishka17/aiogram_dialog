@@ -11,7 +11,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
-API_TOKEN = "TOKEN"
+API_TOKEN = "BOT TOKEN"
 
 
 class DialogSG(StatesGroup):
