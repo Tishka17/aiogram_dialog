@@ -70,10 +70,11 @@ async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
         )
-    except MessageNotModified:
-        return old_message
-    except (MessageCantBeEdited, MessageToEditNotFound):
-        return await send_message(bot, new_message)
+    except BadRequest as err:  # MessageNotModified
+        if 'message is not modified' in err.message:
+            return old_message
+        else:  # (MessageCantBeEdited, MessageToEditNotFound):
+            return await send_message(bot, new_message)
 
 
 async def remove_kbd(bot: Bot, old_message: Optional[Message]):

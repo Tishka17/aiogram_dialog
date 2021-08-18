@@ -4,6 +4,7 @@ from typing import Dict, Optional, Union, List
 from aiogram.dispatcher.fsm.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
+from .context.events import DialogUpdateEvent
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
 from .utils import get_chat, NewMessage
@@ -61,8 +62,13 @@ class Window(DialogWindowProto):
             current_data = self.preview_data
         else:
             current_data = await self.load_data(dialog, manager)
+
+        if isinstance(manager.event, DialogUpdateEvent):
+            chat = manager.event.chat
+        else:
+            chat = manager.data.get('event_chat')
         return NewMessage(
-            chat=manager.data.get('event_chat'),
+            chat=chat,
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,

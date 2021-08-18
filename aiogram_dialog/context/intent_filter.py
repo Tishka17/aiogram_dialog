@@ -96,7 +96,7 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
         chat = get_chat(event)
         proxy = StorageProxy(
-            bot=data.get('bot'),
+            bot=event.bot,
             storage=self.storage,
             user_id=event.from_user.id,
             chat_id=chat.id,
@@ -138,7 +138,6 @@ class IntentMiddleware(BaseMiddleware):
         data[STORAGE_KEY] = proxy
 
         original_data = event.data
-        print(event.data)
         intent_id, callback_data = remove_indent_id(event.data)
         if intent_id:
             context = await proxy.load_context(intent_id)

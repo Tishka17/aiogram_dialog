@@ -1,3 +1,4 @@
+from datetime import datetime
 from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
@@ -6,7 +7,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
 
-from .context.events import Data
+from .context.events import Data, DialogUpdateEvent
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
 from .utils import NewMessage, show_message, add_indent_id, get_chat
 from .widgets.action import Actionable
@@ -114,8 +115,15 @@ class Dialog(ManagedDialogProto):
         manager.current_stack().last_message_id = message.message_id
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
+
         stack = manager.current_stack()
         event = manager.event
+
+        if isinstance(event, DialogUpdateEvent):
+            bot = event.bot
+        else:
+            bot = manager.data.get('bot')
+
         if (
                 isinstance(event, CallbackQuery)
                 and event.message
@@ -125,11 +133,11 @@ class Dialog(ManagedDialogProto):
         else:
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
-                                      chat=manager.data.get('event_chat'),
-                                      date=event.date)  # Todo?
+                                      chat=event.chat,
+                                      date=datetime.now())  # Todo?
             else:
                 old_message = None
-        return await show_message(manager.data.get('bot'), new_message, old_message)
+        return await show_message(bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_context()

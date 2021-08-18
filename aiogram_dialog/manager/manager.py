@@ -9,7 +9,7 @@ from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context import Context
-from ..context.events import ChatEvent, StartMode, Data
+from ..context.events import ChatEvent, StartMode, Data, DialogUpdateEvent
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
@@ -51,14 +51,20 @@ class ManagerImpl(DialogManager):
         return self.data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
-        chat = self.data.get('event_chat')
+        if isinstance(self.event, DialogUpdateEvent):
+            chat = self.event.chat
+            bot = self.event.bot
+        else:
+            chat = self.data.get('event_chat')
+            bot = self.data.get('bot')
+
         message = None
         if self.current_stack().last_message_id:
             message = Message(chat=chat,
                               message_id=self.current_stack().last_message_id,
                               date=datetime.now()  # ToDo
                               )
-        await remove_kbd(self.data.get('bot'), message)
+        await remove_kbd(bot, message)
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
@@ -146,10 +152,16 @@ class ManagerImpl(DialogManager):
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID
+
+        if isinstance(self.event, DialogUpdateEvent):
+            bot = self.event.bot
+        else:
+            bot = self.data.get('bot')
+
         return BgManager(
             user=user,
             chat=chat,
-            bot=self.data.get('bot'),
+            bot=bot,
             registry=self.registry,
             intent_id=intent_id,
             stack_id=stack_id,

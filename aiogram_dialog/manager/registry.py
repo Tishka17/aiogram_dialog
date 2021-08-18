@@ -102,4 +102,3 @@ class DialogRegistry(DialogRegistryProto):
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
         await self.router.propagate_event('aiogd_update', event)
-        # await self.update_handler.trigger(event)
