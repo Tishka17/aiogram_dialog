@@ -61,7 +61,7 @@ class DialogRegistry(DialogRegistryProto):
     def register_start_handler(self, state: State):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
-        self.router.message.register((start_dialog, any_state))
+        self.router.message.register(start_dialog, any_state)
 
     def _register_middleware(self):
         self.dp.update.outer_middleware(
