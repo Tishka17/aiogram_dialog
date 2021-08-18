@@ -1,8 +1,9 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict, Any
+from typing import Sequence, Type, Dict, Any, List
 
 from aiogram import Dispatcher, Bot, Router
+from aiogram.dispatcher.event.bases import MiddlewareType
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
@@ -14,10 +15,28 @@ from ..context.events import DialogUpdateEvent, StartMode
 from ..context.intent_filter import IntentFilter, IntentMiddleware
 
 
+class DialogEventObserver(TelegramEventObserver):
+    def _resolve_middlewares(self, *, outer: bool = False) -> List[MiddlewareType]:
+        """
+        Get all middlewares in a tree
+        :param *:
+        """
+        middlewares = []
+        if outer:
+            middlewares.extend(self.outer_middlewares)
+        else:
+            for router in reversed(list(self.router.chain_head)):
+                if router.observers.get(self.event_name):
+                    observer = router.observers[self.event_name]
+                    middlewares.extend(observer.middlewares)
+
+        return middlewares
+
+
 class DialogRouter(Router):
     def __init__(self, **kwargs: Any):
         super(DialogRouter, self).__init__(**kwargs)
-        self.aiogd_update = self.observers["aiogd_update"] = TelegramEventObserver(
+        self.aiogd_update = self.observers["aiogd_update"] = DialogEventObserver(
             router=self, event_name="aiogd_update"
         )
 
