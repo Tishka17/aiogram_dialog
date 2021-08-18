@@ -67,7 +67,14 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
+        self.router.aiogd_update.outer_middleware(
+            ManagerMiddleware(self)
+        )
+
         self.dp.update.outer_middleware(
+            IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
+        )
+        self.router.aiogd_update.outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
@@ -94,4 +101,5 @@ class DialogRegistry(DialogRegistryProto):
         Bot.set_current(event.bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.update_handler.trigger(event)
+        await self.router.propagate_event('aiogd_update', event)
+        # await self.update_handler.trigger(event)

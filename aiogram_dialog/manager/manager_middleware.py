@@ -1,11 +1,12 @@
 import warnings
-from typing import Any, Callable, Dict, Awaitable, Optional
+from typing import Any, Callable, Dict, Awaitable, Optional, Union
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update, TelegramObject
 
 from .manager import ManagerImpl
 from .protocols import DialogManager, DialogRegistryProto
+from ..context.events import DialogUpdateEvent
 
 MANAGER_KEY = "dialog_manager"
 
@@ -18,14 +19,17 @@ class ManagerMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
-            event: Update,
+            event: Union[Update, DialogUpdateEvent],
             data: Dict[str, Any],
     ) -> Any:
 
-        update_content = detect_content_type(event)
+        if isinstance(event, DialogUpdateEvent):
+            content = event
+        else:
+            content = detect_content_type(event)
 
         data[MANAGER_KEY] = ManagerImpl(
-            event=update_content,
+            event=content,
             registry=self.registry,
             data=data,
         )

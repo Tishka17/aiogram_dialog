@@ -55,21 +55,18 @@ class IntentMiddleware(BaseMiddleware):
     ) -> Any:
         # ToDo AiodgUpdate
 
-        if event.message:
+        if isinstance(event, DialogUpdateEvent):
+            await self.on_pre_process_aiogd_update(event, data)
+        elif event.message:
             await self.on_pre_process_message(event.message, data)
-        if event.chat_member:
+        elif event.chat_member:
             await self.on_pre_process_message(event.message, data)
-        if event.callback_query:
+        elif event.callback_query:
             await self.on_pre_process_callback_query(event.callback_query, data)
 
         result = await handler(event, data)
 
-        if event.message:
-            await self.on_post_process_message(data)
-        if event.chat_member:
-            await self.on_post_process_message(data)
-        if event.callback_query:
-            await self.on_post_process_message(data)
+        await self.on_post_process_message(data)
 
         return result
 
