@@ -1,11 +1,11 @@
-from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, Any, Optional
 from typing import Union, List
 
-from aiogram import Bot
 from aiogram.dispatcher.fsm.state import State
-from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
+from aiogram.types import (
+    Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject,
+)
 
 Data = Union[Dict, List, int, str, None]
 
@@ -23,9 +23,11 @@ class Action(Enum):
     SWITCH = "SWITCH"
 
 
-@dataclass
-class DialogUpdateEvent:
-    bot: Bot
+class DialogUpdateEvent(TelegramObject):
+    class Config:
+        arbitrary_types_allowed = True
+        use_enum_values = False
+
     from_user: User
     chat: Chat
     action: Action
@@ -34,13 +36,11 @@ class DialogUpdateEvent:
     stack_id: Optional[str]
 
 
-@dataclass
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
 
 
-@dataclass
 class DialogSwitchEvent(DialogUpdateEvent):
     new_state: State
 

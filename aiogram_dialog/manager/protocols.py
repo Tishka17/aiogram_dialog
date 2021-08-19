@@ -1,6 +1,6 @@
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
-from aiogram import Dispatcher
+from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 
 from ..context.context import Context
@@ -48,7 +48,7 @@ class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
 
-    async def notify(self, event: DialogUpdateEvent) -> None:
+    async def notify(self, bot: Bot, event: DialogUpdateEvent) -> None:
         pass
 
 

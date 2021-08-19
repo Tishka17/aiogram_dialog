@@ -65,7 +65,6 @@ class BgManager(BaseDialogManager):
 
     def _base_event_params(self):
         return {
-            "bot": self.bot,
             "from_user": self.user,
             "chat": self.chat,
             "intent_id": self.intent_id,
@@ -73,33 +72,41 @@ class BgManager(BaseDialogManager):
         }
 
     async def done(self, result: Any = None) -> None:
-        await self.registry.notify(DialogUpdateEvent(
-            action=Action.DONE,
-            data=result,
-            **self._base_event_params()
-        ))
+        await self.registry.notify(
+            bot=self.bot,
+            event=DialogUpdateEvent(
+                action=Action.DONE,
+                data=result,
+                **self._base_event_params()
+            ))
 
     async def start(self, state: State, data: Data = None,
                     mode: StartMode = StartMode.NORMAL) -> None:
-        await self.registry.notify(DialogStartEvent(
-            action=Action.START,
-            data=data,
-            new_state=state,
-            mode=mode,
-            **self._base_event_params()
-        ))
+        await self.registry.notify(
+            bot=self.bot,
+            event=DialogStartEvent(
+                action=Action.START,
+                data=data,
+                new_state=state,
+                mode=mode,
+                **self._base_event_params()
+            ))
 
     async def switch_to(self, state: State) -> None:
-        await self.registry.notify(DialogSwitchEvent(
-            action=Action.SWITCH,
-            data={},
-            new_state=state,
-            **self._base_event_params()
-        ))
+        await self.registry.notify(
+            bot=self.bot,
+            event=DialogSwitchEvent(
+                action=Action.SWITCH,
+                data={},
+                new_state=state,
+                **self._base_event_params()
+            ))
 
     async def update(self, data: Dict) -> None:
-        await self.registry.notify(DialogUpdateEvent(
-            action=Action.UPDATE,
-            data=data,
-            **self._base_event_params()
-        ))
+        await self.registry.notify(
+            bot=self.bot,
+            event=DialogUpdateEvent(
+                action=Action.UPDATE,
+                data=data,
+                **self._base_event_params()
+            ))

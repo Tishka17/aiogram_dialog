@@ -25,12 +25,6 @@ class ManagerMiddleware(BaseMiddleware):
 
         if isinstance(event, DialogUpdateEvent):
             content = event
-            data.update(
-                {'bot': event.bot,
-                 'event_from_user': event.from_user,
-                 'event_chat': event.chat,
-                 }
-            )
         else:
             content = detect_content_type(event)
 

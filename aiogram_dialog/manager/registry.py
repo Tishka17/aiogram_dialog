@@ -1,12 +1,11 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict, Any, List, Union
+from typing import Sequence, Type, Dict
 
-from aiogram import Dispatcher, Bot, Router
-from aiogram.dispatcher.event.bases import MiddlewareType
+from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
-from aiogram.types import User, Chat, Message, TelegramObject
+from aiogram.types import User, Chat, Message
 
 from .manager_middleware import ManagerMiddleware
 from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
@@ -18,37 +17,16 @@ DIALOG_EVENT_NAME = "aiogd_update"
 
 
 class DialogEventObserver(TelegramEventObserver):
-    def _resolve_middlewares(self, *, outer: bool = False) -> List[MiddlewareType]:
-        """
-        Get all middlewares in a tree
-        :param *:
-        """
-        middlewares = []
-        if outer:
-            middlewares.extend(self.outer_middlewares)
-        else:
-            for router in reversed(list(self.router.chain_head)):
-                if router.observers.get(self.event_name):
-                    observer = router.observers[self.event_name]
-                    middlewares.extend(observer.middlewares)
-
-        return middlewares
-
-
-class DialogRouter(Router):
-    def __init__(self, **kwargs: Any):
-        super(DialogRouter, self).__init__(**kwargs)
-        self.aiogd_update = self.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
-            router=self, event_name=DIALOG_EVENT_NAME
-        )
+    pass
 
 
 class DialogRegistry(DialogRegistryProto):
     def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
         super().__init__()
         self.dp = dp
-        self.router = DialogRouter()
-        self.dp.include_router(self.router)
+        self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
+            router=self.dp, event_name=DIALOG_EVENT_NAME
+        )
 
         self.dialogs = {
             d.states_group(): d for d in dialogs
@@ -56,11 +34,10 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
-        self.update_handler = self.router.aiogd_update
         self.register_update_handler(handle_update, any_state)
 
         observer: TelegramEventObserver
-        for observer in self.router.observers.values():
+        for observer in self.dp.observers.values():
             observer.bind_filter(IntentFilter)
 
         self._register_middleware()
@@ -83,20 +60,20 @@ class DialogRegistry(DialogRegistryProto):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
-        self.router.message.register(start_dialog, any_state)
+        self.dp.message.register(start_dialog, any_state)
 
     def _register_middleware(self):
         self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
-        self.router.aiogd_update.outer_middleware(
+        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
             ManagerMiddleware(self)
         )
 
         self.dp.update.outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
-        self.router.aiogd_update.outer_middleware(
+        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
@@ -112,16 +89,22 @@ class DialogRegistry(DialogRegistryProto):
             callback, *filters_set
         )
 
-    async def notify(self, event: DialogUpdateEvent) -> None:
-        callback = lambda: asyncio.create_task(self._process_update(event))
+    async def notify(self, bot: Bot, event: DialogUpdateEvent) -> None:
+        callback = lambda: asyncio.create_task(self._process_update(bot, event))
 
         asyncio.get_running_loop().call_soon(
             callback,
             context=copy_context()
         )
 
-    async def _process_update(self, event: DialogUpdateEvent):
-        Bot.set_current(event.bot)
+    async def _process_update(self, bot: Bot, event: DialogUpdateEvent):
+        Bot.set_current(bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.router.propagate_event(DIALOG_EVENT_NAME, event)
+        await self.dp.propagate_event(
+            update_type=DIALOG_EVENT_NAME,
+            event=event,
+            bot=bot,
+            event_from_user=event.from_user,
+            event_chat=event.chat,
+        )
