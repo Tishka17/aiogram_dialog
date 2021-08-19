@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel
 from aiogram_dialog.widgets.text import Const, Format
 
-API_TOKEN = ""
+API_TOKEN = "PLACE YOUR TOKEN HERE"
 
 
 class DialogSG(StatesGroup):

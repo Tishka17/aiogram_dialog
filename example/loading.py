@@ -11,7 +11,7 @@ from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BaseDi
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
 
-API_TOKEN = ""
+API_TOKEN = "PLACE YOUR TOKEN HERE"
 
 
 # name input dialog

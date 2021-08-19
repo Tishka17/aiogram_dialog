@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
-API_TOKEN = ""
+API_TOKEN = "PLACE YOUR TOKEN HERE"
 
 
 # name input dialog
