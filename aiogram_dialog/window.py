@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 from .context.events import DialogUpdateEvent
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
-from .utils import get_chat, NewMessage
+from .utils import NewMessage
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
@@ -56,17 +56,15 @@ class Window(DialogWindowProto):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         logger.debug("Show window: %s", self)
         if preview:
             current_data = self.preview_data
         else:
             current_data = await self.load_data(dialog, manager)
 
-        if isinstance(manager.event, DialogUpdateEvent):
-            chat = manager.event.chat
-        else:
-            chat = manager.data.get('event_chat')
+        chat = manager.data.get('event_chat')
         return NewMessage(
             chat=chat,
             text=await self.render_text(current_data, manager),

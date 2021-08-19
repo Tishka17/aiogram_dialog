@@ -3,13 +3,13 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.fsm.state import State
-from aiogram.types import User, Chat, CallbackQuery, Message
+from aiogram.types import User, Chat, Message
 
 from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
 from .protocols import ManagedDialogProto, DialogRegistryProto
 from ..context.context import Context
-from ..context.events import ChatEvent, StartMode, Data, DialogUpdateEvent
+from ..context.events import ChatEvent, StartMode, Data
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
@@ -51,18 +51,14 @@ class ManagerImpl(DialogManager):
         return self.data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
-        if isinstance(self.event, DialogUpdateEvent):
-            chat = self.event.chat
-            bot = self.event.bot
-        else:
-            chat = self.data.get('event_chat')
-            bot = self.data.get('bot')
+        chat = self.data['event_chat']
+        bot = self.data['bot']
 
         message = None
         if self.current_stack().last_message_id:
             message = Message(chat=chat,
                               message_id=self.current_stack().last_message_id,
-                              date=datetime.now()  # ToDo
+                              date=datetime.now()  # ToDo: check this
                               )
         await remove_kbd(bot, message)
         self.current_stack().last_message_id = None
@@ -153,15 +149,10 @@ class ManagerImpl(DialogManager):
             else:
                 stack_id = DEFAULT_STACK_ID
 
-        if isinstance(self.event, DialogUpdateEvent):
-            bot = self.event.bot
-        else:
-            bot = self.data.get('bot')
-
         return BgManager(
             user=user,
             chat=chat,
-            bot=bot,
+            bot=self.data['bot'],
             registry=self.registry,
             intent_id=intent_id,
             stack_id=stack_id,

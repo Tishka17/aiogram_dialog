@@ -1,18 +1,20 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict, Any, List
+from typing import Sequence, Type, Dict, Any, List, Union
 
 from aiogram import Dispatcher, Bot, Router
 from aiogram.dispatcher.event.bases import MiddlewareType
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
-from aiogram.types import User, Chat, Message
+from aiogram.types import User, Chat, Message, TelegramObject
 
 from .manager_middleware import ManagerMiddleware
 from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
 from ..context.intent_filter import IntentFilter, IntentMiddleware
+
+DIALOG_EVENT_NAME = "aiogd_update"
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -36,8 +38,8 @@ class DialogEventObserver(TelegramEventObserver):
 class DialogRouter(Router):
     def __init__(self, **kwargs: Any):
         super(DialogRouter, self).__init__(**kwargs)
-        self.aiogd_update = self.observers["aiogd_update"] = DialogEventObserver(
-            router=self, event_name="aiogd_update"
+        self.aiogd_update = self.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
+            router=self, event_name=DIALOG_EVENT_NAME
         )
 
 
@@ -54,7 +56,7 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
-        self.update_handler = self.router.aiogd_update  # ToDO
+        self.update_handler = self.router.aiogd_update
         self.register_update_handler(handle_update, any_state)
 
         observer: TelegramEventObserver
@@ -80,6 +82,7 @@ class DialogRegistry(DialogRegistryProto):
     def register_start_handler(self, state: State):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
+
         self.router.message.register(start_dialog, any_state)
 
     def _register_middleware(self):
@@ -100,8 +103,9 @@ class DialogRegistry(DialogRegistryProto):
     def find_dialog(self, state: State) -> ManagedDialogProto:
         return self.dialogs[state.group]
 
-    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
-        filters_set = self.update_handler.resolve_filters(kwargs)  # Todo
+    def register_update_handler(self, callback, *custom_filters, run_task=None,
+                                **kwargs) -> None:  # ToDo run_task
+        filters_set = self.update_handler.resolve_filters(kwargs)
         filters_set.append(*custom_filters)
 
         self.update_handler.register(
@@ -120,4 +124,4 @@ class DialogRegistry(DialogRegistryProto):
         Bot.set_current(event.bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.router.propagate_event('aiogd_update', event)
+        await self.router.propagate_event(DIALOG_EVENT_NAME, event)

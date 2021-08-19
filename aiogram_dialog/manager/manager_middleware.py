@@ -18,13 +18,19 @@ class ManagerMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
             event: Union[Update, DialogUpdateEvent],
             data: Dict[str, Any],
     ) -> Any:
 
         if isinstance(event, DialogUpdateEvent):
             content = event
+            data.update(
+                {'bot': event.bot,
+                 'event_from_user': event.from_user,
+                 'event_chat': event.chat,
+                 }
+            )
         else:
             content = detect_content_type(event)
 
@@ -34,12 +40,11 @@ class ManagerMiddleware(BaseMiddleware):
             data=data,
         )
 
-        result = await handler(event, data)
-
-        manager: DialogManager = data.pop("dialog_manager")
-        await manager.close_manager()
-
-        return result
+        try:
+            return await handler(event, data)
+        finally:
+            manager: DialogManager = data.pop(MANAGER_KEY)
+            await manager.close_manager()
 
 
 def detect_content_type(update):

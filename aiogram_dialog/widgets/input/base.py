@@ -1,4 +1,4 @@
-from typing import Callable, Awaitable, List, Union, Sequence
+from typing import Callable, Awaitable, Union, Sequence
 
 from aiogram.dispatcher.filters.content_types import ContentTypesFilter
 from aiogram.types import Message, ContentType
@@ -23,7 +23,8 @@ class MessageInput(BaseInput):
         self.func = ensure_event_processor(func)
         self.filter = ContentTypesFilter(content_types=content_types)
 
-    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_message(self, message: Message, dialog: Dialog,
+                              manager: DialogManager) -> bool:
         if not await self.filter(message):
             return False
         await self.func.process_event(message, dialog, manager)

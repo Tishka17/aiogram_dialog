@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Union, Dict, Awaitable, Any
+from typing import List, Callable, Optional, Union, Dict, Awaitable
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -20,13 +20,16 @@ class Button(Keyboard):
         self.text = text
         self.on_click = ensure_event_processor(on_click)
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager) -> bool:
         if c.data != self.widget_id:
             return False
         await self.on_click.process_event(c, self, manager)
         return True
 
-    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+        self, data: Dict, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
@@ -36,12 +39,15 @@ class Button(Keyboard):
 
 
 class Url(Keyboard):
-    def __init__(self, text: Text, url: Text, id: Optional[str] = None, when: Union[str, Callable, None] = None):
+    def __init__(self, text: Text, url: Text, id: Optional[str] = None,
+                 when: Union[str, Callable, None] = None):
         super().__init__(id, when)
         self.text = text
         self.url = url
 
-    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data: Dict, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),

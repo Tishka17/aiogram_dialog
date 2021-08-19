@@ -20,7 +20,9 @@ class ScrollingGroup(Group):
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
 
-    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data: Dict, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         kbd = await super()._render_keyboard(data, manager)
         pages = len(kbd) // self.height + bool(len(kbd) % self.height)
         last_page = pages - 1
@@ -32,13 +34,16 @@ class ScrollingGroup(Group):
         pager = [[
             InlineKeyboardButton(text="1", callback_data=f"{self.widget_id}:0"),
             InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{prev_page}"),
-            InlineKeyboardButton(text=str(current_page + 1), callback_data=f"{self.widget_id}:{current_page}"),
+            InlineKeyboardButton(text=str(current_page + 1),
+                                 callback_data=f"{self.widget_id}:{current_page}"),
             InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{next_page}"),
-            InlineKeyboardButton(text=str(last_page + 1), callback_data=f"{self.widget_id}:{last_page}"),
+            InlineKeyboardButton(text=str(last_page + 1),
+                                 callback_data=f"{self.widget_id}:{last_page}"),
         ]]
         return kbd[current_page * self.height: (current_page + 1) * self.height] + pager
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager) -> bool:
         prefix = f"{self.widget_id}:"
         if not c.data.startswith(prefix):
             return await super().process_callback(c, dialog, manager)

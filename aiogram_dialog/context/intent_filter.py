@@ -1,16 +1,13 @@
-import warnings
 from logging import getLogger
 from typing import Optional, Type, Dict, Union, Any, Callable, Awaitable
 
 from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram.dispatcher.filters.base import BaseFilter
-from aiogram.dispatcher.fsm.state import StatesGroup, State
-
-from aiogram.dispatcher.middlewares.base import BaseMiddleware
+from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
-from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, Update
-
+from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Message, CallbackQuery, ChatMemberUpdated
+from aiogram.types import Update
 from aiogram.types.base import TelegramObject
 
 from .context import Context
@@ -31,11 +28,12 @@ class IntentFilter(BaseFilter):
     aiogd_intent_state_group: Optional[Type[StatesGroup]]
 
     async def __call__(
-            self, message: Update, aiogd_stack, aiogd_context, **kwargs
+            self, obj: TelegramObject, **kwargs
     ) -> bool:
         if self.aiogd_intent_state_group is None:
             return True
-        context: Context = aiogd_context
+
+        context: Context = kwargs[CONTEXT_KEY]
         if not context:
             return False
         return context and context.state.group == self.aiogd_intent_state_group
@@ -49,31 +47,32 @@ class IntentMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
-        # ToDo AiodgUpdate
 
-        if isinstance(event, DialogUpdateEvent):
-            await self.on_pre_process_aiogd_update(event, data)
-        elif event.message:
-            await self.on_pre_process_message(event.message, data)
-        elif event.chat_member:
-            await self.on_pre_process_message(event.message, data)
-        elif event.callback_query:
-            await self.on_pre_process_callback_query(event.callback_query, data)
+        try:
+            if isinstance(event, DialogUpdateEvent):
+                await self.on_pre_process_aiogd_update(event, data)
+            elif event.message:
+                await self.on_pre_process_message(event.message, data)
+            elif event.chat_member:
+                await self.on_pre_process_message(event.message, data)
+            elif event.callback_query:
+                await self.on_pre_process_callback_query(event.callback_query, data)
+        except CancelHandler:
+            return
 
-        result = await handler(event, data)
-
-        await self.on_post_process_message(data)
-
-        return result
+        try:
+            return await handler(event, data)
+        finally:
+            await self.on_post_process(data)
 
     async def on_pre_process_message(self, event: Union[Message, ChatMemberUpdated], data: dict):
         chat = get_chat(event)
         proxy = StorageProxy(
-            bot=data.get('bot'),
+            bot=data['bot'],
             storage=self.storage,
             user_id=event.from_user.id,
             chat_id=chat.id,
@@ -88,7 +87,7 @@ class IntentMiddleware(BaseMiddleware):
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
 
-    async def on_post_process_message(self, data: dict):
+    async def on_post_process(self, data: dict):
         proxy: StorageProxy = data.pop(STORAGE_KEY)
         await proxy.save_context(data.pop(CONTEXT_KEY))
         await proxy.save_stack(data.pop(STACK_KEY))
@@ -129,7 +128,7 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
         chat = get_chat(event)
         proxy = StorageProxy(
-            bot=data.get('bot'),
+            bot=data['bot'],
             storage=self.storage,
             user_id=event.from_user.id,
             chat_id=chat.id,

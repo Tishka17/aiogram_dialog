@@ -1,6 +1,6 @@
 from abc import ABC
 from calendar import monthcalendar
-from datetime import date, datetime
+from datetime import date
 from time import mktime
 from typing import List, Callable, Union, Awaitable, TypedDict
 

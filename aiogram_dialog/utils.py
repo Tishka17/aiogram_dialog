@@ -70,11 +70,15 @@ async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
         )
-    except BadRequest as err:  # MessageNotModified
+    except BadRequest as err:
         if 'message is not modified' in err.message:
             return old_message
-        else:  # (MessageCantBeEdited, MessageToEditNotFound):
+        elif 'message can\'t be edited' in err.message:
             return await send_message(bot, new_message)
+        elif 'message to edit not found' in err.message:
+            return await send_message(bot, new_message)
+        else:
+            raise err
 
 
 async def remove_kbd(bot: Bot, old_message: Optional[Message]):
@@ -83,10 +87,12 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             await bot.edit_message_reply_markup(
                 message_id=old_message.message_id, chat_id=old_message.chat.id
             )
-            """except (MessageNotModified, MessageCantBeEdited, MessageToEditNotFound):
-            pass  # nothing to remove"""
-        except BadRequest as err:  # MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
+        except BadRequest as err:
             if 'message is not modified' in err.message:
+                pass
+            elif 'message can\'t be edited' in err.message:
+                pass
+            elif 'message to edit not found' in err.message:
                 pass
             else:
                 raise err

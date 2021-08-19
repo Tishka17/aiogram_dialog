@@ -17,7 +17,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format, Progress
 
-API_TOKEN = "BOT TOKEN"
+API_TOKEN = "1748149860:AAFNmh-tgX6pzew_kGCe1_CnT9bazkxLMus"
 
 
 # ------ Groups

@@ -7,9 +7,9 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
 
-from .context.events import Data, DialogUpdateEvent
+from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id, get_chat
+from .utils import NewMessage, show_message, add_indent_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -38,7 +38,8 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog", manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: "Dialog", manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -118,11 +119,7 @@ class Dialog(ManagedDialogProto):
 
         stack = manager.current_stack()
         event = manager.event
-
-        if isinstance(event, DialogUpdateEvent):
-            bot = event.bot
-        else:
-            bot = manager.data.get('bot')
+        bot = manager.data['bot']
 
         if (
                 isinstance(event, CallbackQuery)
@@ -134,7 +131,7 @@ class Dialog(ManagedDialogProto):
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
                                       chat=event.chat,
-                                      date=datetime.now())  # Todo?
+                                      date=datetime.now())  # ToDo: check this
             else:
                 old_message = None
         return await show_message(bot, new_message, old_message)
