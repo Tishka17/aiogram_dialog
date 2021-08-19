@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from aiogram import Bot
-from aiogram.types import Message, CallbackQuery, Chat, ParseMode, InlineKeyboardMarkup, \
+from aiogram.types import Message, CallbackQuery, Chat, InlineKeyboardMarkup, \
     ChatMemberUpdated
-from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited, MessageToEditNotFound
+from aiogram.utils.exceptions.bad_request import BadRequest
 
 from .context.events import (
     DialogUpdateEvent, ChatEvent
@@ -27,7 +27,7 @@ class NewMessage:
     chat: Chat
     text: Optional[str] = None
     reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[ParseMode] = None
+    parse_mode: Optional[str] = None
     force_new: bool = False
     disable_web_page_preview: Optional[bool] = None
 
@@ -70,10 +70,15 @@ async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
         )
-    except MessageNotModified:
-        return old_message
-    except (MessageCantBeEdited, MessageToEditNotFound):
-        return await send_message(bot, new_message)
+    except BadRequest as err:
+        if 'message is not modified' in err.message:
+            return old_message
+        elif 'message can\'t be edited' in err.message:
+            return await send_message(bot, new_message)
+        elif 'message to edit not found' in err.message:
+            return await send_message(bot, new_message)
+        else:
+            raise err
 
 
 async def remove_kbd(bot: Bot, old_message: Optional[Message]):
@@ -82,8 +87,15 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             await bot.edit_message_reply_markup(
                 message_id=old_message.message_id, chat_id=old_message.chat.id
             )
-        except (MessageNotModified, MessageCantBeEdited, MessageToEditNotFound):
-            pass  # nothing to remove
+        except BadRequest as err:
+            if 'message is not modified' in err.message:
+                pass
+            elif 'message can\'t be edited' in err.message:
+                pass
+            elif 'message to edit not found' in err.message:
+                pass
+            else:
+                raise err
 
 
 async def send_message(bot: Bot, new_message: NewMessage):

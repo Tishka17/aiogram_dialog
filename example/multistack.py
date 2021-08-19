@@ -4,8 +4,8 @@ import logging
 import operator
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
@@ -70,13 +70,13 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     # register handler which resets stack and start dialogs on /start command
     registry.register_start_handler(DialogSG.greeting)
     registry.register(dialog)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

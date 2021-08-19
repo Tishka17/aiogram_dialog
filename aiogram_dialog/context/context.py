@@ -2,7 +2,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Dict
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 
 from .events import Data
 

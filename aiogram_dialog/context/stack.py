@@ -4,10 +4,10 @@ import time
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 
-from .events import Data
 from .context import Context
+from .events import Data
 from ..exceptions import DialogStackOverflow
 
 DEFAULT_STACK_ID = ""

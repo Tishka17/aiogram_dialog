@@ -26,7 +26,9 @@ class Group(Keyboard):
                 return widget
         return None
 
-    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data: Dict, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for b in self.buttons:
             b_kbd = await b.render_keyboard(data, manager)
@@ -50,7 +52,8 @@ class Group(Keyboard):
             res.append(row)
         return res
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager) -> bool:
         for b in self.buttons:
             if await b.process_callback(c, dialog, manager):
                 return True
@@ -59,7 +62,8 @@ class Group(Keyboard):
 
 class Row(Group):
     def __init__(self, *buttons: Keyboard, id: Optional[str] = None, when: WhenCondition = None):
-        super().__init__(*buttons, id=id, width=9999, when=when)  # telegram doe not allow even 100 columns
+        super().__init__(*buttons, id=id, width=9999,
+                         when=when)  # telegram doe not allow even 100 columns
 
 
 class Column(Group):

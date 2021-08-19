@@ -1,14 +1,15 @@
+from datetime import datetime
 from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
+from aiogram.dispatcher.fsm.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
 
 from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id, get_chat
+from .utils import NewMessage, show_message, add_indent_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -37,7 +38,8 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog", manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: "Dialog", manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -114,8 +116,12 @@ class Dialog(ManagedDialogProto):
         manager.current_stack().last_message_id = message.message_id
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
+
         stack = manager.current_stack()
         event = manager.event
+        bot = manager.data['bot']
+        chat = manager.data['event_chat']
+
         if (
                 isinstance(event, CallbackQuery)
                 and event.message
@@ -125,10 +131,11 @@ class Dialog(ManagedDialogProto):
         else:
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
-                                      chat=get_chat(event))
+                                      chat=chat,
+                                      date=datetime.now())  # ToDo: check this
             else:
                 old_message = None
-        return await show_message(event.bot, new_message, old_message)
+        return await show_message(bot, new_message, old_message)
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_context()
@@ -149,12 +156,10 @@ class Dialog(ManagedDialogProto):
         await self.show(dialog_manager)
 
     def register(self, registry: DialogRegistryProto, dp: Dispatcher, *args, **filters) -> None:
-        if "state" not in filters:
-            filters["state"] = "*"
-        dp.register_callback_query_handler(self._callback_handler, *args, **filters)
+        dp.callback_query.register(self._callback_handler, *args, **filters)
         if "content_types" not in filters:
-            filters["content_types"] = ContentTypes.ANY
-        dp.register_message_handler(self._message_handler, *args, **filters)
+            filters["content_types"] = ContentType.ANY
+        dp.message.register(self._message_handler, *args, **filters)
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group

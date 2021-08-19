@@ -1,7 +1,7 @@
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.fsm.state import State, StatesGroup
 
 from ..context.context import Context
 from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data

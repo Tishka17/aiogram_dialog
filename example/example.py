@@ -3,9 +3,9 @@ import logging
 from datetime import datetime
 from operator import itemgetter
 
-from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram import Bot, Dispatcher, F
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import (
@@ -17,7 +17,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format, Progress
 
-API_TOKEN = ""
+API_TOKEN = "PLACE YOUR TOKEN HERE"
 
 
 # ------ Groups
@@ -151,13 +151,13 @@ async def main():
     logging.getLogger("aiogram_dialog").setLevel(logging.DEBUG)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
-    dp.register_message_handler(start, text="/start", state="*")
+    dp.message.register(start, F.text == "/start")
     registry.register(dialog1)
     registry.register(dialog2)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

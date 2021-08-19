@@ -30,7 +30,8 @@ def new_case_field(fieldname: str) -> Selector:
 
 
 class Case(Text):
-    def __init__(self, texts: Dict[Any, Text], selector: Union[str, Selector], when: WhenCondition = None):
+    def __init__(self, texts: Dict[Any, Text], selector: Union[str, Selector],
+                 when: WhenCondition = None):
         super().__init__(when)
         self.texts = texts
         if isinstance(selector, str):

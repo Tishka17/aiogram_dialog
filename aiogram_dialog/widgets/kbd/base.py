@@ -13,13 +13,18 @@ class Keyboard(Actionable, Whenable):
         Actionable.__init__(self, id)
         Whenable.__init__(self, when)
 
-    async def render_keyboard(self, data, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def render_keyboard(
+            self, data, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         if not self.is_(data, manager):
             return []
         return await self._render_keyboard(data, manager)
 
-    async def _render_keyboard(self, data, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data, manager: DialogManager
+    )-> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager) -> bool:
         return False

@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
 from aiogram import Bot
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.fsm.state import State
 from aiogram.types import Chat, User
 
 from .protocols import DialogRegistryProto, BaseDialogManager

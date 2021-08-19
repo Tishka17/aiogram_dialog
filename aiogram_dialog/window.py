@@ -1,12 +1,12 @@
 from logging import getLogger
 from typing import Dict, Optional, Union, List
 
-from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
+from aiogram.dispatcher.fsm.state import State
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
-from .utils import get_chat, NewMessage
+from .utils import NewMessage
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
@@ -22,7 +22,7 @@ class Window(DialogWindowProto):
                  *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
                  state: State,
                  getter: DataGetter = None,
-                 parse_mode: Optional[ParseMode] = None,
+                 parse_mode: Optional[str] = None,
                  disable_web_page_preview: Optional[bool] = None,
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: Optional[Dict] = None,
@@ -55,14 +55,17 @@ class Window(DialogWindowProto):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         logger.debug("Show window: %s", self)
         if preview:
             current_data = self.preview_data
         else:
             current_data = await self.load_data(dialog, manager)
+
+        chat = manager.data['event_chat']
         return NewMessage(
-            chat=get_chat(manager.event),
+            chat=chat,
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,
