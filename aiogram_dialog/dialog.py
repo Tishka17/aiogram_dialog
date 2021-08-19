@@ -120,6 +120,7 @@ class Dialog(ManagedDialogProto):
         stack = manager.current_stack()
         event = manager.event
         bot = manager.data['bot']
+        chat = manager.data['event_chat']
 
         if (
                 isinstance(event, CallbackQuery)
@@ -130,7 +131,7 @@ class Dialog(ManagedDialogProto):
         else:
             if stack and stack.last_message_id:
                 old_message = Message(message_id=stack.last_message_id,
-                                      chat=event.chat,
+                                      chat=chat,
                                       date=datetime.now())  # ToDo: check this
             else:
                 old_message = None
