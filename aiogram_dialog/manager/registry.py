@@ -18,21 +18,7 @@ DIALOG_EVENT_NAME = "aiogd_update"
 
 
 class DialogEventObserver(TelegramEventObserver):
-    def _resolve_middlewares(self, *, outer: bool = False) -> List[MiddlewareType]:
-        """
-        Get all middlewares in a tree
-        :param *:
-        """
-        middlewares = []
-        if outer:
-            middlewares.extend(self.outer_middlewares)
-        else:
-            for router in reversed(list(self.router.chain_head)):
-                if router.observers.get(self.event_name):
-                    observer = router.observers[self.event_name]
-                    middlewares.extend(observer.middlewares)
-
-        return middlewares
+    pass
 
 
 class DialogRouter(Router):
@@ -47,6 +33,9 @@ class DialogRegistry(DialogRegistryProto):
     def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
         super().__init__()
         self.dp = dp
+        self.dp.aiogd_update = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
+            router=self.dp, event_name=DIALOG_EVENT_NAME
+        )
         self.router = DialogRouter()
         self.dp.include_router(self.router)
 
@@ -89,14 +78,14 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
-        self.router.aiogd_update.outer_middleware(
+        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
             ManagerMiddleware(self)
         )
 
         self.dp.update.outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
-        self.router.aiogd_update.outer_middleware(
+        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
@@ -124,4 +113,4 @@ class DialogRegistry(DialogRegistryProto):
         Bot.set_current(event.bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.router.propagate_event(DIALOG_EVENT_NAME, event)
+        await self.dp.propagate_event(DIALOG_EVENT_NAME, event)
