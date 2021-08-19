@@ -57,8 +57,8 @@ class IntentMiddleware(BaseMiddleware):
                 await self.on_pre_process_aiogd_update(event, data)
             elif event.message:
                 await self.on_pre_process_message(event.message, data)
-            elif event.chat_member:
-                await self.on_pre_process_message(event.message, data)
+            elif event.my_chat_member:
+                await self.on_pre_process_message(event.my_chat_member, data)
             elif event.callback_query:
                 await self.on_pre_process_callback_query(event.callback_query, data)
         except CancelHandler:
