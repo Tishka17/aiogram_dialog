@@ -49,7 +49,7 @@ class DialogRegistry(DialogRegistryProto):
         self.register_update_handler(handle_update, any_state)
 
         observer: TelegramEventObserver
-        for observer in self.router.observers.values():
+        for observer in self.dp.observers.values():
             observer.bind_filter(IntentFilter)
 
         self._register_middleware()
