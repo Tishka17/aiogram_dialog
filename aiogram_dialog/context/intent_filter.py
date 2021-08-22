@@ -11,7 +11,7 @@ from aiogram.types import Update
 from aiogram.types.base import TelegramObject
 
 from .context import Context
-from .events import DialogUpdateEvent
+from .events import DialogUpdateEvent, DialogUpdate
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError
 from ..utils import remove_indent_id, get_chat
@@ -47,14 +47,13 @@ class IntentMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
-
         try:
-            if isinstance(event, DialogUpdateEvent):
-                await self.on_pre_process_aiogd_update(event, data)
+            if isinstance(event, DialogUpdate):
+                await self.on_pre_process_aiogd_update(event.aiogd_update, data)
             elif event.message:
                 await self.on_pre_process_message(event.message, data)
             elif event.my_chat_member:
@@ -63,7 +62,6 @@ class IntentMiddleware(BaseMiddleware):
                 await self.on_pre_process_callback_query(event.callback_query, data)
         except CancelHandler:
             return
-
         try:
             return await handler(event, data)
         finally:
@@ -88,9 +86,10 @@ class IntentMiddleware(BaseMiddleware):
         data[CONTEXT_KEY] = context
 
     async def on_post_process(self, data: dict):
-        proxy: StorageProxy = data.pop(STORAGE_KEY)
-        await proxy.save_context(data.pop(CONTEXT_KEY))
-        await proxy.save_stack(data.pop(STACK_KEY))
+        proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+        if proxy:
+            await proxy.save_context(data.pop(CONTEXT_KEY))
+            await proxy.save_stack(data.pop(STACK_KEY))
 
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
         chat = get_chat(event)

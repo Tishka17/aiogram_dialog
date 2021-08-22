@@ -4,7 +4,7 @@ from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 
 from ..context.context import Context
-from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
+from ..context.events import StartMode, ChatEvent, Data, DialogUpdate
 from ..context.stack import Stack
 
 
@@ -48,7 +48,7 @@ class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
 
-    async def notify(self, bot: Bot, event: DialogUpdateEvent) -> None:
+    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
         pass
 
 

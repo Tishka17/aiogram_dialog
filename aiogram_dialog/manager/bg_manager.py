@@ -6,7 +6,8 @@ from aiogram.types import Chat, User
 
 from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
-    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent, StartMode
+    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
+    StartMode, DialogUpdate,
 )
 from ..context.stack import DEFAULT_STACK_ID
 
@@ -71,42 +72,42 @@ class BgManager(BaseDialogManager):
             "stack_id": self.stack_id,
         }
 
-    async def done(self, result: Any = None) -> None:
+    async def _notify(self, event: DialogUpdateEvent):
         await self.registry.notify(
             bot=self.bot,
-            event=DialogUpdateEvent(
-                action=Action.DONE,
-                data=result,
-                **self._base_event_params()
-            ))
+            update=DialogUpdate(
+                aiogd_update=event
+            )
+        )
+
+    async def done(self, result: Any = None) -> None:
+        await self._notify(DialogUpdateEvent(
+            action=Action.DONE,
+            data=result,
+            **self._base_event_params()
+        ))
 
     async def start(self, state: State, data: Data = None,
                     mode: StartMode = StartMode.NORMAL) -> None:
-        await self.registry.notify(
-            bot=self.bot,
-            event=DialogStartEvent(
-                action=Action.START,
-                data=data,
-                new_state=state,
-                mode=mode,
-                **self._base_event_params()
-            ))
+        await self._notify(DialogStartEvent(
+            action=Action.START,
+            data=data,
+            new_state=state,
+            mode=mode,
+            **self._base_event_params()
+        ))
 
     async def switch_to(self, state: State) -> None:
-        await self.registry.notify(
-            bot=self.bot,
-            event=DialogSwitchEvent(
-                action=Action.SWITCH,
-                data={},
-                new_state=state,
-                **self._base_event_params()
-            ))
+        await self._notify(DialogSwitchEvent(
+            action=Action.SWITCH,
+            data={},
+            new_state=state,
+            **self._base_event_params()
+        ))
 
     async def update(self, data: Dict) -> None:
-        await self.registry.notify(
-            bot=self.bot,
-            event=DialogUpdateEvent(
-                action=Action.UPDATE,
-                data=data,
-                **self._base_event_params()
-            ))
+        await self._notify(DialogUpdateEvent(
+            action=Action.UPDATE,
+            data=data,
+            **self._base_event_params()
+        ))

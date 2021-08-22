@@ -6,7 +6,7 @@ from aiogram.types import Update, TelegramObject
 
 from .manager import ManagerImpl
 from .protocols import DialogManager, DialogRegistryProto
-from ..context.events import DialogUpdateEvent
+from ..context.events import DialogUpdateEvent, DialogUpdate
 
 MANAGER_KEY = "dialog_manager"
 
@@ -23,8 +23,8 @@ class ManagerMiddleware(BaseMiddleware):
             data: Dict[str, Any],
     ) -> Any:
 
-        if isinstance(event, DialogUpdateEvent):
-            content = event
+        if isinstance(event, DialogUpdate):  # TODO remove me after https://github.com/aiogram/aiogram/pull/669
+            content = event.aiogd_update
         else:
             content = detect_content_type(event)
 

@@ -10,10 +10,8 @@ from aiogram.types import User, Chat, Message
 from .manager_middleware import ManagerMiddleware
 from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
 from .update_handler import handle_update
-from ..context.events import DialogUpdateEvent, StartMode
+from ..context.events import StartMode, DIALOG_EVENT_NAME, DialogUpdate
 from ..context.intent_filter import IntentFilter, IntentMiddleware
-
-DIALOG_EVENT_NAME = "aiogd_update"
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -66,14 +64,7 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
-        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
-            ManagerMiddleware(self)
-        )
-
         self.dp.update.outer_middleware(
-            IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
-        )
-        self.dp.observers[DIALOG_EVENT_NAME].outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
@@ -89,21 +80,22 @@ class DialogRegistry(DialogRegistryProto):
             callback, *filters_set
         )
 
-    async def notify(self, bot: Bot, event: DialogUpdateEvent) -> None:
-        callback = lambda: asyncio.create_task(self._process_update(bot, event))
+    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
+        callback = lambda: asyncio.create_task(self._process_update(bot, update))
 
         asyncio.get_running_loop().call_soon(
             callback,
             context=copy_context()
         )
 
-    async def _process_update(self, bot: Bot, event: DialogUpdateEvent):
+    async def _process_update(self, bot: Bot, update: DialogUpdate):
+        event = update.event
         Bot.set_current(bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
         await self.dp.propagate_event(
-            update_type=DIALOG_EVENT_NAME,
-            event=event,
+            update_type="update",
+            event=update,
             bot=bot,
             event_from_user=event.from_user,
             event_chat=event.chat,
