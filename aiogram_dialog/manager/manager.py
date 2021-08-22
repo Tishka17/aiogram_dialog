@@ -14,7 +14,7 @@ from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import get_chat, remove_kbd
+from ..utils import remove_kbd
 
 logger = getLogger(__name__)
 
@@ -137,9 +137,9 @@ class ManagerImpl(DialogManager):
         if chat_id is not None:
             chat = Chat(id=chat_id)
         else:
-            chat = get_chat(self.event)
+            chat = self.data['event_chat']
 
-        same_chat = (user.id == self.event.from_user.id and chat.id == get_chat(self.event).id)
+        same_chat = (user.id == self.event.from_user.id and chat.id == self.data['event_chat'].id)
         intent_id = None
         if stack_id is None:
             if same_chat:
