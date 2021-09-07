@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from itertools import accumulate, islice
 from operator import itemgetter
+from types import NoneType
 from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequence
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
@@ -29,6 +31,7 @@ class Select(Keyboard):
                  id: str,
                  item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
+                 layout: Union[str, Sequence] = None,
                  on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
@@ -37,17 +40,42 @@ class Select(Keyboard):
         self.on_click = ensure_event_processor(on_click)
         self.callback_data_prefix = id + ":"
         self.item_id_getter = item_id_getter
+
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
         else:
             self.items_getter = get_identity(items)
 
+        if isinstance(layout, str):
+            self.layout_getter = itemgetter(layout)
+        elif isinstance(layout, NoneType):
+            self.layout_getter = None
+        else:
+            self.layout_getter = get_identity(layout)
+
     async def _render_keyboard(self, data: Dict,
                                manager: DialogManager) -> List[List[InlineKeyboardButton]]:
-        return [[
+        def split_kb():
+            _layout = list(accumulate(layout))
+
+            for start, end in zip([0, *_layout],
+                                  [*_layout, _layout[-1]]):
+                yield list(islice(kb, start, end))
+
+        if self.layout_getter is not None:
+            layout = self.layout_getter(data)
+        else:
+            layout = None
+
+        kb = [
             await self._render_button(pos, item, data, manager)
             for pos, item in enumerate(self.items_getter(data))
-        ]]
+        ]
+
+        if layout:
+            return list(split_kb())
+        else:
+            return [kb]
 
     async def _render_button(self, pos: int, item: Any, data: Dict,
                              manager: DialogManager) -> InlineKeyboardButton:
