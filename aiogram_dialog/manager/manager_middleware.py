@@ -34,6 +34,6 @@ class ManagerMiddleware(BaseMiddleware):
         try:
             return await handler(event, data)
         finally:
-            manager: DialogManager = data.pop(MANAGER_KEY)
+            manager: DialogManager = data.pop(MANAGER_KEY, None)
             if manager:
                 await manager.close_manager()
