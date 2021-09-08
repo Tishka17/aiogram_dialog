@@ -88,7 +88,6 @@ class Dialog(ManagedDialogProto):
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
         await self._process_callback(self.on_start, start_data, manager)
-        await self.show(manager)
 
     async def _process_callback(self, callback: Optional[OnDialogEvent], *args, **kwargs):
         if callback:
