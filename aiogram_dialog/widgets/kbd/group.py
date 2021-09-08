@@ -1,4 +1,4 @@
-from itertools import chain, islice, accumulate
+from itertools import chain, accumulate
 from operator import itemgetter
 from typing import List, Dict, Optional, Sequence, Union, Callable
 
@@ -112,7 +112,7 @@ class Layout(Keyboard):
 
         for start, end in zip([0, *_layout],
                               [*_layout, _layout[-1]]):
-            yield list(islice(kbd, start, end))
+            yield kbd[start:end]
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
         for b in self.buttons:
