@@ -16,7 +16,6 @@ from ..context.intent_filter import IntentFilter, IntentMiddleware
 
 class DialogRegistry(DialogRegistryProto):
     def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
-        super().__init__()
         self.dp = dp
         self.dialogs = {
             d.states_group(): d for d in dialogs

@@ -1,6 +1,8 @@
 import operator
 
-from aiogram_dialog import ChatEvent, DialogManager
+from aiogram.types import CallbackQuery
+
+from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Select
 from aiogram_dialog.widgets.text import Format
 
@@ -19,7 +21,7 @@ async def get_data(**kwargs):
     }
 
 
-async def on_fruit_selected(c: ChatEvent, select: Select, manager: DialogManager, item_id: str):
+async def on_fruit_selected(c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
     print("Fruit selected: ", item_id)
 
 
