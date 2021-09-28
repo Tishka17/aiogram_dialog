@@ -66,7 +66,6 @@ class ManagerImpl(DialogManager):
         dialog = self.dialog()
         await dialog.process_result(old_context.start_data, result, self)
         if context.id == self.current_context().id:
-            logger.debug('Context %s wasnt change, show dialog', context.id)
             await self.dialog().show(self)
 
     async def mark_closed(self) -> None:
