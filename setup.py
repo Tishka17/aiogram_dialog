@@ -23,7 +23,7 @@ setup(
     ],
     packages=find_packages(include=['aiogram_dialog', 'aiogram_dialog.*']),
     install_requires=[
-        'aiogram @ git+https://git@github.com/aiogram/aiogram@dev-3.x#egg=aiogram',
+        'aiogram==3.*',
         'jinja2',
     ],
     extras_require={
