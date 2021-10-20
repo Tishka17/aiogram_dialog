@@ -6,7 +6,8 @@ from aiogram.types import Chat, User
 
 from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
-    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent, StartMode
+    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
+    StartMode, DialogUpdate,
 )
 from ..context.stack import DEFAULT_STACK_ID
 
@@ -65,15 +66,22 @@ class BgManager(BaseDialogManager):
 
     def _base_event_params(self):
         return {
-            "bot": self.bot,
             "from_user": self.user,
             "chat": self.chat,
             "intent_id": self.intent_id,
             "stack_id": self.stack_id,
         }
 
+    async def _notify(self, event: DialogUpdateEvent):
+        await self.registry.notify(
+            bot=self.bot,
+            update=DialogUpdate(
+                aiogd_update=event
+            )
+        )
+
     async def done(self, result: Any = None) -> None:
-        await self.registry.notify(DialogUpdateEvent(
+        await self._notify(DialogUpdateEvent(
             action=Action.DONE,
             data=result,
             **self._base_event_params()
@@ -81,7 +89,7 @@ class BgManager(BaseDialogManager):
 
     async def start(self, state: State, data: Data = None,
                     mode: StartMode = StartMode.NORMAL) -> None:
-        await self.registry.notify(DialogStartEvent(
+        await self._notify(DialogStartEvent(
             action=Action.START,
             data=data,
             new_state=state,
@@ -90,7 +98,7 @@ class BgManager(BaseDialogManager):
         ))
 
     async def switch_to(self, state: State) -> None:
-        await self.registry.notify(DialogSwitchEvent(
+        await self._notify(DialogSwitchEvent(
             action=Action.SWITCH,
             data={},
             new_state=state,
@@ -98,7 +106,7 @@ class BgManager(BaseDialogManager):
         ))
 
     async def update(self, data: Dict) -> None:
-        await self.registry.notify(DialogUpdateEvent(
+        await self._notify(DialogUpdateEvent(
             action=Action.UPDATE,
             data=data,
             **self._base_event_params()

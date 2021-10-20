@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, Chat, InlineKeyboardMarkup, \
     ChatMemberUpdated
-from aiogram.utils.exceptions.bad_request import BadRequest
+from aiogram.exceptions import TelegramBadRequest
 
 from .context.events import (
     DialogUpdateEvent, ChatEvent
@@ -70,7 +70,7 @@ async def show_message(bot: Bot, new_message: NewMessage, old_message: Message):
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
         )
-    except BadRequest as err:
+    except TelegramBadRequest as err:
         if 'message is not modified' in err.message:
             return old_message
         elif 'message can\'t be edited' in err.message:
@@ -87,7 +87,7 @@ async def remove_kbd(bot: Bot, old_message: Optional[Message]):
             await bot.edit_message_reply_markup(
                 message_id=old_message.message_id, chat_id=old_message.chat.id
             )
-        except BadRequest as err:
+        except TelegramBadRequest as err:
             if 'message is not modified' in err.message:
                 pass
             elif 'message can\'t be edited' in err.message:

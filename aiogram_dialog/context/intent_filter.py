@@ -6,15 +6,15 @@ from aiogram.dispatcher.filters.base import BaseFilter
 from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import Message, CallbackQuery, ChatMemberUpdated
+from aiogram.types import CallbackQuery
 from aiogram.types import Update
 from aiogram.types.base import TelegramObject
 
 from .context import Context
-from .events import DialogUpdateEvent
+from .events import DialogUpdateEvent, DialogUpdate
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError
-from ..utils import remove_indent_id, get_chat
+from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -47,37 +47,38 @@ class IntentMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
-
         try:
-            if isinstance(event, DialogUpdateEvent):
-                await self.on_pre_process_aiogd_update(event, data)
+            if isinstance(event, DialogUpdate):
+                await self.on_pre_process_aiogd_update(event.aiogd_update, data)
             elif event.message:
-                await self.on_pre_process_message(event.message, data)
+                await self.on_pre_process_message(data)
             elif event.my_chat_member:
-                await self.on_pre_process_message(event.my_chat_member, data)
+                await self.on_pre_process_message(data)
             elif event.callback_query:
                 await self.on_pre_process_callback_query(event.callback_query, data)
         except CancelHandler:
             return
-
         try:
             return await handler(event, data)
         finally:
             await self.on_post_process(data)
 
-    async def on_pre_process_message(self, event: Union[Message, ChatMemberUpdated], data: dict):
-        chat = get_chat(event)
+    def storage_proxy(self, data: dict):
         proxy = StorageProxy(
             bot=data['bot'],
             storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
+            user_id=data['event_from_user'].id,
+            chat_id=data['event_chat'].id,
             state_groups=self.state_groups,
         )
+        return proxy
+
+    async def on_pre_process_message(self, data: dict):
+        proxy = self.storage_proxy(data)
         stack = await proxy.load_stack()
         if stack.empty():
             context = None
@@ -88,19 +89,13 @@ class IntentMiddleware(BaseMiddleware):
         data[CONTEXT_KEY] = context
 
     async def on_post_process(self, data: dict):
-        proxy: StorageProxy = data.pop(STORAGE_KEY)
-        await proxy.save_context(data.pop(CONTEXT_KEY))
-        await proxy.save_stack(data.pop(STACK_KEY))
+        proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+        if proxy:
+            await proxy.save_context(data.pop(CONTEXT_KEY))
+            await proxy.save_stack(data.pop(STACK_KEY))
 
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
-        chat = get_chat(event)
-        proxy = StorageProxy(
-            bot=event.bot,
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
-        )
+        proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
         if event.intent_id is not None:
             context = await proxy.load_context(event.intent_id)
@@ -126,14 +121,7 @@ class IntentMiddleware(BaseMiddleware):
         data[CONTEXT_KEY] = context
 
     async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
-        chat = get_chat(event)
-        proxy = StorageProxy(
-            bot=data['bot'],
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
-        )
+        proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
 
         original_data = event.data
