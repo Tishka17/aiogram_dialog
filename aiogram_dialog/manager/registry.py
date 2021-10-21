@@ -73,11 +73,8 @@ class DialogRegistry(DialogRegistryProto):
 
     def register_update_handler(self, callback, *custom_filters, run_task=None,
                                 **kwargs) -> None:  # ToDo run_task
-        filters_set = self.update_handler.resolve_filters(kwargs)
-        filters_set.append(*custom_filters)
-
         self.update_handler.register(
-            callback, *filters_set
+            callback, *custom_filters, **kwargs
         )
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
