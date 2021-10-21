@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentT
 
 from .context.events import Data
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id
+from .utils import NewMessage, show_message, add_indent_id, remove_indent_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -146,8 +146,10 @@ class Dialog(ManagedDialogProto):
 
     async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
         intent = dialog_manager.current_context()
+        intent_id, callback_data = remove_indent_id(c.data)
+        cleaned_callback = c.copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
-        await window.process_callback(c, self, dialog_manager)
+        await window.process_callback(cleaned_callback, self, dialog_manager)
         if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
         await c.answer()

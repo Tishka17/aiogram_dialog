@@ -132,9 +132,6 @@ class IntentMiddleware(BaseMiddleware):
             if stack.last_intent_id() != intent_id:
                 logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
                 raise CancelHandler()
-            event.Config.allow_mutation = True  # ToDo
-            event.data = callback_data
-            event.Config.allow_mutation = False
         else:
             context = None
             stack = await proxy.load_stack()
