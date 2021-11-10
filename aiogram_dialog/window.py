@@ -2,8 +2,11 @@ from logging import getLogger
 from typing import Dict, Optional, Union, List
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
+from aiogram.types import (
+    InlineKeyboardMarkup, Message, CallbackQuery, ParseMode,
+)
 
+from .context.media_storage import Media, MediaIdStorage
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
 from .utils import get_chat, NewMessage
@@ -26,6 +29,7 @@ class Window(DialogWindowProto):
                  disable_web_page_preview: Optional[bool] = None,
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: Optional[Dict] = None,
+                 media: Optional[Media] = None,
                  ):
         self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
         self.getter = getter
@@ -34,6 +38,7 @@ class Window(DialogWindowProto):
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
         self.preview_data = preview_data
+        self.media = media
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)
@@ -68,6 +73,7 @@ class Window(DialogWindowProto):
             parse_mode=self.parse_mode,
             force_new=isinstance(manager.event, Message),
             disable_web_page_preview=self.disable_web_page_preview,
+            media=self.media,
         )
 
     def get_state(self) -> State:
