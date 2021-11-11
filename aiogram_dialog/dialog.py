@@ -9,8 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentT
 from .context.events import Data
 from .context.media_storage import MediaIdStorage
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id, get_chat, \
-    get_media_id, media_storage
+from .utils import NewMessage, show_message, add_indent_id, get_chat, get_media_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -21,6 +20,8 @@ ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
+
+media_storage = MediaIdStorage()
 
 
 class DialogWindowProto(Protocol):
@@ -111,13 +112,17 @@ class Dialog(ManagedDialogProto):
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
         add_indent_id(new_message, manager.current_context().id)
+        if new_message.media:
+            new_message.media.file_id = media_storage.get_media_id(
+                new_message.media.path, new_message.media.type,
+            )
         message = await self._show(new_message, manager)
         manager.current_stack().last_message_id = message.message_id
         manager.current_stack().last_media_id = get_media_id(message)
-        if new_message.media and new_message.media.path:
-            await media_storage.save_media_id(new_message.media.path,
-                                        new_message.media.type,
-                                        get_media_id(message))
+        if new_message.media:
+            await media_storage.save_media_id(
+                new_message.media.path, new_message.media.type, get_media_id(message)
+            )
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
         stack = manager.current_stack()

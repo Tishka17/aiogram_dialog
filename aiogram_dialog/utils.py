@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple, Any
+from io import FileIO
+from typing import Optional, Tuple, Any, Union, IO
 
 from aiogram import Bot
 from aiogram.types import (
@@ -25,7 +26,6 @@ send_methods = {
     ContentType.PHOTO: "send_photo",
     ContentType.VIDEO: "send_video",
 }
-media_storage = MediaIdStorage()
 
 
 def get_chat(event: ChatEvent) -> Chat:
@@ -52,13 +52,20 @@ def get_media_id(message: Message) -> Optional[str]:
 
 
 class MediaAttachment:
-    def __init__(self, type: ContentType, url: Optional[str] = None,
-                 path: Optional[str] = None, **kwargs):
-        if not (url or path):
-            raise ValueError("Neither url nor path are provided")
+    def __init__(
+            self,
+            type: ContentType,
+            url: Optional[str] = None,
+            path: Optional[str] = None,
+            file_id: Optional[str] = None,
+            **kwargs,
+    ):
+        if not (url or path or file_id):
+            raise ValueError("Neither url nor path not file_id are provided")
         self.type = type
         self.url = url
         self.path = path
+        self.file_id = file_id
         self.kwargs = kwargs
 
 
@@ -73,15 +80,14 @@ class NewMessage:
     media: Optional[MediaAttachment] = None
 
 
-async def get_media_source(media_storage: MediaIdStorage,
-                           media: MediaAttachment) -> Any:  # TODO hint
-    if media.path:
-        mid = await media_storage.get_media_id(media.path, media.type)
-        if mid is not None:
-            return mid
-        else:
-            return open(media.path, "rb")
-    return media.url
+async def get_media_source(media: MediaAttachment) -> Union[IO, str]:
+    if media.file_id:
+        return media.file_id
+    if media.url:
+        return media.url
+    else:
+        return open(media.path, "rb")
+
 
 def intent_callback_data(intent_id: str,
                          callback_data: Optional[str]) -> Optional[str]:
@@ -132,7 +138,7 @@ async def show_message(bot: Bot, new_message: NewMessage,
                 reply_markup=new_message.reply_markup,
                 parse_mode=new_message.parse_mode,
                 disable_web_page_preview=new_message.disable_web_page_preview,
-                media=await get_media_source(media_storage, new_message.media),
+                media=await get_media_source(new_message.media),
                 **new_message.media.kwargs,
             )
             return await bot.edit_message_media(
@@ -183,7 +189,7 @@ async def send_message(bot: Bot, new_message: NewMessage):
         method = getattr(bot, send_methods[new_message.media.type])
         return await method(
             new_message.chat.id,
-            await get_media_source(media_storage, new_message.media),
+            await get_media_source(new_message.media),
             caption=new_message.text,
             **kwargs,
             **new_message.media.kwargs,
