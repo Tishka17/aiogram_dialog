@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
 
-from aiogram import Dispatcher
+from aiogram import Router
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
 
@@ -157,11 +157,9 @@ class Dialog(ManagedDialogProto):
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
 
-    def register(self, registry: DialogRegistryProto, dp: Dispatcher, *args, **filters) -> None:
-        dp.callback_query.register(self._callback_handler, *args, **filters)
-        if "content_types" not in filters:
-            filters["content_types"] = ContentType.ANY
-        dp.message.register(self._message_handler, *args, **filters)
+    def register(self, registry: DialogRegistryProto, router: Router, *args, **filters) -> None:
+        router.callback_query.register(self._callback_handler, *args, **filters)
+        router.message.register(self._message_handler, *args, **filters)
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group
