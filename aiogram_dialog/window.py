@@ -6,13 +6,13 @@ from aiogram.types import (
     InlineKeyboardMarkup, Message, CallbackQuery, ParseMode,
 )
 
-from .context.media_storage import Media, MediaIdStorage
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
-from .utils import get_chat, NewMessage
+from .utils import get_chat, NewMessage, MediaAttachment
 from .widgets.action import Actionable
 from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
+from .widgets.media import Media
 from .widgets.text import Text
 from .widgets.utils import ensure_widgets
 
@@ -43,7 +43,14 @@ class Window(DialogWindowProto):
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)
 
-    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
+    async def render_media(
+            self, data: Dict,
+            manager: DialogManager
+    ) -> Optional[MediaAttachment]:
+        return await self.media.render_media(data, manager)
+
+    async def render_kbd(self, data: Dict,
+                         manager: DialogManager) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
@@ -73,7 +80,7 @@ class Window(DialogWindowProto):
             parse_mode=self.parse_mode,
             force_new=isinstance(manager.event, Message),
             disable_web_page_preview=self.disable_web_page_preview,
-            media=self.media,
+            media=self.render_media(current_data, manager),
         )
 
     def get_state(self) -> State:

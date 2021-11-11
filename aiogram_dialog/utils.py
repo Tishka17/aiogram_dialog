@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Any
 
 from aiogram import Bot
-from aiogram.types import Message, CallbackQuery, Chat, ParseMode, \
-    InlineKeyboardMarkup, ChatMemberUpdated, InputFile, ContentType, InputMedia
+from aiogram.types import (
+    Message, CallbackQuery, Chat, ParseMode,
+    InlineKeyboardMarkup, ChatMemberUpdated, ContentType, InputMedia,
+)
 from aiogram.utils.exceptions import (
     MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
     MessageToDeleteNotFound, MessageCantBeDeleted,
@@ -12,7 +14,7 @@ from aiogram.utils.exceptions import (
 from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
-from .context.media_storage import MediaIdStorage, Media
+from .context.media_storage import MediaIdStorage
 
 CB_SEP = "\x1D"
 
@@ -49,6 +51,17 @@ def get_media_id(message: Message) -> Optional[str]:
     return None
 
 
+class MediaAttachment:
+    def __init__(self, type: ContentType, url: Optional[str] = None,
+                 path: Optional[str] = None, **kwargs):
+        if not (url or path):
+            raise ValueError("Neither url nor path are provided")
+        self.type = type
+        self.url = url
+        self.path = path
+        self.kwargs = kwargs
+
+
 @dataclass
 class NewMessage:
     chat: Chat
@@ -57,10 +70,21 @@ class NewMessage:
     parse_mode: Optional[ParseMode] = None
     force_new: bool = False
     disable_web_page_preview: Optional[bool] = None
-    media: Optional[Media] = None
+    media: Optional[MediaAttachment] = None
 
 
-def intent_callback_data(intent_id: str, callback_data: Optional[str]) -> Optional[str]:
+async def get_media_source(media_storage: MediaIdStorage,
+                           media: MediaAttachment) -> Any:  # TODO hint
+    if media.path:
+        mid = await media_storage.get_media_id(media.path, media.type)
+        if mid is not None:
+            return mid
+        else:
+            return open(media.path, "rb")
+    return media.url
+
+def intent_callback_data(intent_id: str,
+                         callback_data: Optional[str]) -> Optional[str]:
     if callback_data is None:
         return None
     return intent_id + CB_SEP + callback_data
@@ -108,7 +132,7 @@ async def show_message(bot: Bot, new_message: NewMessage,
                 reply_markup=new_message.reply_markup,
                 parse_mode=new_message.parse_mode,
                 disable_web_page_preview=new_message.disable_web_page_preview,
-                media=await media_storage.get_media_source(new_message.media),
+                media=await get_media_source(media_storage, new_message.media),
                 **new_message.media.kwargs,
             )
             return await bot.edit_message_media(
@@ -159,7 +183,7 @@ async def send_message(bot: Bot, new_message: NewMessage):
         method = getattr(bot, send_methods[new_message.media.type])
         return await method(
             new_message.chat.id,
-            await media_storage.get_media_source(new_message.media),
+            await get_media_source(media_storage, new_message.media),
             caption=new_message.text,
             **kwargs,
             **new_message.media.kwargs,
