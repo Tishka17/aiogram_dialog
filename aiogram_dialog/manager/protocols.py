@@ -1,6 +1,6 @@
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
-from aiogram import Dispatcher, Bot
+from aiogram import Bot, Router
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 
 from ..context.context import Context
@@ -9,7 +9,7 @@ from ..context.stack import Stack
 
 
 class ManagedDialogProto(Protocol):
-    def register(self, registry: "DialogRegistryProto", dp: Dispatcher, *args, **kwargs) -> None:
+    def register(self, registry: "DialogRegistryProto", router: Router, *args, **kwargs) -> None:
         pass
 
     def states_group_name(self) -> str:

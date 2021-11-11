@@ -2,7 +2,7 @@ import asyncio
 from contextvars import copy_context
 from typing import Sequence, Type, Dict
 
-from aiogram import Dispatcher, Bot
+from aiogram import Dispatcher, Bot, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
@@ -40,7 +40,7 @@ class DialogRegistry(DialogRegistryProto):
 
         self._register_middleware()
 
-    def register(self, dialog: ManagedDialogProto, *args, **kwargs):
+    def register(self, dialog: ManagedDialogProto, *args, router: Router = None, **kwargs):
         group = dialog.states_group()
         if group in self.dialogs:
             raise ValueError(f"StatesGroup `{group}` is already used")
@@ -48,7 +48,7 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups[dialog.states_group_name()] = group
         dialog.register(
             self,
-            self.dp,
+            router if router else self.dp,
             *args,
             aiogd_intent_state_group=group,
             **kwargs
