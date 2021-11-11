@@ -47,27 +47,32 @@ class Window(DialogWindowProto):
             self, data: Dict,
             manager: DialogManager
     ) -> Optional[MediaAttachment]:
-        return await self.media.render_media(data, manager)
+        if self.media:
+            return await self.media.render_media(data, manager)
 
     async def render_kbd(self, data: Dict,
                          manager: DialogManager) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-    async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
+    async def load_data(self, dialog: "Dialog",
+                        manager: DialogManager) -> Dict:
         if not self.getter:
             return {}
         return await self.getter(**manager.data)
 
-    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager):
+    async def process_message(self, message: Message, dialog: Dialog,
+                              manager: DialogManager):
         if self.on_message:
             await self.on_message.process_message(message, dialog, manager)
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         logger.debug("Show window: %s", self)
         if preview:
             current_data = self.preview_data
@@ -80,7 +85,7 @@ class Window(DialogWindowProto):
             parse_mode=self.parse_mode,
             force_new=isinstance(manager.event, Message),
             disable_web_page_preview=self.disable_web_page_preview,
-            media=self.render_media(current_data, manager),
+            media=await self.render_media(current_data, manager),
         )
 
     def get_state(self) -> State:

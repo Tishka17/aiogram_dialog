@@ -4,23 +4,26 @@ from aiogram.types import ContentType
 
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.utils import MediaAttachment
-from aiogram_dialog.widgets.when import Whenable, WhenCondition
+from .base import Media
+from ..when import WhenCondition
 
 
-class StaticMedia(Whenable):
+class StaticMedia(Media):
     def __init__(
             self,
             type: ContentType,
-            path: Optional[str],
-            url: Optional[str],
+            path: Optional[str] = None,
+            url: Optional[str] = None,
             media_params: Dict = None,
             when: WhenCondition = None
     ):
         super().__init__(when)
+        if not (url or path):
+            raise ValueError("Neither url nor path are provided")
         self.type = type
         self.path = path
         self.url = url
-        self.media_params = media_params
+        self.media_params = media_params or {}
 
     async def _render_media(
             self,
