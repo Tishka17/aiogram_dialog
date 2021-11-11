@@ -71,8 +71,7 @@ class DialogRegistry(DialogRegistryProto):
     def find_dialog(self, state: State) -> ManagedDialogProto:
         return self.dialogs[state.group]
 
-    def register_update_handler(self, callback, *custom_filters, run_task=None,
-                                **kwargs) -> None:  # ToDo run_task
+    def register_update_handler(self, callback, *custom_filters, **kwargs) -> None:
         self.update_handler.register(
             callback, *custom_filters, **kwargs
         )
