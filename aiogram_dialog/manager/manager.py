@@ -73,7 +73,8 @@ class ManagerImpl(DialogManager):
             return
         dialog = self.dialog()
         await dialog.process_result(old_context.start_data, result, self)
-        await dialog.show(self)
+        if context.id == self.current_context().id:
+            await self.dialog().show(self)
 
     async def mark_closed(self) -> None:
         self.check_disabled()
@@ -100,6 +101,8 @@ class ManagerImpl(DialogManager):
             context = stack.push(state, data)
             self.data[CONTEXT_KEY] = context
             await self.dialog().process_start(self, data, state)
+            if context.id == self.current_context().id:
+                await self.dialog().show(self)
         elif mode is StartMode.RESET_STACK:
             stack = self.current_stack()
             while not stack.empty():

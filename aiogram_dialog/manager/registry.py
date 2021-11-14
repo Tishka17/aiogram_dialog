@@ -20,7 +20,6 @@ class DialogEventObserver(TelegramEventObserver):
 
 class DialogRegistry(DialogRegistryProto):
     def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
-        super().__init__()
         self.dp = dp
         self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
             router=self.dp, event_name=DIALOG_EVENT_NAME
