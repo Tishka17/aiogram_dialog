@@ -21,9 +21,13 @@ logger = getLogger(__name__)
 class ManagerImpl(DialogManager):
     def __init__(self, event: ChatEvent, registry: DialogRegistryProto, data: Dict):
         self.disabled = False
-        self.registry = registry
+        self._registry = registry
         self.event = event
         self.data = data
+
+    @property
+    def registry(self) -> DialogRegistryProto:
+        return self._registry
 
     def check_disabled(self):
         if self.disabled:
@@ -155,6 +159,6 @@ class ManagerImpl(DialogManager):
     async def close_manager(self) -> None:
         self.check_disabled()
         self.disabled = True
-        del self.registry
+        del self._registry
         del self.event
         del self.data

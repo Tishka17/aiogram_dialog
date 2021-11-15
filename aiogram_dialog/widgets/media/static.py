@@ -11,11 +11,12 @@ from ..when import WhenCondition
 class StaticMedia(Media):
     def __init__(
             self,
-            type: ContentType,
+            *,
             path: Optional[str] = None,
             url: Optional[str] = None,
+            type: ContentType = ContentType.PHOTO,
             media_params: Dict = None,
-            when: WhenCondition = None
+            when: WhenCondition = None,
     ):
         super().__init__(when)
         if not (url or path):

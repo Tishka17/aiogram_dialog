@@ -24,9 +24,13 @@ class BgManager(BaseDialogManager):
         self.user = user
         self.chat = chat
         self.bot = bot
-        self.registry = registry
+        self._registry = registry
         self.intent_id = intent_id
         self.stack_id = stack_id
+
+    @property
+    def registry(self) -> DialogRegistryProto:
+        return self._registry
 
     def bg(
             self,
