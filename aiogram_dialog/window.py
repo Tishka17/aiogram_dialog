@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, List
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import (
@@ -10,35 +10,31 @@ from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
 from .utils import get_chat, NewMessage, MediaAttachment
 from .widgets.action import Actionable
-from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
-from .widgets.media import Media
-from .widgets.text import Text
-from .widgets.utils import ensure_widgets
+from .widgets.utils import ensure_widgets, WidgetSrc
 
 logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
-
     def __init__(self,
-                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
+                 *widgets: WidgetSrc,
                  state: State,
                  getter: DataGetter = None,
                  parse_mode: Optional[ParseMode] = None,
                  disable_web_page_preview: Optional[bool] = None,
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: Optional[Dict] = None,
-                 media: Optional[Media] = None,
                  ):
-        self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
+        (
+            self.text, self.keyboard, self.on_message, self.media,
+        ) = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
         self.preview_data = preview_data
-        self.media = media
 
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)

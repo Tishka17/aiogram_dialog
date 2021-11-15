@@ -20,4 +20,4 @@ class Media(Whenable):
             data: Any,
             manager: DialogManager
     ) -> Optional[MediaAttachment]:
-        raise NotImplementedError
+        return None
