@@ -7,8 +7,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .context.events import Data
+from .context.media_storage import MediaIdStorage
 from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id, get_chat
+from .utils import NewMessage, show_message, add_indent_id, get_chat, get_media_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -88,7 +89,6 @@ class Dialog(ManagedDialogProto):
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
         await self._process_callback(self.on_start, start_data, manager)
-        await self.show(manager)
 
     async def _process_callback(self, callback: Optional[OnDialogEvent], *args, **kwargs):
         if callback:
@@ -110,8 +110,18 @@ class Dialog(ManagedDialogProto):
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
         add_indent_id(new_message, manager.current_context().id)
+        media_id_storage = manager.registry.media_id_storage
+        if new_message.media:
+            new_message.media.file_id = await media_id_storage.get_media_id(
+                new_message.media.path, new_message.media.type,
+            )
         message = await self._show(new_message, manager)
         manager.current_stack().last_message_id = message.message_id
+        manager.current_stack().last_media_id = get_media_id(message)
+        if new_message.media:
+            await media_id_storage.save_media_id(
+                new_message.media.path, new_message.media.type, get_media_id(message)
+            )
 
     async def _show(self, new_message: NewMessage, manager: DialogManager):
         stack = manager.current_stack()
