@@ -2,6 +2,7 @@ from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ContentType
 
 from ..context.context import Context
 from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
@@ -44,6 +45,18 @@ class ManagedDialogProto(Protocol):
         pass
 
 
+class MediaIdStorageProtocol(Protocol):
+    async def get_media_id(
+            self, path: Optional[str], type: ContentType,
+    ) -> Optional[int]:
+        raise NotImplementedError
+
+    async def save_media_id(
+            self, path: Optional[str], type: ContentType, media_id: str,
+    ) -> None:
+        raise NotImplementedError
+
+
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
@@ -51,9 +64,17 @@ class DialogRegistryProto(Protocol):
     async def notify(self, event: DialogUpdateEvent) -> None:
         pass
 
+    @property
+    def media_id_storage(self) -> MediaIdStorageProtocol:
+        raise NotImplementedError
+
 
 class BaseDialogManager(Protocol):
     event: ChatEvent
+
+    @property
+    def registry(self) -> DialogRegistryProto:
+        raise NotImplementedError
 
     async def done(self, result: Any = None) -> None:
         pass

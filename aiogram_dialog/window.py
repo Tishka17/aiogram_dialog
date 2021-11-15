@@ -1,25 +1,24 @@
 from logging import getLogger
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, List
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ParseMode
+from aiogram.types import (
+    InlineKeyboardMarkup, Message, CallbackQuery, ParseMode,
+)
 
 from .dialog import Dialog, DialogWindowProto, DataGetter
 from .manager.protocols import DialogManager
-from .utils import get_chat, NewMessage
+from .utils import get_chat, NewMessage, MediaAttachment
 from .widgets.action import Actionable
-from .widgets.input import BaseInput, MessageHandlerFunc
 from .widgets.kbd import Keyboard
-from .widgets.text import Text
-from .widgets.utils import ensure_widgets
+from .widgets.utils import ensure_widgets, WidgetSrc
 
 logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
-
     def __init__(self,
-                 *widgets: Union[str, Text, Keyboard, MessageHandlerFunc, BaseInput],
+                 *widgets: WidgetSrc,
                  state: State,
                  getter: DataGetter = None,
                  parse_mode: Optional[ParseMode] = None,
@@ -27,7 +26,9 @@ class Window(DialogWindowProto):
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: Optional[Dict] = None,
                  ):
-        self.text, self.keyboard, self.on_message = ensure_widgets(widgets)
+        (
+            self.text, self.keyboard, self.on_message, self.media,
+        ) = ensure_widgets(widgets)
         self.getter = getter
         self.state = state
         self.parse_mode = parse_mode
@@ -38,24 +39,36 @@ class Window(DialogWindowProto):
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         return await self.text.render_text(data, manager)
 
-    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
+    async def render_media(
+            self, data: Dict,
+            manager: DialogManager
+    ) -> Optional[MediaAttachment]:
+        if self.media:
+            return await self.media.render_media(data, manager)
+
+    async def render_kbd(self, data: Dict,
+                         manager: DialogManager) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-    async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
+    async def load_data(self, dialog: "Dialog",
+                        manager: DialogManager) -> Dict:
         if not self.getter:
             return {}
         return await self.getter(**manager.data)
 
-    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager):
+    async def process_message(self, message: Message, dialog: Dialog,
+                              manager: DialogManager):
         if self.on_message:
             await self.on_message.process_message(message, dialog, manager)
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager):
+    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+                               manager: DialogManager):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager, preview: bool = False) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager,
+                     preview: bool = False) -> NewMessage:
         logger.debug("Show window: %s", self)
         if preview:
             current_data = self.preview_data
@@ -68,6 +81,7 @@ class Window(DialogWindowProto):
             parse_mode=self.parse_mode,
             force_new=isinstance(manager.event, Message),
             disable_web_page_preview=self.disable_web_page_preview,
+            media=await self.render_media(current_data, manager),
         )
 
     def get_state(self) -> State:
