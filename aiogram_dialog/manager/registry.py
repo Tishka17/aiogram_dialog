@@ -10,7 +10,7 @@ from aiogram.types import User, Chat, Message
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
     ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol,
+    MediaIdStorageProtocol, EditMode,
 )
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
@@ -24,6 +24,7 @@ class DialogRegistry(DialogRegistryProto):
             dp: Dispatcher,
             dialogs: Sequence[ManagedDialogProto] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
+            edit_mode: EditMode = EditMode.EDIT_ON_MESSAGE,
     ):
         self.dp = dp
         self.dialogs = {
@@ -39,6 +40,7 @@ class DialogRegistry(DialogRegistryProto):
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
         self._media_id_storage = media_id_storage
+        self.edit_mode = edit_mode
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:

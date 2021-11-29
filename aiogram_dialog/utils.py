@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from logging import getLogger
 from typing import Optional, Tuple, Union, IO
 
 from aiogram import Bot
 from aiogram.types import (
-    Message, CallbackQuery, Chat, ParseMode,
-    InlineKeyboardMarkup, ChatMemberUpdated, ContentType, InputMedia,
+    Message, CallbackQuery, Chat, ChatMemberUpdated, ContentType, InputMedia,
 )
 from aiogram.utils.exceptions import (
     MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
@@ -15,6 +13,7 @@ from aiogram.utils.exceptions import (
 from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
+from .manager.protocols import MediaAttachment, NewMessage
 
 logger = getLogger(__name__)
 
@@ -50,35 +49,6 @@ def get_media_id(message: Message) -> Optional[str]:
     if message.video:
         return message.video.file_id
     return None
-
-
-class MediaAttachment:
-    def __init__(
-            self,
-            type: ContentType,
-            url: Optional[str] = None,
-            path: Optional[str] = None,
-            file_id: Optional[str] = None,
-            **kwargs,
-    ):
-        if not (url or path or file_id):
-            raise ValueError("Neither url nor path not file_id are provided")
-        self.type = type
-        self.url = url
-        self.path = path
-        self.file_id = file_id
-        self.kwargs = kwargs
-
-
-@dataclass
-class NewMessage:
-    chat: Chat
-    text: Optional[str] = None
-    reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[ParseMode] = None
-    force_new: bool = False
-    disable_web_page_preview: Optional[bool] = None
-    media: Optional[MediaAttachment] = None
 
 
 async def get_media_source(media: MediaAttachment) -> Union[IO, str]:

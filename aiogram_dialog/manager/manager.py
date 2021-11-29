@@ -2,18 +2,18 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat, Message
+from aiogram.types import User, Chat, Message, CallbackQuery
 
 from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
-from .protocols import ManagedDialogProto, DialogRegistryProto
+from .protocols import ManagedDialogProto, DialogRegistryProto, NewMessage
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import get_chat, remove_kbd
+from ..utils import get_chat, remove_kbd, show_message
 
 logger = getLogger(__name__)
 
@@ -118,6 +118,22 @@ class ManagerImpl(DialogManager):
             raise ValueError(f"Cannot switch to another state group. "
                              f"Current state: {context.state}, asked for {state}")
         context.state = state
+
+    async def show(self, new_message: NewMessage) -> Message:
+        stack = self.current_stack()
+        if (
+                isinstance(self.event, CallbackQuery)
+                and self.event.message
+                and stack.last_message_id == self.event.message.message_id
+        ):
+            old_message = self.event.message
+        else:
+            if stack and stack.last_message_id:
+                old_message = Message(message_id=stack.last_message_id,
+                                      chat=get_chat(self.event))
+            else:
+                old_message = None
+        return await show_message(self.event.bot, new_message, old_message)
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
