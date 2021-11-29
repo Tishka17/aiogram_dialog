@@ -79,7 +79,6 @@ class Window(DialogWindowProto):
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,
-            force_new=isinstance(manager.event, Message),
             disable_web_page_preview=self.disable_web_page_preview,
             media=await self.render_media(current_data, manager),
         )

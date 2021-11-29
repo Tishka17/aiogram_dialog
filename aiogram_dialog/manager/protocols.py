@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Dispatcher
@@ -11,12 +10,6 @@ from aiogram.types import (
 from ..context.context import Context
 from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
 from ..context.stack import Stack
-
-
-class EditMode(Enum):
-    EDIT_ON_MESSAGE = "edit_on_message"
-    EDIT = "edit"
-    SEND = "send"
 
 
 class MediaAttachment:
@@ -43,7 +36,7 @@ class NewMessage:
     text: Optional[str] = None
     reply_markup: Optional[InlineKeyboardMarkup] = None
     parse_mode: Optional[ParseMode] = None
-    force_new: bool = False
+    force_new: Optional[bool] = None
     disable_web_page_preview: Optional[bool] = None
     media: Optional[MediaAttachment] = None
 

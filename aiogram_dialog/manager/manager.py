@@ -24,6 +24,7 @@ class ManagerImpl(DialogManager):
         self._registry = registry
         self.event = event
         self.data = data
+        self.force_new: Optional[bool] = None
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -133,7 +134,19 @@ class ManagerImpl(DialogManager):
                                       chat=get_chat(self.event))
             else:
                 old_message = None
-        return await show_message(self.event.bot, new_message, old_message)
+        if new_message.force_new is None:
+            new_message.force_new = self._force_new()
+        res = await show_message(self.event.bot, new_message, old_message)
+        if isinstance(self.event, Message):
+            stack.last_income_media_group_id = self.event.media_group_id
+        self.force_new = False
+        return res
+
+    def _force_new(self) -> bool:
+        if self.force_new is not None:
+            return self.force_new
+        if isinstance(self.event, Message):
+            return self.event.media_group_id != self.current_stack().last_income_media_group_id
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
