@@ -10,7 +10,7 @@ from aiogram.types import User, Chat, Message
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
     ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol, EditMode,
+    MediaIdStorageProtocol,
 )
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode

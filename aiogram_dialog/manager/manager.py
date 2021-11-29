@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat, Message, CallbackQuery
+from aiogram.types import User, Chat, Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
 from .protocols import DialogManager, BaseDialogManager
@@ -130,7 +130,19 @@ class ManagerImpl(DialogManager):
             old_message = self.event.message
         else:
             if stack and stack.last_message_id:
+                if stack.last_media_id:
+                    # we create document beeasue
+                    # * there is no method to set content type explicitly
+                    # * we don't really care fo exact content type
+                    document = Document(file_id=stack.last_media_id)
+                    text = None
+                else:
+                    document = None
+                    # we set some non empty-text which is not equal to anything
+                    text = object()
                 old_message = Message(message_id=stack.last_message_id,
+                                      document=document,
+                                      text=text,
                                       chat=get_chat(self.event))
             else:
                 old_message = None
@@ -146,6 +158,8 @@ class ManagerImpl(DialogManager):
         if self.force_new is not None:
             return self.force_new
         if isinstance(self.event, Message):
+            if self.event.media_group_id is None:
+                return True
             return self.event.media_group_id != self.current_stack().last_income_media_group_id
 
     async def update(self, data: Dict) -> None:
