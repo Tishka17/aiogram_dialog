@@ -25,6 +25,7 @@ setup(
     install_requires=[
         'aiogram>=2.12,<3',
         'jinja2',
+        'cachetools==4.*',
     ],
     extras_require={
         "tools": [

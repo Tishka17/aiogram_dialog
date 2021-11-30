@@ -7,8 +7,10 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .context.events import Data
-from .manager.protocols import DialogRegistryProto, ManagedDialogProto, DialogManager
-from .utils import NewMessage, show_message, add_indent_id, get_chat
+from .manager.protocols import (
+    DialogRegistryProto, ManagedDialogProto, DialogManager, NewMessage,
+)
+from .utils import add_indent_id, get_media_id
 from .widgets.action import Actionable
 
 logger = getLogger(__name__)
@@ -104,30 +106,23 @@ class Dialog(ManagedDialogProto):
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
         return self.windows[manager.current_context().state]
 
-    async def show(self, manager: DialogManager) -> None:
+    async def show(self, manager: DialogManager, preview: bool = False) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        new_message = await window.render(self, manager)
+        new_message = await window.render(self, manager, preview=preview)
         add_indent_id(new_message, manager.current_context().id)
-        message = await self._show(new_message, manager)
+        media_id_storage = manager.registry.media_id_storage
+        if new_message.media:
+            new_message.media.file_id = await media_id_storage.get_media_id(
+                new_message.media.path, new_message.media.type,
+            )
+        message = await manager.show(new_message)
         manager.current_stack().last_message_id = message.message_id
-
-    async def _show(self, new_message: NewMessage, manager: DialogManager):
-        stack = manager.current_stack()
-        event = manager.event
-        if (
-                isinstance(event, CallbackQuery)
-                and event.message
-                and stack.last_message_id == event.message.message_id
-        ):
-            old_message = event.message
-        else:
-            if stack and stack.last_message_id:
-                old_message = Message(message_id=stack.last_message_id,
-                                      chat=get_chat(event))
-            else:
-                old_message = None
-        return await show_message(event.bot, new_message, old_message)
+        manager.current_stack().last_media_id = get_media_id(message)
+        if new_message.media:
+            await media_id_storage.save_media_id(
+                new_message.media.path, new_message.media.type, get_media_id(message)
+            )
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):
         intent = dialog_manager.current_context()

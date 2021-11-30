@@ -31,10 +31,12 @@ Widget types
 Base information
 ********************
 
-Currently there are 2 kinds of widgets: `texts <Text widget types_>`_ and `keyboards <Keyboard widget types_>`_.
+Currently there are 3 kinds of widgets: `texts <Text widget types_>`_, `keyboards <Keyboard widget types_>`_ and
+`media <Media widget types_>`_.
 
 * **Texts** used to render text anywhere in dialog. It can be message text, button title and so on.
 * **Keyboards** represent parts of ``InlineKeyboard``
+* **Media** represent media attachment to message
 
 Also there are 2 general types:
 
@@ -325,6 +327,13 @@ It is possible to switch to the state for choosing the month of the current year
 .. image::  resources/calendar1.png
 .. image::  resources/calendar2.png
 .. image::  resources/calendar3.png
+
+
+Media widget types
+=====================
+
+Currently ``StaticMedia`` is only existing out of the box media widget.
+You can use it providing ``path`` or ``url`` to the file, it's ContentType and additional parameters if required.
 
 
 Hiding widgets
