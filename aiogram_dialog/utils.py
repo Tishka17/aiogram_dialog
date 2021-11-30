@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from logging import getLogger
 from typing import Optional, Tuple, Union, IO
 
 from aiogram import Bot
 from aiogram.types import (
-    Message, CallbackQuery, Chat, ParseMode,
-    InlineKeyboardMarkup, ChatMemberUpdated, ContentType, InputMedia,
+    Message, CallbackQuery, Chat, ChatMemberUpdated, ContentType, InputMedia,
 )
 from aiogram.utils.exceptions import (
     MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
@@ -15,6 +13,7 @@ from aiogram.utils.exceptions import (
 from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
+from .manager.protocols import MediaAttachment, NewMessage, ShowMode
 
 logger = getLogger(__name__)
 
@@ -52,35 +51,6 @@ def get_media_id(message: Message) -> Optional[str]:
     return None
 
 
-class MediaAttachment:
-    def __init__(
-            self,
-            type: ContentType,
-            url: Optional[str] = None,
-            path: Optional[str] = None,
-            file_id: Optional[str] = None,
-            **kwargs,
-    ):
-        if not (url or path or file_id):
-            raise ValueError("Neither url nor path not file_id are provided")
-        self.type = type
-        self.url = url
-        self.path = path
-        self.file_id = file_id
-        self.kwargs = kwargs
-
-
-@dataclass
-class NewMessage:
-    chat: Chat
-    text: Optional[str] = None
-    reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[ParseMode] = None
-    force_new: bool = False
-    disable_web_page_preview: Optional[bool] = None
-    media: Optional[MediaAttachment] = None
-
-
 async def get_media_source(media: MediaAttachment) -> Union[IO, str]:
     if media.file_id:
         return media.file_id
@@ -115,8 +85,10 @@ def remove_indent_id(callback_data: str) -> Tuple[str, str]:
 
 
 async def show_message(bot: Bot, new_message: NewMessage,
-                       old_message: Message):
-    if not old_message or new_message.force_new:
+                       old_message: Optional[Message]):
+    if not old_message or new_message.show_mode is ShowMode.SEND:
+        logger.debug("Send new message, because: mode=%s, old_message=%s",
+                     new_message.show_mode, old_message)
         await remove_kbd(bot, old_message)
         return await send_message(bot, new_message)
 

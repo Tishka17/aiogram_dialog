@@ -2,18 +2,18 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat, Message
+from aiogram.types import User, Chat, Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
-from .protocols import DialogManager, BaseDialogManager
-from .protocols import ManagedDialogProto, DialogRegistryProto
+from .protocols import DialogManager, BaseDialogManager, ShowMode
+from .protocols import ManagedDialogProto, DialogRegistryProto, NewMessage
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import get_chat, remove_kbd
+from ..utils import get_chat, remove_kbd, show_message
 
 logger = getLogger(__name__)
 
@@ -24,6 +24,7 @@ class ManagerImpl(DialogManager):
         self._registry = registry
         self.event = event
         self.data = data
+        self.show_mode: ShowMode = ShowMode.AUTO
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -36,6 +37,7 @@ class ManagerImpl(DialogManager):
                 "Please use background manager available via `manager.bg()` "
                 "method to access methods from background tasks"
             )
+
 
     def dialog(self) -> ManagedDialogProto:
         self.check_disabled()
@@ -118,6 +120,52 @@ class ManagerImpl(DialogManager):
             raise ValueError(f"Cannot switch to another state group. "
                              f"Current state: {context.state}, asked for {state}")
         context.state = state
+
+    async def show(self, new_message: NewMessage) -> Message:
+        stack = self.current_stack()
+        if (
+                isinstance(self.event, CallbackQuery)
+                and self.event.message
+                and stack.last_message_id == self.event.message.message_id
+        ):
+            old_message = self.event.message
+        else:
+            if stack and stack.last_message_id:
+                if stack.last_media_id:
+                    # we create document beeasue
+                    # * there is no method to set content type explicitly
+                    # * we don't really care fo exact content type
+                    document = Document(file_id=stack.last_media_id)
+                    text = None
+                else:
+                    document = None
+                    # we set some non empty-text which is not equal to anything
+                    text = object()
+                old_message = Message(message_id=stack.last_message_id,
+                                      document=document,
+                                      text=text,
+                                      chat=get_chat(self.event))
+            else:
+                old_message = None
+        if new_message.show_mode is ShowMode.AUTO:
+            new_message.show_mode = self._calc_show_mode()
+        res = await show_message(self.event.bot, new_message, old_message)
+        if isinstance(self.event, Message):
+            stack.last_income_media_group_id = self.event.media_group_id
+        self.show_mode = ShowMode.EDIT
+        return res
+
+    def _calc_show_mode(self) -> ShowMode:
+        if self.show_mode is not ShowMode.AUTO:
+            return self.show_mode
+        if isinstance(self.event, Message):
+            if self.event.media_group_id is None:
+                return ShowMode.SEND
+            elif self.event.media_group_id == self.current_stack().last_income_media_group_id:
+                return ShowMode.EDIT
+            else:
+                return ShowMode.SEND
+        return ShowMode.EDIT
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
