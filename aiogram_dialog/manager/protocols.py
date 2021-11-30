@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Dispatcher
@@ -10,6 +11,12 @@ from aiogram.types import (
 from ..context.context import Context
 from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
 from ..context.stack import Stack
+
+
+class ShowMode(Enum):
+    AUTO = "auto"
+    EDIT = "edit"
+    SEND = "send"
 
 
 class MediaAttachment:
@@ -36,7 +43,7 @@ class NewMessage:
     text: Optional[str] = None
     reply_markup: Optional[InlineKeyboardMarkup] = None
     parse_mode: Optional[ParseMode] = None
-    force_new: Optional[bool] = None
+    show_mode: ShowMode = ShowMode.AUTO
     disable_web_page_preview: Optional[bool] = None
     media: Optional[MediaAttachment] = None
 
@@ -142,6 +149,7 @@ class BaseDialogManager(Protocol):
 class DialogManager(BaseDialogManager):
     event: ChatEvent  # current processing event
     data: Dict  # data from middleware
+    show_mode: ShowMode  # mode used to show messages
 
     def current_context(self) -> Optional[Context]:
         pass

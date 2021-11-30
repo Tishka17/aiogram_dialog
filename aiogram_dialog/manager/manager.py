@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.types import User, Chat, Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
-from .protocols import DialogManager, BaseDialogManager
+from .protocols import DialogManager, BaseDialogManager, ShowMode
 from .protocols import ManagedDialogProto, DialogRegistryProto, NewMessage
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
@@ -24,7 +24,7 @@ class ManagerImpl(DialogManager):
         self._registry = registry
         self.event = event
         self.data = data
-        self.force_new: Optional[bool] = None
+        self.show_mode: ShowMode = ShowMode.AUTO
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -37,6 +37,7 @@ class ManagerImpl(DialogManager):
                 "Please use background manager available via `manager.bg()` "
                 "method to access methods from background tasks"
             )
+
 
     def dialog(self) -> ManagedDialogProto:
         self.check_disabled()
@@ -146,21 +147,25 @@ class ManagerImpl(DialogManager):
                                       chat=get_chat(self.event))
             else:
                 old_message = None
-        if new_message.force_new is None:
-            new_message.force_new = self._force_new()
+        if new_message.show_mode is ShowMode.AUTO:
+            new_message.show_mode = self._calc_show_mode()
         res = await show_message(self.event.bot, new_message, old_message)
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
-        self.force_new = False
+        self.show_mode = ShowMode.EDIT
         return res
 
-    def _force_new(self) -> bool:
-        if self.force_new is not None:
-            return self.force_new
+    def _calc_show_mode(self) -> ShowMode:
+        if self.show_mode is not ShowMode.AUTO:
+            return self.show_mode
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
-                return True
-            return self.event.media_group_id != self.current_stack().last_income_media_group_id
+                return ShowMode.SEND
+            elif self.event.media_group_id == self.current_stack().last_income_media_group_id:
+                return ShowMode.EDIT
+            else:
+                return ShowMode.SEND
+        return ShowMode.EDIT
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
