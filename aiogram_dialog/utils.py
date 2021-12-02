@@ -87,8 +87,8 @@ def remove_indent_id(callback_data: str) -> Tuple[str, str]:
 async def show_message(bot: Bot, new_message: NewMessage,
                        old_message: Optional[Message]):
     if not old_message or new_message.show_mode is ShowMode.SEND:
-        logger.debug("Send new message, because: mode=%s, old_message=%s",
-                     new_message.show_mode, old_message)
+        logger.debug("Send new message, because: mode=%s, has old_message=%s",
+                     new_message.show_mode, bool(old_message))
         await remove_kbd(bot, old_message)
         return await send_message(bot, new_message)
 

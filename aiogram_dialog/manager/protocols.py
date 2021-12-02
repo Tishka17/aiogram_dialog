@@ -175,5 +175,5 @@ class DialogManager(BaseDialogManager):
     async def show(self, new_message: NewMessage) -> Message:
         pass
 
-    async def reset_stack(self) -> None:
+    async def reset_stack(self, remove_keyboard: bool = True) -> None:
         pass

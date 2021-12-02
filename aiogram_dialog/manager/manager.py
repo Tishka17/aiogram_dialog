@@ -38,7 +38,6 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
-
     def dialog(self) -> ManagedDialogProto:
         self.check_disabled()
         current = self.current_context()
@@ -102,28 +101,33 @@ class ManagerImpl(DialogManager):
         else:
             raise ValueError(f"Unknown start mode: {mode}")
 
-    async def reset_stack(self) -> None:
+    async def reset_stack(self, remove_keyboard: bool = True) -> None:
         storage = self.storage()
         stack = self.current_stack()
         while not stack.empty():
             await storage.remove_context(stack.pop())
-        await self._remove_kbd()
+        if remove_keyboard:
+            await self._remove_kbd()
+        self.data[CONTEXT_KEY] = None
 
     async def _start_new_stack(self,state: State, data: Data = None) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
-        if self.dialog() and self.dialog().launch_mode is LaunchMode.SINGLE:
-            raise ValueError("Cannot start dialog on top of one with launch_mode==SINGLE")
-
         stack = self.current_stack()
+        old_dialog: Optional[ManagedDialogProto] = None
+        if not stack.empty():
+            old_dialog = self.dialog()
+            if old_dialog.launch_mode is LaunchMode.SINGLE:
+                raise ValueError("Cannot start dialog on top of one with launch_mode==SINGLE")
+
         new_dialog = self.registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
         if launch_mode in (LaunchMode.SINGLE, LaunchMode.ROOT):
-            await self.reset_stack()
+            await self.reset_stack(remove_keyboard=False)
         if launch_mode is LaunchMode.SINGLE_TOP:
-            if new_dialog is self.dialog():
+            if new_dialog is old_dialog:
                 await self.storage().remove_context(stack.pop())
 
         await self.storage().save_context(self.current_context())
