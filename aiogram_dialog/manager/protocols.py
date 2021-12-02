@@ -19,6 +19,13 @@ class ShowMode(Enum):
     SEND = "send"
 
 
+class LaunchMode(Enum):
+    STANDARD = "standard"  # normal mode
+    ROOT = "root"  # dialog can be only as a root of stack. E.g. Main Menu
+    SINGLE = "single"  # dialog can be only single dialog in stack. E.g. Banner
+    SINGLE_TOP = "single_top"  # dialog can't be repeated on top of stack. E.g. Product page
+
+
 class MediaAttachment:
     def __init__(
             self,
@@ -49,6 +56,8 @@ class NewMessage:
 
 
 class ManagedDialogProto(Protocol):
+    launch_mode: LaunchMode
+
     def register(self, registry: "DialogRegistryProto", dp: Dispatcher, *args,
                  **kwargs) -> None:
         pass
@@ -164,4 +173,7 @@ class DialogManager(BaseDialogManager):
         pass
 
     async def show(self, new_message: NewMessage) -> Message:
+        pass
+
+    async def reset_stack(self) -> None:
         pass

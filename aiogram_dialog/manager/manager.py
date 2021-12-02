@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.types import User, Chat, Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
-from .protocols import DialogManager, BaseDialogManager, ShowMode
+from .protocols import DialogManager, BaseDialogManager, ShowMode, LaunchMode
 from .protocols import ManagedDialogProto, DialogRegistryProto, NewMessage
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
@@ -92,26 +92,46 @@ class ManagerImpl(DialogManager):
             mode: StartMode = StartMode.NORMAL,
     ) -> None:
         self.check_disabled()
-        storage = self.storage()
         if mode is StartMode.NORMAL:
-            await self.storage().save_context(self.current_context())
-            stack = self.current_stack()
-            context = stack.push(state, data)
-            self.data[CONTEXT_KEY] = context
-            await self.dialog().process_start(self, data, state)
-            if context.id == self.current_context().id:
-                await self.dialog().show(self)
+            await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
-            stack = self.current_stack()
-            while not stack.empty():
-                await storage.remove_context(stack.pop())
-            await self._remove_kbd()
-            return await self.start(state, data, StartMode.NORMAL)
+            await self.reset_stack()
+            await self._start_normal(state, data)
         elif mode is StartMode.NEW_STACK:
-            stack = Stack()
-            await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
+            await self._start_new_stack(state, data)
         else:
             raise ValueError(f"Unknown start mode: {mode}")
+
+    async def reset_stack(self) -> None:
+        storage = self.storage()
+        stack = self.current_stack()
+        while not stack.empty():
+            await storage.remove_context(stack.pop())
+        await self._remove_kbd()
+
+    async def _start_new_stack(self,state: State, data: Data = None) -> None:
+        stack = Stack()
+        await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
+
+    async def _start_normal(self, state: State, data: Data = None) -> None:
+        if self.dialog() and self.dialog().launch_mode is LaunchMode.SINGLE:
+            raise ValueError("Cannot start dialog on top of one with launch_mode==SINGLE")
+
+        stack = self.current_stack()
+        new_dialog = self.registry.find_dialog(state)
+        launch_mode = new_dialog.launch_mode
+        if launch_mode in (LaunchMode.SINGLE, LaunchMode.ROOT):
+            await self.reset_stack()
+        if launch_mode is LaunchMode.SINGLE_TOP:
+            if new_dialog is self.dialog():
+                await self.storage().remove_context(stack.pop())
+
+        await self.storage().save_context(self.current_context())
+        context = stack.push(state, data)
+        self.data[CONTEXT_KEY] = context
+        await self.dialog().process_start(self, data, state)
+        if context.id == self.current_context().id:
+            await self.dialog().show(self)
 
     async def switch_to(self, state: State) -> None:
         self.check_disabled()

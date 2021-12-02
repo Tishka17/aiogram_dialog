@@ -9,6 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentT
 from .context.events import Data
 from .manager.protocols import (
     DialogRegistryProto, ManagedDialogProto, DialogManager, NewMessage,
+    LaunchMode,
 )
 from .utils import add_indent_id, get_media_id
 from .widgets.action import Actionable
@@ -56,6 +57,7 @@ class Dialog(ManagedDialogProto):
             on_start: Optional[OnDialogEvent] = None,
             on_close: Optional[OnDialogEvent] = None,
             on_process_result: Optional[OnResultEvent] = None,
+            launch_mode: LaunchMode = LaunchMode.STANDARD,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -70,6 +72,7 @@ class Dialog(ManagedDialogProto):
         self.on_start = on_start
         self.on_close = on_close
         self.on_process_result = on_process_result
+        self.launch_mode = launch_mode
 
     async def next(self, manager: DialogManager):
         if not manager.current_context():
