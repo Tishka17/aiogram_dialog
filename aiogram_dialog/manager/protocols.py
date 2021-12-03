@@ -20,10 +20,26 @@ class ShowMode(Enum):
 
 
 class LaunchMode(Enum):
-    STANDARD = "standard"  # normal mode
-    ROOT = "root"  # dialog can be only as a root of stack. E.g. Main Menu
-    SINGLE = "single"  # dialog can be only single dialog in stack. E.g. Banner
-    SINGLE_TOP = "single_top"  # dialog can't be repeated on top of stack. E.g. Product page
+    """
+    `ROOT` dialogs will be always a root dialog in stack.
+        Starting such dialogs will automatically reset stack.
+        Example: main menu
+
+    `EXCLUSIVE` dialogs can be only a single dialog in stack.
+        Starting such dialogs will automatically reset stack.
+        Starting other dialogs on top of them is forbidden
+        Example: Banners
+
+    `SINGLE_TOP` dialogs will not be repeated on top of stack.
+        Starting the same dialog right on top of it will just replace it.
+        Example: product page
+
+    `STANDARD` dialogs have no limitations themselves
+    """
+    STANDARD = "standard"
+    ROOT = "root"
+    EXCLUSIVE = "exclusive"
+    SINGLE_TOP = "single_top"
 
 
 class MediaAttachment:

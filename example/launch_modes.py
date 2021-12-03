@@ -32,7 +32,7 @@ banner = Dialog(
         Cancel(),
         state=BannerSG.default
     ),
-    launch_mode=LaunchMode.SINGLE,
+    launch_mode=LaunchMode.EXCLUSIVE,
 )
 main_menu = Dialog(
     Window(

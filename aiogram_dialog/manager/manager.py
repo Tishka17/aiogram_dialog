@@ -119,12 +119,12 @@ class ManagerImpl(DialogManager):
         old_dialog: Optional[ManagedDialogProto] = None
         if not stack.empty():
             old_dialog = self.dialog()
-            if old_dialog.launch_mode is LaunchMode.SINGLE:
+            if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError("Cannot start dialog on top of one with launch_mode==SINGLE")
 
         new_dialog = self.registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
-        if launch_mode in (LaunchMode.SINGLE, LaunchMode.ROOT):
+        if launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
         if launch_mode is LaunchMode.SINGLE_TOP:
             if new_dialog is old_dialog:
