@@ -4,6 +4,7 @@ from typing import Sequence, Type, Dict, Optional
 
 from aiogram import Dispatcher, Bot, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
+from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
 
@@ -73,7 +74,7 @@ class DialogRegistry(DialogRegistryProto):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
-        self.dp.message.register(start_dialog, any_state)
+        self.dp.message.register(start_dialog, Command(commands="start"), any_state)
 
     def _register_middleware(self):
         self.dp.update.outer_middleware(

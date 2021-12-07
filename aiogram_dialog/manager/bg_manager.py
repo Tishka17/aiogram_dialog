@@ -40,11 +40,11 @@ class BgManager(BaseDialogManager):
             stack_id: Optional[str] = None,
     ) -> "BaseDialogManager":
         if user_id is not None:
-            user = User(id=user_id)
+            user = User(id=user_id, is_bot=False, first_name="")
         else:
             user = self.user
         if chat_id is not None:
-            chat = Chat(id=chat_id)
+            chat = Chat(id=chat_id, type="")
         else:
             chat = self.chat
 

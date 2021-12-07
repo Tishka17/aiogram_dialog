@@ -14,7 +14,7 @@ from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import get_chat, remove_kbd, show_message
+from ..utils import remove_kbd, show_message
 
 logger = getLogger(__name__)
 
@@ -118,7 +118,7 @@ class ManagerImpl(DialogManager):
             await self._remove_kbd()
         self.data[CONTEXT_KEY] = None
 
-    async def _start_new_stack(self,state: State, data: Data = None) -> None:
+    async def _start_new_stack(self, state: State, data: Data = None) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
 
@@ -166,15 +166,18 @@ class ManagerImpl(DialogManager):
         else:
             if stack and stack.last_message_id:
                 if stack.last_media_id:
-                    # we create document beeasue
+                    # we create document because
                     # * there is no method to set content type explicitly
                     # * we don't really care fo exact content type
-                    document = Document(file_id=stack.last_media_id)
+                    document = Document(
+                        file_id=stack.last_media_id,
+                        file_unique_id=""
+                    )
                     text = None
                 else:
                     document = None
                     # we set some non empty-text which is not equal to anything
-                    text = object()
+                    text = "𝔞𝔦𝔬𝔤𝔯𝔞𝔪 𝔡𝔦𝔞𝔩𝔬𝔤 𝔲𝔫𝔦𝔮𝔲𝔢 𝔱𝔢𝔵𝔱"
                 old_message = Message(message_id=stack.last_message_id,
                                       document=document,
                                       text=text,
@@ -213,11 +216,11 @@ class ManagerImpl(DialogManager):
             stack_id: Optional[str] = None,
     ) -> "BaseDialogManager":
         if user_id is not None:
-            user = User(id=user_id)
+            user = User(id=user_id, is_bot=False, first_name="")
         else:
             user = self.event.from_user
         if chat_id is not None:
-            chat = Chat(id=chat_id)
+            chat = Chat(id=chat_id, type="")
         else:
             chat = self.data['event_chat']
 

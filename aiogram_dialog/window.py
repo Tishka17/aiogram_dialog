@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, List
 
 from aiogram.dispatcher.fsm.state import State
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery

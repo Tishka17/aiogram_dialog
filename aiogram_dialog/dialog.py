@@ -1,11 +1,10 @@
-from datetime import datetime
 from logging import getLogger
 from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
 from typing import Protocol
 
 from aiogram import Router
 from aiogram.dispatcher.fsm.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentType
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 
 from .context.events import Data
 from .manager.protocols import (

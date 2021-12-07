@@ -29,7 +29,7 @@ def get_chat(event: ChatEvent) -> Chat:
         return event.chat
     elif isinstance(event, CallbackQuery):
         if not event.message:
-            return Chat(id=event.from_user.id)
+            return Chat(id=event.from_user.id, type='')
         return event.message.chat
 
 
@@ -109,7 +109,8 @@ async def show_message(bot: Bot, new_message: NewMessage,
             await bot.delete_message(chat_id=old_message.chat.id,
                                      message_id=old_message.message_id)
         except TelegramBadRequest as err:
-            if ('message to delete not found' in err.message or
+            if (
+                    'message to delete not found' in err.message or
                     'message can\'t be deleted' in err.message
             ):
                 await remove_kbd(bot, old_message)
@@ -122,7 +123,8 @@ async def show_message(bot: Bot, new_message: NewMessage,
     except TelegramBadRequest as err:
         if 'message is not modified' in err.message:
             return old_message
-        if ('message can\'t be edited' in err.message or
+        if (
+                'message can\'t be edited' in err.message or
                 'message to edit not found' in err.message
         ):
             return await send_message(bot, new_message)
@@ -196,7 +198,7 @@ async def edit_media(bot: Bot, new_message: NewMessage,
         disable_web_page_preview=new_message.disable_web_page_preview,
         media=await get_media_source(new_message.media),
         **new_message.media.kwargs,
-    )  # ToDo
+    )
     return await bot.edit_message_media(
         message_id=old_message.message_id,
         chat_id=old_message.chat.id,
