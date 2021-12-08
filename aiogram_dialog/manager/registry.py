@@ -1,17 +1,22 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict
+from typing import Sequence, Type, Dict, Optional
 
 from aiogram import Dispatcher, Bot, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
+from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
 
 from .manager_middleware import ManagerMiddleware
-from .protocols import ManagedDialogProto, DialogRegistryProto, DialogManager
+from .protocols import (
+    ManagedDialogProto, DialogRegistryProto, DialogManager,
+    MediaIdStorageProtocol,
+)
 from .update_handler import handle_update
 from ..context.events import StartMode, DIALOG_EVENT_NAME, DialogUpdate
 from ..context.intent_filter import IntentFilter, IntentMiddleware
+from ..context.media_storage import MediaIdStorage
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -19,7 +24,12 @@ class DialogEventObserver(TelegramEventObserver):
 
 
 class DialogRegistry(DialogRegistryProto):
-    def __init__(self, dp: Dispatcher, dialogs: Sequence[ManagedDialogProto] = ()):
+    def __init__(
+            self,
+            dp: Dispatcher,
+            dialogs: Sequence[ManagedDialogProto] = (),
+            media_id_storage: Optional[MediaIdStorageProtocol] = None,
+    ):
         self.dp = dp
         self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
             router=self.dp, event_name=DIALOG_EVENT_NAME
@@ -38,6 +48,13 @@ class DialogRegistry(DialogRegistryProto):
             observer.bind_filter(IntentFilter)
 
         self._register_middleware()
+        if media_id_storage is None:
+            media_id_storage = MediaIdStorage()
+        self._media_id_storage = media_id_storage
+
+    @property
+    def media_id_storage(self) -> MediaIdStorageProtocol:
+        return self._media_id_storage
 
     def register(self, dialog: ManagedDialogProto, *args, router: Router = None, **kwargs):
         group = dialog.states_group()
@@ -57,7 +74,7 @@ class DialogRegistry(DialogRegistryProto):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
-        self.dp.message.register(start_dialog, any_state)
+        self.dp.message.register(start_dialog, Command(commands="start"), any_state)
 
     def _register_middleware(self):
         self.dp.update.outer_middleware(
