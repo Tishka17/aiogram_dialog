@@ -2,8 +2,10 @@ from logging import getLogger
 from typing import Optional, Tuple, Union, IO
 
 from aiogram import Bot
-from aiogram.types import Message, CallbackQuery, Chat, InputMedia, ContentType, \
-    ChatMemberUpdated
+from aiogram.types import (
+    Message, CallbackQuery, Chat, InputMedia, ContentType,
+    ChatMemberUpdated, FSInputFile, InputFile, URLInputFile,
+)
 from aiogram.exceptions import TelegramBadRequest
 
 from .context.events import (
@@ -47,13 +49,13 @@ def get_media_id(message: Message) -> Optional[str]:
     return None
 
 
-async def get_media_source(media: MediaAttachment) -> Union[IO, str]:
+async def get_media_source(media: MediaAttachment) -> Union[InputFile, str]:
     if media.file_id:
         return media.file_id
     if media.url:
-        return media.url
+        return URLInputFile(media.url)
     else:
-        return open(media.path, "rb")
+        return FSInputFile(media.path)
 
 
 def intent_callback_data(intent_id: str,
