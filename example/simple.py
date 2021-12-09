@@ -62,6 +62,7 @@ dialog = Dialog(
         ),
         state=DialogSG.age,
         getter=get_data,
+        preview_data={"name": "Tishka17"}
     ),
     Window(
         Multi(
@@ -76,6 +77,7 @@ dialog = Dialog(
         ),
         getter=get_data,
         state=DialogSG.finish,
+        preview_data={"name": "Tishka17"}
     )
 )
 

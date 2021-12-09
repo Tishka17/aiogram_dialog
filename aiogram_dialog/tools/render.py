@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import DialogRegistry, Window, DialogManager, Dialog
+from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
+from aiogram_dialog.dialog import DialogWindowProto
 
 
 @dataclass
@@ -31,6 +32,19 @@ class RenderDialog:
 class FakeManager(DialogManager):
     def __init__(self):
         self.event = Message()
+        self._dialog = None
+        self.data = {
+            "dialog_manager": self
+        }
+
+    def set_dialog(self, dialog: Dialog):
+        self._dialog = dialog
+
+    def dialog(self) -> Dialog:
+        return self._dialog
+
+    def is_preview(self) -> bool:
+        return True
 
     def current_context(self) -> Optional[Context]:
         return Context(
@@ -43,14 +57,13 @@ class FakeManager(DialogManager):
         )
 
 
-fake_manager = FakeManager()
-
-
-async def render_window(window: Window) -> RenderWindow:
-    msg = await window.render(None, fake_manager, True)
+async def render_window(
+        manager: FakeManager, state: State, window: DialogWindowProto
+) -> RenderWindow:
+    msg = await window.render(manager.dialog(), manager)
     return RenderWindow(
-        message=msg.text.replace("\n","<br>"),
-        state=window.state.state,
+        message=msg.text.replace("\n", "<br>"),
+        state=state.state,
         keyboard=[
             [
                 RenderButton(title=button.text, state=button.callback_data)
@@ -61,13 +74,15 @@ async def render_window(window: Window) -> RenderWindow:
     )
 
 
-async def render_dialog(group: str, dialog: Dialog) -> RenderDialog:
+async def render_dialog(group: StatesGroup, dialog: Dialog) -> RenderDialog:
+    fake_manager = FakeManager()
+    fake_manager.set_dialog(dialog)
     return RenderDialog(
-        state_group=group,
+        state_group=str(group),
         windows=[
-            await render_window(window)
-            for window in dialog.windows.values()
-        ]
+            await render_window(fake_manager, state, window)
+            for state, window in dialog.windows.items()
+        ]  # TODO: use dialog.show() instead of hacking `dialog.windows`
     )
 
 
