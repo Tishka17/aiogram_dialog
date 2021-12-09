@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import Message
+from aiogram.types import User, Chat
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
+from aiogram_dialog.context.events import DialogUpdateEvent, Action
 from aiogram_dialog.dialog import DialogWindowProto
 
 
@@ -30,8 +31,16 @@ class RenderDialog:
 
 
 class FakeManager(DialogManager):
-    def __init__(self):
-        self.event = Message()
+    def __init__(self, registry: DialogRegistry):
+        self.event = DialogUpdateEvent(
+            bot=registry.dp.bot,
+            from_user=User(),
+            chat=Chat(),
+            action=Action.UPDATE,
+            data={},
+            intent_id=None,
+            stack_id=None,
+        )
         self._dialog = None
         self.data = {
             "dialog_manager": self
@@ -74,21 +83,22 @@ async def render_window(
     )
 
 
-async def render_dialog(group: StatesGroup, dialog: Dialog) -> RenderDialog:
-    fake_manager = FakeManager()
-    fake_manager.set_dialog(dialog)
+async def render_dialog(manager: FakeManager, group: StatesGroup,
+                        dialog: Dialog) -> RenderDialog:
+    manager.set_dialog(dialog)
     return RenderDialog(
         state_group=str(group),
         windows=[
-            await render_window(fake_manager, state, window)
+            await render_window(manager, state, window)
             for state, window in dialog.windows.items()
         ]  # TODO: use dialog.show() instead of hacking `dialog.windows`
     )
 
 
 async def render(registry: DialogRegistry, file: str):
+    fake_manager = FakeManager(registry)
     dialogs = [
-        await render_dialog(group, dialog)
+        await render_dialog(fake_manager, group, dialog)
         for group, dialog in registry.dialogs.items()
     ]
     env = Environment(
