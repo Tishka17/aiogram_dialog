@@ -35,12 +35,13 @@ class Sub(StatesGroup):
 # ----- Dialog 1
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
+    dialog_data = dialog_manager.current_context().dialog_data
     return {
         "name": "Tishka17",
         "age": 19,
         "now": datetime.now().time().strftime("%H:%M:%S"),
-        "progress": dialog_manager.current_context().dialog_data.get("progress", 0),
-        "progress2": dialog_manager.current_context().dialog_data.get("progress2", 0),
+        "progress": dialog_data.get("progress", 0),
+        "progress2": dialog_data.get("progress2", 0),
     }
 
 
@@ -110,8 +111,6 @@ dialog1 = Dialog(
             "now": datetime.now().isoformat(),
             "name": "Tishka17",
             "age": 18,
-            "progress": 15,
-            "progress2": 25,
         }
     ),
     Window(

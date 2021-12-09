@@ -41,6 +41,7 @@ class FakeManager(DialogManager):
             intent_id=None,
             stack_id=None,
         )
+        self._context: Optional[Context] = None
         self._dialog = None
         self.data = {
             "dialog_manager": self
@@ -48,6 +49,7 @@ class FakeManager(DialogManager):
 
     def set_dialog(self, dialog: Dialog):
         self._dialog = dialog
+        self.reset_context()
 
     def dialog(self) -> Dialog:
         return self._dialog
@@ -55,8 +57,8 @@ class FakeManager(DialogManager):
     def is_preview(self) -> bool:
         return True
 
-    def current_context(self) -> Optional[Context]:
-        return Context(
+    def reset_context(self) -> None:
+        self._context = Context(
             _intent_id="0",
             _stack_id="0",
             start_data={},
@@ -64,6 +66,9 @@ class FakeManager(DialogManager):
             dialog_data={},
             state=State(),
         )
+
+    def current_context(self) -> Optional[Context]:
+        return self._context
 
 
 async def render_window(
