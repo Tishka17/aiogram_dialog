@@ -72,8 +72,7 @@ class Window(DialogWindowProto):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager,
-                     preview: bool = False) -> NewMessage:
+    async def render(self, dialog: Dialog, manager: DialogManager) -> NewMessage:
         logger.debug("Show window: %s", self)
         current_data = await self.load_data(dialog, manager)
         return NewMessage(

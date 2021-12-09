@@ -91,7 +91,7 @@ class ManagedDialogProto(Protocol):
                             state: Optional[State] = None) -> None:
         pass
 
-    async def show(self, manager: "DialogManager", preview: bool = False):
+    async def show(self, manager: "DialogManager"):
         pass
 
     async def process_result(self, start_data: Data, result: Any,
