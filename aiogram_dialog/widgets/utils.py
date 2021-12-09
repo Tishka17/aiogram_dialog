@@ -1,5 +1,6 @@
-from typing import Union, Sequence, Tuple, Callable
+from typing import Union, Sequence, Tuple, Callable, Dict, List
 
+from .data.data_context import DataGetter, StaticGetter, CompositeGetter
 from .input import MessageHandlerFunc, BaseInput, MessageInput
 from .kbd import Keyboard, Group
 from .media import Media
@@ -8,6 +9,12 @@ from .widget_event import WidgetEventProcessor
 from ..exceptions import InvalidWidgetType, InvalidWidget
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
+
+SingleGetterBase = Union[DataGetter, Dict]
+GetterVariant = Union[
+    None, SingleGetterBase,
+    List[SingleGetterBase], Tuple[SingleGetterBase, ...],
+]
 
 
 def ensure_text(widget: Union[str, Text, Sequence[Text]]) -> Text:
@@ -85,3 +92,19 @@ def ensure_widgets(
         ensure_input(inputs),
         ensure_media(media),
     )
+
+
+def ensure_data_getter(getter: GetterVariant) -> DataGetter:
+    if isinstance(getter, Callable):
+        return getter
+    elif isinstance(getter, dict):
+        return StaticGetter(getter)
+    elif isinstance(getter, (list, tuple)):
+        return CompositeGetter(*getter)
+    elif getter is None:
+        return StaticGetter({})
+    else:
+        raise InvalidWidgetType(
+            f"Cannot add data getter of type {type(getter)}. "
+            f"Only Dict, Callable or List of Callables are supported"
+        )

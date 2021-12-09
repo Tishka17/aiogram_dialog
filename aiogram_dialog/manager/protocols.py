@@ -176,6 +176,9 @@ class DialogManager(BaseDialogManager):
     data: Dict  # data from middleware
     show_mode: ShowMode  # mode used to show messages
 
+    def is_preview(self) -> bool:
+        pass
+
     def current_context(self) -> Optional[Context]:
         pass
 

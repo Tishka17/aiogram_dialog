@@ -38,6 +38,9 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
+    def is_preview(self) -> bool:
+        return False
+
     def dialog(self) -> ManagedDialogProto:
         self.check_disabled()
         current = self.current_context()
