@@ -115,7 +115,7 @@ class Dialog(ManagedDialogProto):
         new_message = await window.render(self, manager, preview=preview)
         add_indent_id(new_message, manager.current_context().id)
         media_id_storage = manager.registry.media_id_storage
-        if new_message.media:
+        if new_message.media and not new_message.media.file_id:
             new_message.media.file_id = await media_id_storage.get_media_id(
                 new_message.media.path, new_message.media.type,
             )
