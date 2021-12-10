@@ -1,14 +1,16 @@
+import html
 from dataclasses import dataclass
 from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import User, Chat
+from aiogram.types import User, Chat, Message
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
 from aiogram_dialog.context.events import DialogUpdateEvent, Action
-from aiogram_dialog.dialog import DialogWindowProto
+from aiogram_dialog.context.stack import Stack
+from aiogram_dialog.manager.protocols import NewMessage, DialogRegistryProto
 
 
 @dataclass
@@ -41,6 +43,7 @@ class FakeManager(DialogManager):
             intent_id=None,
             stack_id=None,
         )
+        self._registry = registry
         self._context: Optional[Context] = None
         self._dialog = None
         self.data = {
@@ -50,6 +53,9 @@ class FakeManager(DialogManager):
     def set_dialog(self, dialog: Dialog):
         self._dialog = dialog
         self.reset_context()
+
+    def set_state(self, state: State):
+        self._context.state = state
 
     def dialog(self) -> Dialog:
         return self._dialog
@@ -67,16 +73,28 @@ class FakeManager(DialogManager):
             state=State(),
         )
 
+    def current_stack(self) -> Optional[Stack]:
+        return Stack()
+
     def current_context(self) -> Optional[Context]:
         return self._context
 
+    async def show(self, new_message: NewMessage) -> Message:
+        self.new_message = new_message
+        return Message()
 
-async def render_window(
-        manager: FakeManager, state: State, window: DialogWindowProto
-) -> RenderWindow:
-    msg = await window.render(manager.dialog(), manager)
+    @property
+    def registry(self) -> DialogRegistryProto:
+        return self._registry
+
+
+def create_window(state: State, msg: NewMessage) -> RenderWindow:
+    if msg.parse_mode is None or msg.parse_mode == "None":
+        text = html.escape(msg.text)
+    else:
+        text = msg.text
     return RenderWindow(
-        message=msg.text.replace("\n", "<br>"),
+        message=text.replace("\n", "<br>"),
         state=state.state,
         keyboard=[
             [
@@ -91,16 +109,16 @@ async def render_window(
 async def render_dialog(manager: FakeManager, group: StatesGroup,
                         dialog: Dialog) -> RenderDialog:
     manager.set_dialog(dialog)
-    return RenderDialog(
-        state_group=str(group),
-        windows=[
-            await render_window(manager, state, window)
-            for state, window in dialog.windows.items()
-        ]  # TODO: use dialog.show() instead of hacking `dialog.windows`
-    )
+    windows = []
+    for state in group.states:
+        manager.set_state(state)
+        await dialog.show(manager)
+        windows.append(create_window(state, manager.new_message))
+
+    return RenderDialog(state_group=str(group), windows=windows)
 
 
-async def render(registry: DialogRegistry, file: str):
+async def render_preview(registry: DialogRegistry, file: str):
     fake_manager = FakeManager(registry)
     dialogs = [
         await render_dialog(fake_manager, group, dialog)
