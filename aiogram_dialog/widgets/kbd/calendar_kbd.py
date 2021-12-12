@@ -190,9 +190,7 @@ class Calendar(Keyboard, ABC):
         return ManagedCalendarAdapter(self, dialog, manager)
 
 
-class ManagedCalendarAdapter(ManagedWidgetAdapter):
-    widget: Calendar
-
+class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
     def get_scope(self, manager: Optional[DialogManager] = None) -> str:
         manager_deprecated(manager)
         return self.widget.get_scope(self.manager)

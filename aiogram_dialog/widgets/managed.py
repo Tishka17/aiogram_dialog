@@ -1,3 +1,5 @@
+from typing import TypeVar, Generic
+
 from ..manager.protocols import (
     ManagedDialogProto, DialogManager, ManagedWidgetProto,
 )
@@ -8,8 +10,11 @@ class ManagedWidget(ManagedWidgetProto):
         return ManagedWidgetAdapter(self, dialog, manager)
 
 
-class ManagedWidgetAdapter(ManagedWidgetProto):
-    def __init__(self, widget: ManagedWidget,
+W = TypeVar("W", bound=ManagedWidget)
+
+
+class ManagedWidgetAdapter(ManagedWidgetProto, Generic[W]):
+    def __init__(self, widget: W,
                  dialog: ManagedDialogProto, manager: DialogManager):
         self.widget = widget
         self.dialog = dialog

@@ -61,9 +61,7 @@ class ScrollingGroup(Group):
         return ManagedScrollingGroupAdapter(self, dialog, manager)
 
 
-class ManagedScrollingGroupAdapter(ManagedWidgetAdapter):
-    widget: ScrollingGroup
-
+class ManagedScrollingGroupAdapter(ManagedWidgetAdapter[ScrollingGroup]):
     def get_page(self, manager: Optional[DialogManager] = None) -> int:
         manager_deprecated(manager)
         return self.widget.get_page(self.manager)

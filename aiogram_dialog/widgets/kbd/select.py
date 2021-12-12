@@ -127,9 +127,7 @@ class Radio(StatefulSelect):
         return ManagedRadioAdapter(self, dialog, manager)
 
 
-class ManagedRadioAdapter(ManagedWidgetAdapter):
-    widget: Radio
-
+class ManagedRadioAdapter(ManagedWidgetAdapter[Radio]):
     def get_checked(self,
                     manager: Optional[DialogManager] = None) -> Optional[str]:
         manager_deprecated(manager)
@@ -198,9 +196,7 @@ class Multiselect(StatefulSelect):
         return ManagedMultiSelectAdapter(self, dialog, manager)
 
 
-class ManagedMultiSelectAdapter(ManagedWidgetAdapter):
-    widget: Multiselect
-
+class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
     def is_checked(self, item_id: Union[str, int],
                    manager: Optional[DialogManager] = None) -> bool:
         manager_deprecated(manager)

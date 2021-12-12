@@ -87,9 +87,7 @@ class Checkbox(BaseCheckbox):
         return ManagedCheckBoxAdapter(self, dialog, manager)
 
 
-class ManagedCheckBoxAdapter(ManagedWidgetAdapter):
-    widget: Checkbox
-
+class ManagedCheckBoxAdapter(ManagedWidgetAdapter[Checkbox]):
     def is_checked(self, manager: Optional[DialogManager] = None) -> bool:
         manager_deprecated(manager)
         return self.widget.is_checked(self.manager)

@@ -213,5 +213,5 @@ class DialogManager(BaseDialogManager):
 
 
 class ManagedWidgetProto(Protocol):
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
+    def managed(self, dialog: ManagedDialogProto, manager: DialogManager) -> Any:
         pass

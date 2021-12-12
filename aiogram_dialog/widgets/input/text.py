@@ -44,8 +44,7 @@ class TextInput(BaseInput, Generic[T]):
         return ManagedTextInputAdapter(self, dialog, manager)
 
 
-class ManagedTextInputAdapter(ManagedWidgetAdapter, Generic[T]):
-    widget: TextInput[T]
+class ManagedTextInputAdapter(ManagedWidgetAdapter[TextInput[T]], Generic[T]):
 
     def get_value(self, manager: Optional[DialogManager] = None) -> T:
         manager_deprecated(manager)
