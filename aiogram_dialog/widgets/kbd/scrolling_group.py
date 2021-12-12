@@ -7,7 +7,10 @@ from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from .group import Group
+from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
+from ...deprecation_utils import manager_deprecated
+from ...manager.protocols import ManagedDialogProto
 
 OnStateChanged = Callable[[ChatEvent, "ScrollingGroup", DialogManager], Awaitable]
 
@@ -49,6 +52,25 @@ class ScrollingGroup(Group):
     def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
-    async def set_page(self, event: ChatEvent, page: int, manager: DialogManager):
+    async def set_page(self, event: ChatEvent, page: int,
+                       manager: DialogManager) -> None:
         manager.current_context().widget_data[self.widget_id] = page
         await self.on_page_changed.process_event(event, self, manager)
+
+    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
+        return ManagedScrollingGroupAdapter(self, dialog, manager)
+
+
+class ManagedScrollingGroupAdapter(ManagedWidgetAdapter):
+    widget: ScrollingGroup
+
+    def get_page(self, manager: Optional[DialogManager] = None) -> int:
+        manager_deprecated(manager)
+        return self.widget.get_page(self.manager)
+
+    async def set_page(self, event: ChatEvent, page: int,
+                       manager: Optional[DialogManager] = None) -> None:
+        manager_deprecated(manager)
+        return await self.widget.set_page(
+            event, page, self.manager
+        )
