@@ -100,7 +100,7 @@ def ensure_data_getter(getter: GetterVariant) -> DataGetter:
     elif isinstance(getter, dict):
         return StaticGetter(getter)
     elif isinstance(getter, (list, tuple)):
-        return CompositeGetter(*getter)
+        return CompositeGetter(*map(ensure_data_getter, getter))
     elif getter is None:
         return StaticGetter({})
     else:
