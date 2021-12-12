@@ -1,4 +1,4 @@
-from typing import Callable, TypeVar, Generic, Awaitable, Union
+from typing import Callable, TypeVar, Generic, Awaitable, Union, Optional
 
 from aiogram.types import Message, ContentType
 
@@ -6,6 +6,9 @@ from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import BaseInput
+from ..managed import ManagedWidgetAdapter
+from ...deprecation_utils import manager_deprecated
+from ...manager.protocols import ManagedDialogProto
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
@@ -34,5 +37,16 @@ class TextInput(BaseInput, Generic[T]):
             manager.current_context().widget_data[self.widget_id] = message.text
             await self.on_success.process_event(message, self, manager, value)
 
-    def get_value(self, manager: DialogManager):
+    def get_value(self, manager: DialogManager) -> T:
         return self.type_factory(manager.current_context().widget_data[self.widget_id])
+
+    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
+        return ManagedTextInputAdapter(self, dialog, manager)
+
+
+class ManagedTextInputAdapter(ManagedWidgetAdapter, Generic[T]):
+    widget: TextInput[T]
+
+    def get_value(self, manager: Optional[DialogManager] = None) -> T:
+        manager_deprecated(manager)
+        return self.widget.get_value(self.manager)
