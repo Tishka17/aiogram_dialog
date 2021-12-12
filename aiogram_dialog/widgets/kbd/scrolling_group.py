@@ -57,8 +57,8 @@ class ScrollingGroup(Group):
         manager.current_context().widget_data[self.widget_id] = page
         await self.on_page_changed.process_event(event, self, manager)
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedScrollingGroupAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedScrollingGroupAdapter(self, manager)
 
 
 class ManagedScrollingGroupAdapter(ManagedWidgetAdapter[ScrollingGroup]):

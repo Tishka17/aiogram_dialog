@@ -8,12 +8,11 @@ from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
-from ...manager.protocols import ManagedDialogProto
 
 OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
 
@@ -186,8 +185,8 @@ class Calendar(Keyboard, ABC):
         data = manager.current_context().widget_data.setdefault(self.widget_id, {})
         data["current_scope"] = new_scope
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedCalendarAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedCalendarAdapter(self, manager)
 
 
 class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):

@@ -39,4 +39,4 @@ class ManagedDialogAdapter(ManagedDialogAdapterProto):
         widget = self.dialog.find(widget_id)
         if widget is None:
             return None
-        return widget.managed(self.dialog, self.manager)
+        return widget.managed(self.manager)

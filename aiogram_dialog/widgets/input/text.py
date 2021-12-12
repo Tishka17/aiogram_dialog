@@ -3,12 +3,11 @@ from typing import Callable, TypeVar, Generic, Awaitable, Union, Optional
 from aiogram.types import Message, ContentType
 
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import BaseInput
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
-from ...manager.protocols import ManagedDialogProto
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
@@ -40,8 +39,8 @@ class TextInput(BaseInput, Generic[T]):
     def get_value(self, manager: DialogManager) -> T:
         return self.type_factory(manager.current_context().widget_data[self.widget_id])
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedTextInputAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedTextInputAdapter(self, manager)
 
 
 class ManagedTextInputAdapter(ManagedWidgetAdapter[TextInput[T]], Generic[T]):

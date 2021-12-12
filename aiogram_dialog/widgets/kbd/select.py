@@ -8,11 +8,12 @@ from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.text import Text, Case
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
+from aiogram_dialog.widgets.widget_event import (
+    WidgetEventProcessor, ensure_event_processor,
+)
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
-from ...manager.protocols import ManagedDialogProto
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
@@ -119,12 +120,12 @@ class Radio(StatefulSelect):
         item_id = str(self.item_id_getter(data["item"]))
         return self.is_checked(item_id, manager)
 
-    async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager,
-                        item_id: str):
+    async def _on_click(self, c: CallbackQuery, select: Select,
+                        manager: DialogManager, item_id: str):
         await self.set_checked(c, item_id, manager)
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedRadioAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedRadioAdapter(self, manager)
 
 
 class ManagedRadioAdapter(ManagedWidgetAdapter[Radio]):
@@ -192,8 +193,8 @@ class Multiselect(StatefulSelect):
                         manager: DialogManager, item_id: str):
         await self.set_checked(c, item_id, not self.is_checked(item_id, manager), manager)
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedMultiSelectAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedMultiSelectAdapter(self, manager)
 
 
 class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):

@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.protocols import ManagedDialogProto, DialogManager
+from aiogram_dialog.manager.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text, Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor, ensure_event_processor,
@@ -14,7 +14,7 @@ from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
-OnStateChanged = Callable[[ChatEvent, "Checkbox", DialogManager], Awaitable]
+OnStateChanged = Callable[[ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable]
 
 
 class BaseCheckbox(Keyboard, ABC):
@@ -47,7 +47,7 @@ class BaseCheckbox(Keyboard, ABC):
             return False
         # remove prefix and cast "0" as False, "1" as True
         checked = c.data[len(self._callback_data_prefix):] != "0"
-        await self.on_click.process_event(c, self, manager)
+        await self.on_click.process_event(c, self.managed(manager), manager)
         await self.set_checked(c, not checked, manager)
         return True
 
@@ -81,13 +81,15 @@ class Checkbox(BaseCheckbox):
     async def set_checked(self, event: ChatEvent, checked: bool,
                           manager: DialogManager) -> None:
         manager.current_context().widget_data[self.widget_id] = checked
-        await self.on_state_changed.process_event(event, self, manager)
+        await self.on_state_changed.process_event(
+            event, self.managed(manager), manager
+        )
 
-    def managed(self, dialog: ManagedDialogProto, manager: DialogManager):
-        return ManagedCheckBoxAdapter(self, dialog, manager)
+    def managed(self, manager: DialogManager):
+        return ManagedCheckboxAdapter(self, manager)
 
 
-class ManagedCheckBoxAdapter(ManagedWidgetAdapter[Checkbox]):
+class ManagedCheckboxAdapter(ManagedWidgetAdapter[Checkbox]):
     def is_checked(self, manager: Optional[DialogManager] = None) -> bool:
         manager_deprecated(manager)
         return self.widget.is_checked(self.manager)
