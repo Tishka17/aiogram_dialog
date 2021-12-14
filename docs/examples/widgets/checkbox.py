@@ -1,10 +1,10 @@
 from aiogram_dialog import DialogManager, ChatEvent
-from aiogram_dialog.widgets.kbd import Checkbox
+from aiogram_dialog.widgets.kbd import Checkbox, ManagedCheckboxAdapter
 from aiogram_dialog.widgets.text import Const
 
 
-async def check_changed(event: ChatEvent, checkbox: Checkbox, manager: DialogManager):
-    print("Check status changed:", checkbox.is_checked(manager))
+async def check_changed(event: ChatEvent, checkbox: ManagedCheckboxAdapter, manager: DialogManager):
+    print("Check status changed:", checkbox.is_checked())
 
 
 check = Checkbox(

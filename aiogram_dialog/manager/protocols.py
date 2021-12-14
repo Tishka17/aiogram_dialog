@@ -71,6 +71,23 @@ class NewMessage:
     media: Optional[MediaAttachment] = None
 
 
+class ManagedDialogAdapterProto:
+    async def show(self, preview: bool = False):
+        pass
+
+    async def next(self):
+        pass
+
+    async def back(self):
+        pass
+
+    async def switch_to(self, state: State):
+        pass
+
+    def find(self, widget_id) -> Optional[Any]:
+        pass
+
+
 class ManagedDialogProto(Protocol):
     launch_mode: LaunchMode
 
@@ -107,7 +124,7 @@ class ManagedDialogProto(Protocol):
     async def switch_to(self, state: State, manager: "DialogManager"):
         pass
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id) -> Optional["ManagedWidgetProto"]:
         pass
 
 
@@ -185,7 +202,7 @@ class DialogManager(BaseDialogManager):
     def current_stack(self) -> Optional[Stack]:
         pass
 
-    def dialog(self) -> ManagedDialogProto:
+    def dialog(self) -> ManagedDialogAdapterProto:
         pass
 
     async def close_manager(self) -> None:
@@ -195,4 +212,9 @@ class DialogManager(BaseDialogManager):
         pass
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        pass
+
+
+class ManagedWidgetProto(Protocol):
+    def managed(self, manager: DialogManager) -> Any:
         pass

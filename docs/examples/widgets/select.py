@@ -1,3 +1,4 @@
+from typing import Any
 import operator
 
 from aiogram.types import CallbackQuery
@@ -21,7 +22,7 @@ async def get_data(**kwargs):
     }
 
 
-async def on_fruit_selected(c: CallbackQuery, select: Select, manager: DialogManager, item_id: str):
+async def on_fruit_selected(c: CallbackQuery, widget: Any, manager: DialogManager, item_id: str):
     print("Fruit selected: ", item_id)
 
 
