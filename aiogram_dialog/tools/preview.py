@@ -3,14 +3,16 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import User, Chat, Message
+from aiogram.types import User, Chat, Message, ContentType
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
 from aiogram_dialog.context.events import DialogUpdateEvent, Action
 from aiogram_dialog.context.stack import Stack
-from aiogram_dialog.manager.protocols import NewMessage, DialogRegistryProto
+from aiogram_dialog.manager.protocols import (
+    NewMessage, DialogRegistryProto, MediaAttachment,
+)
 
 
 @dataclass
@@ -24,6 +26,7 @@ class RenderWindow:
     message: str
     state: str
     keyboard: List[List[RenderButton]]
+    photo: Optional[str]
 
 
 @dataclass
@@ -88,14 +91,29 @@ class FakeManager(DialogManager):
         return self._registry
 
 
+def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
+    if not media:
+        return
+    if media.type != ContentType.PHOTO:
+        return
+    if media.url:
+        return media.url
+    if media.path:
+        return media.path
+    if media.file_id:
+        return str(media.file_id)
+
+
 def create_window(state: State, msg: NewMessage) -> RenderWindow:
     if msg.parse_mode is None or msg.parse_mode == "None":
         text = html.escape(msg.text)
     else:
         text = msg.text
+
     return RenderWindow(
         message=text.replace("\n", "<br>"),
         state=state.state,
+        photo=create_photo(media=msg.media),
         keyboard=[
             [
                 RenderButton(title=button.text, state=button.callback_data)

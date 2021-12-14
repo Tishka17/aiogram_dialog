@@ -77,6 +77,17 @@
             border-radius: 5px;
         }
 
+        .body > img {
+            margin: 0 -12px 0 -12px;
+            padding-bottom: 8px;
+            width: calc(100% + 24px);
+            max-height: 256px;
+            object-fit: cover;
+        }
+        .body > .text {
+            padding-bottom: 8px;
+        }
+
         .keyboard {
         }
 
@@ -152,7 +163,10 @@
             <div class="body">
                 <div class="author">Test17</div>
                 <div class="time">{{ window.state }}</div>
-                {{ window.message|safe }}
+                {% if window.photo %}
+                    <img src="{{ window.photo }}" alt="{{ window.photo }}"/>
+                {% endif %}
+                <div class="text">{{ window.message|safe }}</div>
             </div>
             <div class="keyboard">
                 {% for row in window.keyboard %}
