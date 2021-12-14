@@ -34,7 +34,7 @@ class SwitchTo(EventProcessorButton):
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().switch_to(self.state, manager)
+        await manager.dialog().switch_to(self.state)
 
 
 class Next(EventProcessorButton):
@@ -49,7 +49,7 @@ class Next(EventProcessorButton):
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().next(manager)
+        await manager.dialog().next()
 
 
 class Back(EventProcessorButton):
@@ -64,7 +64,7 @@ class Back(EventProcessorButton):
     async def _on_click(self, c: CallbackQuery, button: Button, manager: DialogManager):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().back(manager)
+        await manager.dialog().back()
 
 
 class Cancel(EventProcessorButton):

@@ -16,7 +16,6 @@ from .widgets.action import Actionable
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
-DataGetter = Callable[..., Awaitable[Dict]]
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
@@ -40,8 +39,8 @@ class DialogWindowProto(Protocol):
     async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog", manager: DialogManager,
-                     preview: bool = False) -> NewMessage:
+    async def render(self, dialog: "Dialog",
+                     manager: DialogManager) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -110,13 +109,13 @@ class Dialog(ManagedDialogProto):
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
         return self.windows[manager.current_context().state]
 
-    async def show(self, manager: DialogManager, preview: bool = False) -> None:
+    async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
         window = await self._current_window(manager)
-        new_message = await window.render(self, manager, preview=preview)
+        new_message = await window.render(self, manager)
         add_indent_id(new_message, manager.current_context().id)
         media_id_storage = manager.registry.media_id_storage
-        if new_message.media:
+        if new_message.media and not new_message.media.file_id:
             new_message.media.file_id = await media_id_storage.get_media_id(
                 new_message.media.path, new_message.media.type,
             )

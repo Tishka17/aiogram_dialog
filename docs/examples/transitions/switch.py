@@ -13,15 +13,15 @@ class DialogSG(StatesGroup):
 
 
 async def to_second(c: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.dialog().switch_to(DialogSG.second, manager)
+    await manager.dialog().switch_to(DialogSG.second)
 
 
 async def go_back(c: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.dialog().back(manager)
+    await manager.dialog().back()
 
 
 async def go_next(c: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.dialog().next(manager)
+    await manager.dialog().next()
 
 
 dialog = Dialog(

@@ -6,8 +6,12 @@ from aiogram.dispatcher.fsm.state import State
 from aiogram.types import User, Chat, Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
-from .protocols import DialogManager, BaseDialogManager, ShowMode, LaunchMode
-from .protocols import ManagedDialogProto, DialogRegistryProto, NewMessage
+from .dialog import ManagedDialogAdapter
+from .protocols import (
+    DialogManager, BaseDialogManager, ShowMode, LaunchMode,
+    ManagedDialogAdapterProto, ManagedDialogProto, DialogRegistryProto,
+    NewMessage,
+)
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
@@ -20,7 +24,8 @@ logger = getLogger(__name__)
 
 
 class ManagerImpl(DialogManager):
-    def __init__(self, event: ChatEvent, registry: DialogRegistryProto, data: Dict):
+    def __init__(self, event: ChatEvent, registry: DialogRegistryProto,
+                 data: Dict):
         self.disabled = False
         self._registry = registry
         self.event = event
@@ -39,7 +44,13 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
-    def dialog(self) -> ManagedDialogProto:
+    def is_preview(self) -> bool:
+        return False
+
+    def dialog(self) -> ManagedDialogAdapterProto:
+        return ManagedDialogAdapter(self._dialog(), self)
+
+    def _dialog(self) -> ManagedDialogProto:
         self.check_disabled()
         current = self.current_context()
         if not current:
@@ -69,17 +80,17 @@ class ManagerImpl(DialogManager):
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
-        await self.dialog().process_close(result, self)
+        await self._dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
         context = self.current_context()
         if not context:
             await self._remove_kbd()
             return
-        dialog = self.dialog()
+        dialog = self._dialog()
         await dialog.process_result(old_context.start_data, result, self)
         if context.id == self.current_context().id:
-            await self.dialog().show(self)
+            await self._dialog().show(self)
 
     async def mark_closed(self) -> None:
         self.check_disabled()
@@ -126,9 +137,10 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         old_dialog: Optional[ManagedDialogProto] = None
         if not stack.empty():
-            old_dialog = self.dialog()
+            old_dialog = self._dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
-                raise ValueError("Cannot start dialog on top of one with launch_mode==SINGLE")
+                raise ValueError(
+                    "Cannot start dialog on top of one with launch_mode==SINGLE")
 
         new_dialog = self.registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
@@ -141,9 +153,9 @@ class ManagerImpl(DialogManager):
         await self.storage().save_context(self.current_context())
         context = stack.push(state, data)
         self.data[CONTEXT_KEY] = context
-        await self.dialog().process_start(self, data, state)
+        await self._dialog().process_start(self, data, state)
         if context.id == self.current_context().id:
-            await self.dialog().show(self)
+            await self._dialog().show(self)
 
     async def switch_to(self, state: State) -> None:
         self.check_disabled()
@@ -207,7 +219,7 @@ class ManagerImpl(DialogManager):
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
-        await self.dialog().show(self)
+        await self._dialog().show(self)
 
     def bg(
             self,
