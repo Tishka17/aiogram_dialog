@@ -1,9 +1,10 @@
 from typing import Union, Callable, Dict
 
 from aiogram_dialog.manager.manager import DialogManager
+from magic_filter import MagicFilter
 
 Predicate = Callable[[Dict, "Whenable", DialogManager], bool]
-WhenCondition = Union[str, Predicate, None]
+WhenCondition = Union[str, MagicFilter, Predicate, None]
 
 
 def new_when_field(fieldname: str) -> Predicate:
@@ -11,6 +12,13 @@ def new_when_field(fieldname: str) -> Predicate:
         return bool(data.get(fieldname))
 
     return when_field
+
+
+def new_when_magic(f: MagicFilter) -> Predicate:
+    def when_magic(data: Dict, widget: "Whenable", manager: DialogManager) -> bool:
+        return f.resolve(data)
+
+    return when_magic
 
 
 def true(data: Dict, widget: "Whenable", manager: DialogManager):
@@ -25,6 +33,8 @@ class Whenable:
             self.condition = true
         elif isinstance(when, str):
             self.condition = new_when_field(when)
+        elif isinstance(when, MagicFilter):
+            self.condition = new_when_magic(when)
         else:
             self.condition = when
 
