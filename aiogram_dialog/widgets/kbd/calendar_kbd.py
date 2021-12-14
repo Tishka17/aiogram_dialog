@@ -2,17 +2,19 @@ from abc import ABC
 from calendar import monthcalendar
 from datetime import date, datetime
 from time import mktime
-from typing import List, Callable, Union, Awaitable, TypedDict
+from typing import List, Callable, Union, Awaitable, TypedDict, Optional
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
+from ..managed import ManagedWidgetAdapter
+from ...deprecation_utils import manager_deprecated
 
-OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
+OnDateSelected = Callable[[ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable]
 
 # Constants for managing widget rendering scope
 SCOPE_DAYS = "SCOPE_DAYS"
@@ -99,7 +101,10 @@ class Calendar(Keyboard, ABC):
 
         else:
             raw_date = int(data)
-            await self.on_click.process_event(c, self, manager, date.fromtimestamp(raw_date))
+            await self.on_click.process_event(
+                c, self.managed(manager), manager,
+                date.fromtimestamp(raw_date),
+            )
         return True
 
     def years_kbd(self, offset) -> List[List[InlineKeyboardButton]]:
@@ -182,3 +187,26 @@ class Calendar(Keyboard, ABC):
     def set_scope(self, new_scope: str, manager: DialogManager) -> None:
         data = manager.current_context().widget_data.setdefault(self.widget_id, {})
         data["current_scope"] = new_scope
+
+    def managed(self, manager: DialogManager):
+        return ManagedCalendarAdapter(self, manager)
+
+
+class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
+    def get_scope(self, manager: Optional[DialogManager] = None) -> str:
+        manager_deprecated(manager)
+        return self.widget.get_scope(self.manager)
+
+    def get_offset(self, manager: Optional[DialogManager] = None) -> date:
+        manager_deprecated(manager)
+        return self.widget.get_offset(self.manager)
+
+    def set_offset(self, new_offset: date,
+                   manager: Optional[DialogManager] = None) -> None:
+        manager_deprecated(manager)
+        return self.widget.set_offset(new_offset, self.manager)
+
+    def set_scope(self, new_scope: str,
+                  manager: Optional[DialogManager] = None) -> None:
+        manager_deprecated(manager)
+        return self.widget.set_scope(new_scope, self.manager)
