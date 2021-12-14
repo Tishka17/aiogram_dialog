@@ -108,7 +108,7 @@ class ManagedDialogProto(Protocol):
                             state: Optional[State] = None) -> None:
         pass
 
-    async def show(self, manager: "DialogManager", preview: bool = False):
+    async def show(self, manager: "DialogManager"):
         pass
 
     async def process_result(self, start_data: Data, result: Any,
@@ -192,6 +192,9 @@ class DialogManager(BaseDialogManager):
     event: ChatEvent  # current processing event
     data: Dict  # data from middleware
     show_mode: ShowMode  # mode used to show messages
+
+    def is_preview(self) -> bool:
+        pass
 
     def current_context(self) -> Optional[Context]:
         pass

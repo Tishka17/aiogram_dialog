@@ -26,6 +26,7 @@ setup(
         'aiogram>=2.12,<3',
         'jinja2',
         'cachetools==4.*',
+        'magic_filter',
     ],
     extras_require={
         "tools": [

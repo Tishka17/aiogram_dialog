@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Window</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Roboto', 'Ubuntu', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            /*background-color: #eeeeee;*/
+            background-color: #e8f5e9;
+            opacity: 1;
+            background-image: radial-gradient(#97b498 0.8px, transparent 1.1px),
+            linear-gradient(45deg, #97b498, transparent, #97b498),
+            radial-gradient(#97b498 1.1px, transparent 1.8px);
+            background-size: 44px 44px, auto auto, 44px 44px;
+            background-position: 0 0, 0 0, 22px 22px;
+            font-size: 14px;
+            color: #373737;
+        }
+
+        .message {
+            max-width: 480px;
+            position: relative;
+            margin-left: 64px;
+            margin-top: 8px;
+        }
+
+        .avatar {
+            position: absolute;
+            bottom: 0;
+            margin-left: -56px;
+            background-color: #c7a4ff;
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bolder;
+            text-align: center;
+            line-height: 40px;
+        }
+
+        .author {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-weight: bolder;
+            color: #65499c;
+            padding: 8px 12px;
+        }
+
+        .time {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            color: #9e9e9e;
+            padding: 4px 12px;
+        }
+
+        .body {
+            position: relative;
+            padding: 28px 12px 8px 12px;
+            background-color: #ffffff;
+            min-height: 72px;
+            border-radius: 5px;
+        }
+
+        .body > img {
+            margin: 0 -12px 0 -12px;
+            padding-bottom: 8px;
+            width: calc(100% + 24px);
+            max-height: 256px;
+            object-fit: cover;
+        }
+        .body > .text {
+            padding-bottom: 8px;
+        }
+
+        .keyboard {
+        }
+
+        .keyboard-row {
+            margin-top: 4px;
+            height: auto;
+            width: 100%;
+            display: flex;
+        }
+
+        .keyboard-button {
+            display: inline-block;
+            height: auto;
+            padding: 8px 8px;
+            min-width: 72px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+            background-color: rgba(0, 0, 0, 0.25);
+            font-weight: bolder;
+            color: #ffffff;
+            transition: opacity 500ms;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .keyboard-button:hover {
+            opacity: 0.75;
+        }
+
+        .start {
+            text-align: center;
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.25);
+            font-weight: bolder;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            width: 120px;
+            border-radius: 5px;
+            margin-left: 8px;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .message:target {
+            display: block;
+        }
+
+        .message:not(:target) {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<a href="#" class="start">Home</a>
+<br>
+<div>
+    {% for dialog in dialogs %}
+        {% for window in dialog.windows %}
+            <a href="#{{ window.state }}" class="start">{{ window.state }}</a>
+        {% endfor %}
+        <br/>
+    {% endfor %}
+</div>
+<br>
+
+{% for dialog in dialogs %}
+    {% for window in dialog.windows %}
+        <div class="message" id="{{ window.state }}">
+            <div class="avatar">T</div>
+            <div class="body">
+                <div class="author">Test17</div>
+                <div class="time">{{ window.state }}</div>
+                {% if window.photo %}
+                    <img src="{{ window.photo }}" alt="{{ window.photo }}"/>
+                {% endif %}
+                <div class="text">{{ window.message|safe }}</div>
+            </div>
+            <div class="keyboard">
+                {% for row in window.keyboard %}
+                    <div class="keyboard-row">
+                        {% for button in row %}
+                            <a href="#{{ button.state }}" class="keyboard-button">{{ button.title }}</a>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+</body>
+</html>
