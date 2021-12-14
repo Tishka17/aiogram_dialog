@@ -77,7 +77,6 @@ dialog = Dialog(
         ),
         getter=get_data,
         state=DialogSG.finish,
-        preview_data={"name": "Tishka17"}
     )
 )
 
