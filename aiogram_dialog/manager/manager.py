@@ -45,7 +45,7 @@ class ManagerImpl(DialogManager):
 
     def is_preview(self) -> bool:
         return False
-    
+
     def dialog(self) -> ManagedDialogAdapterProto:
         return ManagedDialogAdapter(self._dialog(), self)
 

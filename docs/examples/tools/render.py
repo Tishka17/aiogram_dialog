@@ -16,7 +16,7 @@ class RenderSG(StatesGroup):
 
 async def on_input(m: Message, dialog: Dialog, manager: DialogManager):
     manager.current_context().dialog_data["name"] = m.text
-    await dialog.next(manager)
+    await dialog.next()
 
 
 dialog = Dialog(
