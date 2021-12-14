@@ -14,7 +14,10 @@ class Progress(Text):
         self.empty = empty
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
-        percent = data.get(self.field)
+        if manager.is_preview():
+            percent = 15
+        else:
+            percent = data.get(self.field)
         done = round((self.width * percent) / 100)
         rest = self.width - done
 

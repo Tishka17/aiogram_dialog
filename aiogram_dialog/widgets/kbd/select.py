@@ -112,8 +112,14 @@ class Radio(StatefulSelect):
     def is_checked(self, item_id: Union[str, int], manager: DialogManager) -> bool:
         return str(item_id) == self.get_checked(manager)
 
+    def _preview_checked_id(self, manager: DialogManager, item_id: str) -> str:
+        data = manager.current_context().widget_data
+        return data.setdefault(self.widget_id, item_id)
+
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
+        if manager.is_preview():
+            return item_id==self._preview_checked_id(manager, item_id)
         return self.is_checked(item_id, manager)
 
     async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager,
@@ -135,6 +141,8 @@ class Multiselect(StatefulSelect):
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
+        if manager.is_preview():
+            return ord(item_id[-1])%2 == 1  # just stupid way to make it differ
         return self.is_checked(item_id, manager)
 
     def is_checked(self, item_id: Union[str, int], manager: DialogManager) -> bool:
