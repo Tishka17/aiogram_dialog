@@ -2,17 +2,19 @@ from typing import List, Dict, Optional, Callable, Awaitable, Union
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
+from aiogram_dialog.deprecation_utils import manager_deprecated
 from aiogram_dialog.dialog import Dialog, ChatEvent
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from .group import Group
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
-from ...deprecation_utils import manager_deprecated
-from ...manager.protocols import ManagedDialogProto
 
-OnStateChanged = Callable[[ChatEvent, "ScrollingGroup", DialogManager], Awaitable]
+OnStateChanged = Callable[
+    [ChatEvent, "ManagedScrollingGroupAdapter", DialogManager],
+    Awaitable,
+]
 
 
 class ScrollingGroup(Group):
@@ -55,7 +57,9 @@ class ScrollingGroup(Group):
     async def set_page(self, event: ChatEvent, page: int,
                        manager: DialogManager) -> None:
         manager.current_context().widget_data[self.widget_id] = page
-        await self.on_page_changed.process_event(event, self, manager)
+        await self.on_page_changed.process_event(
+            event, self.managed(manager), manager,
+        )
 
     def managed(self, manager: DialogManager):
         return ManagedScrollingGroupAdapter(self, manager)

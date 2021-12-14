@@ -14,7 +14,7 @@ from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
-OnDateSelected = Callable[[ChatEvent, "MonthCalendar", DialogManager, date], Awaitable]
+OnDateSelected = Callable[[ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable]
 
 # Constants for managing widget rendering scope
 SCOPE_DAYS = "SCOPE_DAYS"
@@ -101,7 +101,10 @@ class Calendar(Keyboard, ABC):
 
         else:
             raw_date = int(data)
-            await self.on_click.process_event(c, self, manager, date.fromtimestamp(raw_date))
+            await self.on_click.process_event(
+                c, self.managed(manager), manager,
+                date.fromtimestamp(raw_date),
+            )
         return True
 
     def years_kbd(self, offset) -> List[List[InlineKeyboardButton]]:

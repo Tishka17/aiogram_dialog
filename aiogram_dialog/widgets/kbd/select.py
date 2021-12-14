@@ -17,8 +17,14 @@ from ...deprecation_utils import manager_deprecated
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
-OnItemStateChanged = Callable[[ChatEvent, "Select", DialogManager, str], Awaitable]
-OnItemClick = Callable[[CallbackQuery, "Select", DialogManager, str], Awaitable]
+OnItemStateChanged = Callable[
+    [ChatEvent, ManagedWidgetAdapter["Select"], DialogManager, str],
+    Awaitable,
+]
+OnItemClick = Callable[
+    [CallbackQuery, ManagedWidgetAdapter["Select"], DialogManager, str],
+    Awaitable,
+]
 
 
 def get_identity(items: Sequence) -> ItemsGetter:
@@ -66,7 +72,7 @@ class Select(Keyboard):
         if not c.data.startswith(self.callback_data_prefix):
             return False
         item_id = c.data[len(self.callback_data_prefix):]
-        await self.on_click.process_event(c, self, manager, item_id)
+        await self.on_click.process_event(c, self.managed(manager), manager, item_id)
         return True
 
 
@@ -85,21 +91,25 @@ class StatefulSelect(Select, ABC):
     async def _process_on_state_changed(self, event: ChatEvent, item_id: str,
                                         manager: DialogManager):
         if self.on_state_changed:
-            await self.on_state_changed.process_event(event, self, manager, item_id)
+            await self.on_state_changed.process_event(
+                event, self.managed(manager), manager, item_id
+            )
 
     @abstractmethod
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         raise NotImplementedError
 
-    async def _process_click(self, c: CallbackQuery, select: Select, manager: DialogManager,
-                             item_id: str):
+    async def _process_click(self, c: CallbackQuery,
+                             select: ManagedWidgetAdapter[Select],
+                             manager: DialogManager, item_id: str):
         if self.on_item_click:
             await self.on_item_click.process_event(c, select, manager, item_id)
         await self._on_click(c, select, manager, item_id)
 
     @abstractmethod
-    async def _on_click(self, c: CallbackQuery, select: Select, manager: DialogManager,
-                        item_id: str):
+    async def _on_click(self, c: CallbackQuery,
+                        select: ManagedWidgetAdapter[Select],
+                        manager: DialogManager, item_id: str):
         raise NotImplementedError
 
 
