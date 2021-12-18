@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Dict, Optional, List
 
 from aiogram.dispatcher.fsm.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, UNSET
 
 from .dialog import Dialog, DialogWindowProto
 from .manager.protocols import DialogManager
@@ -22,7 +22,7 @@ class Window(DialogWindowProto):
                  *widgets: WidgetSrc,
                  state: State,
                  getter: GetterVariant = None,
-                 parse_mode: Optional[str] = None,
+                 parse_mode: Optional[str] = UNSET,
                  disable_web_page_preview: Optional[bool] = None,
                  preview_add_transitions: Optional[List[Keyboard]] = None,
                  preview_data: GetterVariant = None,
