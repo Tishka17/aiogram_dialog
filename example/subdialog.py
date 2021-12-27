@@ -8,7 +8,7 @@ from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
-from aiogram_dialog.tools import render_transitions
+from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
@@ -52,6 +52,7 @@ name_dialog = Dialog(
         state=NameSG.confirm,
         getter=get_name_data,
         preview_add_transitions=[Cancel()],  # hint for graph rendering
+        preview_data={"name": "John Doe"}  # for preview rendering
     )
 )
 
@@ -88,6 +89,7 @@ main_menu = Dialog(
         ),
         state=MainSG.main,
         getter=get_main_data,
+        preview_data={"name": "John Doe"}  # for preview rendering
     ),
     on_process_result=process_result,
 )
@@ -104,6 +106,7 @@ async def main():
     registry.register(name_dialog)
     registry.register(main_menu)
     render_transitions(registry)  # render graph with current transtions
+    await render_preview(registry, "preview.html")  # render windows preview
 
     await dp.start_polling(bot)
 

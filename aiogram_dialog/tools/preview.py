@@ -1,5 +1,6 @@
 import html
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -38,9 +39,8 @@ class RenderDialog:
 class FakeManager(DialogManager):
     def __init__(self, registry: DialogRegistry):
         self.event = DialogUpdateEvent(
-            bot=registry.dp.bot,
-            from_user=User(),
-            chat=Chat(),
+            from_user=User(id=1, is_bot=False, first_name="Fake"),
+            chat=Chat(id=1, type="private"),
             action=Action.UPDATE,
             data={},
             intent_id=None,
@@ -50,7 +50,9 @@ class FakeManager(DialogManager):
         self._context: Optional[Context] = None
         self._dialog = None
         self.data = {
-            "dialog_manager": self
+            "dialog_manager": self,
+            "event_chat": Chat(id=1, type="private"),
+            "event_from_user": User(id=1, is_bot=False, first_name="Fake")
         }
 
     def set_dialog(self, dialog: Dialog):
@@ -84,7 +86,7 @@ class FakeManager(DialogManager):
 
     async def show(self, new_message: NewMessage) -> Message:
         self.new_message = new_message
-        return Message()
+        return Message(message_id=1, date=datetime.now(), chat=Chat(id=1, type="private"))
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -128,7 +130,7 @@ async def render_dialog(manager: FakeManager, group: StatesGroup,
                         dialog: Dialog) -> RenderDialog:
     manager.set_dialog(dialog)
     windows = []
-    for state in group.states:
+    for state in group.__states__:
         manager.set_state(state)
         await dialog.show(manager)
         windows.append(create_window(state, manager.new_message))
