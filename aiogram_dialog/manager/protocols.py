@@ -72,7 +72,7 @@ class NewMessage:
 
 
 class ManagedDialogAdapterProto:
-    async def show(self, preview: bool = False):
+    async def show(self):
         pass
 
     async def next(self):

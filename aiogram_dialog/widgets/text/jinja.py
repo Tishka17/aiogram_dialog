@@ -21,7 +21,11 @@ class Jinja(Text):
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
         env: Environment = manager.event.bot.get(BOT_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
-        return template.render_preview(data)
+
+        if env.is_async:
+            return await template.render_async(data)
+        else:
+            return template.render(data)
 
 
 class StubLoader(BaseLoader):

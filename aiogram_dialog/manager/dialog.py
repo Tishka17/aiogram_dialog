@@ -16,7 +16,7 @@ class ManagedDialogAdapter(ManagedDialogAdapterProto):
     async def show(self, preview: bool = False,
                    manager: Optional[DialogManager] = None):
         manager_deprecated(manager)
-        return await self.dialog.show(self.manager, preview)
+        return await self.dialog.show(self.manager)
 
     async def next(self,
                    manager: Optional[DialogManager] = None):
