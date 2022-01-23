@@ -42,17 +42,6 @@ class LaunchMode(Enum):
     SINGLE_TOP = "single_top"
 
 
-@dataclass
-class NewMessage:
-    chat: Chat
-    text: Optional[str] = None
-    reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[ParseMode] = None
-    show_mode: ShowMode = ShowMode.AUTO
-    disable_web_page_preview: Optional[bool] = None
-    media: Optional[MediaAttachment] = None
-
-
 class ManagedDialogAdapterProto:
     async def show(self):
         pass
@@ -158,6 +147,17 @@ class MediaAttachment:
         self.path = path
         self.file_id = file_id
         self.kwargs = kwargs
+
+
+@dataclass
+class NewMessage:
+    chat: Chat
+    text: Optional[str] = None
+    reply_markup: Optional[InlineKeyboardMarkup] = None
+    parse_mode: Optional[ParseMode] = None
+    show_mode: ShowMode = ShowMode.AUTO
+    disable_web_page_preview: Optional[bool] = None
+    media: Optional[MediaAttachment] = None
 
 
 class DialogRegistryProto(Protocol):
