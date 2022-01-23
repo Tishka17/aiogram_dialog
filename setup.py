@@ -36,5 +36,5 @@ setup(
     package_data={
         'aiogram_dialog.tools': ['calculator.png'],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )
