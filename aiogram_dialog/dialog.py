@@ -116,14 +116,19 @@ class Dialog(ManagedDialogProto):
         media_id_storage = manager.registry.media_id_storage
         if new_message.media and not new_message.media.file_id:
             new_message.media.file_id = await media_id_storage.get_media_id(
-                new_message.media.path, new_message.media.type,
+                path=new_message.media.path,
+                url=new_message.media.url,
+                type=new_message.media.type,
             )
         message = await manager.show(new_message)
         manager.current_stack().last_message_id = message.message_id
         manager.current_stack().last_media_id = get_media_id(message)
         if new_message.media:
             await media_id_storage.save_media_id(
-                new_message.media.path, new_message.media.type, get_media_id(message)
+                path=new_message.media.path,
+                url=new_message.media.url,
+                type=new_message.media.type,
+                media_id=get_media_id(message),
             )
 
     async def _message_handler(self, m: Message, dialog_manager: DialogManager):

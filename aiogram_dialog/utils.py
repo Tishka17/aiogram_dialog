@@ -13,7 +13,7 @@ from aiogram.utils.exceptions import (
 from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
-from .manager.protocols import MediaAttachment, NewMessage, ShowMode
+from .manager.protocols import MediaAttachment, NewMessage, ShowMode, MediaId
 
 logger = getLogger(__name__)
 
@@ -37,23 +37,25 @@ def get_chat(event: ChatEvent) -> Chat:
         return event.message.chat
 
 
-def get_media_id(message: Message) -> Optional[str]:
-    if message.audio:
-        return message.audio.file_id
-    if message.animation:
-        return message.animation.file_id
-    if message.document:
-        return message.document.file_id
-    if message.photo:
-        return message.photo[-1].file_id
-    if message.video:
-        return message.video.file_id
-    return None
+def get_media_id(message: Message) -> Optional[MediaId]:
+    media = (
+        message.audio or
+        message.animation or
+        message.document or
+        message.photo or
+        message.video
+    )
+    if not media:
+        return None
+    return MediaId(
+        file_id=media.file_id,
+        file_unique_id=media.file_unique_id,
+    )
 
 
 async def get_media_source(media: MediaAttachment) -> Union[IO, str]:
     if media.file_id:
-        return media.file_id
+        return media.file_id.file_id
     if media.url:
         return media.url
     else:
