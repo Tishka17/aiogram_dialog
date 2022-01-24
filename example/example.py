@@ -11,6 +11,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import (
     Dialog, DialogManager, DialogRegistry, Window, StartMode, BaseDialogManager
 )
+from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
@@ -59,7 +60,7 @@ async def background(c: CallbackQuery, manager: BaseDialogManager):
         })
 
 
-async def input_fun(m: Message, dialog: Dialog, manager: DialogManager):
+async def input_fun(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
     print("input_fun")
     await manager.start(Sub.text, m.text)
 

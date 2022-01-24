@@ -8,6 +8,7 @@ from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
+from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
@@ -23,9 +24,9 @@ class NameSG(StatesGroup):
     confirm = State()
 
 
-async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
+async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
     manager.current_context().dialog_data["name"] = m.text
-    await dialog.next(manager)
+    await dialog.next()
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
