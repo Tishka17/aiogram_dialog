@@ -20,16 +20,18 @@ OnStateChanged = Callable[
 class ScrollingGroup(Group):
     def __init__(self, *buttons: Keyboard, id: str, width: Optional[int] = None,
                  height: int = 0, when: WhenCondition = None,
-                 on_page_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None):
+                 on_page_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None,
+                 optional: bool = True):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
+        self.optional = optional
 
     async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         kbd = await super()._render_keyboard(data, manager)
         pages = len(kbd) // self.height + bool(len(kbd) % self.height)
         last_page = pages - 1
-        if pages == 0:
+        if pages <= int(self.optional):
             return kbd
         current_page = min(last_page, self.get_page(manager))
         next_page = min(last_page, current_page + 1)
