@@ -178,12 +178,12 @@ class ManagerImpl(DialogManager):
         else:
             if stack and stack.last_message_id:
                 if stack.last_media_id:
-                    # we create document because
+                    # we create document beeasue
                     # * there is no method to set content type explicitly
                     # * we don't really care fo exact content type
                     document = Document(
                         file_id=stack.last_media_id,
-                        file_unique_id=""
+                        file_unique_id=stack.last_media_unique_id,
                     )
                     text = None
                 else:

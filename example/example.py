@@ -11,7 +11,6 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import (
     Dialog, DialogManager, DialogRegistry, Window, StartMode, BaseDialogManager
 )
-from aiogram_dialog.tools.preview import render
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Button, Group, Next, Back, Cancel, Checkbox, Row, Radio, Multiselect, Select
