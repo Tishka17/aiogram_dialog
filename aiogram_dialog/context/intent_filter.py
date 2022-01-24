@@ -13,7 +13,7 @@ from aiogram.types.base import TelegramObject
 from .context import Context
 from .events import DialogUpdateEvent, DialogUpdate
 from .storage import StorageProxy
-from ..exceptions import InvalidStackIdError
+from ..exceptions import InvalidStackIdError, OutdatedIntent
 from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
@@ -40,7 +40,8 @@ class IntentFilter(BaseFilter):
 
 
 class IntentMiddleware(BaseMiddleware):
-    def __init__(self, storage: BaseStorage, state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(self, storage: BaseStorage,
+                 state_groups: Dict[str, Type[StatesGroup]]):
         super().__init__()
         self.storage = storage
         self.state_groups = state_groups
@@ -104,18 +105,23 @@ class IntentMiddleware(BaseMiddleware):
             stack = await proxy.load_stack(event.stack_id)
             if stack.empty():
                 if event.intent_id is not None:
-                    logger.warning(f"Outdated intent id ({event.intent_id}) "
-                                   f"for empty stack ({stack.id})")
-                    raise CancelHandler()
+                    raise OutdatedIntent(
+                        stack.id,
+                        f"Outdated intent id ({event.intent_id}) "
+                        f"for stack ({stack.id})"
+                    )
                 context = None
             else:
                 if event.intent_id is not None and event.intent_id != stack.last_intent_id():
-                    logger.warning(f"Outdated intent id ({event.intent_id}) "
-                                   f"for stack ({stack.id})")
-                    raise CancelHandler()
+                    raise OutdatedIntent(
+                        stack.id,
+                        f"Outdated intent id ({event.intent_id}) "
+                        f"for stack ({stack.id})"
+                    )
                 context = await proxy.load_context(stack.last_intent_id())
         else:
-            raise InvalidStackIdError(f"Both stack id and intent id are None: {event}")
+            raise InvalidStackIdError(
+                f"Both stack id and intent id are None: {event}")
 
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
@@ -130,11 +136,77 @@ class IntentMiddleware(BaseMiddleware):
             context = await proxy.load_context(intent_id)
             stack = await proxy.load_stack(context.stack_id)
             if stack.last_intent_id() != intent_id:
-                logger.warning(f"Outdated intent id ({intent_id}) for stack ({stack.id})")
-                raise CancelHandler()
+                raise OutdatedIntent(
+                    stack.id,
+                    f"Outdated intent id ({intent_id}) for stack ({stack.id})"
+                )
         else:
-            context = None
             stack = await proxy.load_stack()
+            if stack.empty():
+                context = None
+            else:
+                context = await proxy.load_context(stack.last_intent_id())
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
         data[CALLBACK_DATA_KEY] = original_data
+
+
+class IntentErrorMiddleware(BaseMiddleware):
+    def __init__(self, storage: BaseStorage,
+                 state_groups: Dict[str, Type[StatesGroup]]):
+        super().__init__()
+        self.storage = storage
+        self.state_groups = state_groups
+
+    async def __call__(
+            self,
+            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
+            event: Update,
+            data: Dict[str, Any],
+    ) -> Any:
+
+        try:
+            error = data["exception"]
+
+            if isinstance(error, InvalidStackIdError):
+                return
+
+            event = (
+                    event.message or
+                    event.my_chat_member or
+                    event.callback_query
+            )
+            if not event:
+                return
+
+            chat = data['event_chat']
+
+            proxy = StorageProxy(
+                bot=data['bot'],
+                storage=self.storage,
+                user_id=event.from_user.id,
+                chat_id=chat.id,
+                state_groups=self.state_groups,
+            )
+            data[STORAGE_KEY] = proxy
+
+            if isinstance(error, OutdatedIntent):
+                stack = await proxy.load_stack(stack_id=error.stack_id)
+            else:
+                stack = await proxy.load_stack()
+            if stack.empty():
+                context = None
+            else:
+                context = await proxy.load_context(stack.last_intent_id())
+            data[STACK_KEY] = stack
+            data[CONTEXT_KEY] = context
+
+            return await handler(event, data)
+        finally:
+            proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+            if not proxy:
+                return
+            context = data.pop(CONTEXT_KEY)
+            if context is not None:
+                await proxy.save_context(context)
+            await proxy.save_stack(data.pop(STACK_KEY))
