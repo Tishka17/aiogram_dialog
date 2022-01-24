@@ -4,6 +4,7 @@ from typing import Optional, Tuple, Union, IO
 from aiogram import Bot
 from aiogram.types import (
     Message, CallbackQuery, Chat, ChatMemberUpdated, ContentType, InputMedia,
+    User,
 )
 from aiogram.utils.exceptions import (
     MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
@@ -35,6 +36,22 @@ def get_chat(event: ChatEvent) -> Chat:
         if not event.message:
             return Chat(id=event.from_user.id)
         return event.message.chat
+
+
+def is_chat_loaded(chat: Chat) -> bool:
+    """
+    Checks if chat is correctly loaded from telegram.
+    Otherwise, it is created with no data inside as a FakeChat
+    """
+    return getattr(chat, "fake", False)
+
+
+def is_user_loaded(user: User) -> bool:
+    """
+    Checks if chat is correctly loaded from telegram.
+    Otherwise, it is created with no data inside as a FakeUser
+    """
+    return getattr(user, "fake", False)
 
 
 def get_media_id(message: Message) -> Optional[MediaId]:

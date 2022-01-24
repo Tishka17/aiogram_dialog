@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Literal
 from typing import Union, List
 
 from aiogram import Bot
@@ -46,3 +46,11 @@ class DialogSwitchEvent(DialogUpdateEvent):
 
 
 ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent, ChatMemberUpdated]
+
+
+class FakeUser(User):
+    fake: Literal[True] = True
+
+
+class FakeChat(Chat):
+    fake: Literal[True] = True

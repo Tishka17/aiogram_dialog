@@ -204,6 +204,7 @@ class BaseDialogManager(Protocol):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         pass
 
