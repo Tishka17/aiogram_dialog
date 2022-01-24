@@ -124,8 +124,8 @@ class Dialog(ManagedDialogProto):
         message = await manager.show(new_message)
         manager.current_stack().last_message_id = message.message_id
         media_id = get_media_id(message)
-        manager.current_stack().last_media_id = media_id.file_id
-        manager.current_stack().last_media_unique_id = media_id.file_unique_id
+        manager.current_stack().last_media_id = media_id.file_id if media_id else None
+        manager.current_stack().last_media_unique_id = media_id.file_unique_id if media_id else None
         if new_message.media:
             await media_id_storage.save_media_id(
                 path=new_message.media.path,
