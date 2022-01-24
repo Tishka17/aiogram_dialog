@@ -132,8 +132,11 @@ class IntentMiddleware(BaseMiddleware):
                 )
             event.data = callback_data
         else:
-            context = None
             stack = await proxy.load_stack()
+            if stack.empty():
+                context = None
+            else:
+                context = await proxy.load_context(stack.last_intent_id())
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
         data[CALLBACK_DATA_KEY] = original_data
@@ -171,13 +174,19 @@ class IntentMiddleware(BaseMiddleware):
             stack = await proxy.load_stack(stack_id=error.stack_id)
         else:
             stack = await proxy.load_stack()
+        if stack.empty():
+            context = None
+        else:
+            context = await proxy.load_context(stack.last_intent_id())
         data[STACK_KEY] = stack
-        data[CONTEXT_KEY] = None
+        data[CONTEXT_KEY] = context
 
     async def on_post_process_error(self, event: Any, error: Exception,
                                     result: list, data: dict) -> None:
         proxy: StorageProxy = data.pop(STORAGE_KEY, None)
         if not proxy:
             return
-        await proxy.save_context(data.pop(CONTEXT_KEY))
+        context = data.pop(CONTEXT_KEY)
+        if context is not None:
+            await proxy.save_context(context)
         await proxy.save_stack(data.pop(STACK_KEY))
