@@ -4,11 +4,13 @@ import os.path
 from typing import Any
 
 from aiogram import Bot, Dispatcher, F
+from aiogram.dispatcher.event.bases import UNHANDLED
 from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent, StartMode
+from aiogram_dialog.exceptions import UnknownIntent
 from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
@@ -99,6 +101,14 @@ async def start(m: Message, dialog_manager: DialogManager):
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 
 
+async def error_handler(update, exception, dialog_manager: DialogManager):
+    """Example of handling UnknownIntent Error and starting new dialog"""
+    if isinstance(exception, UnknownIntent):
+        await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
+    else:
+        return UNHANDLED
+
+
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
@@ -106,6 +116,8 @@ async def main():
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
+    dp.errors.register(error_handler)
+
     registry = DialogRegistry(dp)
     registry.register(dialog)
 

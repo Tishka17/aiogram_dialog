@@ -171,12 +171,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             if isinstance(error, InvalidStackIdError):
                 return
 
-            event = (
-                    event.message or
-                    event.my_chat_member or
-                    event.callback_query
-            )
-            if not event:
+            if event.event_type not in ['message', 'callback_query', 'my_chat_member']:
                 return
 
             chat = data['event_chat']
@@ -184,7 +179,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             proxy = StorageProxy(
                 bot=data['bot'],
                 storage=self.storage,
-                user_id=event.from_user.id,
+                user_id=data['event_from_user'].id,
                 chat_id=chat.id,
                 state_groups=self.state_groups,
             )
