@@ -32,8 +32,13 @@ class ManagerMiddleware(BaseMiddleware):
     on_post_process_aiogd_update = on_post_process_message
     on_post_process_my_chat_member = on_post_process_message
 
-    async def on_pre_process_error(self, event: Any, error: Exception,
+    async def on_pre_process_error(self, update: Any, error: Exception,
                                    data: dict) -> None:
+        event = (
+                update.message or
+                update.my_chat_member or
+                update.callback_query
+        )
         await self.on_pre_process_message(event, data)
 
     async def on_post_process_error(self, event: Any, error: Exception,
