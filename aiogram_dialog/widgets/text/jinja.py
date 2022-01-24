@@ -22,7 +22,11 @@ class Jinja(Text):
         bot: Bot = manager.data['bot']
         env: Environment = getattr(bot, BOT_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
-        return template.render(data)
+
+        if env.is_async:
+            return await template.render_async(data)
+        else:
+            return template.render(data)
 
 
 class StubLoader(BaseLoader):

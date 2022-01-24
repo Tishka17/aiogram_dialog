@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram import Bot
@@ -7,9 +8,12 @@ from aiogram.types import Chat, User
 from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
     Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
-    StartMode, DialogUpdate,
+    StartMode, DialogUpdate,  FakeChat, FakeUser,
 )
 from ..context.stack import DEFAULT_STACK_ID
+from ..utils import is_chat_loaded, is_user_loaded
+
+logger = getLogger(__name__)
 
 
 class BgManager(BaseDialogManager):
@@ -21,6 +25,7 @@ class BgManager(BaseDialogManager):
             registry: DialogRegistryProto,
             intent_id: Optional[str],
             stack_id: Optional[str],
+            load: bool = False,
     ):
         self.user = user
         self.chat = chat
@@ -28,6 +33,7 @@ class BgManager(BaseDialogManager):
         self._registry = registry
         self.intent_id = intent_id
         self.stack_id = stack_id
+        self.load = load
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -38,15 +44,17 @@ class BgManager(BaseDialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            load: bool = False,
     ) -> "BaseDialogManager":
-        if user_id is not None:
-            user = User(id=user_id, is_bot=False, first_name="")
-        else:
-            user = self.user
-        if chat_id is not None:
-            chat = Chat(id=chat_id, type="")
-        else:
+        if chat_id in (None, self.chat.id):
             chat = self.chat
+        else:
+            chat = FakeChat(id=chat_id, type="")
+
+        if user_id in (None, self.user.id):
+            user = self.user
+        else:
+            user = FakeUser(id=user_id, is_bot=False, first_name="")
 
         same_chat = (user.id == self.user.id and chat.id == self.chat.id)
         if stack_id is None:
@@ -66,6 +74,7 @@ class BgManager(BaseDialogManager):
             registry=self.registry,
             intent_id=intent_id,
             stack_id=stack_id,
+            load=load,
         )
 
     def _base_event_params(self):
@@ -84,7 +93,25 @@ class BgManager(BaseDialogManager):
             )
         )
 
+    async def _load(self):
+        if self.load:
+            if not is_chat_loaded(self.chat):
+                logger.debug("load chat: %s", self.chat.id)
+                self.chat = await self.bot.get_chat(self.chat.id)
+            if not is_user_loaded(self.user):
+                logger.debug(
+                    "load user %s from chat %s",
+                    self.chat.id,
+                    self.user.id
+                )
+                chat_member = await self.bot.get_chat_member(
+                    self.chat.id,
+                    self.user.id
+                )
+                self.user = chat_member.user
+
     async def done(self, result: Any = None) -> None:
+        await self._load()
         await self._notify(DialogUpdateEvent(
             action=Action.DONE,
             data=result,
@@ -93,6 +120,7 @@ class BgManager(BaseDialogManager):
 
     async def start(self, state: State, data: Data = None,
                     mode: StartMode = StartMode.NORMAL) -> None:
+        await self._load()
         await self._notify(DialogStartEvent(
             action=Action.START,
             data=data,
@@ -102,6 +130,7 @@ class BgManager(BaseDialogManager):
         ))
 
     async def switch_to(self, state: State) -> None:
+        await self._load()
         await self._notify(DialogSwitchEvent(
             action=Action.SWITCH,
             data={},
@@ -110,6 +139,7 @@ class BgManager(BaseDialogManager):
         ))
 
     async def update(self, data: Dict) -> None:
+        await self._load()
         await self._notify(DialogUpdateEvent(
             action=Action.UPDATE,
             data=data,

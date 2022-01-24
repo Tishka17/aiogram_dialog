@@ -13,7 +13,7 @@ from .protocols import (
     NewMessage,
 )
 from ..context.context import Context
-from ..context.events import ChatEvent, StartMode, Data
+from ..context.events import ChatEvent, StartMode, Data, FakeChat, FakeUser
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
@@ -226,17 +226,21 @@ class ManagerImpl(DialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            load: bool = False,
     ) -> "BaseDialogManager":
-        if user_id is not None:
-            user = User(id=user_id, is_bot=False, first_name="")
+        current_chat = self.data['event_chat']
+        current_user = self.event.from_user
+        if chat_id in (None, current_chat.id):
+            chat = current_chat
         else:
-            user = self.event.from_user
-        if chat_id is not None:
-            chat = Chat(id=chat_id, type="")
-        else:
-            chat = self.data['event_chat']
+            chat = FakeChat(id=chat_id)
 
-        same_chat = (user.id == self.event.from_user.id and chat.id == self.data['event_chat'].id)
+        if user_id in (None, current_user.id):
+            user = current_user
+        else:
+            user = FakeUser(id=user_id)
+
+        same_chat = (user.id == current_user.id and chat.id == current_chat.id)
         intent_id = None
         if stack_id is None:
             if same_chat:
@@ -253,6 +257,7 @@ class ManagerImpl(DialogManager):
             registry=self.registry,
             intent_id=intent_id,
             stack_id=stack_id,
+            load=load,
         )
 
     async def close_manager(self) -> None:

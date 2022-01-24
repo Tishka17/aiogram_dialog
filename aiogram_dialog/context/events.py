@@ -1,10 +1,11 @@
 from enum import Enum, auto
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Literal
 from typing import Union, List
 
 from aiogram.dispatcher.fsm.state import State
 from aiogram.types import (
-    Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject, Update,
+    Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject,
+    Update,
 )
 
 DIALOG_EVENT_NAME = "aiogd_update"
@@ -62,3 +63,11 @@ class DialogUpdate(Update):
     @property
     def event(self) -> DialogUpdateEvent:
         return self.aiogd_update
+
+
+class FakeUser(User):
+    fake: Literal[True] = True
+
+
+class FakeChat(Chat):
+    fake: Literal[True] = True
