@@ -40,4 +40,6 @@ class Case(Text):
 
     async def _render_text(self, data, manager: DialogManager) -> str:
         selection = self.selector(data, self, manager)
+        if selection not in self.texts and ... in self.texts:
+            selection = ...
         return await self.texts[selection].render_text(data, manager)
