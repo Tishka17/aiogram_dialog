@@ -41,17 +41,17 @@ def get_chat(event: ChatEvent) -> Chat:
 def is_chat_loaded(chat: Chat) -> bool:
     """
     Checks if chat is correctly loaded from telegram.
-    Otherwise, it is created with no data inside
+    Otherwise, it is created with no data inside as a FakeChat
     """
-    return chat.type is not None
+    return getattr(chat, "fake", False)
 
 
 def is_user_loaded(user: User) -> bool:
     """
     Checks if chat is correctly loaded from telegram.
-    Otherwise, it is created with no data inside
+    Otherwise, it is created with no data inside as a FakeUser
     """
-    return user.is_bot is not None
+    return getattr(user, "fake", False)
 
 
 def get_media_id(message: Message) -> Optional[str]:
