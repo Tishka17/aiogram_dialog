@@ -8,7 +8,7 @@ from aiogram.types import Chat, User
 from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
     Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
-    StartMode
+    StartMode, FakeChat, FakeUser,
 )
 from ..context.stack import DEFAULT_STACK_ID
 from ..utils import is_chat_loaded, is_user_loaded
@@ -49,12 +49,12 @@ class BgManager(BaseDialogManager):
         if chat_id in (None, self.chat.id):
             chat = self.chat
         else:
-            chat = Chat(id=chat_id)
+            chat = FakeChat(id=chat_id)
 
         if user_id in (None, self.user.id):
             user = self.user
         else:
-            user = User(id=user_id)
+            user = FakeUser(id=user_id)
 
         same_chat = (user.id == self.user.id and chat.id == self.chat.id)
         if stack_id is None:

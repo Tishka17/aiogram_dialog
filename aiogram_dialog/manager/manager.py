@@ -12,7 +12,7 @@ from .protocols import (
     NewMessage,
 )
 from ..context.context import Context
-from ..context.events import ChatEvent, StartMode, Data
+from ..context.events import ChatEvent, StartMode, Data, FakeChat, FakeUser
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
@@ -220,12 +220,12 @@ class ManagerImpl(DialogManager):
         if chat_id in (None, current_chat.id):
             chat = current_chat
         else:
-            chat = Chat(id=chat_id)
+            chat = FakeChat(id=chat_id)
 
         if user_id in (None, current_user.id):
             user = current_user
         else:
-            user = User(id=user_id)
+            user = FakeUser(id=user_id)
 
         same_chat = (user.id == current_user.id and chat.id == current_chat.id)
         intent_id = None
