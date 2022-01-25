@@ -16,6 +16,7 @@ from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
+ItemUrlGetter = Callable[[Any], Optional[str]]
 ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
     [ChatEvent, ManagedWidgetAdapter["Select"], DialogManager, str],
@@ -40,7 +41,8 @@ class Select(Keyboard):
                  item_id_getter: ItemIdGetter,
                  items: Union[str, Sequence],
                  on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
-                 when: Union[str, Callable] = None):
+                 when: Union[str, Callable] = None,
+                 item_url_getter: Optional[ItemUrlGetter] = None):
         super().__init__(id, when)
         self.text = text
         self.widget_id = id
@@ -51,6 +53,10 @@ class Select(Keyboard):
             self.items_getter = itemgetter(items)
         else:
             self.items_getter = get_identity(items)
+        if item_url_getter is None:
+            self.item_url_getter = get_identity(None)
+        else:
+            self.item_url_getter = item_url_getter
 
     async def _render_keyboard(self, data: Dict,
                                manager: DialogManager) -> List[List[InlineKeyboardButton]]:
@@ -64,7 +70,8 @@ class Select(Keyboard):
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
         return InlineKeyboardButton(
             text=await self.text.render_text(data, manager),
-            callback_data=self.callback_data_prefix + str(self.item_id_getter(item))
+            callback_data=self.callback_data_prefix + str(self.item_id_getter(item)),
+            url=self.item_url_getter(item)
         )
 
     async def process_callback(self, c: CallbackQuery, dialog: Dialog,
