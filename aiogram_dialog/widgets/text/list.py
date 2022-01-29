@@ -16,13 +16,15 @@ def get_identity(items: Sequence) -> ItemsGetter:
 
 
 class List(Text):
-    def __init__(self, field: Text, items: Union[str, Sequence], sep: str = "\n",
-                 when: WhenCondition = None):
+    def __init__(self, field: Text, items: Union[str, Callable, Sequence],
+                 sep: str = "\n", when: WhenCondition = None):
         super().__init__(when)
         self.field = field
         self.sep = sep
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
+        elif isinstance(items, Callable):
+            self.items_getter = items
         else:
             self.items_getter = get_identity(items)
 
