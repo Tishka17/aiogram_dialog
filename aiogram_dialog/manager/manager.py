@@ -183,7 +183,7 @@ class ManagerImpl(DialogManager):
                     # * we don't really care fo exact content type
                     document = Document(
                         file_id=stack.last_media_id,
-                        file_unique_id=""
+                        file_unique_id=stack.last_media_unique_id,
                     )
                     text = None
                 else:
@@ -233,12 +233,12 @@ class ManagerImpl(DialogManager):
         if chat_id in (None, current_chat.id):
             chat = current_chat
         else:
-            chat = FakeChat(id=chat_id)
+            chat = FakeChat(id=chat_id, type="")
 
         if user_id in (None, current_user.id):
             user = current_user
         else:
-            user = FakeUser(id=user_id)
+            user = FakeUser(id=user_id, is_bot=False, first_name="")
 
         same_chat = (user.id == current_user.id and chat.id == current_chat.id)
         intent_id = None

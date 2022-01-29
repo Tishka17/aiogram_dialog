@@ -15,7 +15,7 @@ from .protocols import (
 )
 from .update_handler import handle_update
 from ..context.events import StartMode, DIALOG_EVENT_NAME, DialogUpdate
-from ..context.intent_filter import IntentFilter, IntentMiddleware
+from ..context.intent_filter import IntentFilter, IntentMiddleware, IntentErrorMiddleware
 from ..context.media_storage import MediaIdStorage
 
 
@@ -80,8 +80,14 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.update.outer_middleware(
             ManagerMiddleware(self)
         )
+        self.dp.errors.outer_middleware(
+            ManagerMiddleware(self)
+        )
         self.dp.update.outer_middleware(
             IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
+        )
+        self.dp.errors.outer_middleware(
+            IntentErrorMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
         )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:

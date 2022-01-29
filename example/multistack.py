@@ -10,6 +10,7 @@ from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, StartMode
+from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel
 from aiogram_dialog.widgets.text import Const, Format
@@ -36,7 +37,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
+async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
     await m.answer(f"Nice to meet you, {m.text}")
 
 
