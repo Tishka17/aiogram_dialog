@@ -5,7 +5,7 @@ from aiogram.types import Update
 
 from .manager import ManagerImpl
 from .protocols import DialogManager, DialogRegistryProto
-from ..context.events import DialogUpdateEvent, DIALOG_EVENT_NAME, ChatEvent
+from ..context.events import DialogUpdateEvent, ChatEvent
 
 MANAGER_KEY = "dialog_manager"
 
@@ -18,18 +18,14 @@ class ManagerMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
-            event: Union[Update, DialogUpdateEvent],
+            event: ChatEvent,
             data: Dict[str, Any],
     ) -> Any:
-
-        if event.event_type in ['message', 'callback_query', 'my_chat_member', DIALOG_EVENT_NAME]:
-            content: ChatEvent = cast(ChatEvent, event.event)
-
-            data[MANAGER_KEY] = ManagerImpl(
-                event=content,
-                registry=self.registry,
-                data=data,
-            )
+        data[MANAGER_KEY] = ManagerImpl(
+            event=event,
+            registry=self.registry,
+            data=data,
+        )
 
         try:
             return await handler(event, data)

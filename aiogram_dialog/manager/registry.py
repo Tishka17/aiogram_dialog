@@ -77,10 +77,19 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.message.register(start_dialog, Command(commands="start"), any_state)
 
     def _register_middleware(self):
-        self.dp.update.outer_middleware(
+        self.dp.message.middleware(
             ManagerMiddleware(self)
         )
-        self.dp.errors.outer_middleware(
+        self.dp.callback_query.middleware(
+            ManagerMiddleware(self)
+        )
+        self.dp.my_chat_member.middleware(
+            ManagerMiddleware(self)
+        )
+        self.update_handler.middleware(
+            ManagerMiddleware(self)
+        )
+        self.dp.errors.middleware(
             ManagerMiddleware(self)
         )
         self.dp.update.outer_middleware(
