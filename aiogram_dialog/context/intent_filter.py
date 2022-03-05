@@ -6,9 +6,9 @@ from aiogram.dispatcher.filters.base import BaseFilter
 from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import CallbackQuery
-from aiogram.types import Update
-from aiogram.types.base import TelegramObject
+from aiogram.types import (
+    Message, CallbackQuery, Update, TelegramObject, ChatMemberUpdated,
+)
 
 from .context import Context
 from .events import DialogUpdateEvent, DialogUpdate
@@ -39,34 +39,12 @@ class IntentFilter(BaseFilter):
         return context and context.state.group == self.aiogd_intent_state_group
 
 
-class IntentMiddleware(BaseMiddleware):
+class IntentMiddlewareFactory:
     def __init__(self, storage: BaseStorage,
                  state_groups: Dict[str, Type[StatesGroup]]):
         super().__init__()
         self.storage = storage
         self.state_groups = state_groups
-
-    async def __call__(
-            self,
-            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
-            event: Update,
-            data: Dict[str, Any],
-    ) -> Any:
-        try:
-            if isinstance(event, DialogUpdate):
-                await self.on_pre_process_aiogd_update(event.aiogd_update, data)
-            elif event.message:
-                await self.on_pre_process_message(data)
-            elif event.my_chat_member:
-                await self.on_pre_process_message(data)
-            elif event.callback_query:
-                await self.on_pre_process_callback_query(event.callback_query, data)
-        except CancelHandler:
-            return
-        try:
-            return await handler(event, data)
-        finally:
-            await self.on_post_process(data)
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
@@ -78,7 +56,9 @@ class IntentMiddleware(BaseMiddleware):
         )
         return proxy
 
-    async def on_pre_process_message(self, data: dict):
+    async def process_message(
+            self, handler: Callable, event: Message, data: dict,
+    ):
         proxy = self.storage_proxy(data)
         stack = await proxy.load_stack()
         if stack.empty():
@@ -88,14 +68,13 @@ class IntentMiddleware(BaseMiddleware):
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
+        return await handler(event, data)
 
-    async def on_post_process(self, data: dict):
-        proxy: StorageProxy = data.pop(STORAGE_KEY, None)
-        if proxy:
-            await proxy.save_context(data.pop(CONTEXT_KEY))
-            await proxy.save_stack(data.pop(STACK_KEY))
+    process_my_chat_member = process_message
 
-    async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
+    async def process_aiogd_update(
+            self, handler: Callable, event: DialogUpdateEvent, data: dict,
+    ):
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
         if event.intent_id is not None:
@@ -121,12 +100,16 @@ class IntentMiddleware(BaseMiddleware):
                 context = await proxy.load_context(stack.last_intent_id())
         else:
             raise InvalidStackIdError(
-                f"Both stack id and intent id are None: {event}")
+                f"Both stack id and intent id are None: {event}"
+            )
 
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
+        return await handler(event, data)
 
-    async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
+    async def process_callback_query(
+            self, handler: Callable, event: CallbackQuery, data: dict,
+    ):
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
 
@@ -149,6 +132,19 @@ class IntentMiddleware(BaseMiddleware):
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
         data[CALLBACK_DATA_KEY] = original_data
+        return await handler(event, data)
+
+
+SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member'}
+
+
+async def context_saver_middleware(handler, event, data):
+    result = await handler(event, data)
+    proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+    if proxy:
+        await proxy.save_context(data.pop(CONTEXT_KEY))
+        await proxy.save_stack(data.pop(STACK_KEY))
+    return result
 
 
 class IntentErrorMiddleware(BaseMiddleware):
@@ -160,18 +156,17 @@ class IntentErrorMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[
+                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
 
         try:
             error = data["exception"]
-
             if isinstance(error, InvalidStackIdError):
                 return
-
-            if event.event_type not in ['message', 'callback_query', 'my_chat_member']:
+            if event.event_type not in SUPPORTED_ERROR_EVENTS:
                 return
 
             chat = data['event_chat']
