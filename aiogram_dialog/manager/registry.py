@@ -77,27 +77,24 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.message.register(start_dialog, Command(commands="start"), any_state)
 
     def _register_middleware(self):
-        self.dp.message.middleware(
-            ManagerMiddleware(self)
+        manager_middleware = ManagerMiddleware(self)
+        intent_middleware = IntentMiddleware(
+            storage=self.dp.fsm.storage, state_groups=self.state_groups
         )
-        self.dp.callback_query.middleware(
-            ManagerMiddleware(self)
-        )
-        self.dp.my_chat_member.middleware(
-            ManagerMiddleware(self)
-        )
-        self.update_handler.middleware(
-            ManagerMiddleware(self)
-        )
-        self.dp.errors.middleware(
-            ManagerMiddleware(self)
-        )
-        self.dp.update.outer_middleware(
-            IntentMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
-        )
-        self.dp.errors.outer_middleware(
-            IntentErrorMiddleware(storage=self.dp.fsm.storage, state_groups=self.state_groups)
-        )
+        self.dp.message.middleware(manager_middleware)
+        self.dp.callback_query.middleware(manager_middleware)
+        self.update_handler.middleware(manager_middleware)
+        self.dp.my_chat_member.middleware(manager_middleware)
+        self.dp.errors.middleware(manager_middleware)
+
+        self.dp.message.outer_middleware(intent_middleware)
+        self.dp.callback_query.outer_middleware(intent_middleware)
+        self.update_handler.outer_middleware(intent_middleware)
+        self.dp.my_chat_member.outer_middleware(intent_middleware)
+        self.dp.errors.outer_middleware(IntentErrorMiddleware(
+            storage=self.dp.fsm.storage, state_groups=self.state_groups
+        ))
+
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
         return self.dialogs[state.group]

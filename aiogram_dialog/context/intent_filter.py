@@ -6,9 +6,9 @@ from aiogram.dispatcher.filters.base import BaseFilter
 from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import CallbackQuery
-from aiogram.types import Update
-from aiogram.types.base import TelegramObject
+from aiogram.types import (
+    Message, CallbackQuery, Update, TelegramObject, ChatMemberUpdated,
+)
 
 from .context import Context
 from .events import DialogUpdateEvent, DialogUpdate
@@ -48,19 +48,27 @@ class IntentMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[
+                [Union[Update, DialogUpdate], Dict[str, Any]],
+                Awaitable[Any]
+            ],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
         try:
-            if isinstance(event, DialogUpdate):
-                await self.on_pre_process_aiogd_update(event.aiogd_update, data)
-            elif event.message:
+            if isinstance(event, Message):
                 await self.on_pre_process_message(data)
-            elif event.my_chat_member:
+            elif isinstance(event, ChatMemberUpdated):
                 await self.on_pre_process_message(data)
-            elif event.callback_query:
-                await self.on_pre_process_callback_query(event.callback_query, data)
+            elif isinstance(event, CallbackQuery):
+                await self.on_pre_process_callback_query(event, data)
+            elif isinstance(event, DialogUpdateEvent):
+                await self.on_pre_process_aiogd_update(event, data)
+            else:
+                logger.error(
+                    "Unsupported event for IntentMiddleware: %s",
+                    type(event)
+                )
         except CancelHandler:
             return
         try:
@@ -95,7 +103,8 @@ class IntentMiddleware(BaseMiddleware):
             await proxy.save_context(data.pop(CONTEXT_KEY))
             await proxy.save_stack(data.pop(STACK_KEY))
 
-    async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent, data: dict):
+    async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent,
+                                          data: dict):
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
         if event.intent_id is not None:
@@ -121,12 +130,14 @@ class IntentMiddleware(BaseMiddleware):
                 context = await proxy.load_context(stack.last_intent_id())
         else:
             raise InvalidStackIdError(
-                f"Both stack id and intent id are None: {event}")
+                f"Both stack id and intent id are None: {event}"
+            )
 
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
 
-    async def on_pre_process_callback_query(self, event: CallbackQuery, data: dict):
+    async def on_pre_process_callback_query(self, event: CallbackQuery,
+                                            data: dict):
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
 
@@ -151,6 +162,9 @@ class IntentMiddleware(BaseMiddleware):
         data[CALLBACK_DATA_KEY] = original_data
 
 
+SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member'}
+
+
 class IntentErrorMiddleware(BaseMiddleware):
     def __init__(self, storage: BaseStorage,
                  state_groups: Dict[str, Type[StatesGroup]]):
@@ -160,18 +174,17 @@ class IntentErrorMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[
+                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
 
         try:
             error = data["exception"]
-
             if isinstance(error, InvalidStackIdError):
                 return
-
-            if event.event_type not in ['message', 'callback_query', 'my_chat_member']:
+            if event.event_type not in SUPPORTED_ERROR_EVENTS:
                 return
 
             chat = data['event_chat']
