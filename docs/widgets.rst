@@ -11,7 +11,7 @@ For example:
 * ``Const("Hello, {name}!")`` will be rendered as ``Hello, {name}!``
 * ``Format("Hello, {name}!")`` will interpolate with window data and transformed to something like ``Hello, Tishka17!``
 
-So, widgets can use data. But data must be loaded from somewhere. To do it Windows has `getter` attribute.
+So, widgets can use data. But data must be loaded from somewhere. To do it Windows has ``getter`` attribute.
 So let's create a function and use it to enrich our window with data.
 
 .. note::
@@ -74,6 +74,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Url`_ - single inline button with url
 * :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
 * :ref:`ScrollingGroup<scrolling_group>` - the same as the ``Group``, but with the ability to scroll through pages with buttons.
+* ``ListGroup`` - group of widgets applied repeated multiple times for each item in list
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
 * :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
 * `Checkbox`_ - button with two states
