@@ -133,7 +133,8 @@ class ManagerImpl(DialogManager):
             old_dialog = self._dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError(
-                    "Cannot start dialog on top of one with launch_mode==SINGLE")
+                    "Cannot start dialog on top of one with launch_mode==SINGLE"
+                )
 
         new_dialog = self.registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
