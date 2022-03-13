@@ -10,7 +10,7 @@ from .base import Keyboard
 from ..when import WhenCondition
 
 
-class SubManager:
+class SubManager(DialogManager):
     def __init__(
             self,
             manager: DialogManager,
@@ -72,8 +72,9 @@ class ListGroup(Keyboard):
         kbd: List[List[InlineKeyboardButton]] = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
         item_id = str(self.item_id_getter(item))
+        sub_manager = SubManager(manager, self.widget_id, item_id)
         for b in self.buttons:
-            b_kbd = await b.render_keyboard(data, manager)
+            b_kbd = await b.render_keyboard(data, sub_manager)
             for row in b_kbd:
                 for btn in row:
                     if btn.callback_data:
@@ -90,12 +91,11 @@ class ListGroup(Keyboard):
     ) -> bool:
         if not c.data.startswith(f"{self.widget_id}:"):
             return False
-        widget_id, item_id, callback_data = c.data.split(":", maxsplit=2)
+        _, item_id, callback_data = c.data.split(":", maxsplit=2)
         c_vars = vars(c)
         c_vars["data"] = callback_data
         c = CallbackQuery(**c_vars)
+        sub_manager = SubManager(manager, self.widget_id, item_id)
         for b in self.buttons:
-            sub_manager = cast(SubManager(manager, widget_id, item_id),
-                               DialogManager)
             if await b.process_callback(c, dialog, sub_manager):
                 return True
