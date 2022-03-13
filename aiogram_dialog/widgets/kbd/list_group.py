@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Union, Sequence, Callable, Any
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager, Context
+from aiogram_dialog.manager.protocols import DialogManager, Context
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
@@ -117,8 +117,10 @@ class ListGroup(Keyboard):
 class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
     def find_for_item(
             self, widget_id: str, item_id: str
-    ) -> Optional[ManagedWidgetAdapter]:
+    ) -> Optional[Any]:
         widget = self.widget.find_for_item(self.manager, widget_id, item_id)
         if widget:
-            return widget.managed(SubManager(self.manager, widget_id, item_id))
+            return widget.managed(SubManager(
+                self.manager, self.widget.widget_id, item_id,
+            ))
         return None
