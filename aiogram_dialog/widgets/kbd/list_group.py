@@ -1,12 +1,13 @@
 import dataclasses
 from operator import itemgetter
-from typing import List, Dict, Optional, Union, Sequence, Callable, Any, cast
+from typing import List, Dict, Optional, Union, Sequence, Callable, Any
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.manager import DialogManager, Context
 from .base import Keyboard
+from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
 
 
@@ -86,6 +87,15 @@ class ListGroup(Keyboard):
             kbd.extend(b_kbd)
         return kbd
 
+    def find_for_item(
+            self, manager: DialogManager, widget_id: str, item_id: str
+    ) -> Optional[Keyboard]:
+        for btn in self.buttons:
+            widget = btn.find(widget_id)
+            if widget:
+                return widget
+        return None
+
     async def process_callback(
             self, c: CallbackQuery, dialog: Dialog, manager: DialogManager
     ) -> bool:
@@ -99,3 +109,16 @@ class ListGroup(Keyboard):
         for b in self.buttons:
             if await b.process_callback(c, dialog, sub_manager):
                 return True
+
+    def managed(self, manager: DialogManager):
+        return ManagedListGroupAdapter(self, manager)
+
+
+class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
+    def find_for_item(
+            self, widget_id: str, item_id: str
+    ) -> Optional[ManagedWidgetAdapter]:
+        widget = self.widget.find_for_item(self.manager, widget_id, item_id)
+        if widget:
+            return widget.managed(SubManager(self.manager, widget_id, item_id))
+        return None
