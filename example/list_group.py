@@ -7,12 +7,11 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, Window, )
+    Dialog, DialogManager, DialogRegistry, Window,
+)
 from aiogram_dialog.manager.protocols import LaunchMode
 from aiogram_dialog.widgets.kbd import (
     Row, Checkbox, Radio, ManagedCheckboxAdapter,
-)
-from aiogram_dialog.widgets.kbd.list_group import (
     ListGroup, ManagedListGroupAdapter,
 )
 from aiogram_dialog.widgets.text import Const, Format
