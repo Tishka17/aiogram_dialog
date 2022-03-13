@@ -30,6 +30,15 @@ class IncorrectBackgroundError(DialogsError):
     pass
 
 
+# navigation
+class UnregisteredDialogError(DialogsError):
+    pass
+
+
+class UnregisteredWindowError(DialogsError):
+    pass
+
+
 # widgets
 class InvalidWidgetIdError(DialogsError):
     pass
