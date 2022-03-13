@@ -16,6 +16,7 @@ from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
 from ..context.intent_filter import IntentFilter, IntentMiddleware
 from ..context.media_storage import MediaIdStorage
+from ..exceptions import UnregisteredDialogError
 
 
 class DialogRegistry(DialogRegistryProto):
@@ -72,7 +73,13 @@ class DialogRegistry(DialogRegistryProto):
         )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
-        return self.dialogs[state.group]
+        try:
+            return self.dialogs[state.group]
+        except KeyError as e:
+            raise UnregisteredDialogError(
+                f"No dialog found for `{state.group}`"
+                f" (looking by state `{state}`)"
+            ) from e
 
     def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
         filters_set = self.dp.filters_factory.resolve(

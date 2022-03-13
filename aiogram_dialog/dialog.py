@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
 
 from .context.events import Data
+from .exceptions import UnregisteredWindowError
 from .manager.protocols import (
     DialogRegistryProto, ManagedDialogProto, DialogManager, NewMessage,
     LaunchMode,
@@ -100,13 +101,19 @@ class Dialog(ManagedDialogProto):
     async def switch_to(self, state: State, manager: DialogManager):
         if state.group != self.states_group():
             raise ValueError(
-                "Cannot switch from %s to another states group %s" %
-                (state.group, self.states_group())
+                f"Cannot switch from `{self.states_group_name()}` "
+                f"to another states group {state.group}"
             )
         await manager.switch_to(state)
 
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
-        return self.windows[manager.current_context().state]
+        try:
+            return self.windows[manager.current_context().state]
+        except ValueError as e:
+            raise UnregisteredWindowError(
+                f"No window found for `{manager.current_context().state}` "
+                f"Current state group is `{self.states_group_name()}`"
+            ) from e
 
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)
