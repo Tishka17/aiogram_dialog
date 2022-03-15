@@ -38,6 +38,9 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 async def name_handler(m: Message, dialog: ManagedDialogAdapterProto,
                        manager: DialogManager):
+    if manager.is_preview():
+        await dialog.next()
+        return
     manager.current_context().dialog_data["name"] = m.text
     await m.answer(f"Nice to meet you, {m.text}")
     await dialog.next()

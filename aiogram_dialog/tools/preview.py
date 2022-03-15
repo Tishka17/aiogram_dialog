@@ -33,6 +33,8 @@ class RenderWindow:
     state: str
     keyboard: List[List[RenderButton]]
     photo: Optional[str]
+    text_input: Optional[RenderButton]
+    attachment_input: Optional[RenderButton]
 
 
 @dataclass
@@ -140,6 +142,29 @@ async def create_button(
     return RenderButton(title=title, state=state.state)
 
 
+async def render_input(
+        manager: FakeManager,
+        state: State, dialog: Dialog,
+        content_type: str,
+) -> Optional[RenderButton]:
+    message = Message(message_id=1, **{content_type: "<stub>"})
+    try:
+        manager.set_state(state)
+        await dialog._message_handler(message, dialog_manager=manager)
+    except Exception:
+        logging.exception("Input %s", content_type)
+
+    if state == manager.current_context().state:
+        logging.info("State not changed")
+        return None
+    logging.info("State changed %s >> %s",
+                 state, manager.current_context().state)
+    return RenderButton(
+        title=content_type,
+        state=manager.current_context().state.state,
+    )
+
+
 async def create_window(
         state: State, msg: NewMessage, manager: FakeManager,
         dialog: Dialog,
@@ -162,7 +187,13 @@ async def create_window(
         message=text.replace("\n", "<br>"),
         state=state.state,
         photo=create_photo(media=msg.media),
-        keyboard=keyboard
+        keyboard=keyboard,
+        text_input=await render_input(
+            manager, state, dialog, ContentType.TEXT
+        ),
+        attachment_input=await render_input(
+            manager, state, dialog, ContentType.PHOTO
+        ),
     )
 
 

@@ -188,6 +188,20 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
+                {% if window.text_input %}
+                    <div class="keyboard-row">
+                        <a href="#{{ window.text_input.state }}" class="keyboard-button keyboard-input">
+                            ⌨️ TextInput
+                        </a>
+                    </div>
+                {% endif %}
+                {% if window.attachment_input %}
+                <div class="keyboard-row">
+                    <a href="#{{ window.attachment_input.state }}" class="keyboard-button keyboard-attachment">
+                        📎 MessageInput
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
