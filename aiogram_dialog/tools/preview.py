@@ -96,7 +96,7 @@ class FakeManager(DialogManager):
         self.set_state(state)
 
     async def done(self, result: Any = None) -> None:
-        pass
+        self.set_state(State("-"))
 
     def current_stack(self) -> Optional[Stack]:
         return Stack()
@@ -137,7 +137,7 @@ async def create_button(
             CallbackQuery(data=callback), dialog_manager=manager,
         )
     except Exception:
-        pass
+        logging.debug("Click %s", callback)
     state = manager.current_context().state
     return RenderButton(title=title, state=state.state)
 
@@ -152,12 +152,12 @@ async def render_input(
         manager.set_state(state)
         await dialog._message_handler(message, dialog_manager=manager)
     except Exception:
-        logging.exception("Input %s", content_type)
+        logging.debug("Input %s", content_type)
 
     if state == manager.current_context().state:
-        logging.info("State not changed")
+        logging.debug("State not changed")
         return None
-    logging.info("State changed %s >> %s",
+    logging.debug("State changed %s >> %s",
                  state, manager.current_context().state)
     return RenderButton(
         title=content_type,

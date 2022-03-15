@@ -47,6 +47,9 @@ async def name_handler(m: Message, dialog: ManagedDialogAdapterProto,
 
 
 async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
+    if manager.is_preview():
+        await manager.done()
+        return
     await c.message.answer("Thank you. To start again click /start")
     await manager.done()
 
