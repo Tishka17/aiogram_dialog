@@ -84,6 +84,7 @@
             max-height: 256px;
             object-fit: cover;
         }
+
         .body > .text {
             padding-bottom: 8px;
         }
@@ -101,21 +102,20 @@
         .keyboard-button {
             display: inline-block;
             height: auto;
-            padding: 8px 8px;
+            padding: 8px 16px;
             min-width: 72px;
             text-align: center;
             border-radius: 5px;
-            border: 1px solid #e0e0e0;
-            background-color: rgba(0, 0, 0, 0.25);
+            background-color: rgba(0, 32, 0, 0.3);
             font-weight: bolder;
             color: #ffffff;
-            transition: opacity 500ms;
+            transition: background-color 300ms;
             width: 100%;
             text-decoration: none;
         }
 
         .keyboard-button:hover {
-            opacity: 0.75;
+            background-color: rgba(64, 96, 64, 0.3);
         }
 
         .start {

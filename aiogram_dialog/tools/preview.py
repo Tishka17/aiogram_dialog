@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import User, Chat, Message, ContentType
+from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import DialogRegistry, DialogManager, Dialog
@@ -106,7 +106,25 @@ def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
         return str(media.file_id)
 
 
-def create_window(state: State, msg: NewMessage) -> RenderWindow:
+async def create_button(
+        title: str, callback: str, manager: FakeManager,
+        state: State, dialog: Dialog,
+) -> RenderButton:
+    try:
+        manager.set_state(state)
+        await dialog._callback_handler(
+            CallbackQuery(data=callback), dialog_manager=manager,
+        )
+        state = manager.current_context().state
+    except Exception:
+        pass
+    return RenderButton(title=title, state=state.state)
+
+
+async def create_window(
+        state: State, msg: NewMessage, manager: FakeManager,
+        dialog: Dialog,
+) -> RenderWindow:
     if msg.parse_mode is None or msg.parse_mode == "None":
         text = html.escape(msg.text)
     else:
@@ -118,7 +136,10 @@ def create_window(state: State, msg: NewMessage) -> RenderWindow:
         photo=create_photo(media=msg.media),
         keyboard=[
             [
-                RenderButton(title=button.text, state=button.callback_data)
+                await create_button(
+                    title=button.text, callback=button.callback_data,
+                    manager=manager, dialog=dialog, state=state,
+                )
                 for button in row
             ]
             for row in msg.reply_markup.inline_keyboard
@@ -133,7 +154,9 @@ async def render_dialog(manager: FakeManager, group: StatesGroup,
     for state in group.states:
         manager.set_state(state)
         await dialog.show(manager)
-        windows.append(create_window(state, manager.new_message))
+        windows.append(await create_window(
+            state, manager.new_message, manager, dialog,
+        ))
 
     return RenderDialog(state_group=str(group), windows=windows)
 
