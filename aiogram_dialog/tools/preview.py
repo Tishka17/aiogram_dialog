@@ -1,20 +1,24 @@
 import html
+import logging
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Any
 
+from aiogram import Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
-from aiogram_dialog.context.events import DialogUpdateEvent, Action
+from aiogram_dialog.context.events import DialogUpdateEvent, Action, StartMode, \
+    Data
 from aiogram_dialog.context.stack import Stack
 from aiogram_dialog.manager.dialog import ManagedDialogAdapter
 from aiogram_dialog.manager.protocols import (
     NewMessage, DialogRegistryProto, MediaAttachment,
     ManagedDialogAdapterProto,
 )
+from aiogram_dialog.utils import remove_indent_id
 
 
 @dataclass
@@ -78,6 +82,20 @@ class FakeManager(DialogManager):
             state=State(),
         )
 
+    async def switch_to(self, state: State) -> None:
+        self.set_state(state)
+
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+    ) -> None:
+        self.set_state(state)
+
+    async def done(self, result: Any = None) -> None:
+        pass
+
     def current_stack(self) -> Optional[Stack]:
         return Stack()
 
@@ -112,12 +130,13 @@ async def create_button(
 ) -> RenderButton:
     try:
         manager.set_state(state)
+        _, callback = remove_indent_id(callback)
         await dialog._callback_handler(
             CallbackQuery(data=callback), dialog_manager=manager,
         )
-        state = manager.current_context().state
     except Exception:
         pass
+    state = manager.current_context().state
     return RenderButton(title=title, state=state.state)
 
 
@@ -163,6 +182,7 @@ async def render_dialog(manager: FakeManager, group: StatesGroup,
 
 async def render_preview(registry: DialogRegistry, file: str):
     fake_manager = FakeManager(registry)
+    Bot.set_current(registry.dp.bot)
     dialogs = [
         await render_dialog(fake_manager, group, dialog)
         for group, dialog in registry.dialogs.items()
