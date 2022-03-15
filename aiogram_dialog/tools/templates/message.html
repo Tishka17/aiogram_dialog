@@ -102,7 +102,7 @@
         .keyboard-button {
             display: inline-block;
             height: auto;
-            padding: 8px 16px;
+            padding: 8px 8px;
             min-width: 72px;
             text-align: center;
             border-radius: 5px;
@@ -112,6 +112,18 @@
             transition: background-color 300ms;
             width: 100%;
             text-decoration: none;
+        }
+
+        .keyboard-button + .keyboard-button {
+            margin-left: 4px;
+        }
+
+        .keyboard-input, .keyboard-attachment {
+            color: #000000;
+            background-color: rgba(255, 255, 255, 0.5);
+            width: auto;
+            margin: 16px auto 0;
+            adding: 8px 16px;
         }
 
         .keyboard-button:hover {

@@ -129,21 +129,21 @@ async def create_window(
         text = html.escape(msg.text)
     else:
         text = msg.text
+    keyboard = []
+    for row in msg.reply_markup.inline_keyboard:
+        keyboard_row = []
+        for button in row:
+            keyboard_row.append(await create_button(
+                title=button.text, callback=button.callback_data,
+                manager=manager, dialog=dialog, state=state,
+            ))
+        keyboard.append(keyboard_row)
 
     return RenderWindow(
         message=text.replace("\n", "<br>"),
         state=state.state,
         photo=create_photo(media=msg.media),
-        keyboard=[
-            [
-                await create_button(
-                    title=button.text, callback=button.callback_data,
-                    manager=manager, dialog=dialog, state=state,
-                )
-                for button in row
-            ]
-            for row in msg.reply_markup.inline_keyboard
-        ]
+        keyboard=keyboard
     )
 
 
