@@ -38,12 +38,18 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 async def name_handler(m: Message, dialog: ManagedDialogAdapterProto,
                        manager: DialogManager):
+    if manager.is_preview():
+        await dialog.next()
+        return
     manager.current_context().dialog_data["name"] = m.text
     await m.answer(f"Nice to meet you, {m.text}")
     await dialog.next()
 
 
 async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
+    if manager.is_preview():
+        await manager.done()
+        return
     await c.message.answer("Thank you. To start again click /start")
     await manager.done()
 
