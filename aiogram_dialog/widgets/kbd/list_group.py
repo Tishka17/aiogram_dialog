@@ -2,13 +2,16 @@ import dataclasses
 from operator import itemgetter
 from typing import List, Dict, Optional, Union, Sequence, Callable, Any
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import InlineKeyboardButton, CallbackQuery, Message
 
 from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.protocols import DialogManager, Context
+from aiogram_dialog.manager.protocols import (
+    DialogManager, Context, ManagedDialogAdapterProto, NewMessage,
+)
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
+from ...context.stack import Stack
 
 
 class SubManager(DialogManager):
@@ -27,6 +30,24 @@ class SubManager(DialogManager):
         data = context.widget_data.setdefault(self.widget_id, {})
         row_data = data.setdefault(self.item_id, {})
         return dataclasses.replace(context, widget_data=row_data)
+
+    def is_preview(self) -> bool:
+        return self.manager.is_preview()
+
+    def current_stack(self) -> Optional[Stack]:
+        return self.manager.current_stack()
+
+    def dialog(self) -> ManagedDialogAdapterProto:
+        return self.manager.dialog()
+
+    async def close_manager(self) -> None:
+        return await self.manager.close_manager()
+
+    async def show(self, new_message: NewMessage) -> Message:
+        return await self.manager.show(new_message)
+
+    async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        return await self.manager.reset_stack(remove_keyboard)
 
     def __getattr__(self, item):
         return getattr(self.manager, item)

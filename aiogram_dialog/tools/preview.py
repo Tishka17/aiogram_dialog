@@ -10,8 +10,10 @@ from aiogram_dialog import DialogRegistry, DialogManager, Dialog
 from aiogram_dialog.context.context import Context
 from aiogram_dialog.context.events import DialogUpdateEvent, Action
 from aiogram_dialog.context.stack import Stack
+from aiogram_dialog.manager.dialog import ManagedDialogAdapter
 from aiogram_dialog.manager.protocols import (
     NewMessage, DialogRegistryProto, MediaAttachment,
+    ManagedDialogAdapterProto,
 )
 
 
@@ -60,8 +62,8 @@ class FakeManager(DialogManager):
     def set_state(self, state: State):
         self._context.state = state
 
-    def dialog(self) -> Dialog:
-        return self._dialog
+    def dialog(self) -> ManagedDialogAdapterProto:
+        return ManagedDialogAdapter(self._dialog, self)
 
     def is_preview(self) -> bool:
         return True
