@@ -159,7 +159,8 @@ class Dialog(ManagedDialogProto):
         await window.process_callback(c, self, dialog_manager)
         if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
-        await c.answer()
+        if not dialog_manager.is_preview():
+            await c.answer()
 
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
