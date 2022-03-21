@@ -84,6 +84,7 @@
             max-height: 256px;
             object-fit: cover;
         }
+
         .body > .text {
             padding-bottom: 8px;
         }
@@ -105,17 +106,28 @@
             min-width: 72px;
             text-align: center;
             border-radius: 5px;
-            border: 1px solid #e0e0e0;
-            background-color: rgba(0, 0, 0, 0.25);
+            background-color: rgba(0, 32, 0, 0.3);
             font-weight: bolder;
             color: #ffffff;
-            transition: opacity 500ms;
+            transition: background-color 300ms;
             width: 100%;
             text-decoration: none;
         }
 
+        .keyboard-button + .keyboard-button {
+            margin-left: 4px;
+        }
+
+        .keyboard-input, .keyboard-attachment {
+            color: #000000;
+            background-color: rgba(255, 255, 255, 0.5);
+            width: auto;
+            margin: 16px auto 0;
+            adding: 8px 16px;
+        }
+
         .keyboard-button:hover {
-            opacity: 0.75;
+            background-color: rgba(64, 96, 64, 0.3);
         }
 
         .start {
@@ -176,6 +188,20 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
+                {% if window.text_input %}
+                    <div class="keyboard-row">
+                        <a href="#{{ window.text_input.state }}" class="keyboard-button keyboard-input">
+                            ⌨️ TextInput
+                        </a>
+                    </div>
+                {% endif %}
+                {% if window.attachment_input %}
+                <div class="keyboard-row">
+                    <a href="#{{ window.attachment_input.state }}" class="keyboard-button keyboard-attachment">
+                        📎 MessageInput
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     {% endfor %}

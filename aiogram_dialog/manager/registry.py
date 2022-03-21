@@ -20,6 +20,7 @@ from ..context.intent_filter import (
     context_saver_middleware,
 )
 from ..context.media_storage import MediaIdStorage
+from ..exceptions import UnregisteredDialogError
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -106,7 +107,13 @@ class DialogRegistry(DialogRegistryProto):
 
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
-        return self.dialogs[state.group]
+        try:
+            return self.dialogs[state.group]
+        except KeyError as e:
+            raise UnregisteredDialogError(
+                f"No dialog found for `{state.group}`"
+                f" (looking by state `{state}`)"
+            ) from e
 
     def register_update_handler(self, callback, *custom_filters, **kwargs) -> None:
         self.update_handler.register(

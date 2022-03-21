@@ -35,6 +35,7 @@ setup(
     },
     package_data={
         'aiogram_dialog.tools': ['calculator.png'],
+        'aiogram_dialog.tools.templates': ['message.html'],
     },
     python_requires=">=3.8",
 )

@@ -218,12 +218,14 @@ async def edit_media(bot: Bot, new_message: NewMessage,
         parse_mode=new_message.parse_mode,
         disable_web_page_preview=new_message.disable_web_page_preview,
         media=await get_media_source(new_message.media),
+        type=new_message.media.type,
         **new_message.media.kwargs,
     )
     return await bot.edit_message_media(
         message_id=old_message.message_id,
         chat_id=old_message.chat.id,
         media=media,
+        reply_markup=new_message.reply_markup,
     )
 
 

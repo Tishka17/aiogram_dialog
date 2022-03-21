@@ -215,25 +215,25 @@ class DialogManager(BaseDialogManager):
     show_mode: ShowMode  # mode used to show messages
 
     def is_preview(self) -> bool:
-        pass
+        raise NotImplementedError
 
     def current_context(self) -> Optional[Context]:
-        pass
+        raise NotImplementedError
 
     def current_stack(self) -> Optional[Stack]:
-        pass
+        raise NotImplementedError
 
     def dialog(self) -> ManagedDialogAdapterProto:
-        pass
+        raise NotImplementedError
 
     async def close_manager(self) -> None:
-        pass
+        raise NotImplementedError
 
     async def show(self, new_message: NewMessage) -> Message:
-        pass
+        raise NotImplementedError
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
-        pass
+        raise NotImplementedError
 
 
 class ManagedWidgetProto(Protocol):
