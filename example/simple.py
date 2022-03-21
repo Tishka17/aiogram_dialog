@@ -69,7 +69,7 @@ dialog = Dialog(
             path=os.path.join(src_dir, "python_logo.png"),
             type=ContentType.PHOTO,
         ),
-        MessageInput(name_handler),
+        MessageInput(name_handler, content_types=[ContentType.TEXT]),
         state=DialogSG.greeting,
     ),
     Window(

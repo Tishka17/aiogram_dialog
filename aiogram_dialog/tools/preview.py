@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
 
-from aiogram import Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -20,7 +19,6 @@ from aiogram_dialog.manager.protocols import (
     NewMessage, DialogRegistryProto, MediaAttachment,
     ManagedDialogAdapterProto,
 )
-from aiogram_dialog.utils import remove_indent_id
 
 
 @dataclass
@@ -109,7 +107,8 @@ class FakeManager(DialogManager):
 
     async def show(self, new_message: NewMessage) -> Message:
         self.new_message = new_message
-        return Message(message_id=1, date=datetime.now(), chat=Chat(id=1, type="private"))
+        return Message(message_id=1, date=datetime.now(),
+                       chat=Chat(id=1, type="private"))
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -136,12 +135,13 @@ async def create_button(
 ) -> RenderButton:
     if not simulate_events:
         return RenderButton(title=title, state=state.state)
+    callback_query = CallbackQuery(
+        id=1, from_user=User(id=1, is_bot=False, first_name=""),
+        chat_instance="", data=callback,
+    )
+    manager.set_state(state)
     try:
-        manager.set_state(state)
-        _, callback = remove_indent_id(callback)
-        await dialog._callback_handler(
-            CallbackQuery(data=callback), dialog_manager=manager,
-        )
+        await dialog._callback_handler(callback_query, dialog_manager=manager)
     except Exception:
         logging.debug("Click %s", callback)
     state = manager.current_context().state
@@ -155,9 +155,18 @@ async def render_input(
 ) -> Optional[RenderButton]:
     if not simulate_events:
         return None
-    message = Message(message_id=1, **{content_type: "<stub>"})
+    if content_type == ContentType.PHOTO:
+        data = {content_type: []}
+    else:
+        data = {content_type: "<stub>"}
+    message = Message(
+        message_id=1,
+        date=datetime.now(),
+        chat=Chat(id=1, type="private"),
+        **data,
+    )
+    manager.set_state(state)
     try:
-        manager.set_state(state)
         await dialog._message_handler(message, dialog_manager=manager)
     except Exception:
         logging.debug("Input %s", content_type)
@@ -230,7 +239,6 @@ async def render_preview(
         simulate_events: bool = False,
 ):
     fake_manager = FakeManager(registry)
-    Bot.set_current(registry.dp.bot)
     dialogs = [
         await render_dialog(
             manager=fake_manager, group=group, dialog=dialog,
