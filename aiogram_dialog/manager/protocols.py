@@ -19,6 +19,17 @@ class ShowMode(Enum):
     SEND = "send"
 
 
+class Owner(Enum):
+    """
+    `GROUP` any users in a group can use this dialog
+
+    `USER` only one user can use this dialog
+    """
+
+    GROUP = "group"
+    USER = "user"
+
+
 class LaunchMode(Enum):
     """
     `ROOT` dialogs will be always a root dialog in stack.
@@ -213,6 +224,7 @@ class DialogManager(BaseDialogManager):
     event: ChatEvent  # current processing event
     data: Dict  # data from middleware
     show_mode: ShowMode  # mode used to show messages
+    owner: Owner  # mode who can use dialogs
 
     def is_preview(self) -> bool:
         raise NotImplementedError

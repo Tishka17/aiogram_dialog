@@ -9,7 +9,7 @@ from .dialog import ManagedDialogAdapter
 from .protocols import (
     DialogManager, BaseDialogManager, ShowMode, LaunchMode,
     ManagedDialogAdapterProto, ManagedDialogProto, DialogRegistryProto,
-    NewMessage,
+    NewMessage, Owner,
 )
 from ..context.context import Context
 from ..context.events import ChatEvent, StartMode, Data, FakeChat, FakeUser
@@ -30,6 +30,7 @@ class ManagerImpl(DialogManager):
         self.event = event
         self.data = data
         self.show_mode: ShowMode = ShowMode.AUTO
+        self.owner: Owner = Owner.USER
 
     @property
     def registry(self) -> DialogRegistryProto:
