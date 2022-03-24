@@ -1,5 +1,7 @@
 from typing import Union, Sequence, Tuple, Callable, Dict, List
 
+from aiogram.types import ForceReply as ForceReplyMarkup
+
 from .data.data_context import DataGetter, StaticGetter, CompositeGetter
 from .input import MessageHandlerFunc, BaseInput, MessageInput
 from .kbd import Keyboard, Group
@@ -31,6 +33,9 @@ def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
     if isinstance(widget, Sequence):
         if len(widget) == 1:
             return widget[0]
+        for w in widget:
+            if isinstance(w, ForceReplyMarkup):
+                raise InvalidWidget(f"Cannot use force reply and keyboard simultaneously")
         return Group(*widget)
     return widget
 

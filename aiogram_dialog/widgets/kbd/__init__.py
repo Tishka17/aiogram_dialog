@@ -3,6 +3,7 @@ from .button import Button, Url
 from .calendar_kbd import Calendar, ManagedCalendarAdapter
 from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .group import Group, Row, Column
+from .force_reply import ForceReply
 from .scrolling_group import ScrollingGroup, ManagedScrollingGroupAdapter
 from .select import (
     Select, Radio, Multiselect, ManagedMultiSelectAdapter, ManagedRadioAdapter,
@@ -18,6 +19,7 @@ __all__ = [
     "Group", "Row", "Column",
     "ScrollingGroup", "ManagedScrollingGroupAdapter",
     "Checkbox", "ManagedCheckboxAdapter",
+    "ForceReply",
     "Select", "Radio", "Multiselect",
     "ManagedMultiSelectAdapter", "ManagedRadioAdapter",
     "ListGroup", "ManagedListGroupAdapter"

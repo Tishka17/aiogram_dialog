@@ -1,9 +1,9 @@
 from logging import getLogger
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
 
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import (
-    InlineKeyboardMarkup, Message, CallbackQuery, ParseMode,
+    InlineKeyboardMarkup, Message, CallbackQuery, ParseMode, ForceReply as ForceReplyMarkup
 )
 
 from .dialog import Dialog, DialogWindowProto
@@ -52,8 +52,10 @@ class Window(DialogWindowProto):
             return await self.media.render_media(data, manager)
 
     async def render_kbd(self, data: Dict,
-                         manager: DialogManager) -> InlineKeyboardMarkup:
+                         manager: DialogManager) -> Union[InlineKeyboardMarkup, ForceReplyMarkup]:
         keyboard = await self.keyboard.render_keyboard(data, manager)
+        if isinstance(keyboard, ForceReplyMarkup):
+            return keyboard
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
     async def load_data(self, dialog: "Dialog",
