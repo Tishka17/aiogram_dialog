@@ -12,10 +12,10 @@ OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 
 class ForceReply(Keyboard):
-    def __init__(self, text: Text, id: str,
+    def __init__(self, text: Text,
                  selective: Optional[bool] = True,
                  when: WhenCondition = None):
-        super().__init__(id, when)
+        super().__init__(None, when)
         self.text = text
         self.selective = selective
 
