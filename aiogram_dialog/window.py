@@ -77,25 +77,12 @@ class Window(DialogWindowProto):
         current_data = await self.load_data(dialog, manager)
         reply_markup = await self.render_kbd(current_data, manager)
 
-        message_is_last = True
-        if isinstance(manager.event, Message):
-            if manager.current_stack().last_message_id is not None:
-                if manager.current_stack().last_message_id < manager.event.message_id:
-                    message_is_last = False
-            else:
-                message_is_last = False
-
-        force_new = any((
-            all((isinstance(manager.event, Message), not self._input_removing, not message_is_last)),
-            isinstance(reply_markup, ForceReplyMarkup)
-        ))
-
         return NewMessage(
             chat=get_chat(manager.event),
             text=await self.render_text(current_data, manager),
             reply_markup=reply_markup,
             parse_mode=self.parse_mode,
-            show_mode=ShowMode.SEND if force_new else ShowMode.AUTO,
+            show_mode=ShowMode.SEND if isinstance(reply_markup, ForceReplyMarkup) else ShowMode.AUTO,
             disable_web_page_preview=self.disable_web_page_preview,
             media=await self.render_media(current_data, manager),
         )
