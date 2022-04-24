@@ -123,7 +123,7 @@ class ManagerImpl(DialogManager):
         self.data[CONTEXT_KEY] = None
 
     async def _start_new_stack(self, state: State, data: Data = None) -> None:
-        stack = Stack()
+        stack = Stack(_id=await self.storage().new_stack_id())
         await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
@@ -145,7 +145,8 @@ class ManagerImpl(DialogManager):
                 await self.storage().remove_context(stack.pop())
 
         await self.storage().save_context(self.current_context())
-        context = stack.push(state, data)
+        new_intent_id = await self.storage().new_intent_id(state)
+        context = stack.push(state, new_intent_id, data)
         self.data[CONTEXT_KEY] = context
         await self._dialog().process_start(self, data, state)
         if context.id == self.current_context().id:

@@ -1,3 +1,6 @@
+import random
+import string
+import time
 from copy import copy
 from typing import Dict, Type, Optional
 
@@ -9,6 +12,28 @@ from .stack import Stack, DEFAULT_STACK_ID
 from ..exceptions import UnknownState, UnknownIntent
 
 
+ID_SYMS = string.digits + string.ascii_letters
+
+
+def new_int_id() -> int:
+    return int(time.time()) % 100000000 + random.randint(0, 99) * 100000000
+
+
+def id_to_str(int_id: int) -> str:
+    if not int_id:
+        return ID_SYMS[0]
+    base = len(ID_SYMS)
+    res = ""
+    while int_id:
+        int_id, mod = divmod(int_id, base)
+        res += ID_SYMS[mod]
+    return res
+
+
+def new_id():
+    return id_to_str(new_int_id())
+
+
 class StorageProxy:
     def __init__(self, storage: BaseStorage,
                  user_id: int, chat_id: int,
@@ -17,6 +42,12 @@ class StorageProxy:
         self.state_groups = state_groups
         self.user_id = user_id
         self.chat_id = chat_id
+
+    async def new_intent_id(self, state: State) -> str:
+        return new_id()
+
+    async def new_stack_id(self) -> str:
+        return new_id()
 
     async def load_context(self, intent_id: str) -> Context:
         data = await self.storage.get_data(
