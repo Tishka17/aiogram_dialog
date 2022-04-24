@@ -14,9 +14,9 @@ from .protocols import (
 )
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
-from ..context.intent_filter import IntentFilter, IntentMiddleware, \
-    StorageProxyFactoryProtocol
+from ..context.intent_filter import IntentFilter, IntentMiddleware
 from ..context.media_storage import MediaIdStorage
+from ..context.stateless import StatelessStorageProxyFactory
 from ..context.storage import StorageProxyFactory
 from ..exceptions import UnregisteredDialogError
 
@@ -27,7 +27,7 @@ class DialogRegistry(DialogRegistryProto):
             dp: Dispatcher,
             dialogs: Sequence[ManagedDialogProto] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
-            storage_proxy_factory: Optional[StorageProxyFactoryProtocol] = None,
+            stateless: bool = False,
     ):
         self.dp = dp
         self.dialogs = {
@@ -36,11 +36,14 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
-        if storage_proxy_factory is None:
-            storage_proxy_factory = StorageProxyFactory(
+        if stateless:
+            self.storage_proxy_factory = StatelessStorageProxyFactory(
+                state_groups=self.state_groups,
+            )
+        else:
+            self.storage_proxy_factory = StorageProxyFactory(
                 storage=dp.storage, state_groups=self.state_groups
             )
-        self.storage_proxy_factory = storage_proxy_factory
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
         self.register_update_handler(handle_update, state="*")
         self.dp.filters_factory.bind(IntentFilter)
