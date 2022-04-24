@@ -11,7 +11,6 @@ from .context import Context
 from .stack import Stack, DEFAULT_STACK_ID
 from ..exceptions import UnknownState, UnknownIntent
 
-
 ID_SYMS = string.digits + string.ascii_letters
 
 
@@ -55,7 +54,8 @@ class StorageProxy:
             user=self._context_key(intent_id)
         )
         if not data:
-            raise UnknownIntent(f"Context not found for intent id: {intent_id}")
+            raise UnknownIntent(
+                f"Context not found for intent id: {intent_id}")
         data["state"] = self._state(data["state"])
         return Context(**data)
 
@@ -80,10 +80,12 @@ class StorageProxy:
         )
 
     async def remove_context(self, intent_id: str):
-        await self.storage.reset_data(chat=self.chat_id, user=self._context_key(intent_id))
+        await self.storage.reset_data(chat=self.chat_id,
+                                      user=self._context_key(intent_id))
 
     async def remove_stack(self, stack_id: str):
-        await self.storage.reset_data(chat=self.chat_id, user=self._stack_key(stack_id))
+        await self.storage.reset_data(chat=self.chat_id,
+                                      user=self._stack_key(stack_id))
 
     async def save_stack(self, stack: Optional[Stack]) -> None:
         if not stack:
@@ -113,3 +115,23 @@ class StorageProxy:
             if real_state.state == state:
                 return real_state
         raise UnknownState(f"Unknown state {state}")
+
+
+class StorageProxyFactory:
+    def __init__(self,
+                 storage: BaseStorage,
+                 state_groups: Dict[str, Type[StatesGroup]]):
+        self.storage = storage
+        self.state_groups = state_groups
+
+    def __call__(
+            self,
+            user_id: int, chat_id: int,
+            state_groups: Dict[str, Type[StatesGroup]]
+    ):
+        return StorageProxy(
+            storage=self.storage,
+            user_id=user_id,
+            chat_id=chat_id,
+            state_groups=self.state_groups,
+        )

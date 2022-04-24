@@ -1,18 +1,16 @@
 from typing import Dict, Type, Optional
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.storage import BaseStorage
 
 from .context import Context
 from .stack import Stack, DEFAULT_STACK_ID
 from ..exceptions import UnknownState
 
 
-class FakeStorageProxy:
-    def __init__(self, storage: BaseStorage,
+class StatelessStorageProxy:
+    def __init__(self,
                  user_id: int, chat_id: int,
                  state_groups: Dict[str, Type[StatesGroup]]):
-        self.storage = storage
         self.state_groups = state_groups
         self.user_id = user_id
         self.chat_id = chat_id
@@ -54,3 +52,19 @@ class FakeStorageProxy:
             if real_state.state == state:
                 return real_state
         raise UnknownState(f"Unknown state {state}")
+
+
+class StatelessStorageProxyFactory:
+    def __init__(self, state_groups: Dict[str, Type[StatesGroup]]):
+        self.state_groups = state_groups
+
+    def __call__(
+            self,
+            user_id: int, chat_id: int,
+            state_groups: Dict[str, Type[StatesGroup]]
+    ):
+        return StatelessStorageProxy(
+            user_id=user_id,
+            chat_id=chat_id,
+            state_groups=self.state_groups,
+        )
