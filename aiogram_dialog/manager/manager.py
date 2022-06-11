@@ -17,7 +17,7 @@ from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import get_chat, remove_kbd, show_message
+from ..utils import get_chat
 
 logger = getLogger(__name__)
 
@@ -69,7 +69,9 @@ class ManagerImpl(DialogManager):
         chat = get_chat(self.event)
         message = Message(chat=chat,
                           message_id=self.current_stack().last_message_id)
-        await remove_kbd(self.event.bot, message)
+        await self._registry.message_manager.remove_kbd(
+            self.event.bot, message,
+        )
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
@@ -191,7 +193,9 @@ class ManagerImpl(DialogManager):
                 old_message = None
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
-        res = await show_message(self.event.bot, new_message, old_message)
+        res = await self._registry.message_manager.show_message(
+            self.event.bot, new_message, old_message,
+        )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
         self.show_mode = ShowMode.EDIT
