@@ -113,7 +113,7 @@ class ManagerImpl(DialogManager):
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
-            await self.reset_stack()
+            await self.reset_stack(remove_keyboard=False)
             await self._start_normal(state, data)
         elif mode is StartMode.NEW_STACK:
             await self._start_new_stack(state, data)

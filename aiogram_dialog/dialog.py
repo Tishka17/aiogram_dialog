@@ -5,6 +5,7 @@ from typing import Protocol
 from aiogram import Router
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 
 from .context.events import Data
 from .exceptions import UnregisteredWindowError
@@ -23,6 +24,8 @@ OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
 
+
+_INVALUD_QUERY_ID_MSG = "query is too old and response timeout expired or query id is invalid"
 
 class DialogWindowProto(Protocol):
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
@@ -163,7 +166,13 @@ class Dialog(ManagedDialogProto):
         if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
         if not dialog_manager.is_preview():
-            await c.answer()
+            try:
+                await c.answer()
+            except TelegramBadRequest as e:
+                if _INVALUD_QUERY_ID_MSG in e.message:
+                    logger.warning("Cannot answer callback: %s", e)
+                else:
+                    raise
 
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
