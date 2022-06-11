@@ -5,6 +5,7 @@ from typing import Protocol
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, ContentTypes
+from aiogram.utils.exceptions import InvalidQueryID
 
 from .context.events import Data
 from .exceptions import UnregisteredWindowError
@@ -160,7 +161,10 @@ class Dialog(ManagedDialogProto):
         if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
         if not dialog_manager.is_preview():
-            await c.answer()
+            try:
+                await c.answer()
+            except InvalidQueryID as e:
+                logger.warning("Cannot answer callback: %s", e)
 
     async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
         await self.show(dialog_manager)
