@@ -47,10 +47,6 @@ class DialogRegistry(DialogRegistryProto):
         }
         self.register_update_handler(handle_update, any_state)
 
-        observer: TelegramEventObserver
-        for observer in self.dp.observers.values():
-            observer.bind_filter(IntentFilter)
-
         self._register_middleware()
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
@@ -69,8 +65,8 @@ class DialogRegistry(DialogRegistryProto):
         dialog.register(
             self,
             router if router else self.dp,
+            IntentFilter(aiogd_intent_state_group=group),
             *args,
-            aiogd_intent_state_group=group,
             **kwargs
         )
 
@@ -104,7 +100,6 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.errors.outer_middleware(IntentErrorMiddleware(
             storage=self.dp.fsm.storage, state_groups=self.state_groups
         ))
-
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
         try:
