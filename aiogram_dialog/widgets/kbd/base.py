@@ -14,6 +14,12 @@ class Keyboard(Actionable, Whenable):
         Whenable.__init__(self, when)
 
     async def render_keyboard(self, data, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+        """
+        Render keyboard if needed.
+
+        When inheriting override `_render_keyboard` method instead
+        if you want to keep processing of `when` condition
+        """
         if not self.is_(data, manager):
             return []
         return await self._render_keyboard(data, manager)
