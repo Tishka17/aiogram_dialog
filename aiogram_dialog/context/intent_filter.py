@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Optional, Type, Dict, Union, Any
+from typing import Optional, Type, Dict, Union, Any, Protocol
 
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher.filters.state import StatesGroup
@@ -23,11 +23,15 @@ CALLBACK_DATA_KEY = "aiogd_original_callback_data"
 logger = getLogger(__name__)
 
 
+class StorageProxyFactoryProtocol(Protocol):
+    def __call__(self, user_id: int, chat_id: int):
+        raise NotImplementedError
+
+
 class IntentFilter(BoundFilter):
     key = 'aiogd_intent_state_group'
 
-    def __init__(self,
-                 aiogd_intent_state_group: Optional[Type[StatesGroup]] = None):
+    def __init__(self, aiogd_intent_state_group: Optional[Type[StatesGroup]] = None):
         self.intent_state_group = aiogd_intent_state_group
 
     async def check(self, obj: TelegramObject):
@@ -41,21 +45,16 @@ class IntentFilter(BoundFilter):
 
 
 class IntentMiddleware(BaseMiddleware):
-    def __init__(self, storage: BaseStorage,
-                 state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(self, storage_proxy_factory: StorageProxyFactoryProtocol):
         super().__init__()
-        self.storage = storage
-        self.state_groups = state_groups
+        self.storage_proxy_factory = storage_proxy_factory
 
     async def on_pre_process_message(self,
                                      event: Union[Message, ChatMemberUpdated],
                                      data: dict):
         chat = get_chat(event)
-        proxy = StorageProxy(
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
+        proxy = self.storage_proxy_factory(
+            user_id=event.from_user.id, chat_id=chat.id,
         )
         stack = await proxy.load_stack()
         if stack.empty():
@@ -74,11 +73,8 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent,
                                           data: dict):
         chat = get_chat(event)
-        proxy = StorageProxy(
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
+        proxy = self.storage_proxy_factory(
+            user_id=event.from_user.id, chat_id=chat.id,
         )
         data[STORAGE_KEY] = proxy
         if event.intent_id is not None:
@@ -112,11 +108,8 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_callback_query(self, event: CallbackQuery,
                                             data: dict):
         chat = get_chat(event)
-        proxy = StorageProxy(
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
+        proxy = self.storage_proxy_factory(
+            user_id=event.from_user.id, chat_id=chat.id,
         )
         data[STORAGE_KEY] = proxy
 
@@ -162,11 +155,8 @@ class IntentMiddleware(BaseMiddleware):
 
         chat = get_chat(event)
 
-        proxy = StorageProxy(
-            storage=self.storage,
-            user_id=event.from_user.id,
-            chat_id=chat.id,
-            state_groups=self.state_groups,
+        proxy = self.storage_proxy_factory(
+            user_id=event.from_user.id, chat_id=chat.id,
         )
         data[STORAGE_KEY] = proxy
 
