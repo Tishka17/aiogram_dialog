@@ -13,7 +13,7 @@ from .context import Context
 from .events import DialogUpdateEvent
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError, OutdatedIntent
-from ..utils import remove_indent_id, get_chat
+from ..utils import remove_indent_id, get_chat, get_owner_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -51,9 +51,10 @@ class IntentMiddleware(BaseMiddleware):
                                      event: Union[Message, ChatMemberUpdated],
                                      data: dict):
         chat = get_chat(event)
+        owner = data['dialog_manager'].owner
         proxy = StorageProxy(
             storage=self.storage,
-            user_id=event.from_user.id,
+            user_id=get_owner_id(event, owner),
             chat_id=chat.id,
             state_groups=self.state_groups,
         )
@@ -74,9 +75,10 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_aiogd_update(self, event: DialogUpdateEvent,
                                           data: dict):
         chat = get_chat(event)
+        owner = data['dialog_manager'].owner
         proxy = StorageProxy(
             storage=self.storage,
-            user_id=event.from_user.id,
+            user_id=get_owner_id(event, owner),
             chat_id=chat.id,
             state_groups=self.state_groups,
         )
@@ -112,9 +114,10 @@ class IntentMiddleware(BaseMiddleware):
     async def on_pre_process_callback_query(self, event: CallbackQuery,
                                             data: dict):
         chat = get_chat(event)
+        owner = data['dialog_manager'].owner
         proxy = StorageProxy(
             storage=self.storage,
-            user_id=event.from_user.id,
+            user_id=get_owner_id(event, owner),
             chat_id=chat.id,
             state_groups=self.state_groups,
         )
@@ -161,10 +164,10 @@ class IntentMiddleware(BaseMiddleware):
             return
 
         chat = get_chat(event)
-
+        owner = data['dialog_manager'].owner
         proxy = StorageProxy(
             storage=self.storage,
-            user_id=event.from_user.id,
+            user_id=get_owner_id(event, owner),
             chat_id=chat.id,
             state_groups=self.state_groups,
         )

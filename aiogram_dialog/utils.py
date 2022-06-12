@@ -14,7 +14,7 @@ from aiogram.utils.exceptions import (
 from .context.events import (
     DialogUpdateEvent, ChatEvent
 )
-from .manager.protocols import MediaAttachment, NewMessage, ShowMode, MediaId
+from .manager.protocols import MediaAttachment, NewMessage, ShowMode, MediaId, Owner
 
 logger = getLogger(__name__)
 
@@ -36,6 +36,15 @@ def get_chat(event: ChatEvent) -> Chat:
         if not event.message:
             return Chat(id=event.from_user.id)
         return event.message.chat
+
+
+def get_owner_id(event: ChatEvent, owner: Owner) -> int:
+    if owner == Owner.GROUP:
+        return get_chat(event).id
+    elif owner == Owner.USER:
+        return event.from_user.id
+    else:
+        raise ValueError('Unknown owner type %s', owner)
 
 
 def is_chat_loaded(chat: Chat) -> bool:
