@@ -94,7 +94,7 @@ class MessageManager(MessageManagerProtocol):
     async def edit_message(self, bot: Bot, new_message: NewMessage,
                            old_message: Message):
         if new_message.media:
-            if new_message.media.file_id == self.get_media_id(old_message):
+            if new_message.media.file_id == get_media_id(old_message):
                 return await self.edit_caption(bot, new_message, old_message)
             return await self.edit_media(bot, new_message, old_message)
         else:
