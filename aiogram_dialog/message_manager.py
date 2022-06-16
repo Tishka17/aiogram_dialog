@@ -1,10 +1,8 @@
 from logging import getLogger
-from typing import Optional, Union, IO
+from typing import IO, Optional, Union
 
 from aiogram import Bot
-from aiogram.types import (
-    Message, ContentType, InputMedia,
-)
+from aiogram.types import ContentType, InputMedia, Message
 from aiogram.utils.exceptions import (
     MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
     MessageToDeleteNotFound, MessageCantBeDeleted,
@@ -24,8 +22,6 @@ SEND_METHODS = {
     ContentType.PHOTO: "send_photo",
     ContentType.VIDEO: "send_video",
 }
-
-CB_SEP = "\x1D"
 
 
 class MessageManager(MessageManagerProtocol):

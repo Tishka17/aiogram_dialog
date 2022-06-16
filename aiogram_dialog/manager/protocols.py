@@ -160,7 +160,6 @@ class NewMessage:
     media: Optional[MediaAttachment] = None
 
 
-
 class MessageManagerProtocol(Protocol):
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         raise NotImplementedError
