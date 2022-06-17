@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
-from aiogram import Dispatcher
+from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import (
     ContentType, Message, Chat, InlineKeyboardMarkup, ParseMode,
@@ -160,6 +160,15 @@ class NewMessage:
     media: Optional[MediaAttachment] = None
 
 
+class MessageManagerProtocol(Protocol):
+    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
+        raise NotImplementedError
+
+    async def show_message(self, bot: Bot, new_message: NewMessage,
+                           old_message: Optional[Message]):
+        raise NotImplementedError
+
+
 class DialogRegistryProto(Protocol):
     def find_dialog(self, state: Union[State, str]) -> ManagedDialogProto:
         pass
@@ -169,6 +178,10 @@ class DialogRegistryProto(Protocol):
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
+        raise NotImplementedError
+
+    @property
+    def message_manager(self) -> MessageManagerProtocol:
         raise NotImplementedError
 
 

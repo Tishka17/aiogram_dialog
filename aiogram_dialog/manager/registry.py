@@ -10,13 +10,14 @@ from aiogram.types import User, Chat, Message
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
     ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
 from ..context.intent_filter import IntentFilter, IntentMiddleware
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
+from ..message_manager import MessageManager
 
 
 class DialogRegistry(DialogRegistryProto):
@@ -25,6 +26,7 @@ class DialogRegistry(DialogRegistryProto):
             dp: Dispatcher,
             dialogs: Sequence[ManagedDialogProto] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
+            message_manager: Optional[MessageManagerProtocol] = None,
     ):
         self.dp = dp
         self.dialogs = {
@@ -40,10 +42,17 @@ class DialogRegistry(DialogRegistryProto):
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
         self._media_id_storage = media_id_storage
+        if message_manager is None:
+            message_manager = MessageManager()
+        self._message_manager = message_manager
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
         return self._media_id_storage
+
+    @property
+    def message_manager(self) -> MessageManagerProtocol:
+        return self._message_manager
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         group = dialog.states_group()
