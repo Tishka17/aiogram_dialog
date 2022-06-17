@@ -7,8 +7,8 @@ from aiogram.types import (
 )
 
 from .dialog import Dialog, DialogWindowProto
-from .manager.protocols import DialogManager
-from .utils import get_chat, NewMessage, MediaAttachment
+from .manager.protocols import DialogManager, MediaAttachment
+from .utils import get_chat, NewMessage
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard

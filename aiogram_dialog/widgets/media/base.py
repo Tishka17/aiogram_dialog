@@ -1,7 +1,7 @@
 from typing import Optional, Any
 
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.utils import MediaAttachment
+from aiogram_dialog.manager.protocols import MediaAttachment
 from aiogram_dialog.widgets.when import Whenable
 
 
