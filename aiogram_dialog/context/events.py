@@ -7,7 +7,7 @@ from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
 
-Data = Union[Dict, List, int, str, None]
+Data = Union[Dict, List, int, str, float, None]
 
 
 class StartMode(Enum):
