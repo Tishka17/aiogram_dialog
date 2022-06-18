@@ -69,14 +69,13 @@ class ManagerImpl(DialogManager):
     async def _remove_kbd(self) -> None:
         chat = self.data['event_chat']
         bot = self.data['bot']
-
-        message = None
-        if self.current_stack().last_message_id:
-            message = Message(chat=chat,
-                              message_id=self.current_stack().last_message_id,
-                              date=datetime.now()  # ToDo: check this
-                              )
-        await remove_kbd(bot, message)
+        message = Message(chat=chat,
+                          message_id=self.current_stack().last_message_id,
+                          date=datetime.now()
+                          )
+        await self._registry.message_manager.remove_kbd(
+            bot, message,
+        )
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
@@ -89,7 +88,8 @@ class ManagerImpl(DialogManager):
             return
         dialog = self._dialog()
         await dialog.process_result(old_context.start_data, result, self)
-        if context.id == self.current_context().id:
+        new_context = self.current_context()
+        if new_context and context.id == new_context.id:
             await self._dialog().show(self)
 
     async def mark_closed(self) -> None:
@@ -113,7 +113,7 @@ class ManagerImpl(DialogManager):
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
-            await self.reset_stack()
+            await self.reset_stack(remove_keyboard=False)
             await self._start_normal(state, data)
         elif mode is StartMode.NEW_STACK:
             await self._start_new_stack(state, data)
@@ -200,7 +200,9 @@ class ManagerImpl(DialogManager):
                 old_message = None
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
-        res = await show_message(bot, new_message, old_message)
+        res = await self._registry.message_manager.show_message(
+            bot, new_message, old_message,
+        )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
         self.show_mode = ShowMode.EDIT
