@@ -111,7 +111,7 @@ class Dialog(ManagedDialogProto):
     async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
         try:
             return self.windows[manager.current_context().state]
-        except ValueError as e:
+        except KeyError as e:
             raise UnregisteredWindowError(
                 f"No window found for `{manager.current_context().state}` "
                 f"Current state group is `{self.states_group_name()}`"
