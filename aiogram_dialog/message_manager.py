@@ -1,12 +1,12 @@
 from logging import getLogger
-from typing import IO, Optional, Union
+from typing import Optional, Union
 
 from aiogram import Bot
-from aiogram.types import ContentType, InputMedia, Message
-from aiogram.utils.exceptions import (
-    MessageNotModified, MessageCantBeEdited, MessageToEditNotFound,
-    MessageToDeleteNotFound, MessageCantBeDeleted,
+from aiogram.types import (
+    FSInputFile, InputFile, URLInputFile,
+    Message, ContentType, InputMedia,
 )
+from aiogram.exceptions import TelegramBadRequest
 
 from .manager.protocols import (
     MediaAttachment, NewMessage, ShowMode, MessageManagerProtocol,
@@ -26,13 +26,13 @@ SEND_METHODS = {
 
 class MessageManager(MessageManagerProtocol):
 
-    async def get_media_source(self, media: MediaAttachment) -> Union[IO, str]:
+    async def get_media_source(self, media: MediaAttachment) -> Union[InputFile, str]:
         if media.file_id:
             return media.file_id.file_id
         if media.url:
-            return media.url
+            return URLInputFile(media.url)
         else:
-            return open(media.path, "rb")
+            return FSInputFile(media.path)
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
                            old_message: Optional[Message]):
@@ -63,16 +63,28 @@ class MessageManager(MessageManagerProtocol):
             try:
                 await bot.delete_message(chat_id=old_message.chat.id,
                                          message_id=old_message.message_id)
-            except (MessageToDeleteNotFound, MessageCantBeDeleted):
-                await self.remove_kbd(bot, old_message)
+            except TelegramBadRequest as err:
+                if (
+                        'message to delete not found' in err.message or
+                        'message can\'t be deleted' in err.message
+                ):
+                    await self.remove_kbd(bot, old_message)
+                else:
+                    raise
             return await self.send_message(bot, new_message)
 
         try:
             return await self.edit_message(bot, new_message, old_message)
-        except MessageNotModified:
-            return old_message
-        except (MessageCantBeEdited, MessageToEditNotFound):
-            return await self.send_message(bot, new_message)
+        except TelegramBadRequest as err:
+            if 'message is not modified' in err.message:
+                return old_message
+            if (
+                    'message can\'t be edited' in err.message or
+                    'message to edit not found' in err.message
+            ):
+                return await self.send_message(bot, new_message)
+            else:
+                raise
 
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         if old_message:
@@ -82,9 +94,15 @@ class MessageManager(MessageManagerProtocol):
                     message_id=old_message.message_id,
                     chat_id=old_message.chat.id,
                 )
-            except (MessageNotModified, MessageCantBeEdited,
-                    MessageToEditNotFound):
-                pass  # nothing to remove
+            except TelegramBadRequest as err:
+                if 'message is not modified' in err.message:
+                    pass  # nothing to remove
+                elif 'message can\'t be edited' in err.message:
+                    pass
+                elif 'message to edit not found' in err.message:
+                    pass
+                else:
+                    raise err
 
     # Edit
     async def edit_message(self, bot: Bot, new_message: NewMessage,

@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.fsm.state import State
-from aiogram.types import User, Chat, Message, CallbackQuery, Document
+from aiogram.types import Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
@@ -18,7 +18,6 @@ from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import remove_kbd, show_message
 
 logger = getLogger(__name__)
 
