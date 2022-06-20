@@ -45,9 +45,9 @@ class Calendar(Keyboard, ABC):
         super().__init__(id, when)
         self.on_click = ensure_event_processor(on_click)
 
-    async def render_keyboard(self,
-                              data,
-                              manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(self,
+                               data,
+                               manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
         current_scope = self.get_scope(manager)
 

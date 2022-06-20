@@ -4,7 +4,7 @@ from datetime import datetime
 from operator import itemgetter
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
@@ -162,7 +162,7 @@ async def main():
     logging.getLogger("aiogram_dialog").setLevel(logging.DEBUG)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(storage=storage, isolate_events=True)
+    dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
     registry = DialogRegistry(dp)
     dp.message.register(start, F.text == "/start")
     registry.register(dialog1)

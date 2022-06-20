@@ -3,7 +3,7 @@ from typing import Optional, Any, Dict
 from aiogram.types import ContentType
 
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.utils import MediaAttachment
+from aiogram_dialog.manager.protocols import MediaAttachment
 from .base import Media
 from ..when import WhenCondition
 
