@@ -41,7 +41,7 @@ def _create_env(
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)
     kwargs.setdefault("trim_blocks", True)
-    if not "loader" in kwargs:
+    if "loader" not in kwargs:
         kwargs["loader"] = StubLoader()
     env = Environment(*args, **kwargs)
     if filters is not None:

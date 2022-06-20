@@ -9,7 +9,7 @@ from aiogram.types import (
 )
 
 DIALOG_EVENT_NAME = "aiogd_update"
-Data = Union[Dict, List, int, str, None]
+Data = Union[Dict, List, int, str, float, None]
 
 
 class StartMode(Enum):

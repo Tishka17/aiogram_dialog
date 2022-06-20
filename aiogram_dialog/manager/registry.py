@@ -11,7 +11,7 @@ from aiogram.types import User, Chat, Message
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
     ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from .update_handler import handle_update
 from ..context.events import StartMode, DIALOG_EVENT_NAME, DialogUpdate
@@ -21,6 +21,7 @@ from ..context.intent_filter import (
 )
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
+from ..message_manager import MessageManager
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -33,6 +34,7 @@ class DialogRegistry(DialogRegistryProto):
             dp: Dispatcher,
             dialogs: Sequence[ManagedDialogProto] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
+            message_manager: Optional[MessageManagerProtocol] = None,
     ):
         self.dp = dp
         self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
@@ -51,10 +53,17 @@ class DialogRegistry(DialogRegistryProto):
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
         self._media_id_storage = media_id_storage
+        if message_manager is None:
+            message_manager = MessageManager()
+        self._message_manager = message_manager
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
         return self._media_id_storage
+
+    @property
+    def message_manager(self) -> MessageManagerProtocol:
+        return self._message_manager
 
     def register(self, dialog: ManagedDialogProto, *args, router: Router = None, **kwargs):
         group = dialog.states_group()

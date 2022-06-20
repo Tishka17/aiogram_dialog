@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Awaitable, Union, cast
+from typing import Any, Callable, Dict, Awaitable, Union
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update

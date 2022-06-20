@@ -176,7 +176,7 @@ class Multiselect(StatefulSelect):
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
         if manager.is_preview():
-            return ord(item_id[-1])%2 == 1  # just stupid way to make it differ
+            return ord(item_id[-1]) % 2 == 1  # just stupid way to make it differ
         return self.is_checked(item_id, manager)
 
     def is_checked(self, item_id: Union[str, int], manager: DialogManager) -> bool:
@@ -236,4 +236,3 @@ class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
         manager_deprecated(manager)
         return await self.widget.set_checked(event, item_id, checked,
                                              self.manager)
-

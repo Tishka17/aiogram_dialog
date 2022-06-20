@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.fsm.state import State
-from aiogram.types import User, Chat, Message, CallbackQuery, Document
+from aiogram.types import Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
@@ -18,7 +18,6 @@ from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from ..utils import remove_kbd, show_message
 
 logger = getLogger(__name__)
 
@@ -69,14 +68,13 @@ class ManagerImpl(DialogManager):
     async def _remove_kbd(self) -> None:
         chat = self.data['event_chat']
         bot = self.data['bot']
-
-        message = None
-        if self.current_stack().last_message_id:
-            message = Message(chat=chat,
-                              message_id=self.current_stack().last_message_id,
-                              date=datetime.now()  # ToDo: check this
-                              )
-        await remove_kbd(bot, message)
+        message = Message(chat=chat,
+                          message_id=self.current_stack().last_message_id,
+                          date=datetime.now()
+                          )
+        await self._registry.message_manager.remove_kbd(
+            bot, message,
+        )
         self.current_stack().last_message_id = None
 
     async def done(self, result: Any = None) -> None:
@@ -89,7 +87,8 @@ class ManagerImpl(DialogManager):
             return
         dialog = self._dialog()
         await dialog.process_result(old_context.start_data, result, self)
-        if context.id == self.current_context().id:
+        new_context = self.current_context()
+        if new_context and context.id == new_context.id:
             await self._dialog().show(self)
 
     async def mark_closed(self) -> None:
@@ -200,7 +199,9 @@ class ManagerImpl(DialogManager):
                 old_message = None
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
-        res = await show_message(bot, new_message, old_message)
+        res = await self._registry.message_manager.show_message(
+            bot, new_message, old_message,
+        )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
         self.show_mode = ShowMode.EDIT

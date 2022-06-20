@@ -1,13 +1,12 @@
 from logging import getLogger
 from typing import Optional, Type, Dict, Union, Any, Callable, Awaitable
 
-from aiogram.dispatcher.event.bases import CancelHandler
 from aiogram.dispatcher.filters.base import BaseFilter
 from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import (
-    Message, CallbackQuery, Update, TelegramObject, ChatMemberUpdated,
+    Message, CallbackQuery, Update, TelegramObject,
 )
 
 from .context import Context
@@ -135,7 +134,7 @@ class IntentMiddlewareFactory:
         return await handler(event, data)
 
 
-SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member'}
+SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member', 'aiogd_update'}
 
 
 async def context_saver_middleware(handler, event, data):
@@ -190,7 +189,6 @@ class IntentErrorMiddleware(BaseMiddleware):
                 context = await proxy.load_context(stack.last_intent_id())
             data[STACK_KEY] = stack
             data[CONTEXT_KEY] = context
-
             return await handler(event, data)
         finally:
             proxy: StorageProxy = data.pop(STORAGE_KEY, None)
