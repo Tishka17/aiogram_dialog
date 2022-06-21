@@ -29,6 +29,7 @@ class DialogUpdateEvent(TelegramObject):
     class Config:
         arbitrary_types_allowed = True
         use_enum_values = False
+        copy_on_model_validation = False
 
     from_user: User
     chat: Chat
