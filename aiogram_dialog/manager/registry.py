@@ -7,10 +7,11 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.handler import Handler
 from aiogram.types import User, Chat, Message
 
+from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
     ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol, MessageManagerProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol, DialogManagerFactory,
 )
 from .update_handler import handle_update
 from ..context.events import DialogUpdateEvent, StartMode
@@ -27,6 +28,7 @@ class DialogRegistry(DialogRegistryProto):
             dialogs: Sequence[ManagedDialogProto] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
+            dialog_manager_factory: DialogManagerFactory = ManagerImpl,
     ):
         self.dp = dp
         self.dialogs = {
@@ -45,6 +47,7 @@ class DialogRegistry(DialogRegistryProto):
         if message_manager is None:
             message_manager = MessageManager()
         self._message_manager = message_manager
+        self._dialog_manager_factory = dialog_manager_factory
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
@@ -53,6 +56,10 @@ class DialogRegistry(DialogRegistryProto):
     @property
     def message_manager(self) -> MessageManagerProtocol:
         return self._message_manager
+
+    @property
+    def dialog_manager_factory(self) -> "DialogManagerFactory":
+        return self._dialog_manager_factory
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         group = dialog.states_group()

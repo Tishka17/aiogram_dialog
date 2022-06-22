@@ -2,7 +2,6 @@ from typing import Any
 
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
-from .manager import ManagerImpl
 from .protocols import DialogManager, DialogRegistryProto
 
 MANAGER_KEY = "dialog_manager"
@@ -14,7 +13,7 @@ class ManagerMiddleware(BaseMiddleware):
         self.registry = registry
 
     async def on_pre_process_message(self, event: Any, data: dict):
-        data[MANAGER_KEY] = ManagerImpl(
+        data[MANAGER_KEY] = self.registry.dialog_manager_factory(
             event=event,
             registry=self.registry,
             data=data,

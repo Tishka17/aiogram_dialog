@@ -184,6 +184,10 @@ class DialogRegistryProto(Protocol):
     def message_manager(self) -> MessageManagerProtocol:
         raise NotImplementedError
 
+    @property
+    def dialog_manager_factory(self) -> "DialogManagerFactory":
+        raise NotImplementedError
+
 
 class BaseDialogManager(Protocol):
     event: ChatEvent
@@ -249,6 +253,13 @@ class DialogManager(BaseDialogManager):
         raise NotImplementedError
 
     async def load_data(self) -> Dict:
+        raise NotImplementedError
+
+
+class DialogManagerFactory(Protocol):
+    def __call__(
+            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict,
+    ) -> DialogManager:
         raise NotImplementedError
 
 
