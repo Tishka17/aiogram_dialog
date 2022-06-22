@@ -43,6 +43,13 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
+    async def load_data(self) -> Dict:
+        context = self.current_context()
+        return {
+            "dialog_data": context.dialog_data,
+            "start_data": context.start_data,
+        }
+
     def is_preview(self) -> bool:
         return False
 

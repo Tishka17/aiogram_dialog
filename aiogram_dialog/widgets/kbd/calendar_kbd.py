@@ -7,8 +7,7 @@ from typing import List, Callable, Union, Awaitable, TypedDict, Optional
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager,ManagedDialogProto
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
@@ -60,7 +59,7 @@ class Calendar(Keyboard, ABC):
 
     async def process_callback(self,
                                c: CallbackQuery,
-                               dialog: Dialog,
+                               dialog: ManagedDialogProto,
                                manager: DialogManager) -> bool:
         prefix = f"{self.widget_id}:"
         if not c.data.startswith(prefix):

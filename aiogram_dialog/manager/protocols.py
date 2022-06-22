@@ -248,6 +248,9 @@ class DialogManager(BaseDialogManager):
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         raise NotImplementedError
 
+    async def load_data(self) -> Dict:
+        raise NotImplementedError
+
 
 class ManagedWidgetProto(Protocol):
     def managed(self, manager: DialogManager) -> Any:
