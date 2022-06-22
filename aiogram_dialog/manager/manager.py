@@ -48,6 +48,8 @@ class ManagerImpl(DialogManager):
         return {
             "dialog_data": context.dialog_data,
             "start_data": context.start_data,
+            "middleware_data": self.data,
+            "event": self.event,
         }
 
     def is_preview(self) -> bool:
