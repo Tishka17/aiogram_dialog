@@ -25,8 +25,15 @@ class Actionable(ManagedWidget):
         """
         Returns data for current widget id, setting default if needed
         """
-        if default is ...:
-            default = {}
         return manager.current_context().widget_data.setdefault(
             self.widget_id, default,
         )
+
+    def set_widget_data(
+            self, manager: DialogManager, value: Any,
+    ) -> Any:
+        """
+        Set data for current widget id
+        """
+        manager.current_context().widget_data[self.widget_id] = value
+

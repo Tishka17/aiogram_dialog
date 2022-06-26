@@ -13,39 +13,42 @@ from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
-OnStateChanged = Callable[[ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable]
+OnStateChanged = Callable[
+    [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable]
 
 
 class BaseCheckbox(Keyboard, ABC):
     def __init__(self, checked_text: Text, unchecked_text: Text,
                  id: str,
-                 on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
-                 on_state_changed: Union[OnStateChanged, WidgetEventProcessor, None] = None,
+                 on_click: Union[
+                     OnStateChanged, WidgetEventProcessor, None] = None,
+                 on_state_changed: Union[
+                     OnStateChanged, WidgetEventProcessor, None] = None,
                  when: Union[str, Callable] = None):
         super().__init__(id, when)
         self.text = Case({True: checked_text, False: unchecked_text},
                          selector=self._is_text_checked)
         self.on_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
-        self._callback_data_prefix = f"{self.widget_id}:"
 
     async def _render_keyboard(self, data: Dict,
-                               manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+                               manager: DialogManager) -> List[
+        List[InlineKeyboardButton]]:
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=f"{self._callback_data_prefix}{checked}"
+                callback_data=self.callback_with_prefix(checked)
             )
         ]]
 
-    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto,
-                               manager: DialogManager) -> bool:
-        if not c.data.startswith(f"{self._callback_data_prefix}"):
-            return False
+    async def _process_own_item_callback(
+            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
         # remove prefix and cast "0" as False, "1" as True
-        checked = c.data[len(self._callback_data_prefix):] != "0"
+        checked = data != "0"
         await self.on_click.process_event(c, self.managed(manager), manager)
         await self.set_checked(c, not checked, manager)
         return True
@@ -74,12 +77,11 @@ class Checkbox(BaseCheckbox):
         self.default = default
 
     def is_checked(self, manager: DialogManager) -> bool:
-        return manager.current_context().widget_data.get(self.widget_id,
-                                                         self.default)
+        return self.widget_data(manager, self.default)
 
     async def set_checked(self, event: ChatEvent, checked: bool,
                           manager: DialogManager) -> None:
-        manager.current_context().widget_data[self.widget_id] = checked
+        self.set_widget_data(manager, checked)
         await self.on_state_changed.process_event(
             event, self.managed(manager), manager
         )

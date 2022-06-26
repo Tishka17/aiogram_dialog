@@ -156,7 +156,7 @@ class Calendar(Keyboard, ABC):
                     raw_date = int(mktime(date(offset.year, offset.month, day).timetuple()))
                     week_row.append(InlineKeyboardButton(
                         text=str(day),
-                        callback_data=self.callback_with_prefix(str(raw_date)),
+                        callback_data=self.callback_with_prefix(raw_date),
                     ))
             days.append(week_row)
         return [

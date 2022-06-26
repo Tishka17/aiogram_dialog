@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -35,7 +35,7 @@ class Keyboard(Actionable, Whenable):
             return None
         return f"{self.widget_id}:"
 
-    def callback_with_prefix(self, data: str):
+    def callback_with_prefix(self, data: Union[str, int]):
         return f"{self.callback_prefix()}{data}"
 
     async def process_callback(
