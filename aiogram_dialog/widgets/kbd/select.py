@@ -5,8 +5,7 @@ from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequen
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Text, Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor, ensure_event_processor,
@@ -67,7 +66,7 @@ class Select(Keyboard):
             callback_data=self.callback_data_prefix + str(self.item_id_getter(item))
         )
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto,
                                manager: DialogManager) -> bool:
         if not c.data.startswith(self.callback_data_prefix):
             return False

@@ -2,8 +2,7 @@ from typing import Callable, TypeVar, Generic, Awaitable, Union, Optional
 
 from aiogram.types import Message, ContentType
 
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import BaseInput
 from ..managed import ManagedWidgetAdapter
@@ -24,7 +23,7 @@ class TextInput(BaseInput, Generic[T]):
         self.on_success = ensure_event_processor(on_success)
         self.on_error = ensure_event_processor(on_error)
 
-    async def process_message(self, message: Message, dialog: Dialog, manager: DialogManager):
+    async def process_message(self, message: Message, dialog: ManagedDialogProto, manager: DialogManager):
         if message.content_type != ContentType.TEXT:
             return False
         try:
