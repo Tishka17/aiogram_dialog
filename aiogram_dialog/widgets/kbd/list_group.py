@@ -4,9 +4,9 @@ from typing import List, Dict, Optional, Union, Sequence, Callable, Any
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery, Message
 
-from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.manager.protocols import (
     DialogManager, Context, ManagedDialogAdapterProto, NewMessage,
+    ManagedDialogProto,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
@@ -118,7 +118,7 @@ class ListGroup(Keyboard):
         return None
 
     async def process_callback(
-            self, c: CallbackQuery, dialog: Dialog, manager: DialogManager
+            self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager
     ) -> bool:
         if not c.data.startswith(f"{self.widget_id}:"):
             return False

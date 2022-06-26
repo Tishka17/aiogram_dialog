@@ -2,8 +2,7 @@ from typing import List, Callable, Optional, Union, Dict, Awaitable, Any
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager,ManagedDialogProto
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
@@ -20,7 +19,7 @@ class Button(Keyboard):
         self.text = text
         self.on_click = ensure_event_processor(on_click)
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager) -> bool:
         if c.data != self.widget_id:
             return False
         await self.on_click.process_event(c, self, manager)

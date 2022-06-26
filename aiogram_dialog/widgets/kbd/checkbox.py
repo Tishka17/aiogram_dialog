@@ -4,8 +4,7 @@ from typing import Callable, Optional, Union, Dict, Awaitable, List
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Text, Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor, ensure_event_processor,
@@ -41,7 +40,7 @@ class BaseCheckbox(Keyboard, ABC):
             )
         ]]
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto,
                                manager: DialogManager) -> bool:
         if not c.data.startswith(f"{self._callback_data_prefix}"):
             return False

@@ -2,8 +2,7 @@ from typing import List, Optional
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
-from aiogram_dialog.dialog import Dialog
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.manager.manager import DialogManager,ManagedDialogProto
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.when import WhenCondition, Whenable
 
@@ -27,5 +26,5 @@ class Keyboard(Actionable, Whenable):
     async def _render_keyboard(self, data, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog, manager: DialogManager) -> bool:
+    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager) -> bool:
         return False
