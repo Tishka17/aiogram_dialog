@@ -15,6 +15,10 @@ from .manager.protocols import (
 )
 from .utils import add_indent_id, get_media_id, remove_indent_id
 from .widgets.action import Actionable
+from .widgets.data import PreviewAwareGetter
+from .widgets.utils import (
+    ensure_data_getter, GetterVariant,
+)
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -62,6 +66,8 @@ class Dialog(ManagedDialogProto):
             on_close: Optional[OnDialogEvent] = None,
             on_process_result: Optional[OnResultEvent] = None,
             launch_mode: LaunchMode = LaunchMode.STANDARD,
+            getter: GetterVariant = None,
+            preview_data: GetterVariant = None,
     ):
         self._states_group = windows[0].get_state().group
         self.states: List[State] = []
@@ -77,6 +83,10 @@ class Dialog(ManagedDialogProto):
         self.on_close = on_close
         self.on_process_result = on_process_result
         self.launch_mode = launch_mode
+        self.getter = PreviewAwareGetter(
+            ensure_data_getter(getter),
+            ensure_data_getter(preview_data),
+        )
 
     async def next(self, manager: DialogManager):
         if not manager.current_context():
@@ -118,6 +128,11 @@ class Dialog(ManagedDialogProto):
                 f"No window found for `{manager.current_context().state}` "
                 f"Current state group is `{self.states_group_name()}`"
             ) from e
+
+    async def load_data(self, manager: DialogManager) -> Dict:
+        data = await manager.load_data()
+        data.update(await self.getter(**manager.data))
+        return data
 
     async def show(self, manager: DialogManager) -> None:
         logger.debug("Dialog show (%s)", self)

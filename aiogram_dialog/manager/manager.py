@@ -43,6 +43,15 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks"
             )
 
+    async def load_data(self) -> Dict:
+        context = self.current_context()
+        return {
+            "dialog_data": context.dialog_data,
+            "start_data": context.start_data,
+            "middleware_data": self.data,
+            "event": self.event,
+        }
+
     def is_preview(self) -> bool:
         return False
 
@@ -77,13 +86,21 @@ class ManagerImpl(DialogManager):
         )
         self.current_stack().last_message_id = None
 
+    async def _process_last_dialog_result(
+            self, start_data: Data, result: Any,
+    ) -> None:
+        """Process closing last dialog in stack"""
+        await self._remove_kbd()
+
     async def done(self, result: Any = None) -> None:
         await self._dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
         context = self.current_context()
         if not context:
-            await self._remove_kbd()
+            await self._process_last_dialog_result(
+                old_context.start_data, result,
+            )
             return
         dialog = self._dialog()
         await dialog.process_result(old_context.start_data, result, self)

@@ -56,7 +56,9 @@ class Window(DialogWindowProto):
 
     async def load_data(self, dialog: "Dialog",
                         manager: DialogManager) -> Dict:
-        return await self.getter(**manager.data)
+        data = await dialog.load_data(manager)
+        data.update(await self.getter(**manager.data))
+        return data
 
     async def process_message(self, message: Message, dialog: Dialog,
                               manager: DialogManager):

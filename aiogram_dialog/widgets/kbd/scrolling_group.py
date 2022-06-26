@@ -3,8 +3,8 @@ from typing import List, Dict, Optional, Callable, Awaitable, Union
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 from aiogram_dialog.deprecation_utils import manager_deprecated
-from aiogram_dialog.dialog import Dialog, ChatEvent
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
+from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
 from .base import Keyboard
 from .group import Group
@@ -47,7 +47,8 @@ class ScrollingGroup(Group):
         ]]
         return kbd[current_page * self.height: (current_page + 1) * self.height] + pager
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
+    async def process_callback(self, c: CallbackQuery,
+                               dialog: ManagedDialogProto,
                                manager: DialogManager) -> bool:
         prefix = f"{self.widget_id}:"
         if not c.data.startswith(prefix):
