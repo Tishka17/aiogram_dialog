@@ -47,7 +47,7 @@ class DialogRegistry(DialogRegistryProto):
         if message_manager is None:
             message_manager = MessageManager()
         self._message_manager = message_manager
-        self._dialog_manager_factory = dialog_manager_factory
+        self.dialog_manager_factory = dialog_manager_factory
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
@@ -56,10 +56,6 @@ class DialogRegistry(DialogRegistryProto):
     @property
     def message_manager(self) -> MessageManagerProtocol:
         return self._message_manager
-
-    @property
-    def dialog_manager_factory(self) -> "DialogManagerFactory":
-        return self._dialog_manager_factory
 
     def register(self, dialog: ManagedDialogProto, *args, **kwargs):
         group = dialog.states_group()
@@ -82,7 +78,7 @@ class DialogRegistry(DialogRegistryProto):
 
     def _register_middleware(self):
         self.dp.setup_middleware(
-            ManagerMiddleware(self)
+            ManagerMiddleware(self, self.dialog_manager_factory)
         )
         self.dp.setup_middleware(
             IntentMiddleware(storage=self.dp.storage, state_groups=self.state_groups)

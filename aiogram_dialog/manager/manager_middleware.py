@@ -2,18 +2,25 @@ from typing import Any
 
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
-from .protocols import DialogManager, DialogRegistryProto
+from .protocols import (
+    DialogManager, DialogRegistryProto, DialogManagerFactory,
+)
 
 MANAGER_KEY = "dialog_manager"
 
 
 class ManagerMiddleware(BaseMiddleware):
-    def __init__(self, registry: DialogRegistryProto):
+    def __init__(
+            self,
+            registry: DialogRegistryProto,
+            dialog_manager_factory: DialogManagerFactory,
+    ):
         super().__init__()
         self.registry = registry
+        self.dialog_manager_factory = dialog_manager_factory
 
     async def on_pre_process_message(self, event: Any, data: dict):
-        data[MANAGER_KEY] = self.registry.dialog_manager_factory(
+        data[MANAGER_KEY] = self.dialog_manager_factory(
             event=event,
             registry=self.registry,
             data=data,
