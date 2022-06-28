@@ -37,10 +37,14 @@ class DialogRegistry(DialogRegistryProto):
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
             dialog_manager_factory: DialogManagerFactory = ManagerImpl,
+            default_router: Optional[Router] = None,
     ):
         self.dp = dp
         self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
             router=self.dp, event_name=DIALOG_EVENT_NAME
+        )
+        self.default_router = default_router if default_router else dp.include_router(
+            Router(name="aiogram_dialog_router")
         )
 
         self.dialogs = {
@@ -76,7 +80,7 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups[dialog.states_group_name()] = group
         dialog.register(
             self,
-            router if router else self.dp,
+            router if router else self.default_router,
             IntentFilter(aiogd_intent_state_group=group),
             *args,
             **kwargs
