@@ -60,6 +60,6 @@ An example from above may be rewritten using these buttons:
 
 .. note::
 
-    You can wonder, why we do not set and id to Back/Next buttons. Though it is normally recommended, these buttons do usually the same action so they have default ``id``.
+    You can wonder, why we do not set an id to Back/Next buttons. Though it is normally recommended, these buttons do usually the same action so they have default ``id``.
 
     If you have multiple buttons of the same type in a window with ``on_click`` callback, you should explicitly set different ids.
