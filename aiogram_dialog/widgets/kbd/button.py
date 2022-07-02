@@ -30,7 +30,7 @@ class Button(Keyboard):
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.widget_id
+                callback_data=self.own_callback_data()
             )
         ]]
 

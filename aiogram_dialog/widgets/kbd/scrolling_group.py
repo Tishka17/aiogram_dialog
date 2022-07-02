@@ -2,6 +2,7 @@ from typing import List, Dict, Optional, Callable, Awaitable, Union
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
+from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.deprecation_utils import manager_deprecated
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.context.events import ChatEvent
@@ -25,7 +26,9 @@ class ScrollingGroup(Group):
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
 
-    async def _render_keyboard(self, data: Dict, manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data: Dict, manager: DialogManager,
+    ) -> List[List[InlineKeyboardButton]]:
         kbd = await super()._render_keyboard(data, manager)
         pages = len(kbd) // self.height + bool(len(kbd) % self.height)
         last_page = pages - 1
@@ -35,20 +38,32 @@ class ScrollingGroup(Group):
         next_page = min(last_page, current_page + 1)
         prev_page = max(0, current_page - 1)
         pager = [[
-            InlineKeyboardButton(text="1", callback_data=f"{self.widget_id}:0"),
-            InlineKeyboardButton(text="<", callback_data=f"{self.widget_id}:{prev_page}"),
-            InlineKeyboardButton(text=str(current_page + 1), callback_data=f"{self.widget_id}:{current_page}"),
-            InlineKeyboardButton(text=">", callback_data=f"{self.widget_id}:{next_page}"),
-            InlineKeyboardButton(text=str(last_page + 1), callback_data=f"{self.widget_id}:{last_page}"),
+            InlineKeyboardButton(
+                text="1", callback_data=self.own_item_callback_data("0")
+            ),
+            InlineKeyboardButton(
+                text="<", callback_data=self.own_item_callback_data(prev_page),
+            ),
+            InlineKeyboardButton(
+                text=str(current_page + 1),
+                callback_data=self.own_item_callback_data(current_page),
+            ),
+            InlineKeyboardButton(
+                text=">", callback_data=self.own_item_callback_data(next_page),
+            ),
+            InlineKeyboardButton(
+                text=str(last_page + 1),
+                callback_data=self.own_item_callback_data(last_page),
+            ),
         ]]
-        return kbd[current_page * self.height: (current_page + 1) * self.height] + pager
+        page_offset = current_page * self.height
+        return kbd[page_offset:page_offset + self.height] + pager
 
-    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager) -> bool:
-        prefix = f"{self.widget_id}:"
-        if not c.data.startswith(prefix):
-            return await super().process_callback(c, dialog, manager)
-        new_page = int(c.data[len(prefix):])
-        await self.set_page(c, new_page, manager)
+    async def _process_own_item_callback(
+            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
+        await self.set_page(c, int(data), manager)
         return True
 
     def get_page(self, manager: DialogManager) -> int:

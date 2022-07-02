@@ -53,7 +53,10 @@ class Group(Keyboard):
             res.append(row)
         return res
 
-    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager) -> bool:
+    async def _process_other_callback(
+            self, c: CallbackQuery, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
         for b in self.buttons:
             if await b.process_callback(c, dialog, manager):
                 return True

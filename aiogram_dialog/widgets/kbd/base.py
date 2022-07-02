@@ -35,7 +35,10 @@ class Keyboard(Actionable, Whenable):
             return None
         return f"{self.widget_id}:"
 
-    def callback_with_prefix(self, data: Union[str, int]):
+    def own_callback_data(self):
+        return self.widget_id
+
+    def own_item_callback_data(self, data: Union[str, int]):
         return f"{self.callback_prefix()}{data}"
 
     async def process_callback(

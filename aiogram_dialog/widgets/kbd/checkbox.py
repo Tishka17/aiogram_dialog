@@ -39,7 +39,7 @@ class BaseCheckbox(Keyboard, ABC):
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.callback_with_prefix(checked)
+                callback_data=self.own_item_callback_data(checked)
             )
         ]]
 

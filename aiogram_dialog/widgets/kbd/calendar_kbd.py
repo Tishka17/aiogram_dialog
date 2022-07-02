@@ -110,7 +110,7 @@ class Calendar(Keyboard, ABC):
             for year in range(n, n + 3):
                 year_row.append(InlineKeyboardButton(
                     text=str(year),
-                    callback_data=self.callback_with_prefix(f"{PREFIX_YEAR}{year}")
+                    callback_data=self.own_item_callback_data(f"{PREFIX_YEAR}{year}")
                 ))
             years.append(year_row)
         return years
@@ -124,14 +124,14 @@ class Calendar(Keyboard, ABC):
                 month_text = date(offset.year, month, 1).strftime("%B")
                 season.append(InlineKeyboardButton(
                     text=month_text,
-                    callback_data=self.callback_with_prefix(f"{PREFIX_MONTH}{month}"))
+                    callback_data=self.own_item_callback_data(f"{PREFIX_MONTH}{month}"))
                 )
             months.append(season)
         return [
             [
                 InlineKeyboardButton(
                     text=header_year,
-                    callback_data=self.callback_with_prefix(SCOPE_YEARS),
+                    callback_data=self.own_item_callback_data(SCOPE_YEARS),
                 ),
             ],
             *months
@@ -156,14 +156,14 @@ class Calendar(Keyboard, ABC):
                     raw_date = int(mktime(date(offset.year, offset.month, day).timetuple()))
                     week_row.append(InlineKeyboardButton(
                         text=str(day),
-                        callback_data=self.callback_with_prefix(raw_date),
+                        callback_data=self.own_item_callback_data(raw_date),
                     ))
             days.append(week_row)
         return [
             [
                 InlineKeyboardButton(
                     text=header_week,
-                    callback_data=self.callback_with_prefix(SCOPE_MONTHS),
+                    callback_data=self.own_item_callback_data(SCOPE_MONTHS),
                 ),
             ],
             weekheader,
@@ -171,15 +171,15 @@ class Calendar(Keyboard, ABC):
             [
                 InlineKeyboardButton(
                     text="Prev month",
-                    callback_data=self.callback_with_prefix(MONTH_PREV),
+                    callback_data=self.own_item_callback_data(MONTH_PREV),
                 ),
                 InlineKeyboardButton(
                     text="Zoom out",
-                    callback_data=self.callback_with_prefix(SCOPE_MONTHS),
+                    callback_data=self.own_item_callback_data(SCOPE_MONTHS),
                 ),
                 InlineKeyboardButton(
                     text="Next month",
-                    callback_data=self.callback_with_prefix(MONTH_NEXT),
+                    callback_data=self.own_item_callback_data(MONTH_NEXT),
                 ),
             ],
         ]
