@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Union, Dict, Awaitable, Any
+from typing import List, Callable, Optional, Union, Dict, Awaitable
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
 
@@ -19,9 +19,10 @@ class Button(Keyboard):
         self.text = text
         self.on_click = ensure_event_processor(on_click)
 
-    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager) -> bool:
-        if c.data != self.widget_id:
-            return False
+    async def _process_own_callback(
+            self, c: CallbackQuery, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
         await self.on_click.process_event(c, self, manager)
         return True
 
@@ -29,7 +30,7 @@ class Button(Keyboard):
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.widget_id
+                callback_data=self._own_callback_data()
             )
         ]]
 

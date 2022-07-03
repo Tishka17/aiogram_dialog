@@ -100,10 +100,8 @@ class ListGroup(Keyboard):
             for row in b_kbd:
                 for btn in row:
                     if btn.callback_data:
-                        btn.callback_data = (
-                            f"{self.widget_id}:"
-                            f"{item_id}:"
-                            f"{btn.callback_data}"
+                        btn.callback_data = self._item_callback_data(
+                            f"{item_id}:{btn.callback_data}"
                         )
             kbd.extend(b_kbd)
         return kbd
@@ -117,12 +115,11 @@ class ListGroup(Keyboard):
                 return widget
         return None
 
-    async def process_callback(
-            self, c: CallbackQuery, dialog: ManagedDialogProto, manager: DialogManager
+    async def _process_item_callback(
+            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            manager: DialogManager,
     ) -> bool:
-        if not c.data.startswith(f"{self.widget_id}:"):
-            return False
-        _, item_id, callback_data = c.data.split(":", maxsplit=2)
+        item_id, callback_data = data.split(":", maxsplit=1)
         c_vars = vars(c)
         c_vars["data"] = callback_data
         c = CallbackQuery(**c_vars)
