@@ -12,6 +12,12 @@ DIALOG_EVENT_NAME = "aiogd_update"
 Data = Union[Dict, List, int, str, float, None]
 
 
+class ShowMode(Enum):
+    AUTO = "auto"
+    EDIT = "edit"
+    SEND = "send"
+
+
 class StartMode(Enum):
     NORMAL = auto()
     RESET_STACK = auto()
@@ -41,6 +47,7 @@ class DialogUpdateEvent(TelegramObject):
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
+    show_mode: ShowMode
 
 
 class DialogSwitchEvent(DialogUpdateEvent):

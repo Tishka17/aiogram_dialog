@@ -9,10 +9,13 @@ from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 from aiogram.dispatcher.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, StartMode
 from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
+
+from aiogram_dialog import (
+    Dialog, DialogManager, DialogRegistry, Window, StartMode,
+)
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel
+from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel, Start
 from aiogram_dialog.widgets.text import Const, Format
 
 API_TOKEN = "PLACE YOUR TOKEN HERE"
@@ -23,11 +26,13 @@ class DialogSG(StatesGroup):
 
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
+    dialog_data = dialog_manager.current_context().dialog_data
     return {
         "stack": dialog_manager.current_stack(),
         "context": dialog_manager.current_context(),
         "now": datetime.datetime.now(),
-        "counter": dialog_manager.current_context().dialog_data.get("counter", 0),
+        "counter": dialog_data.get("counter", 0),
+        "last_text": dialog_data.get("last_text", ""),
         "fruits": [
             ("Apple", 1),
             ("Pear", 2),
@@ -38,6 +43,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 
 async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
+    manager.current_context().dialog_data["last_text"] = m.text
     await m.answer(f"Nice to meet you, {m.text}")
 
 
@@ -56,11 +62,19 @@ multi = Multiselect(
 
 dialog = Dialog(
     Window(
-        Format("Clicked: {counter}\n\n{stack}\n\n{context}\n\n{now}"),
+        Format("Clicked: {counter}\n"),
+        Format("Stack: {stack}\n"),
+        Format("Context: {context}\n"),
+        Format("Last text: {last_text}\n"),
+        Format("{now}"),
         Button(Const("Click me!"), id="btn1", on_click=on_click),
+        Start(Const("Start new stack"), id="s1",
+              mode=StartMode.NEW_STACK, state=DialogSG.greeting),
         multi,
         Cancel(),
-        MessageInput(name_handler),  # Inputs work only in default stack!
+        # Inputs work only in default stack
+        # or via reply to a message with buttons
+        MessageInput(name_handler),
         state=DialogSG.greeting,
         getter=get_data,
     ),

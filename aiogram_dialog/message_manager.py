@@ -8,8 +8,9 @@ from aiogram.types import (
 )
 from aiogram.exceptions import TelegramBadRequest
 
+from .context.events import ShowMode
 from .manager.protocols import (
-    MediaAttachment, NewMessage, ShowMode, MessageManagerProtocol,
+    MediaAttachment, NewMessage, MessageManagerProtocol,
 )
 from .utils import get_media_id
 

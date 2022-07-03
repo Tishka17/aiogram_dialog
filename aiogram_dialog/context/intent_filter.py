@@ -6,11 +6,12 @@ from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import (
-    Message, CallbackQuery, Update, TelegramObject,
+    Message, CallbackQuery, Update, TelegramObject, ChatMemberUpdated,
 )
 
 from .context import Context
-from .events import DialogUpdateEvent, DialogUpdate
+from .storage import DEFAULT_STACK_ID
+from .events import DialogUpdateEvent, DialogUpdate, ChatEvent
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError, OutdatedIntent
 from ..utils import remove_indent_id
@@ -55,55 +56,80 @@ class IntentMiddlewareFactory:
         )
         return proxy
 
-    async def process_message(
-            self, handler: Callable, event: Message, data: dict,
-    ):
+    async def _load_context(
+            self, event: ChatEvent,
+            intent_id: Optional[str], stack_id: Optional[str],
+            data: dict,
+    ) -> None:
         proxy = self.storage_proxy(data)
-        stack = await proxy.load_stack()
-        if stack.empty():
-            context = None
-        else:
-            context = await proxy.load_context(stack.last_intent_id())
-        data[STORAGE_KEY] = proxy
-        data[STACK_KEY] = stack
-        data[CONTEXT_KEY] = context
-        return await handler(event, data)
-
-    process_my_chat_member = process_message
-
-    async def process_aiogd_update(
-            self, handler: Callable, event: DialogUpdateEvent, data: dict,
-    ):
-        proxy = self.storage_proxy(data)
-        data[STORAGE_KEY] = proxy
-        if event.intent_id is not None:
-            context = await proxy.load_context(event.intent_id)
+        logger.debug(
+            "Loading context for intent: `%s`, "
+            "stack: `%s`, user: `%s`, chat: `%s`",
+            intent_id, stack_id, event.from_user.id, proxy.chat_id,
+        )
+        if intent_id is not None:
+            context = await proxy.load_context(intent_id)
             stack = await proxy.load_stack(context.stack_id)
-        elif event.stack_id is not None:
-            stack = await proxy.load_stack(event.stack_id)
+        elif stack_id is not None:
+            stack = await proxy.load_stack(stack_id)
             if stack.empty():
-                if event.intent_id is not None:
+                if intent_id is not None:
                     raise OutdatedIntent(
                         stack.id,
-                        f"Outdated intent id ({event.intent_id}) "
-                        f"for stack ({stack.id})"
+                        f"Outdated intent id ({intent_id}) "
+                        f"for stack ({stack.id})",
                     )
                 context = None
             else:
-                if event.intent_id is not None and event.intent_id != stack.last_intent_id():
+                if intent_id is not None and intent_id != stack.last_intent_id():
                     raise OutdatedIntent(
                         stack.id,
-                        f"Outdated intent id ({event.intent_id}) "
-                        f"for stack ({stack.id})"
+                        f"Outdated intent id ({intent_id}) "
+                        f"for stack ({stack.id})",
                     )
                 context = await proxy.load_context(stack.last_intent_id())
         else:
             raise InvalidStackIdError(
-                f"Both stack id and intent id are None: {event}"
+                f"Both stack id and intent id are None: {event}",
             )
-
+        data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
+
+    async def process_message(
+            self, handler: Callable, event: Message, data: dict,
+    ):
+        if (
+                event.reply_to_message and
+                event.reply_to_message.from_user.id == data['bot'].id and
+                event.reply_to_message.reply_markup and
+                event.reply_to_message.reply_markup.inline_keyboard
+        ):
+            button = event.reply_to_message.reply_markup.inline_keyboard[0][0]
+            intent_id, callback_data = remove_indent_id(button.callback_data)
+            await self._load_context(
+                event, intent_id, DEFAULT_STACK_ID, data,
+            )
+        else:
+            await self._load_context(
+                event, None, DEFAULT_STACK_ID, data,
+            )
+        return await handler(event, data)
+
+    async def process_my_chat_member(
+            self, handler: Callable, event: Message, data: dict,
+    ) -> None:
+        await self._load_context(
+            event, None, DEFAULT_STACK_ID, data,
+        )
+        return await handler(event, data)
+
+    async def process_aiogd_update(
+            self, handler: Callable, event: DialogUpdateEvent, data: dict,
+    ):
+        await self._load_context(
+            event, event.intent_id, event.stack_id, data,
+        )
         return await handler(event, data)
 
     async def process_callback_query(
@@ -114,22 +140,9 @@ class IntentMiddlewareFactory:
 
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
-        if intent_id:
-            context = await proxy.load_context(intent_id)
-            stack = await proxy.load_stack(context.stack_id)
-            if stack.last_intent_id() != intent_id:
-                raise OutdatedIntent(
-                    stack.id,
-                    f"Outdated intent id ({intent_id}) for stack ({stack.id})"
-                )
-        else:
-            stack = await proxy.load_stack()
-            if stack.empty():
-                context = None
-            else:
-                context = await proxy.load_context(stack.last_intent_id())
-        data[STACK_KEY] = stack
-        data[CONTEXT_KEY] = context
+        await self._load_context(
+            event, intent_id, None, data,
+        )
         data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
 
