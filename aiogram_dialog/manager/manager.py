@@ -2,17 +2,19 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat, Message, CallbackQuery, Document
+from aiogram.types import Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
 from .protocols import (
-    DialogManager, BaseDialogManager, ShowMode, LaunchMode,
+    DialogManager, BaseDialogManager, LaunchMode,
     ManagedDialogAdapterProto, ManagedDialogProto, DialogRegistryProto,
     NewMessage,
 )
 from ..context.context import Context
-from ..context.events import ChatEvent, StartMode, Data, FakeChat, FakeUser
+from ..context.events import (
+    ChatEvent, StartMode, ShowMode, Data, FakeChat, FakeUser,
+)
 from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
 from ..context.stack import Stack, DEFAULT_STACK_ID
 from ..context.storage import StorageProxy
@@ -121,8 +123,10 @@ class ManagerImpl(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
     ) -> None:
         self.check_disabled()
+        self.show_mode = show_mode
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
@@ -221,6 +225,8 @@ class ManagerImpl(DialogManager):
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
+        if self.current_stack().id != DEFAULT_STACK_ID:
+            return ShowMode.EDIT
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND

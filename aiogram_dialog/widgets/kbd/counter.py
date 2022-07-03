@@ -67,7 +67,7 @@ class Counter(Keyboard):
         if self.minus:
             minus = await self.minus.render_text(data, manager)
             row.append(InlineKeyboardButton(
-                text=minus, callback_data=f"{self.widget_id}:-"
+                text=minus, callback_data=self._item_callback_data("-"),
             ))
         if self.text:
             text = await self.text.render_text(
@@ -75,29 +75,28 @@ class Counter(Keyboard):
                 manager,
             )
             row.append(InlineKeyboardButton(
-                text=text, callback_data=f"{self.widget_id}:"))
+                text=text, callback_data=self._item_callback_data(""),
+            ))
         if self.plus:
             plus = await self.plus.render_text(data, manager)
             row.append(InlineKeyboardButton(
-                text=plus, callback_data=f"{self.widget_id}:+",
+                text=plus, callback_data=self._item_callback_data("+"),
             ))
         return [row]
 
-    async def process_callback(self, c: CallbackQuery, dialog: ManagedDialogProto,
-                               manager: DialogManager) -> bool:
-        prefix = f"{self.widget_id}:"
-        if not c.data.startswith(prefix):
-            return False
+    async def _process_item_callback(
+            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
         await self.on_click.process_event(c, self.managed(manager), manager)
 
-        cmd = c.data[len(prefix):]
         value = self.get_value(manager)
-        if cmd == "+":
+        if data == "+":
             value += self.increment
             if value > self.max and self.cycle:
                 value = self.min
             await self.set_value(manager, value)
-        elif cmd == "-":
+        elif data == "-":
             value -= self.increment
             if value < self.min and self.cycle:
                 value = self.max

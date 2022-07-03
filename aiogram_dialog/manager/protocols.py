@@ -9,14 +9,10 @@ from aiogram.types import (
 )
 
 from ..context.context import Context
-from ..context.events import DialogUpdateEvent, StartMode, ChatEvent, Data
+from ..context.events import (
+    DialogUpdateEvent, StartMode, ChatEvent, Data, ShowMode,
+)
 from ..context.stack import Stack
-
-
-class ShowMode(Enum):
-    AUTO = "auto"
-    EDIT = "edit"
-    SEND = "send"
 
 
 class LaunchMode(Enum):
@@ -203,6 +199,7 @@ class BaseDialogManager(Protocol):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
     ) -> None:
         pass
 
