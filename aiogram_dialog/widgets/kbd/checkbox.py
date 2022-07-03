@@ -39,11 +39,11 @@ class BaseCheckbox(Keyboard, ABC):
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.own_item_callback_data(checked)
+                callback_data=self._item_callback_data(checked)
             )
         ]]
 
-    async def _process_own_item_callback(
+    async def _process_item_callback(
             self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:

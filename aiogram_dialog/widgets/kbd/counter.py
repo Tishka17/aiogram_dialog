@@ -67,7 +67,7 @@ class Counter(Keyboard):
         if self.minus:
             minus = await self.minus.render_text(data, manager)
             row.append(InlineKeyboardButton(
-                text=minus, callback_data=self.own_item_callback_data("-"),
+                text=minus, callback_data=self._item_callback_data("-"),
             ))
         if self.text:
             text = await self.text.render_text(
@@ -75,16 +75,16 @@ class Counter(Keyboard):
                 manager,
             )
             row.append(InlineKeyboardButton(
-                text=text, callback_data=self.own_item_callback_data(""),
+                text=text, callback_data=self._item_callback_data(""),
             ))
         if self.plus:
             plus = await self.plus.render_text(data, manager)
             row.append(InlineKeyboardButton(
-                text=plus, callback_data=self.own_item_callback_data("+"),
+                text=plus, callback_data=self._item_callback_data("+"),
             ))
         return [row]
 
-    async def _process_own_item_callback(
+    async def _process_item_callback(
             self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:

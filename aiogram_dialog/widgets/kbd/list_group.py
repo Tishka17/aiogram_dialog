@@ -100,7 +100,7 @@ class ListGroup(Keyboard):
             for row in b_kbd:
                 for btn in row:
                     if btn.callback_data:
-                        btn.callback_data = self.own_item_callback_data(
+                        btn.callback_data = self._item_callback_data(
                             f"{item_id}:{btn.callback_data}"
                         )
             kbd.extend(b_kbd)
@@ -115,7 +115,7 @@ class ListGroup(Keyboard):
                 return widget
         return None
 
-    async def _process_own_item_callback(
+    async def _process_item_callback(
             self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:

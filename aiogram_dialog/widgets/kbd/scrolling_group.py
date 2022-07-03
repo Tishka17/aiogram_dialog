@@ -39,27 +39,27 @@ class ScrollingGroup(Group):
         prev_page = max(0, current_page - 1)
         pager = [[
             InlineKeyboardButton(
-                text="1", callback_data=self.own_item_callback_data("0")
+                text="1", callback_data=self._item_callback_data("0")
             ),
             InlineKeyboardButton(
-                text="<", callback_data=self.own_item_callback_data(prev_page),
+                text="<", callback_data=self._item_callback_data(prev_page),
             ),
             InlineKeyboardButton(
                 text=str(current_page + 1),
-                callback_data=self.own_item_callback_data(current_page),
+                callback_data=self._item_callback_data(current_page),
             ),
             InlineKeyboardButton(
-                text=">", callback_data=self.own_item_callback_data(next_page),
+                text=">", callback_data=self._item_callback_data(next_page),
             ),
             InlineKeyboardButton(
                 text=str(last_page + 1),
-                callback_data=self.own_item_callback_data(last_page),
+                callback_data=self._item_callback_data(last_page),
             ),
         ]]
         page_offset = current_page * self.height
         return kbd[page_offset:page_offset + self.height] + pager
 
-    async def _process_own_item_callback(
+    async def _process_item_callback(
             self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:

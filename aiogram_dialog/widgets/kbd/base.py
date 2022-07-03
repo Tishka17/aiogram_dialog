@@ -35,10 +35,12 @@ class Keyboard(Actionable, Whenable):
             return None
         return f"{self.widget_id}:"
 
-    def own_callback_data(self):
+    def _own_callback_data(self):
+        """Callback data for only button in widget"""
         return self.widget_id
 
-    def own_item_callback_data(self, data: Union[str, int]):
+    def _item_callback_data(self, data: Union[str, int]):
+        """Callback data for widgets button if multiple"""
         return f"{self.callback_prefix()}{data}"
 
     async def process_callback(
@@ -51,7 +53,7 @@ class Keyboard(Actionable, Whenable):
             )
         prefix = self.callback_prefix()
         if prefix and c.data.startswith(prefix):
-            return await self._process_own_item_callback(
+            return await self._process_item_callback(
                 c, c.data[len(prefix):], dialog, manager,
             )
         return await self._process_other_callback(c, dialog, manager)
@@ -60,16 +62,23 @@ class Keyboard(Actionable, Whenable):
             self, c: CallbackQuery, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
+        """Process callback related to _own_callback_data"""
         return False
 
-    async def _process_own_item_callback(
+    async def _process_item_callback(
             self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
+        """Process callback related to _item_callback_data"""
         return False
 
     async def _process_other_callback(
             self, c: CallbackQuery, dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
+        """
+        Process callback for unknown callback data.
+
+        Can be used for layouts
+        """
         return False
