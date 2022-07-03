@@ -115,7 +115,7 @@ class StatefulSelect(Select, ABC):
 
 class Radio(StatefulSelect):
     def get_checked(self, manager: DialogManager) -> Optional[str]:
-        return self.widget_data(manager, None)
+        return self.get_widget_data(manager, None)
 
     async def set_checked(self, event: ChatEvent, item_id: Optional[str], manager: DialogManager):
         checked = self.get_checked(manager)
@@ -127,7 +127,7 @@ class Radio(StatefulSelect):
         return str(item_id) == self.get_checked(manager)
 
     def _preview_checked_id(self, manager: DialogManager, item_id: str) -> str:
-        return self.widget_data(manager, item_id)
+        return self.get_widget_data(manager, item_id)
 
     def _is_text_checked(self, data: Dict, case: Case, manager: DialogManager) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
@@ -183,7 +183,7 @@ class Multiselect(StatefulSelect):
         return str(item_id) in data
 
     def get_checked(self, manager: DialogManager) -> List[str]:
-        return self.widget_data(manager, [])
+        return self.get_widget_data(manager, [])
 
     async def reset_checked(self, event: ChatEvent, manager: DialogManager):
         self.set_widget_data(manager, [])

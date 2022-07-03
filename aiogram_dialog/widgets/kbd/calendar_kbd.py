@@ -185,23 +185,23 @@ class Calendar(Keyboard, ABC):
         ]
 
     def get_scope(self, manager: DialogManager) -> str:
-        calendar_data: CalendarData = self.widget_data(manager, {})
+        calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_scope = calendar_data.get("current_scope")
         return current_scope or SCOPE_DAYS
 
     def get_offset(self, manager: DialogManager) -> date:
-        calendar_data: CalendarData = self.widget_data(manager, {})
+        calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_offset = calendar_data.get("current_offset")
         if current_offset is None:
             return date.today()
         return date.fromisoformat(current_offset)
 
     def set_offset(self, new_offset: date, manager: DialogManager) -> None:
-        data = self.widget_data(manager, {})
-        self.widget_data(manager, {})["current_offset"] = new_offset.isoformat()
+        data = self.get_widget_data(manager, {})
+        data["current_offset"] = new_offset.isoformat()
 
     def set_scope(self, new_scope: str, manager: DialogManager) -> None:
-        data = self.widget_data(manager, {})
+        data = self.get_widget_data(manager, {})
         data["current_scope"] = new_scope
 
     def managed(self, manager: DialogManager):

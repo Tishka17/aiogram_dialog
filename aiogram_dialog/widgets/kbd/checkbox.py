@@ -77,7 +77,7 @@ class Checkbox(BaseCheckbox):
         self.default = default
 
     def is_checked(self, manager: DialogManager) -> bool:
-        return self.widget_data(manager, self.default)
+        return self.get_widget_data(manager, self.default)
 
     async def set_checked(self, event: ChatEvent, checked: bool,
                           manager: DialogManager) -> None:

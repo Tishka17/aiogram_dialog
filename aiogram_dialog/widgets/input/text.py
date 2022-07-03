@@ -43,7 +43,7 @@ class TextInput(BaseInput, Generic[T]):
             await self.on_success.process_event(message, self, manager, value)
 
     def get_value(self, manager: DialogManager) -> T:
-        return self.type_factory(self.widget_data(manager, None))
+        return self.type_factory(self.get_widget_data(manager, None))
 
     def managed(self, manager: DialogManager):
         return ManagedTextInputAdapter(self, manager)

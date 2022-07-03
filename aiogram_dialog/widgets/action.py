@@ -19,7 +19,7 @@ class Actionable(ManagedWidget):
             return self
         return None
 
-    def widget_data(
+    def get_widget_data(
             self, manager: DialogManager, default: Any,
     ) -> Any:
         """
