@@ -40,6 +40,7 @@ class DialogRegistry(DialogRegistryProto):
         self.update_handler = Handler(dp, middleware_key="aiogd_update")
         self.register_update_handler(handle_update, state="*")
         self.dp.filters_factory.bind(IntentFilter)
+        self.dialog_manager_factory = dialog_manager_factory
         self._register_middleware()
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
@@ -47,7 +48,6 @@ class DialogRegistry(DialogRegistryProto):
         if message_manager is None:
             message_manager = MessageManager()
         self._message_manager = message_manager
-        self.dialog_manager_factory = dialog_manager_factory
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
