@@ -8,7 +8,7 @@ from aiogram.types import Chat, User
 from .protocols import DialogRegistryProto, BaseDialogManager
 from ..context.events import (
     Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
-    StartMode, FakeChat, FakeUser,
+    StartMode, FakeChat, FakeUser, ShowMode,
 )
 from ..context.stack import DEFAULT_STACK_ID
 from ..utils import is_chat_loaded, is_user_loaded
@@ -111,14 +111,20 @@ class BgManager(BaseDialogManager):
             **self._base_event_params()
         ))
 
-    async def start(self, state: State, data: Data = None,
-                    mode: StartMode = StartMode.NORMAL) -> None:
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
+    ) -> None:
         await self._load()
         await self.registry.notify(DialogStartEvent(
             action=Action.START,
             data=data,
             new_state=state,
             mode=mode,
+            show_mode=show_mode,
             **self._base_event_params()
         ))
 
