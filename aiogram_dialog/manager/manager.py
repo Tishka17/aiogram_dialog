@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any, Optional, Dict
 
 from aiogram.dispatcher.filters.state import State
-from aiogram.types import User, Chat, Message, CallbackQuery, Document
+from aiogram.types import Message, CallbackQuery, Document
 
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
@@ -225,6 +225,8 @@ class ManagerImpl(DialogManager):
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
+        if self.current_stack().id != DEFAULT_STACK_ID:
+            return ShowMode.EDIT
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND
