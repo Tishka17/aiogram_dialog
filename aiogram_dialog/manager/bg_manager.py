@@ -5,7 +5,7 @@ from aiogram import Bot
 from aiogram.dispatcher.filters.state import State
 from aiogram.types import Chat, User
 
-from .protocols import DialogRegistryProto, BaseDialogManager
+from .protocols import DialogRegistryProto, BaseDialogManager, ShowMode
 from ..context.events import (
     Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
     StartMode, FakeChat, FakeUser,
@@ -111,14 +111,20 @@ class BgManager(BaseDialogManager):
             **self._base_event_params()
         ))
 
-    async def start(self, state: State, data: Data = None,
-                    mode: StartMode = StartMode.NORMAL) -> None:
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
+    ) -> None:
         await self._load()
         await self.registry.notify(DialogStartEvent(
             action=Action.START,
             data=data,
             new_state=state,
             mode=mode,
+            show_mode=show_mode,
             **self._base_event_params()
         ))
 

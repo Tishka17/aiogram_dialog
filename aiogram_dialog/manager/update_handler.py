@@ -8,7 +8,10 @@ logger = getLogger(__name__)
 
 async def handle_update(event: DialogUpdateEvent, dialog_manager: ManagerImpl):
     if isinstance(event, DialogStartEvent):
-        await dialog_manager.start(state=event.new_state, data=event.data, mode=event.mode)
+        await dialog_manager.start(
+            state=event.new_state, data=event.data,
+            mode=event.mode, show_mode=event.show_mode,
+        )
     elif isinstance(event, DialogSwitchEvent):
         await dialog_manager.switch_to(state=event.new_state)
         await dialog_manager.dialog().show()

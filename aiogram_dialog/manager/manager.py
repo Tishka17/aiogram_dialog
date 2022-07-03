@@ -121,8 +121,10 @@ class ManagerImpl(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
     ) -> None:
         self.check_disabled()
+        self.show_mode = show_mode
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:

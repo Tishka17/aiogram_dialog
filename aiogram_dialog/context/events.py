@@ -10,6 +10,12 @@ from aiogram.types import Message, User, CallbackQuery, Chat, ChatMemberUpdated
 Data = Union[Dict, List, int, str, float, None]
 
 
+class ShowMode(Enum):
+    AUTO = "auto"
+    EDIT = "edit"
+    SEND = "send"
+
+
 class StartMode(Enum):
     NORMAL = auto()
     RESET_STACK = auto()
@@ -38,6 +44,7 @@ class DialogUpdateEvent:
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
+    show_mode: ShowMode
 
 
 @dataclass
