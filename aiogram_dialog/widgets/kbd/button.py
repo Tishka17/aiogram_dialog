@@ -19,21 +19,20 @@ class Button(Keyboard):
         self.text = text
         self.on_click = ensure_event_processor(on_click)
 
-    async def process_callback(self, c: CallbackQuery,
-                               dialog: ManagedDialogProto,
-                               manager: DialogManager) -> bool:
-        if c.data != self.widget_id:
-            return False
+    async def _process_own_callback(
+            self, c: CallbackQuery, dialog: ManagedDialogProto,
+            manager: DialogManager,
+    ) -> bool:
         await self.on_click.process_event(c, self, manager)
         return True
 
     async def _render_keyboard(
-        self, data: Dict, manager: DialogManager
+        self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
-                callback_data=self.widget_id
+                callback_data=self._own_callback_data()
             )
         ]]
 
@@ -46,7 +45,7 @@ class Url(Keyboard):
         self.url = url
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [[
             InlineKeyboardButton(
