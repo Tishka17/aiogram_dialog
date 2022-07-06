@@ -21,6 +21,11 @@ class Text(Whenable):
             other = Const(other)
         return Multi(self, other, sep="")
 
+    def __radd__(self, other: Union["Text", str]):
+        if isinstance(other, str):
+            other = Const(other)
+        return other + self
+
 
 class Const(Text):
     def __init__(self, text: str, when: WhenCondition = None):
