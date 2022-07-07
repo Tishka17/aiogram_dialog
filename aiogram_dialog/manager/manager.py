@@ -120,6 +120,7 @@ class ManagerImpl(DialogManager):
         else:
             intent_id = stack.last_intent_id()
             self.data[CONTEXT_KEY] = await storage.load_context(intent_id)
+            await storage.save_stack(stack)
 
     async def start(
             self,
