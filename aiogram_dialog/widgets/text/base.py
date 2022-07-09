@@ -57,8 +57,17 @@ class Multi(Text):
     def __add__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
-        if self.condition is true:
+        if self.condition is true and self.sep == "":
             # reduce nesting
             return Multi(*self.texts, other)
         else:
             return Multi(self, other, sep="")
+
+    def __radd__(self, other: Union["Text", str]):
+        if isinstance(other, str):
+            other = Const(other)
+        if self.condition is true and self.sep == "":
+            # reduce nesting
+            return Multi(other, *self.texts)
+        else:
+            return Multi(other, self, sep="")
