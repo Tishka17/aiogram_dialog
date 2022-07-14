@@ -69,10 +69,11 @@ class BaseCheckbox(Keyboard, ABC):
 
 class Checkbox(BaseCheckbox):
     def __init__(self, checked_text: Text, unchecked_text: Text, id: str,
+                 on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
                  on_state_changed: Optional[OnStateChanged] = None,
                  default: bool = False,
                  when: Union[str, Callable] = None):
-        super().__init__(checked_text, unchecked_text, id, on_state_changed,
+        super().__init__(checked_text, unchecked_text, id, on_click, on_state_changed,
                          when)
         self.default = default
 
