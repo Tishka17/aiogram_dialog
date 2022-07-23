@@ -74,8 +74,8 @@ def add_indent_id(message: NewMessage, intent_id: str):
             )
 
 
-def remove_indent_id(callback_data: str) -> Tuple[str, str]:
+def remove_indent_id(callback_data: str) -> Tuple[Optional[str], str]:
     if CB_SEP in callback_data:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data
-    return "", callback_data
+    return None, callback_data
