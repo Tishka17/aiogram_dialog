@@ -136,7 +136,7 @@ class IntentMiddleware(BaseMiddleware):
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
         await self._load_context(
-            event, intent_id, None, data,
+            event, intent_id, DEFAULT_STACK_ID, data,
         )
         logger.debug("Original callback data: %s", original_data)
         event.data = callback_data
