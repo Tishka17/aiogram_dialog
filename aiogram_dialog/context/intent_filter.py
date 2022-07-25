@@ -10,8 +10,8 @@ from aiogram.types import (
 )
 
 from .context import Context
-from .storage import DEFAULT_STACK_ID
 from .events import DialogUpdateEvent, DialogUpdate, ChatEvent
+from .storage import DEFAULT_STACK_ID
 from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError, OutdatedIntent
 from ..utils import remove_indent_id
@@ -96,17 +96,27 @@ class IntentMiddlewareFactory:
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
 
-    async def process_message(
-            self, handler: Callable, event: Message, data: dict,
-    ):
-        if (
+    def _intent_id_from_reply(
+            self, event: Message, data: dict
+    ) -> Optional[str]:
+        if not (
                 event.reply_to_message and
                 event.reply_to_message.from_user.id == data['bot'].id and
                 event.reply_to_message.reply_markup and
                 event.reply_to_message.reply_markup.inline_keyboard
         ):
-            button = event.reply_to_message.reply_markup.inline_keyboard[0][0]
-            intent_id, callback_data = remove_indent_id(button.callback_data)
+            return None
+        for row in event.reply_to_message.reply_markup.inline_keyboard:
+            for button in row:
+                if button.callback_data:
+                    intent_id, _ = remove_indent_id(button.callback_data)
+                    return intent_id
+        return None
+
+    async def process_message(
+            self, handler: Callable, event: Message, data: dict,
+    ):
+        if intent_id := self._intent_id_from_reply(event, data):
             await self._load_context(
                 event, intent_id, DEFAULT_STACK_ID, data,
             )
@@ -147,7 +157,8 @@ class IntentMiddlewareFactory:
         return await handler(event, data)
 
 
-SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member', 'aiogd_update'}
+SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member',
+                          'aiogd_update'}
 
 
 async def context_saver_middleware(handler, event, data):
