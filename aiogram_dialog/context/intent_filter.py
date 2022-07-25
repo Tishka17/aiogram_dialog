@@ -6,7 +6,7 @@ from aiogram.dispatcher.fsm.state import StatesGroup
 from aiogram.dispatcher.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import (
-    Message, CallbackQuery, Update, TelegramObject, ChatMemberUpdated,
+    Message, CallbackQuery, Update, TelegramObject,
 )
 
 from .context import Context
@@ -141,7 +141,7 @@ class IntentMiddlewareFactory:
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
         await self._load_context(
-            event, intent_id, None, data,
+            event, intent_id, DEFAULT_STACK_ID, data,
         )
         data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
