@@ -1,6 +1,6 @@
 from typing import List, Callable, Optional, Union, Dict, Awaitable
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import InlineKeyboardButton, CallbackQuery, WebAppInfo
 
 from aiogram_dialog.manager.manager import DialogManager,ManagedDialogProto
 from aiogram_dialog.widgets.text import Text
@@ -48,3 +48,15 @@ class Url(Keyboard):
                 url=await self.url.render_text(data, manager)
             )
         ]]
+
+
+class WebApp(Url):
+    async def _render_keyboard(
+        self, data: Dict, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
+        text = await self.text.render_text(data, manager)
+
+        web_app_url = await self.url.render_text(data, manager)
+        web_app_info = WebAppInfo(url=web_app_url)
+
+        return [[InlineKeyboardButton(text=text, web_app=web_app_info)]]
