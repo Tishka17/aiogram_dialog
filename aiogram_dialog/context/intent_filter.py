@@ -98,17 +98,25 @@ class IntentMiddleware(BaseMiddleware):
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
 
-    async def on_pre_process_message(
-            self, event: Message, data: dict,
-    ) -> None:
-        if (
+    def _intent_id_from_reply(self, event: Message) -> Optional[str]:
+        if not (
                 event.reply_to_message and
                 event.reply_to_message.from_user.id == event.bot.id and
                 event.reply_to_message.reply_markup and
                 event.reply_to_message.reply_markup.inline_keyboard
         ):
-            button = event.reply_to_message.reply_markup.inline_keyboard[0][0]
-            intent_id, callback_data = remove_indent_id(button.callback_data)
+            return None
+        for row in event.reply_to_message.reply_markup.inline_keyboard:
+            for button in row:
+                if button.callback_data:
+                    intent_id, _ = remove_indent_id(button.callback_data)
+                    return intent_id
+        return None
+
+    async def on_pre_process_message(
+            self, event: Message, data: dict,
+    ) -> None:
+        if intent_id := self._intent_id_from_reply(event):
             await self._load_context(
                 event, intent_id, DEFAULT_STACK_ID, data,
             )
@@ -136,7 +144,7 @@ class IntentMiddleware(BaseMiddleware):
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
         await self._load_context(
-            event, intent_id, None, data,
+            event, intent_id, DEFAULT_STACK_ID, data,
         )
         logger.debug("Original callback data: %s", original_data)
         event.data = callback_data
