@@ -22,6 +22,10 @@ SEND_METHODS = {
     ContentType.DOCUMENT: "send_document",
     ContentType.PHOTO: "send_photo",
     ContentType.VIDEO: "send_video",
+    ContentType.VIDEO_NOTE: "send_video_note",
+    ContentType.DICE: "send_dice",
+    ContentType.STICKER: "send_sticker",
+    ContentType.VOICE: "send_voice",
 }
 
 
