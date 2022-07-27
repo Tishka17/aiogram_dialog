@@ -24,7 +24,7 @@ class Text(Whenable):
     def __radd__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
-        return other + self
+        return Multi(other, self, sep="")
 
 
 class Const(Text):
@@ -59,7 +59,7 @@ class Multi(Text):
             other = Const(other)
         if self.condition is true and self.sep == "":
             # reduce nesting
-            return Multi(*self.texts, other)
+            return Multi(*self.texts, other, sep="")
         else:
             return Multi(self, other, sep="")
 
@@ -68,6 +68,6 @@ class Multi(Text):
             other = Const(other)
         if self.condition is true and self.sep == "":
             # reduce nesting
-            return Multi(other, *self.texts)
+            return Multi(other, *self.texts, sep="")
         else:
             return Multi(other, self, sep="")
