@@ -13,7 +13,7 @@ setup(
     description='Mini-framework for dialogs on top of aiogram',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='1.8.0',
+    version='1.9.0',
     url='https://github.com/tishka17/aiogram_dialog',
     author='A. Tikhonov',
     author_email='17@itishka.org',
