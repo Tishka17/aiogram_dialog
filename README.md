@@ -1,23 +1,38 @@
+# Aiogram Dialog
 
 [![PyPI version](https://badge.fury.io/py/aiogram-dialog.svg)](https://badge.fury.io/py/aiogram-dialog)
+[![Doc](https://readthedocs.org/projects/aiogram-dialog/badge/?version=latest&style=flat)](https://aiogram-dialog.readthedocs.io)
 [![downloads](https://img.shields.io/pypi/dm/aiogram_dialog.svg)](https://pypistats.org/packages/aiogram_dialog)
 [![license](https://img.shields.io/github/license/Tishka17/aiogram_dialog.svg)](https://github.com/Tishka17/aiogram_dialog/blob/master/LICENSE)
 
-### About
 
-Aiogram-dialog is a GUI framework for telegram bot. It is inspired by ideas of Android SDK and React.js
+### About 
+`aiogram-dialog` is a framework for developing interactive messages and menus in your telegram bot like a normal GUI application.  
+ 
+It is inspired by ideas of Android SDK and other tools.
 
-### Quickstart
+Main ideas are:
+* **split data retriving, rendering and action processing** - you need nothing to do for showing same content after some actions, also you can show same data in multiple ways. 
+* **reusable widgets**  - you can create calendar or multiselect at any point of your application without copy-pasting its internal logic  
+* **limited scope of context** - any dialog keeps some data until closed, multiple opened dialogs process their data separately
 
-1. Install:
+Designing you bot with `aiogram-dialog` you **think about user**, what he sees and what he does. Then you split this vision into reusable parts and design your bot combining dialogs, widows and widgets. By this moment you can review interface and add your core logic. 
 
-```bash
-pip install aiogram_dialog
-```
+Many components are ready for use, but you can extend and add your own widgets and even core features. 
 
-2. See [examples](example)
+For more details see [documentation](https://aiogram-dialog.readthedocs.io) and [examples](example)
 
-3. Read the [documentation](https://aiogram_dialog.readthedocs.org)
+### Supported features:
+* Rich text rendering using `format` function or `Jinja2` template engine. 
+* Automatic message updating after user actions
+* Multiple independent dialog stacks with own data storage and transitions
+* Inline keyboard widgets like `SwitchTo`, `Start`, `Cancel` for state switching, `Calendar` for date selection and others. 
+* Stateful widgets: `Checkbox`, `Multiselect`, `Counter`, `TextInput`. They record user actions and allow you to retrieve this data later. 
+* Multiple buttons layouts including simple grouping (`Group`, `Column`), page scrolling (`ScrollingGroup`), repeating of same buttons for list of data (`ListGroup`). 
+* Sending media (like photo or video) with fileid caching and handling switching to/from message with no media. 
+* Different rules of transitions between windows/dialogs like keeping only one dialog on top of stack or force sending enw message instead of updating one. 
+* Offline HTML-preview for messages and transitions diagram. They can be used to check all states without emulating real use cases or exported for demonstration purposes. 
+
 
 ### Usage
 
@@ -25,33 +40,15 @@ pip install aiogram_dialog
 
 Each window consists of:
 
-* Text widget. Renders text of message.
-* Keyboard widget. Render inline keyboard
+* Text widgets. Render text of message.
+* Keyboard widgets. Render inline keyboard
+* Media widget. Renders media if neede
 * Message handler. Called when user sends a message when window is shown
-* Data getter function (`getter=`). Loads data from any source which can be used in text/keyboard
+* Data getter functions (`getter=`). They load data from any source which can be used in text/keyboard
 * State. Used when switching between windows
 
 **Info:** always create `State` inside `StatesGroup`
 
-A minimal window is:
-
-```python
-from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram_dialog.widgets.text import Const
-from aiogram_dialog import Window
-
-
-class MySG(StatesGroup):
-    main = State()
-
-
-Window(
-    Const("Hello, unknown person"),
-    state=MySG.main,
-),
-```
-
-More realistic example:
 
 ```python
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -73,20 +70,12 @@ Window(
     Button(Const("Empty button"), id="nothing"),
     state=MySG.main,
     getter=get_data,
-),
+)
 ```
-
-More complex window with multiple texts, button groups and selects can look like:
-
-![window example](docs/resources/window_example.png)
-
-And if we draw red border around each widget it will be:
-
-![window example](docs/resources/layout_example.png)
 
 ### Declaring dialog
 
-Window itself can do nothing, just send message. To use it you need dialog:
+Window itself can do nothing, just prepares message. To use it you need dialog:
 
 ```python
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -104,7 +93,7 @@ dialog = Dialog(
 )
 ```
 
-**Info:** All windows in a dialog MUST have states from then same `StatesGroup`
+> **Info:** All windows in a dialog MUST have states from then same `StatesGroup`
 
 After creating dialog you need to register it using `DialogRegistry`:
 
@@ -118,7 +107,7 @@ registry = DialogRegistry(dp)  # create registry
 registry.register(name_dialog)  # create
 ```
 
-**Info:** aiogram_dialog uses aiograms's FSM, so you need to create Dispatcher with suitable storage. Also avoid using
+> **Info:** aiogram_dialog uses aiograms's FSM, so you need to create Dispatcher with suitable storage. Also avoid using
 FSMContext directly
 
 Then start dialog when you are ready to use it. Dialog is started via `start` method of `DialogManager` instance. You
@@ -132,49 +121,5 @@ async def user_start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.first, mode=StartMode.RESET_STACK)
 ```
 
-**Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
+> **Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
 on your mobile phone, so you can reach stackoverflow error
-
-### Widgets
-
-For picture above we have such widgets:
-
-* `Const` for constant first line
-* `Format` for name substitution
-* `Mutli` for grouping multiple texts
-* `Button` for processing user click
-* `Checkbox` for button with changing state
-* `Radio` to select one item from group
-* `Multiselect` to select multiple items from group
-* `Next` for switching to next state
-* `Group` for grouping multiple buttons on one screen
- 
-![window example](docs/resources/layout_example.png)
-
-#### Text widget types
-
-Every time you need to render text use any of text widgets:
-
-* `Const` - returns text with no midifications
-* `Format` - formats text using `format` function. If used in window the data is retrived via `getter` funcion.
-* `Multi` - multiple texts, joined with a separator (`sep=`)
-* `Case` - shows one of texts based on condition
-* `Progress` - shows a progress bar
-* `Jinja` - represents a HTML rendered using jinja2 template
-
-#### Keyboard widget types
-
-Each keyboard provides one or multiple inline buttons. Text on button is rendered using text widget
-
-* `Button` - single inline button. User provided `on_click` method is called when it is clicked.
-* `Group` - any group of keyboards. By default, they are rendered one above other. Also you can rearrange buttons in new rows of provided width
-* `Row` - simplified version of group. All buttons placed in single row. 
-* `Column` - another simplified version of group. All buttons placed in single column (one per row). 
-* `Url` - single inline button with url
-* `SwitchTo` - switches window within a dialog using provided state
-* `Next`/`Back` - switches state forward or backward
-* `Start` - starts a new dialog with no params
-* `Cancel` - closes the current dialog with no result. An underlying dialog is shown
-* `Select` - dynamic group of buttons
-* `Radio` - switch between multiple items. Like select but stores chosen item and renders it differently.   
-* `Multiselect` - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.   
