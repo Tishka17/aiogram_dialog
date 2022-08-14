@@ -1,7 +1,7 @@
 import os.path
 from typing import List, Sequence, Tuple, Union
 
-from aiogram.dispatcher.fsm.state import State
+from aiogram.fsm.state import State
 from diagrams import Diagram, Cluster, Edge
 from diagrams.custom import Custom
 
@@ -47,7 +47,7 @@ def find_starts(current_state, keyboards: Sequence):
 
 def render_transitions(dialogs: Union[List[Dialog], DialogRegistry],
                        title: str = "Aiogram Dialog",
-                       filename: str = "aiogram_dialog",
+                       filename: str = "aiogram_dialog.png",
                        format: str = "png"):
     if isinstance(dialogs, DialogRegistry):
         dialogs = list(dialogs.dialogs.values())

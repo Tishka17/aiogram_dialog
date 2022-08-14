@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BaseDialogManager, \

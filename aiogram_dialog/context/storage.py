@@ -2,8 +2,8 @@ from copy import copy
 from typing import Dict, Type, Optional
 
 from aiogram import Bot
-from aiogram.dispatcher.fsm.state import State, StatesGroup
-from aiogram.dispatcher.fsm.storage.base import BaseStorage, StorageKey
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
 from .context import Context
 from .stack import Stack, DEFAULT_STACK_ID

@@ -2,7 +2,7 @@ from datetime import datetime
 from logging import getLogger
 from typing import Any, Optional, Dict
 
-from aiogram.dispatcher.fsm.state import State
+from aiogram.fsm.state import State
 from aiogram.types import Message, CallbackQuery, Document
 
 from .bg_manager import BgManager

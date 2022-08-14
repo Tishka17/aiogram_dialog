@@ -5,8 +5,8 @@ from typing import Any
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.dispatcher.event.bases import UNHANDLED
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent, StartMode
