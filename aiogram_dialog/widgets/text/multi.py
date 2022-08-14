@@ -1,25 +1,23 @@
+import warnings
 from typing import Callable, Union, Dict, Any, Hashable
 
-from .base import Text
+from .base import Text, Multi as _Multi
 from ..when import WhenCondition
 from ...manager.manager import DialogManager
 
-
-class Multi(Text):
-    def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
-        super().__init__(when)
-        self.texts = texts
-        self.sep = sep
-
-    async def _render_text(self, data, manager: DialogManager) -> str:
-        texts = [
-            await t.render_text(data, manager)
-            for t in self.texts
-        ]
-        return self.sep.join(filter(None, texts))
-
-
 Selector = Callable[[Dict, "Case", DialogManager], Hashable]
+
+
+class Multi(_Multi):
+    def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
+        super().__init__(*texts, sep=sep, when=when)
+        warnings.warn(
+            "This is compatibility class"
+            " and will be removed in aiogram_dialog==2.0, "
+            " fix using `from aiogram_dialog.widgets.text import Multi`",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
 
 def new_case_field(fieldname: str) -> Selector:
