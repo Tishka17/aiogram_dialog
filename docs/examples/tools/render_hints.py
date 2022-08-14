@@ -1,4 +1,4 @@
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters.state import StatesGroup, State
 from aiogram.types import Message
 
 from aiogram_dialog import Dialog, Window, DialogManager

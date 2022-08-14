@@ -4,9 +4,9 @@ import logging
 import operator
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.filters import Command
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
-from aiogram.dispatcher.fsm.state import StatesGroup, State
+from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto

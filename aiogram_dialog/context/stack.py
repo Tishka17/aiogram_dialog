@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from aiogram.dispatcher.fsm.state import State
+from aiogram.fsm.state import State
 
 from .context import Context
 from .events import Data

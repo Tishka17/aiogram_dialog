@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram import Bot
-from aiogram.dispatcher.fsm.state import State
+from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
 from .protocols import DialogRegistryProto, BaseDialogManager

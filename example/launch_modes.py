@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.filters.state import StatesGroup, State
 
 from aiogram_dialog import Dialog, Window, DialogRegistry
 from aiogram_dialog.manager.protocols import LaunchMode, DialogManager

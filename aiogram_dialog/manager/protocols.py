@@ -3,14 +3,14 @@ from enum import Enum
 from typing import Optional, Any, Protocol, Union, Type, Dict
 
 from aiogram import Bot, Router
-from aiogram.dispatcher.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
     ContentType, Message, Chat, InlineKeyboardMarkup,
 )
 
 from ..context.context import Context
 from ..context.events import (
-    DialogUpdateEvent, StartMode, ChatEvent, Data, ShowMode, DialogUpdate,
+    StartMode, ChatEvent, Data, ShowMode, DialogUpdate,
 )
 from ..context.stack import Stack
 

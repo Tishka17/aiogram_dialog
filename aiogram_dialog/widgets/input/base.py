@@ -1,6 +1,6 @@
 from typing import Callable, Awaitable, Union, Sequence
 
-from aiogram.dispatcher.filters.content_types import ContentTypesFilter
+from aiogram.filters.content_types import ContentTypesFilter
 from aiogram.types import Message, ContentType
 
 from aiogram_dialog.manager.protocols import (

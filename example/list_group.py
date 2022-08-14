@@ -3,8 +3,8 @@ import logging
 from typing import Dict
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from aiogram_dialog import (
     Dialog, DialogManager, DialogRegistry, Window,

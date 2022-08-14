@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Dict, Any, Optional, Literal
 from typing import Union, List
 
-from aiogram.dispatcher.fsm.state import State
+from aiogram.fsm.state import State
 from aiogram.types import (
     Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject,
     Update,

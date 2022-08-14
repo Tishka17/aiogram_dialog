@@ -1,6 +1,6 @@
 from typing import Optional, Any
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.filters.state import State
 
 from aiogram_dialog.deprecation_utils import manager_deprecated
 from aiogram_dialog.manager.protocols import (
