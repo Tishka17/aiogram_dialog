@@ -1,9 +1,9 @@
 from logging import getLogger
 from typing import Optional, Type, Dict, Union, Any, Callable, Awaitable
 
-from aiogram.dispatcher.filters.base import BaseFilter
-from aiogram.dispatcher.fsm.state import StatesGroup
-from aiogram.dispatcher.fsm.storage.base import BaseStorage
+from aiogram.filters.base import BaseFilter
+from aiogram.fsm.state import StatesGroup
+from aiogram.fsm.storage.base import BaseStorage
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import (
     Message, CallbackQuery, Update, TelegramObject,

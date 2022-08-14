@@ -2,9 +2,9 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Dict
 
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.filters.state import State, StatesGroup
 from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -61,6 +61,9 @@ class FakeManager(DialogManager):
             "event_chat": Chat(id=1, type="private"),
             "event_from_user": User(id=1, is_bot=False, first_name="Fake")
         }
+
+    async def load_data(self) -> Dict:
+        return {}
 
     def set_dialog(self, dialog: Dialog):
         self._dialog = dialog

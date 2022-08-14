@@ -4,8 +4,8 @@ from typing import Sequence, Type, Dict, Optional
 
 from aiogram import Dispatcher, Bot, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
-from aiogram.dispatcher.filters import Command
-from aiogram.dispatcher.fsm.state import State, StatesGroup, any_state
+from aiogram.filters import Command
+from aiogram.fsm.state import State, StatesGroup, any_state
 from aiogram.types import User, Chat, Message
 
 from .manager import ManagerImpl

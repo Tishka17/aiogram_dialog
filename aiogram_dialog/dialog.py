@@ -3,7 +3,7 @@ from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, 
 from typing import Protocol
 
 from aiogram import Router
-from aiogram.dispatcher.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 
