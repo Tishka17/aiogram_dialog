@@ -1,7 +1,7 @@
 import html
 import logging
 from dataclasses import dataclass
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 
 from aiogram import Bot
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -61,6 +61,9 @@ class FakeManager(DialogManager):
         self.data = {
             "dialog_manager": self
         }
+
+    async def load_data(self) -> Dict:
+        return {}
 
     def set_dialog(self, dialog: Dialog):
         self._dialog = dialog

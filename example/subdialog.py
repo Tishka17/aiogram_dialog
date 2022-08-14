@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
-from aiogram_dialog.tools import render_transitions
+from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
@@ -80,7 +80,7 @@ main_menu = Dialog(
     Window(
         Multi(
             Format("Hello, {name}", when="name"),
-            Const("Hello, unknown person", when=lambda data, whenable, manager: not data["name"]),
+            Const("Hello, unknown person", when=lambda data, whenable, manager: not data.get("name")),
         ),
         Group(
             Start(Const("Enter name"), id="set", state=NameSG.input),
