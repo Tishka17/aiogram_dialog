@@ -187,6 +187,14 @@ class MessageManager(MessageManagerProtocol):
             raise ValueError(
                 f"ContentType {new_message.media.type} is not supported",
             )
+        if new_message.media.type == ContentType.STICKER:
+            return await method(
+                new_message.chat.id,
+                await self.get_media_source(new_message.media),
+                reply_markup=new_message.reply_markup,
+                **new_message.media.kwargs,
+            )
+
         return await method(
             new_message.chat.id,
             await self.get_media_source(new_message.media),
