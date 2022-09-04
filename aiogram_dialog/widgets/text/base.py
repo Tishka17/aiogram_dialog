@@ -1,7 +1,18 @@
-from typing import Union, Dict
+from typing import Union, Dict, Protocol, Any
 
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.when import Whenable, WhenCondition, true
+
+I18N_CONST_KEY = "aiogd_i18n_const"
+
+
+class Values(Protocol):
+    def __getitem__(self, item: Any) -> Any:
+        raise NotImplementedError
+
+
+def default_const_text(text: str, data: Values) -> str:
+    return text
 
 
 class Text(Whenable):
@@ -33,7 +44,8 @@ class Const(Text):
         self.text = text
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
-        return self.text
+        const_text = manager.data.get(I18N_CONST_KEY, default_const_text)
+        return const_text(self.text, data)
 
 
 class Multi(Text):

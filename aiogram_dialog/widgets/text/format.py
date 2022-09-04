@@ -1,8 +1,14 @@
-from typing import Dict
+from typing import Dict, Any
 
-from .base import Text
+from .base import Text, Values
 from ..when import WhenCondition
 from ...manager.manager import DialogManager
+
+I18N_FORMAT_KEY = "aiogd_i18n_format"
+
+
+def default_format_text(text: str, data: Values) -> str:
+    return text.format_map(data)
 
 
 class _FormatDataStub:
@@ -10,7 +16,7 @@ class _FormatDataStub:
         self.name = name
         self.data = data or {}
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Any) -> Any:
         if item in self.data:
             return self.data[item]
         if not self.name:
@@ -34,6 +40,8 @@ class Format(Text):
         self.text = text
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
+        format_text = manager.data.get(I18N_FORMAT_KEY, default_format_text)
         if manager.is_preview():
-            return self.text.format_map(_FormatDataStub(data=data))
-        return self.text.format_map(data)
+            return format_text(self.text, _FormatDataStub(data=data))
+
+        return format_text(self.text, data)
