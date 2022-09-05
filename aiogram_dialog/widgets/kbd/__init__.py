@@ -1,5 +1,5 @@
 from .base import Keyboard
-from .button import Button, Url
+from .button import Button, Url, WebApp
 from .calendar_kbd import Calendar, ManagedCalendarAdapter
 from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .counter import Counter, ManagedCounterAdapter
@@ -13,7 +13,7 @@ from .state import Back, Cancel, Next, Start, SwitchTo
 
 __all__ = [
     "Keyboard",
-    "Button", "Url",
+    "Button", "Url", "WebApp",
     "Calendar", "ManagedCalendarAdapter",
     "Counter", "ManagedCounterAdapter",
     "Back", "Cancel", "Next", "Start", "SwitchTo",
