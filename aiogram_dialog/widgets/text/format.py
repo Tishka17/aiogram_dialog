@@ -43,5 +43,4 @@ class Format(Text):
         format_text = manager.data.get(I18N_FORMAT_KEY, default_format_text)
         if manager.is_preview():
             return format_text(self.text, _FormatDataStub(data=data))
-
         return format_text(self.text, data)
