@@ -1,11 +1,9 @@
 from operator import itemgetter
-from typing import Dict, Union, Sequence, Callable
-
-from .base import Text
-from ..when import WhenCondition
+from typing import Callable, Dict, Sequence, Union
 
 from aiogram_dialog.manager.manager import DialogManager
-
+from .base import Text
+from ..when import WhenCondition
 
 ItemsGetter = Callable[[Dict], Sequence]
 
@@ -13,12 +11,18 @@ ItemsGetter = Callable[[Dict], Sequence]
 def get_identity(items: Sequence) -> ItemsGetter:
     def identity(data) -> Sequence:
         return items
+
     return identity
 
 
 class List(Text):
-    def __init__(self, field: Text, items: Union[str, Callable, Sequence],
-                 sep: str = "\n", when: WhenCondition = None):
+    def __init__(
+            self,
+            field: Text,
+            items: Union[str, Callable, Sequence],
+            sep: str = "\n",
+            when: WhenCondition = None,
+    ):
         super().__init__(when)
         self.field = field
         self.sep = sep
@@ -31,7 +35,10 @@ class List(Text):
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
         texts = [
-            await self.field.render_text({"data": data, "item": item, "pos": pos + 1, "pos0": pos}, manager)
+            await self.field.render_text(
+                {"data": data, "item": item, "pos": pos + 1, "pos0": pos},
+                manager,
+            )
             for pos, item in enumerate(self.items_getter(data))
         ]
         return self.sep.join(filter(None, texts))

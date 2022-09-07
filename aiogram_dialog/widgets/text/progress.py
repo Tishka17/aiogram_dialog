@@ -6,7 +6,14 @@ from .base import Text
 
 
 class Progress(Text):
-    def __init__(self, field: str, width: int = 10, filled="🟥", empty="⬜", when: WhenCondition = None):
+    def __init__(
+            self,
+            field: str,
+            width: int = 10,
+            filled="🟥",
+            empty="⬜",
+            when: WhenCondition = None,
+    ):
         super().__init__(when)
         self.field = field
         self.width = width

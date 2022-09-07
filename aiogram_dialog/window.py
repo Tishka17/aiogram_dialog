@@ -1,36 +1,41 @@
 from logging import getLogger
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
-from aiogram.dispatcher.filters.state import State
-from aiogram.types import (
-    InlineKeyboardMarkup, Message, CallbackQuery, ParseMode,
-)
+from aiogram.fsm.state import State
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
 
 from .dialog import Dialog, DialogWindowProto
 from .manager.protocols import DialogManager, MediaAttachment
-from .utils import get_chat, NewMessage
+from .utils import NewMessage
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.utils import (
-    ensure_widgets, ensure_data_getter, GetterVariant, WidgetSrc,
+    ensure_data_getter,
+    ensure_widgets,
+    GetterVariant,
+    WidgetSrc,
 )
 
 logger = getLogger(__name__)
 
 
 class Window(DialogWindowProto):
-    def __init__(self,
-                 *widgets: WidgetSrc,
-                 state: State,
-                 getter: GetterVariant = None,
-                 parse_mode: Optional[ParseMode] = None,
-                 disable_web_page_preview: Optional[bool] = None,
-                 preview_add_transitions: Optional[List[Keyboard]] = None,
-                 preview_data: GetterVariant = None,
-                 ):
+    def __init__(
+            self,
+            *widgets: WidgetSrc,
+            state: State,
+            getter: GetterVariant = None,
+            parse_mode: Optional[str] = UNSET,
+            disable_web_page_preview: Optional[bool] = None,
+            preview_add_transitions: Optional[List[Keyboard]] = None,
+            preview_data: GetterVariant = None,
+    ):
         (
-            self.text, self.keyboard, self.on_message, self.media,
+            self.text,
+            self.keyboard,
+            self.on_message,
+            self.media,
         ) = ensure_widgets(widgets)
         self.getter = PreviewAwareGetter(
             ensure_data_getter(getter),
@@ -45,38 +50,44 @@ class Window(DialogWindowProto):
         return await self.text.render_text(data, manager)
 
     async def render_media(
-            self, data: Dict,
-            manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if self.media:
             return await self.media.render_media(data, manager)
 
-    async def render_kbd(self, data: Dict,
-                         manager: DialogManager) -> InlineKeyboardMarkup:
+    async def render_kbd(
+            self, data: Dict, manager: DialogManager,
+    ) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-    async def load_data(self, dialog: "Dialog",
-                        manager: DialogManager) -> Dict:
+    async def load_data(
+            self, dialog: "Dialog", manager: DialogManager,
+    ) -> Dict:
         data = await dialog.load_data(manager)
         data.update(await self.getter(**manager.data))
         return data
 
-    async def process_message(self, message: Message, dialog: Dialog,
-                              manager: DialogManager):
+    async def process_message(
+            self, message: Message, dialog: Dialog, manager: DialogManager,
+    ):
         if self.on_message:
             await self.on_message.process_message(message, dialog, manager)
 
-    async def process_callback(self, c: CallbackQuery, dialog: Dialog,
-                               manager: DialogManager):
+    async def process_callback(
+            self, c: CallbackQuery, dialog: Dialog, manager: DialogManager,
+    ):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
-    async def render(self, dialog: Dialog, manager: DialogManager) -> NewMessage:
+    async def render(
+            self, dialog: Dialog, manager: DialogManager,
+    ) -> NewMessage:
         logger.debug("Show window: %s", self)
+        chat = manager.data["event_chat"]
         current_data = await self.load_data(dialog, manager)
         return NewMessage(
-            chat=get_chat(manager.event),
+            chat=chat,
             text=await self.render_text(current_data, manager),
             reply_markup=await self.render_kbd(current_data, manager),
             parse_mode=self.parse_mode,

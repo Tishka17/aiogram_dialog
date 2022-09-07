@@ -3,11 +3,12 @@ import logging
 from typing import Any
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, Data
+from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Group, Back, Cancel, Row, Start, Next
@@ -23,9 +24,9 @@ class NameSG(StatesGroup):
     confirm = State()
 
 
-async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
+async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
     manager.current_context().dialog_data["name"] = m.text
-    await dialog.next(manager)
+    await dialog.next()
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
@@ -52,6 +53,7 @@ name_dialog = Dialog(
         state=NameSG.confirm,
         getter=get_name_data,
         preview_add_transitions=[Cancel()],  # hint for graph rendering
+        preview_data={"name": "John Doe"}  # for preview rendering
     )
 )
 
@@ -88,6 +90,7 @@ main_menu = Dialog(
         ),
         state=MainSG.main,
         getter=get_main_data,
+        preview_data={"name": "John Doe"}  # for preview rendering
     ),
     on_process_result=process_result,
 )
@@ -98,14 +101,15 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     registry.register_start_handler(MainSG.main)  # resets stack and start dialogs on /start command
     registry.register(name_dialog)
     registry.register(main_menu)
     render_transitions(registry)  # render graph with current transtions
+    await render_preview(registry, "preview.html")  # render windows preview
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

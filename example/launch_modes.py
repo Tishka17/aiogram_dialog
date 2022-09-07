@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.filters.state import StatesGroup, State
 
 from aiogram_dialog import Dialog, Window, DialogRegistry
 from aiogram_dialog.manager.protocols import LaunchMode, DialogManager
@@ -76,14 +76,14 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     registry.register_start_handler(MainSG.default)
     registry.register(banner)
     registry.register(product)
     registry.register(main_menu)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

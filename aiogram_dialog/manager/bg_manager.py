@@ -2,13 +2,21 @@ from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram import Bot
-from aiogram.dispatcher.filters.state import State
+from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
-from .protocols import DialogRegistryProto, BaseDialogManager
+from .protocols import BaseDialogManager, DialogRegistryProto
 from ..context.events import (
-    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
-    StartMode, FakeChat, FakeUser, ShowMode,
+    Action,
+    Data,
+    DialogStartEvent,
+    DialogSwitchEvent,
+    DialogUpdate,
+    DialogUpdateEvent,
+    FakeChat,
+    FakeUser,
+    ShowMode,
+    StartMode,
 )
 from ..context.stack import DEFAULT_STACK_ID
 from ..utils import is_chat_loaded, is_user_loaded
@@ -49,14 +57,14 @@ class BgManager(BaseDialogManager):
         if chat_id in (None, self.chat.id):
             chat = self.chat
         else:
-            chat = FakeChat(id=chat_id)
+            chat = FakeChat(id=chat_id, type="")
 
         if user_id in (None, self.user.id):
             user = self.user
         else:
-            user = FakeUser(id=user_id)
+            user = FakeUser(id=user_id, is_bot=False, first_name="")
 
-        same_chat = (user.id == self.user.id and chat.id == self.chat.id)
+        same_chat = user.id == self.user.id and chat.id == self.chat.id
         if stack_id is None:
             if same_chat:
                 stack_id = self.stack_id
@@ -79,12 +87,16 @@ class BgManager(BaseDialogManager):
 
     def _base_event_params(self):
         return {
-            "bot": self.bot,
             "from_user": self.user,
             "chat": self.chat,
             "intent_id": self.intent_id,
             "stack_id": self.stack_id,
         }
+
+    async def _notify(self, event: DialogUpdateEvent):
+        await self.registry.notify(
+            bot=self.bot, update=DialogUpdate(aiogd_update=event),
+        )
 
     async def _load(self):
         if self.load:
@@ -93,23 +105,20 @@ class BgManager(BaseDialogManager):
                 self.chat = await self.bot.get_chat(self.chat.id)
             if not is_user_loaded(self.user):
                 logger.debug(
-                    "load user %s from chat %s",
-                    self.chat.id,
-                    self.user.id
+                    "load user %s from chat %s", self.chat.id, self.user.id,
                 )
                 chat_member = await self.bot.get_chat_member(
-                    self.chat.id,
-                    self.user.id
+                    self.chat.id, self.user.id,
                 )
                 self.user = chat_member.user
 
     async def done(self, result: Any = None) -> None:
         await self._load()
-        await self.registry.notify(DialogUpdateEvent(
-            action=Action.DONE,
-            data=result,
-            **self._base_event_params()
-        ))
+        await self._notify(
+            DialogUpdateEvent(
+                action=Action.DONE, data=result, **self._base_event_params(),
+            ),
+        )
 
     async def start(
             self,
@@ -119,28 +128,32 @@ class BgManager(BaseDialogManager):
             show_mode: ShowMode = ShowMode.AUTO,
     ) -> None:
         await self._load()
-        await self.registry.notify(DialogStartEvent(
-            action=Action.START,
-            data=data,
-            new_state=state,
-            mode=mode,
-            show_mode=show_mode,
-            **self._base_event_params()
-        ))
+        await self._notify(
+            DialogStartEvent(
+                action=Action.START,
+                data=data,
+                new_state=state,
+                mode=mode,
+                show_mode=show_mode,
+                **self._base_event_params(),
+            ),
+        )
 
     async def switch_to(self, state: State) -> None:
         await self._load()
-        await self.registry.notify(DialogSwitchEvent(
-            action=Action.SWITCH,
-            data={},
-            new_state=state,
-            **self._base_event_params()
-        ))
+        await self._notify(
+            DialogSwitchEvent(
+                action=Action.SWITCH,
+                data={},
+                new_state=state,
+                **self._base_event_params(),
+            ),
+        )
 
     async def update(self, data: Dict) -> None:
         await self._load()
-        await self.registry.notify(DialogUpdateEvent(
-            action=Action.UPDATE,
-            data=data,
-            **self._base_event_params()
-        ))
+        await self._notify(
+            DialogUpdateEvent(
+                action=Action.UPDATE, data=data, **self._base_event_params(),
+            ),
+        )

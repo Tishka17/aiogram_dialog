@@ -1,12 +1,15 @@
 import dataclasses
 from operator import itemgetter
-from typing import List, Dict, Optional, Union, Sequence, Callable, Any
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
 from aiogram_dialog.manager.protocols import (
-    DialogManager, Context, ManagedDialogAdapterProto, NewMessage,
+    Context,
+    DialogManager,
+    ManagedDialogAdapterProto,
     ManagedDialogProto,
+    NewMessage,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
@@ -66,7 +69,8 @@ def get_identity(items: Sequence) -> ItemsGetter:
 
 class ListGroup(Keyboard):
     def __init__(
-            self, *buttons: Keyboard,
+            self,
+            *buttons: Keyboard,
             id: Optional[str] = None,
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
@@ -81,7 +85,7 @@ class ListGroup(Keyboard):
             self.items_getter = get_identity(items)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for pos, item in enumerate(self.items_getter(data)):
@@ -89,7 +93,11 @@ class ListGroup(Keyboard):
         return kbd
 
     async def _render_item(
-            self, pos: int, item: Any, data: Dict, manager: DialogManager,
+            self,
+            pos: int,
+            item: Any,
+            data: Dict,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
@@ -101,13 +109,13 @@ class ListGroup(Keyboard):
                 for btn in row:
                     if btn.callback_data:
                         btn.callback_data = self._item_callback_data(
-                            f"{item_id}:{btn.callback_data}"
+                            f"{item_id}:{btn.callback_data}",
                         )
             kbd.extend(b_kbd)
         return kbd
 
     def find_for_item(
-            self, manager: DialogManager, widget_id: str, item_id: str
+            self, manager: DialogManager, widget_id: str, item_id: str,
     ) -> Optional[Keyboard]:
         for btn in self.buttons:
             widget = btn.find(widget_id)
@@ -116,7 +124,10 @@ class ListGroup(Keyboard):
         return None
 
     async def _process_item_callback(
-            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            data: str,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
@@ -133,12 +144,14 @@ class ListGroup(Keyboard):
 
 
 class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
-    def find_for_item(
-            self, widget_id: str, item_id: str
-    ) -> Optional[Any]:
+    def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
         widget = self.widget.find_for_item(self.manager, widget_id, item_id)
         if widget:
-            return widget.managed(SubManager(
-                self.manager, self.widget.widget_id, item_id,
-            ))
+            return widget.managed(
+                SubManager(
+                    self.manager,
+                    self.widget.widget_id,
+                    item_id,
+                ),
+            )
         return None

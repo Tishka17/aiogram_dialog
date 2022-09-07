@@ -1,7 +1,8 @@
-import warnings
-from typing import Callable, Union, Dict, Any, Hashable
+from typing import Any, Callable, Dict, Hashable, Union
+from warnings import warn
 
-from .base import Text, Multi as _Multi
+from .base import Multi as _Multi
+from .base import Text
 from ..when import WhenCondition
 from ...manager.manager import DialogManager
 
@@ -11,7 +12,7 @@ Selector = Callable[[Dict, "Case", DialogManager], Hashable]
 class Multi(_Multi):
     def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
         super().__init__(*texts, sep=sep, when=when)
-        warnings.warn(
+        warn(
             "This is compatibility class"
             " and will be removed in aiogram_dialog==2.0, "
             " fix using `from aiogram_dialog.widgets.text import Multi`",
@@ -21,14 +22,21 @@ class Multi(_Multi):
 
 
 def new_case_field(fieldname: str) -> Selector:
-    def case_field(data: Dict, widget: "Case", manager: DialogManager) -> Hashable:
+    def case_field(
+            data: Dict, widget: "Case", manager: DialogManager,
+    ) -> Hashable:
         return data.get(fieldname)
 
     return case_field
 
 
 class Case(Text):
-    def __init__(self, texts: Dict[Any, Text], selector: Union[str, Selector], when: WhenCondition = None):
+    def __init__(
+            self,
+            texts: Dict[Any, Text],
+            selector: Union[str, Selector],
+            when: WhenCondition = None,
+    ):
         super().__init__(when)
         self.texts = texts
         if isinstance(selector, str):

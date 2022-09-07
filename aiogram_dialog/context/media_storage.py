@@ -3,7 +3,7 @@ from typing import Optional
 from aiogram.types import ContentType
 from cachetools import LRUCache
 
-from ..manager.protocols import MediaIdStorageProtocol, MediaId
+from ..manager.protocols import MediaId, MediaIdStorageProtocol
 
 
 class MediaIdStorage(MediaIdStorageProtocol):

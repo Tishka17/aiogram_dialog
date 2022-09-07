@@ -4,9 +4,12 @@ import logging
 import operator
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters import Command
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
+
+from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
 
 from aiogram_dialog import (
     Dialog, DialogManager, DialogRegistry, Window, StartMode,
@@ -39,7 +42,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(m: Message, dialog: Dialog, manager: DialogManager):
+async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
     manager.current_context().dialog_data["last_text"] = m.text
     await m.answer(f"Nice to meet you, {m.text}")
 
@@ -78,18 +81,22 @@ dialog = Dialog(
 )
 
 
+async def start(m: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(DialogSG.greeting, mode=StartMode.NEW_STACK)
+
+
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     # register handler which resets stack and start dialogs on /start command
-    registry.register_start_handler(DialogSG.greeting)
+    dp.message.register(start, Command(commands=('start', )))
     registry.register(dialog)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

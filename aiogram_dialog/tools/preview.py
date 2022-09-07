@@ -1,25 +1,29 @@
 import html
 import logging
 from dataclasses import dataclass
-from typing import List, Optional, Any, Dict
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from aiogram import Bot
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import DialogRegistry, DialogManager, Dialog
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry
 from aiogram_dialog.context.context import Context
 from aiogram_dialog.context.events import (
-    DialogUpdateEvent, Action, StartMode, Data,
+    Action,
+    Data,
+    DialogUpdateEvent,
+    StartMode,
 )
 from aiogram_dialog.context.stack import Stack
 from aiogram_dialog.manager.dialog import ManagedDialogAdapter
 from aiogram_dialog.manager.protocols import (
-    NewMessage, DialogRegistryProto, MediaAttachment,
+    DialogRegistryProto,
     ManagedDialogAdapterProto,
+    MediaAttachment,
+    NewMessage,
 )
-from aiogram_dialog.utils import remove_indent_id
 
 
 @dataclass
@@ -47,9 +51,8 @@ class RenderDialog:
 class FakeManager(DialogManager):
     def __init__(self, registry: DialogRegistry):
         self.event = DialogUpdateEvent(
-            bot=registry.dp.bot,
-            from_user=User(),
-            chat=Chat(),
+            from_user=User(id=1, is_bot=False, first_name="Fake"),
+            chat=Chat(id=1, type="private"),
             action=Action.UPDATE,
             data={},
             intent_id=None,
@@ -59,7 +62,9 @@ class FakeManager(DialogManager):
         self._context: Optional[Context] = None
         self._dialog = None
         self.data = {
-            "dialog_manager": self
+            "dialog_manager": self,
+            "event_chat": Chat(id=1, type="private"),
+            "event_from_user": User(id=1, is_bot=False, first_name="Fake"),
         }
 
     async def load_data(self) -> Dict:
@@ -110,7 +115,9 @@ class FakeManager(DialogManager):
 
     async def show(self, new_message: NewMessage) -> Message:
         self.new_message = new_message
-        return Message()
+        return Message(
+            message_id=1, date=datetime.now(), chat=Chat(id=1, type="private"),
+        )
 
     @property
     def registry(self) -> DialogRegistryProto:
@@ -131,19 +138,25 @@ def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
 
 
 async def create_button(
-        title: str, callback: str, manager: FakeManager,
-        state: State, dialog: Dialog,
+        title: str,
+        callback: str,
+        manager: FakeManager,
+        state: State,
+        dialog: Dialog,
         simulate_events: bool,
 ) -> RenderButton:
     if not simulate_events:
         return RenderButton(title=title, state=state.state)
+    callback_query = CallbackQuery(
+        id=1,
+        from_user=User(id=1, is_bot=False, first_name=""),
+        chat_instance="",
+        data=callback,
+    )
+    manager.set_state(state)
     try:
-        manager.set_state(state)
-        _, callback = remove_indent_id(callback)
-        await dialog._callback_handler(
-            CallbackQuery(data=callback), dialog_manager=manager,
-        )
-    except Exception:
+        await dialog._callback_handler(callback_query, dialog_manager=manager)
+    except Exception:  # noqa: B902
         logging.debug("Click %s", callback)
     state = manager.current_context().state
     return RenderButton(title=title, state=state.state)
@@ -151,23 +164,35 @@ async def create_button(
 
 async def render_input(
         manager: FakeManager,
-        state: State, dialog: Dialog,
-        content_type: str, simulate_events: bool,
+        state: State,
+        dialog: Dialog,
+        content_type: str,
+        simulate_events: bool,
 ) -> Optional[RenderButton]:
     if not simulate_events:
         return None
-    message = Message(message_id=1, **{content_type: "<stub>"})
+    if content_type == ContentType.PHOTO:
+        data = {content_type: []}
+    else:
+        data = {content_type: "<stub>"}
+    message = Message(
+        message_id=1,
+        date=datetime.now(),
+        chat=Chat(id=1, type="private"),
+        **data,
+    )
+    manager.set_state(state)
     try:
-        manager.set_state(state)
         await dialog._message_handler(message, dialog_manager=manager)
-    except Exception:
+    except Exception:  # noqa: B902
         logging.debug("Input %s", content_type)
 
     if state == manager.current_context().state:
         logging.debug("State not changed")
         return None
-    logging.debug("State changed %s >> %s",
-                  state, manager.current_context().state)
+    logging.debug(
+        "State changed %s >> %s", state, manager.current_context().state,
+    )
     return RenderButton(
         title=content_type,
         state=manager.current_context().state.state,
@@ -175,8 +200,11 @@ async def render_input(
 
 
 async def create_window(
-        state: State, message: NewMessage, manager: FakeManager,
-        dialog: Dialog, simulate_events: bool,
+        state: State,
+        message: NewMessage,
+        manager: FakeManager,
+        dialog: Dialog,
+        simulate_events: bool,
 ) -> RenderWindow:
     if message.parse_mode is None or message.parse_mode == "None":
         text = html.escape(message.text)
@@ -186,11 +214,16 @@ async def create_window(
     for row in message.reply_markup.inline_keyboard:
         keyboard_row = []
         for button in row:
-            keyboard_row.append(await create_button(
-                title=button.text, callback=button.callback_data,
-                manager=manager, dialog=dialog, state=state,
-                simulate_events=simulate_events,
-            ))
+            keyboard_row.append(
+                await create_button(
+                    title=button.text,
+                    callback=button.callback_data,
+                    manager=manager,
+                    dialog=dialog,
+                    state=state,
+                    simulate_events=simulate_events,
+                ),
+            )
         keyboard.append(keyboard_row)
 
     return RenderWindow(
@@ -199,49 +232,64 @@ async def create_window(
         photo=create_photo(media=message.media),
         keyboard=keyboard,
         text_input=await render_input(
-            manager=manager, state=state, dialog=dialog,
-            content_type=ContentType.TEXT, simulate_events=simulate_events
+            manager=manager,
+            state=state,
+            dialog=dialog,
+            content_type=ContentType.TEXT,
+            simulate_events=simulate_events,
         ),
         attachment_input=await render_input(
-            manager=manager, state=state, dialog=dialog,
-            content_type=ContentType.PHOTO, simulate_events=simulate_events
+            manager=manager,
+            state=state,
+            dialog=dialog,
+            content_type=ContentType.PHOTO,
+            simulate_events=simulate_events,
         ),
     )
 
 
 async def render_dialog(
-        manager: FakeManager, group: StatesGroup,
-        dialog: Dialog, simulate_events: bool,
+        manager: FakeManager,
+        group: StatesGroup,
+        dialog: Dialog,
+        simulate_events: bool,
 ) -> RenderDialog:
     manager.set_dialog(dialog)
     windows = []
-    for state in group.states:
+    for state in group.__states__:
         manager.set_state(state)
         await dialog.show(manager)
-        windows.append(await create_window(
-            manager=manager, state=state, dialog=dialog,
-            message=manager.new_message, simulate_events=simulate_events,
-        ))
+        windows.append(
+            await create_window(
+                manager=manager,
+                state=state,
+                dialog=dialog,
+                message=manager.new_message,
+                simulate_events=simulate_events,
+            ),
+        )
 
     return RenderDialog(state_group=str(group), windows=windows)
 
 
 async def render_preview(
-        registry: DialogRegistry, file: str,
+        registry: DialogRegistry,
+        file: str,
         simulate_events: bool = False,
 ):
     fake_manager = FakeManager(registry)
-    Bot.set_current(registry.dp.bot)
     dialogs = [
         await render_dialog(
-            manager=fake_manager, group=group, dialog=dialog,
+            manager=fake_manager,
+            group=group,
+            dialog=dialog,
             simulate_events=simulate_events,
         )
         for group, dialog in registry.dialogs.items()
     ]
     env = Environment(
         loader=PackageLoader("aiogram_dialog.tools"),
-        autoescape=select_autoescape()
+        autoescape=select_autoescape(),
     )
     template = env.get_template("message.html")
     res = template.render(dialogs=dialogs)

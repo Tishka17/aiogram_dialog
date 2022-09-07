@@ -2,7 +2,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Dict
 
-from aiogram.dispatcher.filters.state import State
+from aiogram.fsm.state import State
 
 from .events import Data
 
@@ -28,8 +28,5 @@ class Context:
 
     @property
     def data(self):
-        warnings.warn(
-            "use `context.start_data` instead",
-            DeprecationWarning
-        )
+        warnings.warn("use `context.start_data` instead", DeprecationWarning)
         return self.start_data

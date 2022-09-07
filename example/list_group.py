@@ -3,8 +3,8 @@ import logging
 from typing import Dict
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from aiogram_dialog import (
     Dialog, DialogManager, DialogRegistry, Window,
@@ -67,12 +67,12 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     registry.register_start_handler(DialogSG.greeting)
     registry.register(dialog)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':

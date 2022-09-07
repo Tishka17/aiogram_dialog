@@ -1,24 +1,38 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict, Optional
+from typing import Dict, Optional, Sequence, Type
 
-from aiogram import Dispatcher, Bot
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.handler import Handler
-from aiogram.types import User, Chat, Message
+from aiogram import Bot, Dispatcher, Router
+from aiogram.dispatcher.event.telegram import TelegramEventObserver
+from aiogram.filters import Command
+from aiogram.fsm.state import any_state, State, StatesGroup
+from aiogram.types import Chat, Message, User
 
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
-    ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol, MessageManagerProtocol, DialogManagerFactory,
+    DialogManager,
+    DialogManagerFactory,
+    DialogRegistryProto,
+    ManagedDialogProto,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
 )
 from .update_handler import handle_update
-from ..context.events import DialogUpdateEvent, StartMode
-from ..context.intent_filter import IntentFilter, IntentMiddleware
+from ..context.events import DIALOG_EVENT_NAME, DialogUpdate, StartMode
+from ..context.intent_filter import (
+    context_saver_middleware,
+    IntentErrorMiddleware,
+    IntentFilter,
+    IntentMiddlewareFactory,
+)
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
 from ..message_manager import MessageManager
+
+
+class DialogEventObserver(TelegramEventObserver):
+    pass
 
 
 class DialogRegistry(DialogRegistryProto):
@@ -29,25 +43,32 @@ class DialogRegistry(DialogRegistryProto):
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
             dialog_manager_factory: DialogManagerFactory = ManagerImpl,
+            default_router: Optional[Router] = None,
     ):
         self.dp = dp
-        self.dialogs = {
-            d.states_group(): d for d in dialogs
-        }
+        self.update_handler = self.dp.observers[
+            DIALOG_EVENT_NAME
+        ] = DialogEventObserver(router=self.dp, event_name=DIALOG_EVENT_NAME)
+        self.default_router = (
+            default_router
+            if default_router
+            else dp.include_router(Router(name="aiogram_dialog_router"))
+        )
+
+        self.dialogs = {d.states_group(): d for d in dialogs}
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
-        self.update_handler = Handler(dp, middleware_key="aiogd_update")
-        self.register_update_handler(handle_update, state="*")
-        self.dp.filters_factory.bind(IntentFilter)
-        self.dialog_manager_factory = dialog_manager_factory
-        self._register_middleware()
+        self.register_update_handler(handle_update, any_state)
+
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
         self._media_id_storage = media_id_storage
         if message_manager is None:
             message_manager = MessageManager()
         self._message_manager = message_manager
+        self.dialog_manager_factory = dialog_manager_factory
+        self._register_middleware()
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
@@ -57,7 +78,13 @@ class DialogRegistry(DialogRegistryProto):
     def message_manager(self) -> MessageManagerProtocol:
         return self._message_manager
 
-    def register(self, dialog: ManagedDialogProto, *args, **kwargs):
+    def register(
+            self,
+            dialog: ManagedDialogProto,
+            *args,
+            router: Router = None,
+            **kwargs,
+    ):
         group = dialog.states_group()
         if group in self.dialogs:
             raise ValueError(f"StatesGroup `{group}` is already used")
@@ -65,23 +92,54 @@ class DialogRegistry(DialogRegistryProto):
         self.state_groups[dialog.states_group_name()] = group
         dialog.register(
             self,
-            self.dp,
+            router if router else self.default_router,
+            IntentFilter(aiogd_intent_state_group=group),
             *args,
-            aiogd_intent_state_group=group,
-            **kwargs
+            **kwargs,
         )
 
     def register_start_handler(self, state: State):
-        @self.dp.message_handler(commands=["start"], state="*")
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
-    def _register_middleware(self):
-        self.dp.setup_middleware(
-            ManagerMiddleware(self, self.dialog_manager_factory)
+        self.dp.message.register(
+            start_dialog, Command(commands="start"), any_state,
         )
-        self.dp.setup_middleware(
-            IntentMiddleware(storage=self.dp.storage, state_groups=self.state_groups)
+
+    def _register_middleware(self):
+        manager_middleware = ManagerMiddleware(
+            self,
+            self.dialog_manager_factory,
+        )
+        intent_middleware = IntentMiddlewareFactory(
+            storage=self.dp.fsm.storage, state_groups=self.state_groups,
+        )
+        self.dp.message.middleware(manager_middleware)
+        self.dp.callback_query.middleware(manager_middleware)
+        self.update_handler.middleware(manager_middleware)
+        self.dp.my_chat_member.middleware(manager_middleware)
+        self.dp.errors.middleware(manager_middleware)
+
+        self.dp.message.outer_middleware(intent_middleware.process_message)
+        self.dp.callback_query.outer_middleware(
+            intent_middleware.process_callback_query,
+        )
+        self.update_handler.outer_middleware(
+            intent_middleware.process_aiogd_update,
+        )
+        self.dp.my_chat_member.outer_middleware(
+            intent_middleware.process_my_chat_member,
+        )
+
+        self.dp.message.middleware(context_saver_middleware)
+        self.dp.callback_query.middleware(context_saver_middleware)
+        self.update_handler.middleware(context_saver_middleware)
+        self.dp.my_chat_member.middleware(context_saver_middleware)
+
+        self.dp.errors.outer_middleware(
+            IntentErrorMiddleware(
+                storage=self.dp.fsm.storage, state_groups=self.state_groups,
+            ),
         )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
@@ -90,27 +148,31 @@ class DialogRegistry(DialogRegistryProto):
         except KeyError as e:
             raise UnregisteredDialogError(
                 f"No dialog found for `{state.group}`"
-                f" (looking by state `{state}`)"
+                f" (looking by state `{state}`)",
             ) from e
 
-    def register_update_handler(self, callback, *custom_filters, run_task=None, **kwargs) -> None:
-        filters_set = self.dp.filters_factory.resolve(
-            self.update_handler, *custom_filters, **kwargs
-        )
-        self.update_handler.register(
-            self.dp._wrap_async_task(callback, run_task), filters_set
-        )
+    def register_update_handler(
+            self, callback, *custom_filters, **kwargs,
+    ) -> None:
+        self.update_handler.register(callback, *custom_filters, **kwargs)
 
-    async def notify(self, event: DialogUpdateEvent) -> None:
-        callback = lambda: asyncio.create_task(self._process_update(event))
+    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
+        def callback():
+            asyncio.create_task(
+                self._process_update(bot, update),
+            )
 
-        asyncio.get_running_loop().call_soon(
-            callback,
-            context=copy_context()
-        )
+        asyncio.get_running_loop().call_soon(callback, context=copy_context())
 
-    async def _process_update(self, event: DialogUpdateEvent):
-        Bot.set_current(event.bot)
+    async def _process_update(self, bot: Bot, update: DialogUpdate):
+        event = update.event
+        Bot.set_current(bot)
         User.set_current(event.from_user)
         Chat.set_current(event.chat)
-        await self.update_handler.notify(event)
+        await self.dp.propagate_event(
+            update_type="update",
+            event=update,
+            bot=bot,
+            event_from_user=event.from_user,
+            event_chat=event.chat,
+        )
