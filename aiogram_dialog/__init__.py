@@ -1,8 +1,8 @@
 from . import exceptions
-from .context.events import ChatEvent, StartMode, ShowMode, Data
+from .context.events import ChatEvent, Data, ShowMode, StartMode
 from .context.stack import DEFAULT_STACK_ID
 from .dialog import Dialog
-from .manager.protocols import DialogManager, BaseDialogManager
+from .manager.protocols import BaseDialogManager, DialogManager
 from .manager.registry import DialogRegistry
 from .window import Window
 

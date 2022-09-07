@@ -1,19 +1,21 @@
-from typing import Union, Sequence, Tuple, Callable, Dict, List
+from typing import Callable, Dict, List, Sequence, Tuple, Union
 
-from .data.data_context import DataGetter, StaticGetter, CompositeGetter
-from .input import MessageHandlerFunc, BaseInput, MessageInput
-from .kbd import Keyboard, Group
+from .data.data_context import CompositeGetter, DataGetter, StaticGetter
+from .input import BaseInput, MessageHandlerFunc, MessageInput
+from .kbd import Group, Keyboard
 from .media import Media
-from .text import Multi, Format, Text
+from .text import Format, Multi, Text
 from .widget_event import WidgetEventProcessor
-from ..exceptions import InvalidWidgetType, InvalidWidget
+from ..exceptions import InvalidWidget, InvalidWidgetType
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 
 SingleGetterBase = Union[DataGetter, Dict]
 GetterVariant = Union[
-    None, SingleGetterBase,
-    List[SingleGetterBase], Tuple[SingleGetterBase, ...],
+    None,
+    SingleGetterBase,
+    List[SingleGetterBase],
+    Tuple[SingleGetterBase, ...],
 ]
 
 
@@ -37,9 +39,11 @@ def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
 
 def ensure_input(
         widget: Union[
-            MessageHandlerFunc, WidgetEventProcessor, BaseInput,
-            Sequence[BaseInput]
-        ]
+            MessageHandlerFunc,
+            WidgetEventProcessor,
+            BaseInput,
+            Sequence[BaseInput],
+        ],
 ) -> BaseInput:
     if isinstance(widget, BaseInput):
         return widget
@@ -65,7 +69,7 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 
 def ensure_widgets(
-        widgets: Sequence[WidgetSrc]
+        widgets: Sequence[WidgetSrc],
 ) -> Tuple[Text, Keyboard, BaseInput, Media]:
     texts = []
     keyboards = []
@@ -84,7 +88,8 @@ def ensure_widgets(
         else:
             raise InvalidWidgetType(
                 f"Cannot add widget of type {type(w)}. "
-                f"Only str, Text, Keyboard, BaseInput and Callable are supported"
+                f"Only str, Text, Keyboard, BaseInput "
+                f"and Callable are supported",
             )
     return (
         ensure_text(texts),
@@ -106,5 +111,5 @@ def ensure_data_getter(getter: GetterVariant) -> DataGetter:
     else:
         raise InvalidWidgetType(
             f"Cannot add data getter of type {type(getter)}. "
-            f"Only Dict, Callable or List of Callables are supported"
+            f"Only Dict, Callable or List of Callables are supported",
         )

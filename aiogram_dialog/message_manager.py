@@ -2,15 +2,21 @@ from logging import getLogger
 from typing import Optional, Union
 
 from aiogram import Bot
-from aiogram.types import (
-    FSInputFile, InputFile, URLInputFile,
-    Message, ContentType, InputMedia,
-)
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.types import (
+    ContentType,
+    FSInputFile,
+    InputFile,
+    InputMedia,
+    Message,
+    URLInputFile,
+)
 
 from .context.events import ShowMode
 from .manager.protocols import (
-    MediaAttachment, NewMessage, MessageManagerProtocol,
+    MediaAttachment,
+    MessageManagerProtocol,
+    NewMessage,
 )
 from .utils import get_media_id
 
@@ -30,8 +36,9 @@ SEND_METHODS = {
 
 
 class MessageManager(MessageManagerProtocol):
-
-    async def get_media_source(self, media: MediaAttachment) -> Union[InputFile, str]:
+    async def get_media_source(
+            self, media: MediaAttachment,
+    ) -> Union[InputFile, str]:
         if media.file_id:
             return media.file_id.file_id
         if media.url:
@@ -39,79 +46,111 @@ class MessageManager(MessageManagerProtocol):
         else:
             return FSInputFile(media.path)
 
-    async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]):
+    def had_media(self, old_message: Message) -> bool:
+        return old_message.content_type != ContentType.TEXT
+
+    def need_media(self, new_message: NewMessage) -> bool:
+        return bool(new_message.media)
+
+    def _message_changed(
+            self, new_message: NewMessage, old_message: Message,
+    ) -> bool:
+        if new_message.text != old_message.text:
+            return True
+        if new_message.reply_markup != old_message.reply_markup:
+            return True
+
+        if self.had_media(old_message) != self.need_media(new_message):
+            return True
+        if not self.need_media(new_message):
+            return False
+        if new_message.media.file_id != get_media_id(old_message):
+            return True
+
+        return False
+
+    def _can_edit(self, new_message: NewMessage, old_message: Message) -> bool:
+        # we cannot edit message if media appeared or removed
+        return self.had_media(old_message) == self.need_media(new_message)
+
+    async def show_message(
+            self, bot: Bot, new_message: NewMessage,
+            old_message: Optional[Message],
+    ):
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
                 "Send new message, because: mode=%s, has old_message=%s",
-                new_message.show_mode, bool(old_message))
+                new_message.show_mode,
+                bool(old_message),
+            )
             await self.remove_kbd(bot, old_message)
             return await self.send_message(bot, new_message)
 
-        had_media = old_message.content_type != ContentType.TEXT
-        need_media = bool(new_message.media)
-
-        if (
-                new_message.text == old_message.text and
-                new_message.reply_markup == old_message.reply_markup and
-                had_media == need_media and
-                (
-                        not need_media or
-                        new_message.media.file_id == get_media_id(old_message)
-                )
-        ):
+        if not self._message_changed(new_message, old_message):
             # nothing changed: text, keyboard or media
             return old_message
 
-        if had_media != need_media:
-            # we cannot edit message if media appeared or removed
-            try:
-                await bot.delete_message(chat_id=old_message.chat.id,
-                                         message_id=old_message.message_id)
-            except TelegramBadRequest as err:
-                if (
-                        'message to delete not found' in err.message or
-                        'message can\'t be deleted' in err.message
-                ):
-                    await self.remove_kbd(bot, old_message)
-                else:
-                    raise
+        if not self._can_edit(new_message, old_message):
+            await self.remove_message_safe(bot, old_message)
             return await self.send_message(bot, new_message)
 
+        return await self.edit_message_safe(bot, new_message, old_message)
+
+    # Clear
+    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
+        if not old_message:
+            return
+        logger.debug("remove_kbd in %s", old_message.chat)
+        try:
+            await bot.edit_message_reply_markup(
+                message_id=old_message.message_id,
+                chat_id=old_message.chat.id,
+            )
+        except TelegramBadRequest as err:
+            if "message is not modified" in err.message:
+                pass  # nothing to remove
+            elif "message can't be edited" in err.message:
+                pass
+            elif "message to edit not found" in err.message:
+                pass
+            else:
+                raise err
+
+    async def remove_message_safe(self, bot: Bot, old_message: Message):
+        try:
+            await bot.delete_message(
+                chat_id=old_message.chat.id,
+                message_id=old_message.message_id,
+            )
+        except TelegramBadRequest as err:
+            if (
+                    "message to delete not found" in err.message or
+                    "message can't be deleted" in err.message
+            ):
+                await self.remove_kbd(bot, old_message)
+            else:
+                raise
+
+    # Edit
+    async def edit_message_safe(
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
+    ):
         try:
             return await self.edit_message(bot, new_message, old_message)
         except TelegramBadRequest as err:
-            if 'message is not modified' in err.message:
+            if "message is not modified" in err.message:
                 return old_message
             if (
-                    'message can\'t be edited' in err.message or
-                    'message to edit not found' in err.message
+                    "message can't be edited" in err.message or
+                    "message to edit not found" in err.message
             ):
                 return await self.send_message(bot, new_message)
             else:
                 raise
 
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
-        if old_message:
-            logger.debug("remove_kbd in %s", old_message.chat)
-            try:
-                await bot.edit_message_reply_markup(
-                    message_id=old_message.message_id,
-                    chat_id=old_message.chat.id,
-                )
-            except TelegramBadRequest as err:
-                if 'message is not modified' in err.message:
-                    pass  # nothing to remove
-                elif 'message can\'t be edited' in err.message:
-                    pass
-                elif 'message to edit not found' in err.message:
-                    pass
-                else:
-                    raise err
-
-    # Edit
-    async def edit_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Message):
+    async def edit_message(
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
+    ):
         if new_message.media:
             if new_message.media.file_id == get_media_id(old_message):
                 return await self.edit_caption(bot, new_message, old_message)
@@ -119,8 +158,9 @@ class MessageManager(MessageManagerProtocol):
         else:
             return await self.edit_text(bot, new_message, old_message)
 
-    async def edit_caption(self, bot: Bot, new_message: NewMessage,
-                           old_message: Message):
+    async def edit_caption(
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
+    ):
         logger.debug("edit_caption to %s", new_message.chat)
         return await bot.edit_message_caption(
             message_id=old_message.message_id,
@@ -130,8 +170,9 @@ class MessageManager(MessageManagerProtocol):
             parse_mode=new_message.parse_mode,
         )
 
-    async def edit_text(self, bot: Bot, new_message: NewMessage,
-                        old_message: Message):
+    async def edit_text(
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
+    ):
         logger.debug("edit_text to %s", new_message.chat)
         return await bot.edit_message_text(
             message_id=old_message.message_id,
@@ -142,10 +183,14 @@ class MessageManager(MessageManagerProtocol):
             disable_web_page_preview=new_message.disable_web_page_preview,
         )
 
-    async def edit_media(self, bot: Bot, new_message: NewMessage,
-                         old_message: Message):
-        logger.debug("edit_media to %s, media_id: %s",
-                     new_message.chat, new_message.media.file_id)
+    async def edit_media(
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
+    ):
+        logger.debug(
+            "edit_media to %s, media_id: %s",
+            new_message.chat,
+            new_message.media.file_id,
+        )
         media = InputMedia(
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
@@ -180,8 +225,11 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage):
-        logger.debug("send_media to %s, media_id: %s",
-                     new_message.chat, new_message.media.file_id)
+        logger.debug(
+            "send_media to %s, media_id: %s",
+            new_message.chat,
+            new_message.media.file_id,
+        )
         method = getattr(bot, SEND_METHODS[new_message.media.type], None)
         if not method:
             raise ValueError(

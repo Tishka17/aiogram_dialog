@@ -1,19 +1,24 @@
 from copy import copy
-from typing import Dict, Type, Optional
+from typing import Dict, Optional, Type
 
 from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
 from .context import Context
-from .stack import Stack, DEFAULT_STACK_ID
-from ..exceptions import UnknownState, UnknownIntent
+from .stack import DEFAULT_STACK_ID, Stack
+from ..exceptions import UnknownIntent, UnknownState
 
 
 class StorageProxy:
-    def __init__(self, storage: BaseStorage,
-                 user_id: int, chat_id: int, bot: Bot,
-                 state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(
+            self,
+            storage: BaseStorage,
+            user_id: int,
+            chat_id: int,
+            bot: Bot,
+            state_groups: Dict[str, Type[StatesGroup]],
+    ):
         self.storage = storage
         self.state_groups = state_groups
         self.user_id = user_id
@@ -27,7 +32,8 @@ class StorageProxy:
         )
         if not data:
             raise UnknownIntent(
-                f"Context not found for intent id: {intent_id}")
+                f"Context not found for intent id: {intent_id}",
+            )
         data["state"] = self._state(data["state"])
         return Context(**data)
 
@@ -55,14 +61,14 @@ class StorageProxy:
         await self.storage.set_data(
             bot=self.bot,
             key=self._context_key(intent_id),
-            data=dict(),
+            data={},
         )
 
     async def remove_stack(self, stack_id: str):
         await self.storage.set_data(
             bot=self.bot,
             key=self._stack_key(stack_id),
-            data=dict(),
+            data={},
         )
 
     async def save_stack(self, stack: Optional[Stack]) -> None:
@@ -72,7 +78,7 @@ class StorageProxy:
             await self.storage.set_data(
                 bot=self.bot,
                 key=self._stack_key(stack.id),
-                data=dict(),
+                data={},
             )
         else:
             data = copy(vars(stack))

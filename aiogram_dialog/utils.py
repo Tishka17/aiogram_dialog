@@ -1,15 +1,10 @@
 from logging import getLogger
 from typing import Optional, Tuple
 
-from aiogram.types import (
-    Message, CallbackQuery, Chat, ChatMemberUpdated,
-    User,
-)
+from aiogram.types import CallbackQuery, Chat, ChatMemberUpdated, Message, User
 
-from .context.events import (
-    DialogUpdateEvent, ChatEvent
-)
-from .manager.protocols import NewMessage, MediaId
+from .context.events import ChatEvent, DialogUpdateEvent
+from .manager.protocols import MediaId, NewMessage
 
 logger = getLogger(__name__)
 
@@ -21,33 +16,35 @@ def get_chat(event: ChatEvent) -> Chat:
         return event.chat
     elif isinstance(event, CallbackQuery):
         if not event.message:
-            return Chat(id=event.from_user.id, type='')
+            return Chat(id=event.from_user.id, type="")
         return event.message.chat
 
 
 def is_chat_loaded(chat: Chat) -> bool:
     """
-    Checks if chat is correctly loaded from telegram.
-    Otherwise, it is created with no data inside as a FakeChat
+    Check if chat is correctly loaded from telegram.
+
+    For internal events it can be created with no data inside as a FakeChat
     """
     return getattr(chat, "fake", False)
 
 
 def is_user_loaded(user: User) -> bool:
     """
-    Checks if chat is correctly loaded from telegram.
-    Otherwise, it is created with no data inside as a FakeUser
+    Check if user is correctly loaded from telegram.
+
+    For internal events it can be created with no data inside as a FakeUser
     """
     return getattr(user, "fake", False)
 
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-            message.audio or
-            message.animation or
-            message.document or
-            (message.photo[-1] if message.photo else None) or
-            message.video
+        message.audio or
+        message.animation or
+        message.document or
+        (message.photo[-1] if message.photo else None) or
+        message.video
     )
     if not media:
         return None
@@ -57,8 +54,9 @@ def get_media_id(message: Message) -> Optional[MediaId]:
     )
 
 
-def intent_callback_data(intent_id: str,
-                         callback_data: Optional[str]) -> Optional[str]:
+def intent_callback_data(
+        intent_id: str, callback_data: Optional[str],
+) -> Optional[str]:
     if callback_data is None:
         return None
     return intent_id + CB_SEP + callback_data
@@ -70,7 +68,7 @@ def add_indent_id(message: NewMessage, intent_id: str):
     for row in message.reply_markup.inline_keyboard:
         for button in row:
             button.callback_data = intent_callback_data(
-                intent_id, button.callback_data
+                intent_id, button.callback_data,
             )
 
 

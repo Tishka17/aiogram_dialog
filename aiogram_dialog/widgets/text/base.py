@@ -1,7 +1,7 @@
-from typing import Union, Dict
+from typing import Dict, Union
 
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.widgets.when import Whenable, WhenCondition, true
+from aiogram_dialog.widgets.when import true, Whenable, WhenCondition
 
 
 class Text(Whenable):
@@ -43,10 +43,7 @@ class Multi(Text):
         self.sep = sep
 
     async def _render_text(self, data, manager: DialogManager) -> str:
-        texts = [
-            await t.render_text(data, manager)
-            for t in self.texts
-        ]
+        texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))
 
     def __iadd__(self, other: Union["Text", str]):

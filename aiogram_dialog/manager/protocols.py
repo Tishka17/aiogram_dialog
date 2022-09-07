@@ -1,22 +1,20 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Any, Protocol, Union, Type, Dict
+from typing import Any, Dict, Optional, Protocol, Type, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (
-    ContentType, Message, Chat, InlineKeyboardMarkup,
-)
+from aiogram.types import Chat, ContentType, InlineKeyboardMarkup, Message
 
 from ..context.context import Context
-from ..context.events import (
-    StartMode, ChatEvent, Data, ShowMode, DialogUpdate,
-)
+from ..context.events import ChatEvent, Data, DialogUpdate, ShowMode, StartMode
 from ..context.stack import Stack
 
 
 class LaunchMode(Enum):
     """
+    Modes of launching new dialog.
+
     `ROOT` dialogs will be always a root dialog in stack.
         Starting such dialogs will automatically reset stack.
         Example: main menu
@@ -32,6 +30,7 @@ class LaunchMode(Enum):
 
     `STANDARD` dialogs have no limitations themselves
     """
+
     STANDARD = "standard"
     ROOT = "root"
     EXCLUSIVE = "exclusive"
@@ -58,8 +57,10 @@ class ManagedDialogAdapterProto:
 class ManagedDialogProto(Protocol):
     launch_mode: LaunchMode
 
-    def register(self, registry: "DialogRegistryProto", router: Router, *args,
-                 **kwargs) -> None:
+    def register(
+            self, registry: "DialogRegistryProto", router: Router, *args,
+            **kwargs,
+    ) -> None:
         pass
 
     def states_group_name(self) -> str:
@@ -71,15 +72,20 @@ class ManagedDialogProto(Protocol):
     async def process_close(self, result: Any, manager: "DialogManager"):
         pass
 
-    async def process_start(self, manager: "DialogManager", start_data: Any,
-                            state: Optional[State] = None) -> None:
+    async def process_start(
+            self,
+            manager: "DialogManager",
+            start_data: Any,
+            state: Optional[State] = None,
+    ) -> None:
         pass
 
     async def show(self, manager: "DialogManager"):
         pass
 
-    async def process_result(self, start_data: Data, result: Any,
-                             manager: "DialogManager"):
+    async def process_result(
+            self, start_data: Data, result: Any, manager: "DialogManager",
+    ):
         pass
 
     async def next(self, manager: "DialogManager"):
@@ -160,8 +166,10 @@ class MessageManagerProtocol(Protocol):
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         raise NotImplementedError
 
-    async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]):
+    async def show_message(
+            self, bot: Bot, new_message: NewMessage,
+            old_message: Optional[Message],
+    ):
         raise NotImplementedError
 
 
@@ -251,7 +259,10 @@ class DialogManager(BaseDialogManager):
 
 class DialogManagerFactory(Protocol):
     def __call__(
-            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict,
+            self,
+            event: ChatEvent,
+            registry: DialogRegistryProto,
+            data: Dict,
     ) -> DialogManager:
         raise NotImplementedError
 

@@ -1,11 +1,15 @@
-from enum import Enum, auto
-from typing import Dict, Any, Optional, Literal
-from typing import Union, List
+from enum import auto, Enum
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import (
-    Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject,
+    CallbackQuery,
+    Chat,
+    ChatMemberUpdated,
+    Message,
+    TelegramObject,
     Update,
+    User,
 )
 
 DIALOG_EVENT_NAME = "aiogd_update"
@@ -33,6 +37,8 @@ class Action(Enum):
 
 class DialogUpdateEvent(TelegramObject):
     class Config:
+        """Pydantic config for custom event."""
+
         arbitrary_types_allowed = True
         use_enum_values = False
         copy_on_model_validation = False

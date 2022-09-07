@@ -6,9 +6,11 @@ from .multi import Case
 from .progress import Progress
 
 __all__ = [
-    "Const", "Text",
+    "Const",
+    "Text",
     "Format",
-    "Multi", "Case",
+    "Multi",
+    "Case",
     "Jinja",
     "List",
     "Progress",

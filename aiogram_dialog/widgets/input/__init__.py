@@ -1,7 +1,9 @@
-from .base import MessageHandlerFunc, MessageInput, BaseInput
+from .base import BaseInput, MessageHandlerFunc, MessageInput
 from .text import TextInput
 
 __all__ = [
-    "MessageHandlerFunc", "MessageInput", "BaseInput",
+    "MessageHandlerFunc",
+    "MessageInput",
+    "BaseInput",
     "TextInput",
 ]

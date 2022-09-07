@@ -1,24 +1,35 @@
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
-from typing import Protocol
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from aiogram import Router
+from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
-from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
 from .context.events import Data
 from .exceptions import UnregisteredWindowError
 from .manager.protocols import (
-    DialogRegistryProto, ManagedDialogProto, DialogManager, NewMessage,
+    DialogManager,
+    DialogRegistryProto,
     LaunchMode,
+    ManagedDialogProto,
+    NewMessage,
 )
 from .utils import add_indent_id, get_media_id, remove_indent_id
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
-from .widgets.utils import (
-    ensure_data_getter, GetterVariant,
-)
+from .widgets.utils import ensure_data_getter, GetterVariant
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"
@@ -28,27 +39,48 @@ OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Actionable)
 
+_INVALUD_QUERY_ID_MSG = (
+    "query is too old and response timeout expired or query id is invalid"
+)
 
-_INVALUD_QUERY_ID_MSG = "query is too old and response timeout expired or query id is invalid"
 
 class DialogWindowProto(Protocol):
     async def render_text(self, data: Dict, manager: DialogManager) -> str:
         raise NotImplementedError
 
-    async def render_kbd(self, data: Dict, manager: DialogManager) -> InlineKeyboardMarkup:
+    async def render_kbd(
+            self, data: Dict, manager: DialogManager,
+    ) -> InlineKeyboardMarkup:
         raise NotImplementedError
 
-    async def load_data(self, dialog: "Dialog", manager: DialogManager) -> Dict:
+    async def load_data(
+            self,
+            dialog: "Dialog",
+            manager: DialogManager,
+    ) -> Dict:
         raise NotImplementedError
 
-    async def process_message(self, m: Message, dialog: "Dialog", manager: DialogManager):
+    async def process_message(
+            self,
+            m: Message,
+            dialog: "Dialog",
+            manager: DialogManager,
+    ):
         raise NotImplementedError
 
-    async def process_callback(self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager):
+    async def process_callback(
+            self,
+            c: CallbackQuery,
+            dialog: "Dialog",
+            manager: DialogManager,
+    ):
         raise NotImplementedError
 
-    async def render(self, dialog: "Dialog",
-                     manager: DialogManager) -> NewMessage:
+    async def render(
+            self,
+            dialog: "Dialog",
+            manager: DialogManager,
+    ) -> NewMessage:
         raise NotImplementedError
 
     def get_state(self) -> State:
@@ -73,12 +105,16 @@ class Dialog(ManagedDialogProto):
         self.states: List[State] = []
         for w in windows:
             if w.get_state().group != self._states_group:
-                raise ValueError("All windows must be attached to same StatesGroup")
+                raise ValueError(
+                    "All windows must be attached to same StatesGroup",
+                )
             state = w.get_state()
             if state in self.states:
                 raise ValueError(f"Multiple windows with state {state}")
             self.states.append(state)
-        self.windows: Dict[State, DialogWindowProto] = dict(zip(self.states, windows))
+        self.windows: Dict[State, DialogWindowProto] = dict(
+            zip(self.states, windows),
+        )
         self.on_start = on_start
         self.on_close = on_close
         self.on_process_result = on_process_result
@@ -91,24 +127,32 @@ class Dialog(ManagedDialogProto):
     async def next(self, manager: DialogManager):
         if not manager.current_context():
             raise ValueError("No intent")
-        new_state = self.states[self.states.index(manager.current_context().state) + 1]
+        current_index = self.states.index(manager.current_context().state)
+        new_state = self.states[current_index + 1]
         await self.switch_to(new_state, manager)
 
     async def back(self, manager: DialogManager):
         if not manager.current_context():
             raise ValueError("No intent")
-        new_state = self.states[self.states.index(manager.current_context().state) - 1]
+        current_index = self.states.index(manager.current_context().state)
+        new_state = self.states[current_index - 1]
         await self.switch_to(new_state, manager)
 
-    async def process_start(self, manager: DialogManager, start_data: Any,
-                            state: Optional[State] = None) -> None:
+    async def process_start(
+            self,
+            manager: DialogManager,
+            start_data: Any,
+            state: Optional[State] = None,
+    ) -> None:
         if state is None:
             state = self.states[0]
         logger.debug("Dialog start: %s (%s)", state, self)
         await self.switch_to(state, manager)
         await self._process_callback(self.on_start, start_data, manager)
 
-    async def _process_callback(self, callback: Optional[OnDialogEvent], *args, **kwargs):
+    async def _process_callback(
+            self, callback: Optional[OnDialogEvent], *args, **kwargs,
+    ):
         if callback:
             await callback(*args, **kwargs)
 
@@ -116,17 +160,19 @@ class Dialog(ManagedDialogProto):
         if state.group != self.states_group():
             raise ValueError(
                 f"Cannot switch from `{self.states_group_name()}` "
-                f"to another states group {state.group}"
+                f"to another states group {state.group}",
             )
         await manager.switch_to(state)
 
-    async def _current_window(self, manager: DialogManager) -> DialogWindowProto:
+    async def _current_window(
+            self, manager: DialogManager,
+    ) -> DialogWindowProto:
         try:
             return self.windows[manager.current_context().state]
         except KeyError as e:
             raise UnregisteredWindowError(
                 f"No window found for `{manager.current_context().state}` "
-                f"Current state group is `{self.states_group_name()}`"
+                f"Current state group is `{self.states_group_name()}`",
             ) from e
 
     async def load_data(self, manager: DialogManager) -> Dict:
@@ -165,14 +211,20 @@ class Dialog(ManagedDialogProto):
                 media_id=get_media_id(message),
             )
 
-    async def _message_handler(self, m: Message, dialog_manager: DialogManager):
+    async def _message_handler(
+            self, m: Message, dialog_manager: DialogManager,
+    ):
         intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_message(m, self, dialog_manager)
         if dialog_manager.current_context() == intent:  # no new dialog started
             await self.show(dialog_manager)
 
-    async def _callback_handler(self, c: CallbackQuery, dialog_manager: DialogManager):
+    async def _callback_handler(
+            self,
+            c: CallbackQuery,
+            dialog_manager: DialogManager,
+    ):
         intent = dialog_manager.current_context()
         intent_id, callback_data = remove_indent_id(c.data)
         cleaned_callback = c.copy(update={"data": callback_data})
@@ -189,11 +241,20 @@ class Dialog(ManagedDialogProto):
                 else:
                     raise
 
-    async def _update_handler(self, event: ChatEvent, dialog_manager: DialogManager):
+    async def _update_handler(
+            self,
+            event: ChatEvent,
+            dialog_manager: DialogManager,
+    ):
         await self.show(dialog_manager)
 
-    def register(self, registry: DialogRegistryProto, router: Router, *args, **filters) -> None:
-        router.callback_query.register(self._callback_handler, *args, **filters)
+    def register(
+            self, registry: DialogRegistryProto, router: Router, *args,
+            **filters,
+    ) -> None:
+        router.callback_query.register(
+            self._callback_handler, *args, **filters,
+        )
         router.message.register(self._message_handler, *args, **filters)
 
     def states_group(self) -> Type[StatesGroup]:
@@ -202,8 +263,15 @@ class Dialog(ManagedDialogProto):
     def states_group_name(self) -> str:
         return self._states_group.__full_group_name__
 
-    async def process_result(self, start_data: Data, result: Any, manager: DialogManager):
-        await self._process_callback(self.on_process_result, start_data, result, manager)
+    async def process_result(
+            self,
+            start_data: Data,
+            result: Any,
+            manager: DialogManager,
+    ):
+        await self._process_callback(
+            self.on_process_result, start_data, result, manager,
+        )
 
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)
