@@ -10,6 +10,10 @@ from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 from .button import Button, OnClick
 from ..when import WhenCondition
 
+BACK_TEXT = Const("Back")
+NEXT_TEXT = Const("Next")
+CANCEL_TEXT = Const("Cancel")
+
 
 class EventProcessorButton(Button, WidgetEventProcessor):
     async def process_event(
@@ -23,7 +27,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
         await self._on_click(event, self, manager)
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         raise NotImplementedError
 
@@ -43,7 +47,7 @@ class SwitchTo(EventProcessorButton):
         self.state = state
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -53,7 +57,7 @@ class SwitchTo(EventProcessorButton):
 class Next(EventProcessorButton):
     def __init__(
             self,
-            text: Text = Const("Next"),
+            text: Text = NEXT_TEXT,
             callback_data: str = "__next__",
             on_click: Optional[Callable] = None,
             when: WhenCondition = None,
@@ -64,7 +68,7 @@ class Next(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -74,7 +78,7 @@ class Next(EventProcessorButton):
 class Back(EventProcessorButton):
     def __init__(
             self,
-            text: Text = Const("Back"),
+            text: Text = BACK_TEXT,
             id: str = "__back__",
             on_click: Optional[Callable] = None,
             when: WhenCondition = None,
@@ -85,7 +89,7 @@ class Back(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -95,7 +99,7 @@ class Back(EventProcessorButton):
 class Cancel(EventProcessorButton):
     def __init__(
             self,
-            text: Text = Const("Cancel"),
+            text: Text = CANCEL_TEXT,
             id: str = "__cancel__",
             result: Any = None,
             on_click: Optional[Callable] = None,
@@ -107,7 +111,7 @@ class Cancel(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -133,7 +137,7 @@ class Start(EventProcessorButton):
         self.mode = mode
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button, manager: DialogManager
+            self, c: CallbackQuery, button: Button, manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)

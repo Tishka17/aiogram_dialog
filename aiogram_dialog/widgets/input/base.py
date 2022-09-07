@@ -10,8 +10,8 @@ from aiogram_dialog.manager.protocols import (
 )
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 
 MessageHandlerFunc = Callable[
@@ -23,7 +23,7 @@ MessageHandlerFunc = Callable[
 class BaseInput(Actionable):
     async def process_message(
             self, m: Message, dialog: ManagedDialogProto,
-            manager: DialogManager
+            manager: DialogManager,
     ) -> bool:
         raise NotImplementedError
 

@@ -32,7 +32,7 @@ class StaticMedia(Media):
         self.media_params = media_params or {}
 
     async def _render_media(
-            self, data: Any, manager: DialogManager
+            self, data: Any, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if self.url:
             url = await self.url.render_text(data, manager)

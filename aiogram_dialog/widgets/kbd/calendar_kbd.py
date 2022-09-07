@@ -1,4 +1,3 @@
-from abc import ABC
 from calendar import monthcalendar
 from datetime import date
 from time import mktime
@@ -9,15 +8,15 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
 OnDateSelected = Callable[
-    [ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable
+    [ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable,
 ]
 
 # Constants for managing widget rendering scope
@@ -41,7 +40,7 @@ class CalendarData(TypedDict):
     current_offset: str
 
 
-class Calendar(Keyboard, ABC):
+class Calendar(Keyboard):
     def __init__(
             self,
             id: str,
@@ -52,7 +51,7 @@ class Calendar(Keyboard, ABC):
         self.on_click = ensure_event_processor(on_click)
 
     async def _render_keyboard(
-            self, data, manager: DialogManager
+            self, data, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
         current_scope = self.get_scope(manager)
@@ -87,7 +86,7 @@ class Calendar(Keyboard, ABC):
                 self.set_offset(new_offset, manager)
             else:
                 new_offset = date(
-                    current_offset.year, (current_offset.month - 1), 1
+                    current_offset.year, (current_offset.month - 1), 1,
                 )
                 self.set_offset(new_offset, manager)
 
@@ -125,9 +124,9 @@ class Calendar(Keyboard, ABC):
                     InlineKeyboardButton(
                         text=str(year),
                         callback_data=self._item_callback_data(
-                            f"{PREFIX_YEAR}{year}"
+                            f"{PREFIX_YEAR}{year}",
                         ),
-                    )
+                    ),
                 )
             years.append(year_row)
         return years
@@ -143,9 +142,9 @@ class Calendar(Keyboard, ABC):
                     InlineKeyboardButton(
                         text=month_text,
                         callback_data=self._item_callback_data(
-                            f"{PREFIX_MONTH}{month}"
+                            f"{PREFIX_MONTH}{month}",
                         ),
-                    )
+                    ),
                 )
             months.append(season)
         return [
@@ -173,19 +172,19 @@ class Calendar(Keyboard, ABC):
                         InlineKeyboardButton(
                             text=" ",
                             callback_data=" ",
-                        )
+                        ),
                     )
                 else:
                     raw_date = int(
                         mktime(
-                            date(offset.year, offset.month, day).timetuple()
-                        )
+                            date(offset.year, offset.month, day).timetuple(),
+                        ),
                     )
                     week_row.append(
                         InlineKeyboardButton(
                             text=str(day),
                             callback_data=self._item_callback_data(raw_date),
-                        )
+                        ),
                     )
             days.append(week_row)
         return [
@@ -247,13 +246,13 @@ class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
         return self.widget.get_offset(self.manager)
 
     def set_offset(
-            self, new_offset: date, manager: Optional[DialogManager] = None
+            self, new_offset: date, manager: Optional[DialogManager] = None,
     ) -> None:
         manager_deprecated(manager)
         return self.widget.set_offset(new_offset, self.manager)
 
     def set_scope(
-            self, new_scope: str, manager: Optional[DialogManager] = None
+            self, new_scope: str, manager: Optional[DialogManager] = None,
     ) -> None:
         manager_deprecated(manager)
         return self.widget.set_scope(new_scope, self.manager)

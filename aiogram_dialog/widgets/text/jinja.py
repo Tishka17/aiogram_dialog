@@ -44,7 +44,7 @@ class StubLoader(BaseLoader):
 
 
 def _create_env(
-        *args: Any, filters: Optional[Filters] = None, **kwargs: Any
+        *args: Any, filters: Optional[Filters] = None, **kwargs: Any,
 ) -> Environment:
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)

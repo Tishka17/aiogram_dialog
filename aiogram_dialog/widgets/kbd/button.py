@@ -5,8 +5,8 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 from .base import Keyboard
 from ..when import WhenCondition
@@ -45,8 +45,8 @@ class Button(Keyboard):
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     callback_data=self._own_callback_data(),
-                )
-            ]
+                ),
+            ],
         ]
 
 
@@ -72,14 +72,14 @@ class Url(Keyboard):
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     url=await self.url.render_text(data, manager),
-                )
-            ]
+                ),
+            ],
         ]
 
 
 class WebApp(Url):
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         text = await self.text.render_text(data, manager)
 

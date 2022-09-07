@@ -32,9 +32,9 @@ class PreviewAwareGetter:
     async def __call__(self, dialog_manager: DialogManager, **kwargs):
         if dialog_manager.is_preview():
             return await self.preview_getter(
-                dialog_manager=dialog_manager, **kwargs
+                dialog_manager=dialog_manager, **kwargs,
             )
         else:
             return await self.normal_getter(
-                dialog_manager=dialog_manager, **kwargs
+                dialog_manager=dialog_manager, **kwargs,
             )

@@ -4,8 +4,8 @@ from aiogram.types import ContentType, Message
 
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 from .base import BaseInput
 from ..managed import ManagedWidgetAdapter

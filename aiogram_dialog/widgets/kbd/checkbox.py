@@ -7,15 +7,18 @@ from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ...deprecation_utils import manager_deprecated
 
 OnStateChanged = Callable[
-    [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable
+    [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable,
+]
+OnStateChangedVariant = Union[
+    OnStateChanged, WidgetEventProcessor, None,
 ]
 
 
@@ -25,10 +28,8 @@ class BaseCheckbox(Keyboard, ABC):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
-            on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
-            on_state_changed: Union[
-                OnStateChanged, WidgetEventProcessor, None
-            ] = None,
+            on_click: OnStateChangedVariant = None,
+            on_state_changed: OnStateChangedVariant = None,
             when: Union[str, Callable] = None,
     ):
         super().__init__(id, when)
@@ -40,7 +41,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.on_state_changed = ensure_event_processor(on_state_changed)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
@@ -49,8 +50,8 @@ class BaseCheckbox(Keyboard, ABC):
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     callback_data=self._item_callback_data(checked),
-                )
-            ]
+                ),
+            ],
         ]
 
     async def _process_item_callback(
@@ -67,7 +68,7 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager
+            self, data: Dict, case: Case, manager: DialogManager,
     ) -> bool:
         return self.is_checked(manager)
 
@@ -77,7 +78,7 @@ class BaseCheckbox(Keyboard, ABC):
 
     @abstractmethod
     async def set_checked(
-            self, event: ChatEvent, checked: bool, manager: DialogManager
+            self, event: ChatEvent, checked: bool, manager: DialogManager,
     ):
         raise NotImplementedError
 
@@ -94,7 +95,7 @@ class Checkbox(BaseCheckbox):
             when: Union[str, Callable] = None,
     ):
         super().__init__(
-            checked_text, unchecked_text, id, on_click, on_state_changed, when
+            checked_text, unchecked_text, id, on_click, on_state_changed, when,
         )
         self.default = default
 
@@ -102,11 +103,11 @@ class Checkbox(BaseCheckbox):
         return self.get_widget_data(manager, self.default)
 
     async def set_checked(
-            self, event: ChatEvent, checked: bool, manager: DialogManager
+            self, event: ChatEvent, checked: bool, manager: DialogManager,
     ) -> None:
         self.set_widget_data(manager, checked)
         await self.on_state_changed.process_event(
-            event, self.managed(manager), manager
+            event, self.managed(manager), manager,
         )
 
     def managed(self, manager: DialogManager):
