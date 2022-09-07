@@ -17,7 +17,7 @@ class ManagedDialogAdapter(ManagedDialogAdapterProto):
 
     async def show(
             self, preview: bool = False,
-            manager: Optional[DialogManager] = None
+            manager: Optional[DialogManager] = None,
     ):
         manager_deprecated(manager)
         return await self.dialog.show(self.manager)
@@ -31,13 +31,13 @@ class ManagedDialogAdapter(ManagedDialogAdapterProto):
         return await self.dialog.back(self.manager)
 
     async def switch_to(
-            self, state: State, manager: Optional[DialogManager] = None
+            self, state: State, manager: Optional[DialogManager] = None,
     ):
         manager_deprecated(manager)
         return await self.dialog.switch_to(state, self.manager)
 
     def find(
-            self, widget_id, manager: Optional[DialogManager] = None
+            self, widget_id, manager: Optional[DialogManager] = None,
     ) -> Optional[Any]:
         manager_deprecated(manager)
         widget = self.dialog.find(widget_id)

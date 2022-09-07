@@ -35,7 +35,7 @@ logger = getLogger(__name__)
 
 class ManagerImpl(DialogManager):
     def __init__(
-            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict
+            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict,
     ):
         self.disabled = False
         self._registry = registry
@@ -52,7 +52,7 @@ class ManagerImpl(DialogManager):
             raise IncorrectBackgroundError(
                 "Detected background access to dialog manager. "
                 "Please use background manager available via `manager.bg()` "
-                "method to access methods from background tasks"
+                "method to access methods from background tasks",
             )
 
     async def load_data(self) -> Dict:
@@ -105,7 +105,7 @@ class ManagerImpl(DialogManager):
             start_data: Data,
             result: Any,
     ) -> None:
-        """Process closing last dialog in stack"""
+        """Process closing last dialog in stack."""
         await self._remove_kbd()
 
     async def done(self, result: Any = None) -> None:
@@ -176,7 +176,8 @@ class ManagerImpl(DialogManager):
             old_dialog = self._dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError(
-                    "Cannot start dialog on top of one with launch_mode==SINGLE"
+                    "Cannot start dialog on top "
+                    "of one with launch_mode==SINGLE",
                 )
 
         new_dialog = self.registry.find_dialog(state)
@@ -200,7 +201,7 @@ class ManagerImpl(DialogManager):
         if context.state.group != state.group:
             raise ValueError(
                 f"Cannot switch to another state group. "
-                f"Current state: {context.state}, asked for {state}"
+                f"Current state: {context.state}, asked for {state}",
             )
         context.state = state
 
@@ -209,9 +210,9 @@ class ManagerImpl(DialogManager):
         bot = self.data["bot"]
         chat = self.data["event_chat"]
         if (
-                isinstance(self.event, CallbackQuery)
-                and self.event.message
-                and stack.last_message_id == self.event.message.message_id
+                isinstance(self.event, CallbackQuery) and
+                self.event.message and
+                stack.last_message_id == self.event.message.message_id
         ):
             old_message = self.event.message
         else:
@@ -258,10 +259,8 @@ class ManagerImpl(DialogManager):
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND
-            elif (
-                    self.event.media_group_id
-                    == self.current_stack().last_income_media_group_id
-            ):
+            elif self.event.media_group_id == \
+                    self.current_stack().last_income_media_group_id:
                 return ShowMode.EDIT
             else:
                 return ShowMode.SEND

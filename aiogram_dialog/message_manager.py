@@ -37,7 +37,7 @@ SEND_METHODS = {
 
 class MessageManager(MessageManagerProtocol):
     async def get_media_source(
-            self, media: MediaAttachment
+            self, media: MediaAttachment,
     ) -> Union[InputFile, str]:
         if media.file_id:
             return media.file_id.file_id
@@ -48,7 +48,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message]
+            old_message: Optional[Message],
     ):
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
@@ -63,13 +63,13 @@ class MessageManager(MessageManagerProtocol):
         need_media = bool(new_message.media)
 
         if (
-                new_message.text == old_message.text
-                and new_message.reply_markup == old_message.reply_markup
-                and had_media == need_media
-                and (
-                not need_media
-                or new_message.media.file_id == get_media_id(old_message)
-        )
+                new_message.text == old_message.text and
+                new_message.reply_markup == old_message.reply_markup and
+                had_media == need_media and
+                (
+                    not need_media or
+                    new_message.media.file_id == get_media_id(old_message)
+                )
         ):
             # nothing changed: text, keyboard or media
             return old_message
@@ -83,8 +83,8 @@ class MessageManager(MessageManagerProtocol):
                 )
             except TelegramBadRequest as err:
                 if (
-                        "message to delete not found" in err.message
-                        or "message can't be deleted" in err.message
+                        "message to delete not found" in err.message or
+                        "message can't be deleted" in err.message
                 ):
                     await self.remove_kbd(bot, old_message)
                 else:
@@ -97,8 +97,8 @@ class MessageManager(MessageManagerProtocol):
             if "message is not modified" in err.message:
                 return old_message
             if (
-                    "message can't be edited" in err.message
-                    or "message to edit not found" in err.message
+                    "message can't be edited" in err.message or
+                    "message to edit not found" in err.message
             ):
                 return await self.send_message(bot, new_message)
             else:
@@ -124,7 +124,7 @@ class MessageManager(MessageManagerProtocol):
 
     # Edit
     async def edit_message(
-            self, bot: Bot, new_message: NewMessage, old_message: Message
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
     ):
         if new_message.media:
             if new_message.media.file_id == get_media_id(old_message):
@@ -134,7 +134,7 @@ class MessageManager(MessageManagerProtocol):
             return await self.edit_text(bot, new_message, old_message)
 
     async def edit_caption(
-            self, bot: Bot, new_message: NewMessage, old_message: Message
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
     ):
         logger.debug("edit_caption to %s", new_message.chat)
         return await bot.edit_message_caption(
@@ -146,7 +146,7 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def edit_text(
-            self, bot: Bot, new_message: NewMessage, old_message: Message
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
     ):
         logger.debug("edit_text to %s", new_message.chat)
         return await bot.edit_message_text(
@@ -159,7 +159,7 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def edit_media(
-            self, bot: Bot, new_message: NewMessage, old_message: Message
+            self, bot: Bot, new_message: NewMessage, old_message: Message,
     ):
         logger.debug(
             "edit_media to %s, media_id: %s",

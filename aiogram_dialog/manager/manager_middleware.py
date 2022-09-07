@@ -22,8 +22,8 @@ class ManagerMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[
-                    Any]
+                [Union[Update, DialogUpdateEvent], Dict[str, Any]],
+                Awaitable[Any],
             ],
             event: ChatEvent,
             data: Dict[str, Any],
