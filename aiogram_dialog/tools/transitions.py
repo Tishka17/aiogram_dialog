@@ -1,11 +1,12 @@
 import os.path
-from typing import List, Sequence, Tuple, Union
+from typing import Iterable, List, Sequence, Tuple, Union
 
 from aiogram.fsm.state import State
 from diagrams import Cluster, Diagram, Edge
 from diagrams.custom import Custom
 
 from aiogram_dialog import Dialog, DialogRegistry
+from aiogram_dialog.dialog import DialogWindowProto
 from aiogram_dialog.widgets.kbd import (
     Back,
     Cancel,
@@ -53,12 +54,38 @@ def walk_keyboard(
             widget_edges(nodes, dialog, starts, current_state, kbd)
 
 
-def find_starts(current_state, keyboards: Sequence):
+def find_starts(
+        current_state, keyboards: Sequence,
+) -> Iterable[Tuple[State, State]]:
     for kbd in keyboards:
         if isinstance(kbd, Group):
             yield from find_starts(current_state, kbd.buttons)
         elif isinstance(kbd, Start):
             yield current_state, kbd.state
+
+
+def render_window(
+        nodes: dict, dialog: Dialog, starts: List[Tuple[State, State]],
+        window: DialogWindowProto,
+):
+    walk_keyboard(
+        nodes,
+        dialog,
+        starts,
+        window.get_state(),
+        [window.keyboard],
+    )
+    preview_add_transitions = getattr(
+        window, "preview_add_transitions", None,
+    )
+    if preview_add_transitions:
+        walk_keyboard(
+            nodes,
+            dialog,
+            starts,
+            window.get_state(),
+            preview_add_transitions,
+        )
 
 
 def render_transitions(
@@ -88,21 +115,6 @@ def render_transitions(
 
         for dialog in dialogs:
             for window in dialog.windows.values():
-                walk_keyboard(
-                    nodes,
-                    dialog,
-                    starts,
-                    window.get_state(),
-                    [window.keyboard],
+                render_window(
+                    nodes=nodes, dialog=dialog, window=window, starts=starts,
                 )
-                preview_add_transitions = getattr(
-                    window, "preview_add_transitions", None,
-                )
-                if preview_add_transitions:
-                    walk_keyboard(
-                        nodes,
-                        dialog,
-                        starts,
-                        window.get_state(),
-                        preview_add_transitions,
-                    )
