@@ -5,9 +5,8 @@ from aiogram.types import ContentType
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.manager.protocols import MediaAttachment
 from aiogram_dialog.widgets.text import Const, Text
-
-from ..when import WhenCondition
 from .base import Media
+from ..when import WhenCondition
 
 
 class StaticMedia(Media):
@@ -33,9 +32,7 @@ class StaticMedia(Media):
         self.media_params = media_params or {}
 
     async def _render_media(
-            self,
-            data: Any,
-            manager: DialogManager
+            self, data: Any, manager: DialogManager
     ) -> Optional[MediaAttachment]:
         if self.url:
             url = await self.url.render_text(data, manager)

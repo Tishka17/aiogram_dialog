@@ -5,25 +5,38 @@ from typing import Any, Dict, Optional
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Document, Message
 
+from .bg_manager import BgManager
+from .dialog import ManagedDialogAdapter
+from .protocols import (
+    BaseDialogManager,
+    DialogManager,
+    DialogRegistryProto,
+    LaunchMode,
+    ManagedDialogAdapterProto,
+    ManagedDialogProto,
+    NewMessage,
+)
 from ..context.context import Context
-from ..context.events import (ChatEvent, Data, FakeChat, FakeUser, ShowMode,
-                              StartMode)
+from ..context.events import (
+    ChatEvent,
+    Data,
+    FakeChat,
+    FakeUser,
+    ShowMode,
+    StartMode,
+)
 from ..context.intent_filter import CONTEXT_KEY, STACK_KEY, STORAGE_KEY
 from ..context.stack import DEFAULT_STACK_ID, Stack
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
-from .bg_manager import BgManager
-from .dialog import ManagedDialogAdapter
-from .protocols import (BaseDialogManager, DialogManager, DialogRegistryProto,
-                        LaunchMode, ManagedDialogAdapterProto,
-                        ManagedDialogProto, NewMessage)
 
 logger = getLogger(__name__)
 
 
 class ManagerImpl(DialogManager):
-    def __init__(self, event: ChatEvent, registry: DialogRegistryProto,
-                 data: Dict):
+    def __init__(
+            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict
+    ):
         self.disabled = False
         self._registry = registry
         self.event = event
@@ -74,19 +87,23 @@ class ManagerImpl(DialogManager):
         return self.data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
-        chat = self.data['event_chat']
-        bot = self.data['bot']
-        message = Message(chat=chat,
-                          message_id=self.current_stack().last_message_id,
-                          date=datetime.now()
-                          )
+        chat = self.data["event_chat"]
+        bot = self.data["bot"]
+        message = Message(
+            chat=chat,
+            message_id=self.current_stack().last_message_id,
+            date=datetime.now(),
+        )
         await self._registry.message_manager.remove_kbd(
-            bot, message,
+            bot,
+            message,
         )
         self.current_stack().last_message_id = None
 
     async def _process_last_dialog_result(
-            self, start_data: Data, result: Any,
+            self,
+            start_data: Data,
+            result: Any,
     ) -> None:
         """Process closing last dialog in stack"""
         await self._remove_kbd()
@@ -98,7 +115,8 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         if not context:
             await self._process_last_dialog_result(
-                old_context.start_data, result,
+                old_context.start_data,
+                result,
             )
             return
         dialog = self._dialog()
@@ -180,14 +198,16 @@ class ManagerImpl(DialogManager):
         self.check_disabled()
         context = self.current_context()
         if context.state.group != state.group:
-            raise ValueError(f"Cannot switch to another state group. "
-                             f"Current state: {context.state}, asked for {state}")
+            raise ValueError(
+                f"Cannot switch to another state group. "
+                f"Current state: {context.state}, asked for {state}"
+            )
         context.state = state
 
     async def show(self, new_message: NewMessage) -> Message:
         stack = self.current_stack()
-        bot = self.data['bot']
-        chat = self.data['event_chat']
+        bot = self.data["bot"]
+        chat = self.data["event_chat"]
         if (
                 isinstance(self.event, CallbackQuery)
                 and self.event.message
@@ -209,17 +229,21 @@ class ManagerImpl(DialogManager):
                     document = None
                     # we set some non empty-text which is not equal to anything
                     text = "𝔞𝔦𝔬𝔤𝔯𝔞𝔪 𝔡𝔦𝔞𝔩𝔬𝔤 𝔲𝔫𝔦𝔮𝔲𝔢 𝔱𝔢𝔵𝔱"
-                old_message = Message(message_id=stack.last_message_id,
-                                      document=document,
-                                      text=text,
-                                      chat=chat,
-                                      date=datetime.now())
+                old_message = Message(
+                    message_id=stack.last_message_id,
+                    document=document,
+                    text=text,
+                    chat=chat,
+                    date=datetime.now(),
+                )
             else:
                 old_message = None
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
         res = await self._registry.message_manager.show_message(
-            bot, new_message, old_message,
+            bot,
+            new_message,
+            old_message,
         )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
@@ -234,7 +258,10 @@ class ManagerImpl(DialogManager):
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND
-            elif self.event.media_group_id == self.current_stack().last_income_media_group_id:
+            elif (
+                    self.event.media_group_id
+                    == self.current_stack().last_income_media_group_id
+            ):
                 return ShowMode.EDIT
             else:
                 return ShowMode.SEND
@@ -251,7 +278,7 @@ class ManagerImpl(DialogManager):
             stack_id: Optional[str] = None,
             load: bool = False,
     ) -> "BaseDialogManager":
-        current_chat = self.data['event_chat']
+        current_chat = self.data["event_chat"]
         current_user = self.event.from_user
         if chat_id in (None, current_chat.id):
             chat = current_chat
@@ -263,7 +290,7 @@ class ManagerImpl(DialogManager):
         else:
             user = FakeUser(id=user_id, is_bot=False, first_name="")
 
-        same_chat = (user.id == current_user.id and chat.id == current_chat.id)
+        same_chat = user.id == current_user.id and chat.id == current_chat.id
         intent_id = None
         if stack_id is None:
             if same_chat:
@@ -276,7 +303,7 @@ class ManagerImpl(DialogManager):
         return BgManager(
             user=user,
             chat=chat,
-            bot=self.data['bot'],
+            bot=self.data["bot"],
             registry=self.registry,
             intent_id=intent_id,
             stack_id=stack_id,

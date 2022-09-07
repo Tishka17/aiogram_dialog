@@ -1,8 +1,8 @@
 from typing import Dict
 
-from ...manager.manager import DialogManager
-from ..when import WhenCondition
 from .base import Text
+from ..when import WhenCondition
+from ...manager.manager import DialogManager
 
 
 class _FormatDataStub:

@@ -1,19 +1,21 @@
 from typing import Callable, Dict, List, Sequence, Tuple, Union
 
-from ..exceptions import InvalidWidget, InvalidWidgetType
 from .data.data_context import CompositeGetter, DataGetter, StaticGetter
 from .input import BaseInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
 from .media import Media
 from .text import Format, Multi, Text
 from .widget_event import WidgetEventProcessor
+from ..exceptions import InvalidWidget, InvalidWidgetType
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 
 SingleGetterBase = Union[DataGetter, Dict]
 GetterVariant = Union[
-    None, SingleGetterBase,
-    List[SingleGetterBase], Tuple[SingleGetterBase, ...],
+    None,
+    SingleGetterBase,
+    List[SingleGetterBase],
+    Tuple[SingleGetterBase, ...],
 ]
 
 
@@ -37,8 +39,10 @@ def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
 
 def ensure_input(
         widget: Union[
-            MessageHandlerFunc, WidgetEventProcessor, BaseInput,
-            Sequence[BaseInput]
+            MessageHandlerFunc,
+            WidgetEventProcessor,
+            BaseInput,
+            Sequence[BaseInput],
         ]
 ) -> BaseInput:
     if isinstance(widget, BaseInput):
@@ -65,7 +69,7 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 
 def ensure_widgets(
-        widgets: Sequence[WidgetSrc]
+        widgets: Sequence[WidgetSrc],
 ) -> Tuple[Text, Keyboard, BaseInput, Media]:
     texts = []
     keyboards = []

@@ -8,8 +8,10 @@ from aiogram_dialog.widgets.kbd.base import Keyboard
 from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
-from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
-                                                 ensure_event_processor)
+from aiogram_dialog.widgets.widget_event import (
+    WidgetEventProcessor,
+    ensure_event_processor,
+)
 
 OnClick = Callable[
     [ChatEvent, "ManagedCounterAdapter", DialogManager],
@@ -23,12 +25,15 @@ OnValueChanged = Callable[
 
 class Counter(Keyboard):
     def __init__(
-            self, id: str,
+            self,
+            id: str,
             plus: Optional[Text] = Const("+"),
             minus: Optional[Text] = Const("-"),
             text: Optional[Text] = Format("{value:g}"),
-            min_value: float = 0, max_value: float = 999999,
-            increment: float = 1, default: float = 0,
+            min_value: float = 0,
+            max_value: float = 999999,
+            increment: float = 1,
+            default: float = 0,
             cycle: bool = False,
             on_click: Union[OnClick, WidgetEventProcessor, None] = None,
             on_value_changed: Union[
@@ -57,35 +62,51 @@ class Counter(Keyboard):
         if self.min <= value <= self.max:
             manager.current_context().widget_data[self.widget_id] = value
             await self.on_value_changed.process_event(
-                manager.event, self.managed(manager), manager,
+                manager.event,
+                self.managed(manager),
+                manager,
             )
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self,
+            data: Dict,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         row = []
         if self.minus:
             minus = await self.minus.render_text(data, manager)
-            row.append(InlineKeyboardButton(
-                text=minus, callback_data=self._item_callback_data("-"),
-            ))
+            row.append(
+                InlineKeyboardButton(
+                    text=minus,
+                    callback_data=self._item_callback_data("-"),
+                )
+            )
         if self.text:
             text = await self.text.render_text(
                 {"value": self.get_value(manager), "data": data},
                 manager,
             )
-            row.append(InlineKeyboardButton(
-                text=text, callback_data=self._item_callback_data(""),
-            ))
+            row.append(
+                InlineKeyboardButton(
+                    text=text,
+                    callback_data=self._item_callback_data(""),
+                )
+            )
         if self.plus:
             plus = await self.plus.render_text(data, manager)
-            row.append(InlineKeyboardButton(
-                text=plus, callback_data=self._item_callback_data("+"),
-            ))
+            row.append(
+                InlineKeyboardButton(
+                    text=plus,
+                    callback_data=self._item_callback_data("+"),
+                )
+            )
         return [row]
 
     async def _process_item_callback(
-            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            data: str,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         await self.on_click.process_event(c, self.managed(manager), manager)
@@ -111,7 +132,6 @@ class Counter(Keyboard):
 
 
 class ManagedCounterAdapter(ManagedWidgetAdapter[Counter]):
-
     def get_value(self) -> float:
         return self.widget.get_value(self.manager)
 

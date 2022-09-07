@@ -16,7 +16,7 @@ def get_chat(event: ChatEvent) -> Chat:
         return event.chat
     elif isinstance(event, CallbackQuery):
         if not event.message:
-            return Chat(id=event.from_user.id, type='')
+            return Chat(id=event.from_user.id, type="")
         return event.message.chat
 
 
@@ -38,11 +38,11 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-            message.audio or
-            message.animation or
-            message.document or
-            (message.photo[-1] if message.photo else None) or
-            message.video
+            message.audio
+            or message.animation
+            or message.document
+            or (message.photo[-1] if message.photo else None)
+            or message.video
     )
     if not media:
         return None
@@ -52,8 +52,9 @@ def get_media_id(message: Message) -> Optional[MediaId]:
     )
 
 
-def intent_callback_data(intent_id: str,
-                         callback_data: Optional[str]) -> Optional[str]:
+def intent_callback_data(
+        intent_id: str, callback_data: Optional[str]
+) -> Optional[str]:
     if callback_data is None:
         return None
     return intent_id + CB_SEP + callback_data

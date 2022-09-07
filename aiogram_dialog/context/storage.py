@@ -5,15 +5,20 @@ from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
-from ..exceptions import UnknownIntent, UnknownState
 from .context import Context
 from .stack import DEFAULT_STACK_ID, Stack
+from ..exceptions import UnknownIntent, UnknownState
 
 
 class StorageProxy:
-    def __init__(self, storage: BaseStorage,
-                 user_id: int, chat_id: int, bot: Bot,
-                 state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(
+            self,
+            storage: BaseStorage,
+            user_id: int,
+            chat_id: int,
+            bot: Bot,
+            state_groups: Dict[str, Type[StatesGroup]],
+    ):
         self.storage = storage
         self.state_groups = state_groups
         self.user_id = user_id
@@ -27,7 +32,8 @@ class StorageProxy:
         )
         if not data:
             raise UnknownIntent(
-                f"Context not found for intent id: {intent_id}")
+                f"Context not found for intent id: {intent_id}"
+            )
         data["state"] = self._state(data["state"])
         return Context(**data)
 

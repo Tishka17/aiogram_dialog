@@ -1,12 +1,20 @@
-from typing import (Any, Callable, Dict, Iterable, Mapping, Optional, Tuple,
-                    Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from aiogram import Bot
 from jinja2 import BaseLoader, Environment
 
-from ...manager.manager import DialogManager
-from ..when import WhenCondition
 from .base import Text
+from ..when import WhenCondition
+from ...manager.manager import DialogManager
 
 BOT_ENV_FIELD = "DialogsJinjaEnvironment"
 
@@ -20,7 +28,7 @@ class Jinja(Text):
         self.template_text = text
 
     async def _render_text(self, data: Dict, manager: DialogManager) -> str:
-        bot: Bot = manager.data['bot']
+        bot: Bot = manager.data["bot"]
         env: Environment = getattr(bot, BOT_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
 
@@ -36,9 +44,8 @@ class StubLoader(BaseLoader):
 
 
 def _create_env(
-        *args: Any,
-        filters: Optional[Filters] = None,
-        **kwargs: Any) -> Environment:
+        *args: Any, filters: Optional[Filters] = None, **kwargs: Any
+) -> Environment:
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)
     kwargs.setdefault("trim_blocks", True)

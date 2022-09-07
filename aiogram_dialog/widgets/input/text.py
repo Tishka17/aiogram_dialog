@@ -3,12 +3,13 @@ from typing import Awaitable, Callable, Generic, Optional, TypeVar, Union
 from aiogram.types import ContentType, Message
 
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
-                                                 ensure_event_processor)
-
-from ...deprecation_utils import manager_deprecated
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.widget_event import (
+    WidgetEventProcessor,
+    ensure_event_processor,
+)
 from .base import BaseInput
+from ..managed import ManagedWidgetAdapter
+from ...deprecation_utils import manager_deprecated
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
@@ -18,7 +19,9 @@ OnError = Callable[[Message, "TextInput", DialogManager], Awaitable]
 
 class TextInput(BaseInput, Generic[T]):
     def __init__(
-            self, id: str, type_factory: TypeFactory[T] = str,
+            self,
+            id: str,
+            type_factory: TypeFactory[T] = str,
             on_success: Union[OnSuccess[T], WidgetEventProcessor, None] = None,
             on_error: Union[OnError, WidgetEventProcessor, None] = None,
     ):
@@ -28,8 +31,10 @@ class TextInput(BaseInput, Generic[T]):
         self.on_error = ensure_event_processor(on_error)
 
     async def process_message(
-            self, message: Message,
-            dialog: ManagedDialogProto, manager: DialogManager,
+            self,
+            message: Message,
+            dialog: ManagedDialogProto,
+            manager: DialogManager,
     ):
         if message.content_type != ContentType.TEXT:
             return False
@@ -50,7 +55,6 @@ class TextInput(BaseInput, Generic[T]):
 
 
 class ManagedTextInputAdapter(ManagedWidgetAdapter[TextInput[T]], Generic[T]):
-
     def get_value(self, manager: Optional[DialogManager] = None) -> T:
         manager_deprecated(manager)
         return self.widget.get_value(self.manager)

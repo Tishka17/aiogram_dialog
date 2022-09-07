@@ -3,8 +3,8 @@ from typing import Any, Awaitable, Callable, Dict, Union
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
-from ..context.events import ChatEvent, DialogUpdateEvent
 from .protocols import DialogManager, DialogManagerFactory, DialogRegistryProto
+from ..context.events import ChatEvent, DialogUpdateEvent
 
 MANAGER_KEY = "dialog_manager"
 
@@ -21,7 +21,10 @@ class ManagerMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[Any]],
+            handler: Callable[
+                [Union[Update, DialogUpdateEvent], Dict[str, Any]], Awaitable[
+                    Any]
+            ],
             event: ChatEvent,
             data: Dict[str, Any],
     ) -> Any:

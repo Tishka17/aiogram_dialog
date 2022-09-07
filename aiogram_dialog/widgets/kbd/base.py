@@ -13,7 +13,9 @@ class Keyboard(Actionable, Whenable):
         Whenable.__init__(self, when)
 
     async def render_keyboard(
-            self, data, manager: DialogManager,
+            self,
+            data,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         """
         Render keyboard if needed.
@@ -26,7 +28,9 @@ class Keyboard(Actionable, Whenable):
         return await self._render_keyboard(data, manager)
 
     async def _render_keyboard(
-            self, data, manager: DialogManager,
+            self,
+            data,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
@@ -44,36 +48,50 @@ class Keyboard(Actionable, Whenable):
         return f"{self.callback_prefix()}{data}"
 
     async def process_callback(
-            self, c: CallbackQuery,
-            dialog: ManagedDialogProto, manager: DialogManager,
+            self,
+            c: CallbackQuery,
+            dialog: ManagedDialogProto,
+            manager: DialogManager,
     ) -> bool:
         if c.data == self.widget_id:
             return await self._process_own_callback(
-                c, dialog, manager,
+                c,
+                dialog,
+                manager,
             )
         prefix = self.callback_prefix()
         if prefix and c.data.startswith(prefix):
             return await self._process_item_callback(
-                c, c.data[len(prefix):], dialog, manager,
+                c,
+                c.data[len(prefix):],
+                dialog,
+                manager,
             )
         return await self._process_other_callback(c, dialog, manager)
 
     async def _process_own_callback(
-            self, c: CallbackQuery, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         """Process callback related to _own_callback_data"""
         return False
 
     async def _process_item_callback(
-            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            data: str,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         """Process callback related to _item_callback_data"""
         return False
 
     async def _process_other_callback(
-            self, c: CallbackQuery, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         """

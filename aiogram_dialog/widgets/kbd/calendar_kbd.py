@@ -8,14 +8,17 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
-                                                 ensure_event_processor)
-
-from ...deprecation_utils import manager_deprecated
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.widget_event import (
+    WidgetEventProcessor,
+    ensure_event_processor,
+)
 from .base import Keyboard
+from ..managed import ManagedWidgetAdapter
+from ...deprecation_utils import manager_deprecated
 
-OnDateSelected = Callable[[ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable]
+OnDateSelected = Callable[
+    [ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable
+]
 
 # Constants for managing widget rendering scope
 SCOPE_DAYS = "SCOPE_DAYS"
@@ -39,16 +42,18 @@ class CalendarData(TypedDict):
 
 
 class Calendar(Keyboard, ABC):
-    def __init__(self,
-                 id: str,
-                 on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
-                 when: Union[str, Callable] = None):
+    def __init__(
+            self,
+            id: str,
+            on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
+            when: Union[str, Callable] = None,
+    ):
         super().__init__(id, when)
         self.on_click = ensure_event_processor(on_click)
 
-    async def _render_keyboard(self,
-                               data,
-                               manager: DialogManager) -> List[List[InlineKeyboardButton]]:
+    async def _render_keyboard(
+            self, data, manager: DialogManager
+    ) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
         current_scope = self.get_scope(manager)
 
@@ -60,7 +65,10 @@ class Calendar(Keyboard, ABC):
             return self.years_kbd(offset)
 
     async def _process_item_callback(
-            self, c: CallbackQuery, data: str, dialog: ManagedDialogProto,
+            self,
+            c: CallbackQuery,
+            data: str,
+            dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
         current_offset = self.get_offset(manager)
@@ -78,7 +86,9 @@ class Calendar(Keyboard, ABC):
                 new_offset = date(current_offset.year - 1, 12, 1)
                 self.set_offset(new_offset, manager)
             else:
-                new_offset = date(current_offset.year, (current_offset.month - 1), 1)
+                new_offset = date(
+                    current_offset.year, (current_offset.month - 1), 1
+                )
                 self.set_offset(new_offset, manager)
 
         elif data in [SCOPE_MONTHS, SCOPE_YEARS]:
@@ -99,7 +109,9 @@ class Calendar(Keyboard, ABC):
         else:
             raw_date = int(data)
             await self.on_click.process_event(
-                c, self.managed(manager), manager,
+                c,
+                self.managed(manager),
+                manager,
                 date.fromtimestamp(raw_date),
             )
         return True
@@ -109,10 +121,14 @@ class Calendar(Keyboard, ABC):
         for n in range(offset.year - 7, offset.year + 7, 3):
             year_row = []
             for year in range(n, n + 3):
-                year_row.append(InlineKeyboardButton(
-                    text=str(year),
-                    callback_data=self._item_callback_data(f"{PREFIX_YEAR}{year}")
-                ))
+                year_row.append(
+                    InlineKeyboardButton(
+                        text=str(year),
+                        callback_data=self._item_callback_data(
+                            f"{PREFIX_YEAR}{year}"
+                        ),
+                    )
+                )
             years.append(year_row)
         return years
 
@@ -123,9 +139,13 @@ class Calendar(Keyboard, ABC):
             season = []
             for month in n:
                 month_text = date(offset.year, month, 1).strftime("%B")
-                season.append(InlineKeyboardButton(
-                    text=month_text,
-                    callback_data=self._item_callback_data(f"{PREFIX_MONTH}{month}"))
+                season.append(
+                    InlineKeyboardButton(
+                        text=month_text,
+                        callback_data=self._item_callback_data(
+                            f"{PREFIX_MONTH}{month}"
+                        ),
+                    )
                 )
             months.append(season)
         return [
@@ -135,7 +155,7 @@ class Calendar(Keyboard, ABC):
                     callback_data=self._item_callback_data(SCOPE_YEARS),
                 ),
             ],
-            *months
+            *months,
         ]
 
     def days_kbd(self, offset) -> List[List[InlineKeyboardButton]]:
@@ -149,16 +169,24 @@ class Calendar(Keyboard, ABC):
             week_row = []
             for day in week:
                 if day == 0:
-                    week_row.append(InlineKeyboardButton(
-                        text=" ",
-                        callback_data=" ",
-                    ))
+                    week_row.append(
+                        InlineKeyboardButton(
+                            text=" ",
+                            callback_data=" ",
+                        )
+                    )
                 else:
-                    raw_date = int(mktime(date(offset.year, offset.month, day).timetuple()))
-                    week_row.append(InlineKeyboardButton(
-                        text=str(day),
-                        callback_data=self._item_callback_data(raw_date),
-                    ))
+                    raw_date = int(
+                        mktime(
+                            date(offset.year, offset.month, day).timetuple()
+                        )
+                    )
+                    week_row.append(
+                        InlineKeyboardButton(
+                            text=str(day),
+                            callback_data=self._item_callback_data(raw_date),
+                        )
+                    )
             days.append(week_row)
         return [
             [
@@ -218,12 +246,14 @@ class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
         manager_deprecated(manager)
         return self.widget.get_offset(self.manager)
 
-    def set_offset(self, new_offset: date,
-                   manager: Optional[DialogManager] = None) -> None:
+    def set_offset(
+            self, new_offset: date, manager: Optional[DialogManager] = None
+    ) -> None:
         manager_deprecated(manager)
         return self.widget.set_offset(new_offset, self.manager)
 
-    def set_scope(self, new_scope: str,
-                  manager: Optional[DialogManager] = None) -> None:
+    def set_scope(
+            self, new_scope: str, manager: Optional[DialogManager] = None
+    ) -> None:
         manager_deprecated(manager)
         return self.widget.set_scope(new_scope, self.manager)

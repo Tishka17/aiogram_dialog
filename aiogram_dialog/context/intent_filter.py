@@ -7,11 +7,11 @@ from aiogram.fsm.state import StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
 from aiogram.types import CallbackQuery, Message, TelegramObject, Update
 
-from ..exceptions import InvalidStackIdError, OutdatedIntent
-from ..utils import remove_indent_id
 from .context import Context
 from .events import ChatEvent, DialogUpdate, DialogUpdateEvent
 from .storage import DEFAULT_STACK_ID, StorageProxy
+from ..exceptions import InvalidStackIdError, OutdatedIntent
+from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"
@@ -24,9 +24,7 @@ logger = getLogger(__name__)
 class IntentFilter(BaseFilter):
     aiogd_intent_state_group: Optional[Type[StatesGroup]]
 
-    async def __call__(
-            self, obj: TelegramObject, **kwargs
-    ) -> bool:
+    async def __call__(self, obj: TelegramObject, **kwargs) -> bool:
         if self.aiogd_intent_state_group is None:
             return True
 
@@ -37,32 +35,39 @@ class IntentFilter(BaseFilter):
 
 
 class IntentMiddlewareFactory:
-    def __init__(self, storage: BaseStorage,
-                 state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(
+            self, storage: BaseStorage,
+            state_groups: Dict[str, Type[StatesGroup]]
+    ):
         super().__init__()
         self.storage = storage
         self.state_groups = state_groups
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
-            bot=data['bot'],
+            bot=data["bot"],
             storage=self.storage,
-            user_id=data['event_from_user'].id,
-            chat_id=data['event_chat'].id,
+            user_id=data["event_from_user"].id,
+            chat_id=data["event_chat"].id,
             state_groups=self.state_groups,
         )
         return proxy
 
     async def _load_context(
-            self, event: ChatEvent,
-            intent_id: Optional[str], stack_id: Optional[str],
+            self,
+            event: ChatEvent,
+            intent_id: Optional[str],
+            stack_id: Optional[str],
             data: dict,
     ) -> None:
         proxy = self.storage_proxy(data)
         logger.debug(
             "Loading context for intent: `%s`, "
             "stack: `%s`, user: `%s`, chat: `%s`",
-            intent_id, stack_id, event.from_user.id, proxy.chat_id,
+            intent_id,
+            stack_id,
+            event.from_user.id,
+            proxy.chat_id,
         )
         if intent_id is not None:
             context = await proxy.load_context(intent_id)
@@ -78,7 +83,10 @@ class IntentMiddlewareFactory:
                     )
                 context = None
             else:
-                if intent_id is not None and intent_id != stack.last_intent_id():
+                if (
+                        intent_id is not None
+                        and intent_id != stack.last_intent_id()
+                ):
                     raise OutdatedIntent(
                         stack.id,
                         f"Outdated intent id ({intent_id}) "
@@ -97,10 +105,10 @@ class IntentMiddlewareFactory:
             self, event: Message, data: dict
     ) -> Optional[str]:
         if not (
-                event.reply_to_message and
-                event.reply_to_message.from_user.id == data['bot'].id and
-                event.reply_to_message.reply_markup and
-                event.reply_to_message.reply_markup.inline_keyboard
+                event.reply_to_message
+                and event.reply_to_message.from_user.id == data["bot"].id
+                and event.reply_to_message.reply_markup
+                and event.reply_to_message.reply_markup.inline_keyboard
         ):
             return None
         for row in event.reply_to_message.reply_markup.inline_keyboard:
@@ -111,36 +119,60 @@ class IntentMiddlewareFactory:
         return None
 
     async def process_message(
-            self, handler: Callable, event: Message, data: dict,
+            self,
+            handler: Callable,
+            event: Message,
+            data: dict,
     ):
         if intent_id := self._intent_id_from_reply(event, data):
             await self._load_context(
-                event, intent_id, DEFAULT_STACK_ID, data,
+                event,
+                intent_id,
+                DEFAULT_STACK_ID,
+                data,
             )
         else:
             await self._load_context(
-                event, None, DEFAULT_STACK_ID, data,
+                event,
+                None,
+                DEFAULT_STACK_ID,
+                data,
             )
         return await handler(event, data)
 
     async def process_my_chat_member(
-            self, handler: Callable, event: Message, data: dict,
+            self,
+            handler: Callable,
+            event: Message,
+            data: dict,
     ) -> None:
         await self._load_context(
-            event, None, DEFAULT_STACK_ID, data,
+            event,
+            None,
+            DEFAULT_STACK_ID,
+            data,
         )
         return await handler(event, data)
 
     async def process_aiogd_update(
-            self, handler: Callable, event: DialogUpdateEvent, data: dict,
+            self,
+            handler: Callable,
+            event: DialogUpdateEvent,
+            data: dict,
     ):
         await self._load_context(
-            event, event.intent_id, event.stack_id, data,
+            event,
+            event.intent_id,
+            event.stack_id,
+            data,
         )
         return await handler(event, data)
 
     async def process_callback_query(
-            self, handler: Callable, event: CallbackQuery, data: dict,
+            self,
+            handler: Callable,
+            event: CallbackQuery,
+            data: dict,
     ):
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
@@ -148,14 +180,21 @@ class IntentMiddlewareFactory:
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
         await self._load_context(
-            event, intent_id, DEFAULT_STACK_ID, data,
+            event,
+            intent_id,
+            DEFAULT_STACK_ID,
+            data,
         )
         data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
 
 
-SUPPORTED_ERROR_EVENTS = {'message', 'callback_query', 'my_chat_member',
-                          'aiogd_update'}
+SUPPORTED_ERROR_EVENTS = {
+    "message",
+    "callback_query",
+    "my_chat_member",
+    "aiogd_update",
+}
 
 
 async def context_saver_middleware(handler, event, data):
@@ -168,8 +207,10 @@ async def context_saver_middleware(handler, event, data):
 
 
 class IntentErrorMiddleware(BaseMiddleware):
-    def __init__(self, storage: BaseStorage,
-                 state_groups: Dict[str, Type[StatesGroup]]):
+    def __init__(
+            self, storage: BaseStorage,
+            state_groups: Dict[str, Type[StatesGroup]]
+    ):
         super().__init__()
         self.storage = storage
         self.state_groups = state_groups
@@ -177,7 +218,8 @@ class IntentErrorMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]],
+                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]
+            ],
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
@@ -189,12 +231,12 @@ class IntentErrorMiddleware(BaseMiddleware):
             if event.event_type not in SUPPORTED_ERROR_EVENTS:
                 return
 
-            chat = data['event_chat']
+            chat = data["event_chat"]
 
             proxy = StorageProxy(
-                bot=data['bot'],
+                bot=data["bot"],
                 storage=self.storage,
-                user_id=data['event_from_user'].id,
+                user_id=data["event_from_user"].id,
                 chat_id=chat.id,
                 state_groups=self.state_groups,
             )

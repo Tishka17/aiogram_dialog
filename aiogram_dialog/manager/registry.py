@@ -8,19 +8,27 @@ from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup, any_state
 from aiogram.types import Chat, Message, User
 
+from .manager import ManagerImpl
+from .manager_middleware import ManagerMiddleware
+from .protocols import (
+    DialogManager,
+    DialogManagerFactory,
+    DialogRegistryProto,
+    ManagedDialogProto,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
+)
+from .update_handler import handle_update
 from ..context.events import DIALOG_EVENT_NAME, DialogUpdate, StartMode
-from ..context.intent_filter import (IntentErrorMiddleware, IntentFilter,
-                                     IntentMiddlewareFactory,
-                                     context_saver_middleware)
+from ..context.intent_filter import (
+    IntentErrorMiddleware,
+    IntentFilter,
+    IntentMiddlewareFactory,
+    context_saver_middleware,
+)
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
 from ..message_manager import MessageManager
-from .manager import ManagerImpl
-from .manager_middleware import ManagerMiddleware
-from .protocols import (DialogManager, DialogManagerFactory,
-                        DialogRegistryProto, ManagedDialogProto,
-                        MediaIdStorageProtocol, MessageManagerProtocol)
-from .update_handler import handle_update
 
 
 class DialogEventObserver(TelegramEventObserver):
@@ -38,16 +46,16 @@ class DialogRegistry(DialogRegistryProto):
             default_router: Optional[Router] = None,
     ):
         self.dp = dp
-        self.update_handler = self.dp.observers[DIALOG_EVENT_NAME] = DialogEventObserver(
-            router=self.dp, event_name=DIALOG_EVENT_NAME
-        )
-        self.default_router = default_router if default_router else dp.include_router(
-            Router(name="aiogram_dialog_router")
+        self.update_handler = self.dp.observers[
+            DIALOG_EVENT_NAME
+        ] = DialogEventObserver(router=self.dp, event_name=DIALOG_EVENT_NAME)
+        self.default_router = (
+            default_router
+            if default_router
+            else dp.include_router(Router(name="aiogram_dialog_router"))
         )
 
-        self.dialogs = {
-            d.states_group(): d for d in dialogs
-        }
+        self.dialogs = {d.states_group(): d for d in dialogs}
         self.state_groups: Dict[str, Type[StatesGroup]] = {
             d.states_group_name(): d.states_group() for d in dialogs
         }
@@ -70,7 +78,13 @@ class DialogRegistry(DialogRegistryProto):
     def message_manager(self) -> MessageManagerProtocol:
         return self._message_manager
 
-    def register(self, dialog: ManagedDialogProto, *args, router: Router = None, **kwargs):
+    def register(
+            self,
+            dialog: ManagedDialogProto,
+            *args,
+            router: Router = None,
+            **kwargs,
+    ):
         group = dialog.states_group()
         if group in self.dialogs:
             raise ValueError(f"StatesGroup `{group}` is already used")
@@ -81,18 +95,21 @@ class DialogRegistry(DialogRegistryProto):
             router if router else self.default_router,
             IntentFilter(aiogd_intent_state_group=group),
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def register_start_handler(self, state: State):
         async def start_dialog(m: Message, dialog_manager: DialogManager):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
-        self.dp.message.register(start_dialog, Command(commands="start"), any_state)
+        self.dp.message.register(
+            start_dialog, Command(commands="start"), any_state
+        )
 
     def _register_middleware(self):
         manager_middleware = ManagerMiddleware(
-            self, self.dialog_manager_factory,
+            self,
+            self.dialog_manager_factory,
         )
         intent_middleware = IntentMiddlewareFactory(
             storage=self.dp.fsm.storage, state_groups=self.state_groups
@@ -104,18 +121,26 @@ class DialogRegistry(DialogRegistryProto):
         self.dp.errors.middleware(manager_middleware)
 
         self.dp.message.outer_middleware(intent_middleware.process_message)
-        self.dp.callback_query.outer_middleware(intent_middleware.process_callback_query)
-        self.update_handler.outer_middleware(intent_middleware.process_aiogd_update)
-        self.dp.my_chat_member.outer_middleware(intent_middleware.process_my_chat_member)
+        self.dp.callback_query.outer_middleware(
+            intent_middleware.process_callback_query
+        )
+        self.update_handler.outer_middleware(
+            intent_middleware.process_aiogd_update
+        )
+        self.dp.my_chat_member.outer_middleware(
+            intent_middleware.process_my_chat_member
+        )
 
         self.dp.message.middleware(context_saver_middleware)
         self.dp.callback_query.middleware(context_saver_middleware)
         self.update_handler.middleware(context_saver_middleware)
         self.dp.my_chat_member.middleware(context_saver_middleware)
 
-        self.dp.errors.outer_middleware(IntentErrorMiddleware(
-            storage=self.dp.fsm.storage, state_groups=self.state_groups
-        ))
+        self.dp.errors.outer_middleware(
+            IntentErrorMiddleware(
+                storage=self.dp.fsm.storage, state_groups=self.state_groups
+            )
+        )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
         try:
@@ -126,18 +151,17 @@ class DialogRegistry(DialogRegistryProto):
                 f" (looking by state `{state}`)"
             ) from e
 
-    def register_update_handler(self, callback, *custom_filters, **kwargs) -> None:
-        self.update_handler.register(
-            callback, *custom_filters, **kwargs
-        )
+    def register_update_handler(
+            self, callback, *custom_filters, **kwargs
+    ) -> None:
+        self.update_handler.register(callback, *custom_filters, **kwargs)
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
-        callback = lambda: asyncio.create_task(self._process_update(bot, update))
-
-        asyncio.get_running_loop().call_soon(
-            callback,
-            context=copy_context()
+        callback = lambda: asyncio.create_task(
+            self._process_update(bot, update)
         )
+
+        asyncio.get_running_loop().call_soon(callback, context=copy_context())
 
     async def _process_update(self, bot: Bot, update: DialogUpdate):
         event = update.event
