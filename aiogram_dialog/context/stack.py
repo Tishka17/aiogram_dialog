@@ -42,7 +42,7 @@ class Stack:
     last_media_id: Optional[str] = field(compare=False, default=None)
     last_media_unique_id: Optional[str] = field(compare=False, default=None)
     last_income_media_group_id: Optional[str] = field(
-        compare=False, default=None
+        compare=False, default=None,
     )
 
     @property
@@ -52,7 +52,8 @@ class Stack:
     def push(self, state: State, data: Data) -> Context:
         if len(self.intents) >= STACK_LIMIT:
             raise DialogStackOverflow(
-                f"Cannot open more dialogs in current stack. Max count is {STACK_LIMIT}"
+                f"Cannot open more dialogs in current stack. "
+                f"Max count is {STACK_LIMIT}",
             )
         context = Context(
             _intent_id=new_id(),

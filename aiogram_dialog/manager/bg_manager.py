@@ -95,7 +95,7 @@ class BgManager(BaseDialogManager):
 
     async def _notify(self, event: DialogUpdateEvent):
         await self.registry.notify(
-            bot=self.bot, update=DialogUpdate(aiogd_update=event)
+            bot=self.bot, update=DialogUpdate(aiogd_update=event),
         )
 
     async def _load(self):
@@ -105,10 +105,10 @@ class BgManager(BaseDialogManager):
                 self.chat = await self.bot.get_chat(self.chat.id)
             if not is_user_loaded(self.user):
                 logger.debug(
-                    "load user %s from chat %s", self.chat.id, self.user.id
+                    "load user %s from chat %s", self.chat.id, self.user.id,
                 )
                 chat_member = await self.bot.get_chat_member(
-                    self.chat.id, self.user.id
+                    self.chat.id, self.user.id,
                 )
                 self.user = chat_member.user
 
@@ -116,8 +116,8 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.DONE, data=result, **self._base_event_params()
-            )
+                action=Action.DONE, data=result, **self._base_event_params(),
+            ),
         )
 
     async def start(
@@ -136,7 +136,7 @@ class BgManager(BaseDialogManager):
                 mode=mode,
                 show_mode=show_mode,
                 **self._base_event_params(),
-            )
+            ),
         )
 
     async def switch_to(self, state: State) -> None:
@@ -147,13 +147,13 @@ class BgManager(BaseDialogManager):
                 data={},
                 new_state=state,
                 **self._base_event_params(),
-            )
+            ),
         )
 
     async def update(self, data: Dict) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.UPDATE, data=data, **self._base_event_params()
-            )
+                action=Action.UPDATE, data=data, **self._base_event_params(),
+            ),
         )

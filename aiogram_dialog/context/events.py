@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import auto, Enum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from aiogram.fsm.state import State
@@ -37,6 +37,8 @@ class Action(Enum):
 
 class DialogUpdateEvent(TelegramObject):
     class Config:
+        """Pydantic config for custom event."""
+
         arbitrary_types_allowed = True
         use_enum_values = False
         copy_on_model_validation = False

@@ -116,7 +116,7 @@ class FakeManager(DialogManager):
     async def show(self, new_message: NewMessage) -> Message:
         self.new_message = new_message
         return Message(
-            message_id=1, date=datetime.now(), chat=Chat(id=1, type="private")
+            message_id=1, date=datetime.now(), chat=Chat(id=1, type="private"),
         )
 
     @property
@@ -156,7 +156,7 @@ async def create_button(
     manager.set_state(state)
     try:
         await dialog._callback_handler(callback_query, dialog_manager=manager)
-    except Exception:
+    except Exception:  # noqa: B902
         logging.debug("Click %s", callback)
     state = manager.current_context().state
     return RenderButton(title=title, state=state.state)
@@ -184,14 +184,14 @@ async def render_input(
     manager.set_state(state)
     try:
         await dialog._message_handler(message, dialog_manager=manager)
-    except Exception:
+    except Exception:  # noqa: B902
         logging.debug("Input %s", content_type)
 
     if state == manager.current_context().state:
         logging.debug("State not changed")
         return None
     logging.debug(
-        "State changed %s >> %s", state, manager.current_context().state
+        "State changed %s >> %s", state, manager.current_context().state,
     )
     return RenderButton(
         title=content_type,
@@ -222,7 +222,7 @@ async def create_window(
                     dialog=dialog,
                     state=state,
                     simulate_events=simulate_events,
-                )
+                ),
             )
         keyboard.append(keyboard_row)
 
@@ -266,7 +266,7 @@ async def render_dialog(
                 dialog=dialog,
                 message=manager.new_message,
                 simulate_events=simulate_events,
-            )
+            ),
         )
 
     return RenderDialog(state_group=str(group), windows=windows)

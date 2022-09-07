@@ -13,6 +13,8 @@ from ..context.stack import Stack
 
 class LaunchMode(Enum):
     """
+    Modes of launching new dialog.
+
     `ROOT` dialogs will be always a root dialog in stack.
         Starting such dialogs will automatically reset stack.
         Example: main menu
@@ -57,7 +59,7 @@ class ManagedDialogProto(Protocol):
 
     def register(
             self, registry: "DialogRegistryProto", router: Router, *args,
-            **kwargs
+            **kwargs,
     ) -> None:
         pass
 
@@ -82,7 +84,7 @@ class ManagedDialogProto(Protocol):
         pass
 
     async def process_result(
-            self, start_data: Data, result: Any, manager: "DialogManager"
+            self, start_data: Data, result: Any, manager: "DialogManager",
     ):
         pass
 
@@ -166,7 +168,7 @@ class MessageManagerProtocol(Protocol):
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message]
+            old_message: Optional[Message],
     ):
         raise NotImplementedError
 

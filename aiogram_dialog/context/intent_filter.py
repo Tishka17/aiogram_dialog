@@ -31,13 +31,13 @@ class IntentFilter(BaseFilter):
         context: Context = kwargs[CONTEXT_KEY]
         if not context:
             return False
-        return context and context.state.group == self.aiogd_intent_state_group
+        return context.state.group == self.aiogd_intent_state_group
 
 
 class IntentMiddlewareFactory:
     def __init__(
             self, storage: BaseStorage,
-            state_groups: Dict[str, Type[StatesGroup]]
+            state_groups: Dict[str, Type[StatesGroup]],
     ):
         super().__init__()
         self.storage = storage
@@ -84,8 +84,8 @@ class IntentMiddlewareFactory:
                 context = None
             else:
                 if (
-                        intent_id is not None
-                        and intent_id != stack.last_intent_id()
+                        intent_id is not None and
+                        intent_id != stack.last_intent_id()
                 ):
                     raise OutdatedIntent(
                         stack.id,
@@ -102,13 +102,13 @@ class IntentMiddlewareFactory:
         data[CONTEXT_KEY] = context
 
     def _intent_id_from_reply(
-            self, event: Message, data: dict
+            self, event: Message, data: dict,
     ) -> Optional[str]:
         if not (
-                event.reply_to_message
-                and event.reply_to_message.from_user.id == data["bot"].id
-                and event.reply_to_message.reply_markup
-                and event.reply_to_message.reply_markup.inline_keyboard
+                event.reply_to_message and
+                event.reply_to_message.from_user.id == data["bot"].id and
+                event.reply_to_message.reply_markup and
+                event.reply_to_message.reply_markup.inline_keyboard
         ):
             return None
         for row in event.reply_to_message.reply_markup.inline_keyboard:
@@ -209,7 +209,7 @@ async def context_saver_middleware(handler, event, data):
 class IntentErrorMiddleware(BaseMiddleware):
     def __init__(
             self, storage: BaseStorage,
-            state_groups: Dict[str, Type[StatesGroup]]
+            state_groups: Dict[str, Type[StatesGroup]],
     ):
         super().__init__()
         self.storage = storage
@@ -218,7 +218,7 @@ class IntentErrorMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any]
+                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any],
             ],
             event: Update,
             data: Dict[str, Any],
@@ -255,9 +255,8 @@ class IntentErrorMiddleware(BaseMiddleware):
             return await handler(event, data)
         finally:
             proxy: StorageProxy = data.pop(STORAGE_KEY, None)
-            if not proxy:
-                return
-            context = data.pop(CONTEXT_KEY)
-            if context is not None:
-                await proxy.save_context(context)
-            await proxy.save_stack(data.pop(STACK_KEY))
+            if proxy:
+                context = data.pop(CONTEXT_KEY)
+                if context is not None:
+                    await proxy.save_context(context)
+                await proxy.save_stack(data.pop(STACK_KEY))

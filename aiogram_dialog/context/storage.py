@@ -32,7 +32,7 @@ class StorageProxy:
         )
         if not data:
             raise UnknownIntent(
-                f"Context not found for intent id: {intent_id}"
+                f"Context not found for intent id: {intent_id}",
             )
         data["state"] = self._state(data["state"])
         return Context(**data)
@@ -61,14 +61,14 @@ class StorageProxy:
         await self.storage.set_data(
             bot=self.bot,
             key=self._context_key(intent_id),
-            data=dict(),
+            data={},
         )
 
     async def remove_stack(self, stack_id: str):
         await self.storage.set_data(
             bot=self.bot,
             key=self._stack_key(stack_id),
-            data=dict(),
+            data={},
         )
 
     async def save_stack(self, stack: Optional[Stack]) -> None:
@@ -78,7 +78,7 @@ class StorageProxy:
             await self.storage.set_data(
                 bot=self.bot,
                 key=self._stack_key(stack.id),
-                data=dict(),
+                data={},
             )
         else:
             data = copy(vars(stack))

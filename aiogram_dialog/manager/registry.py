@@ -5,7 +5,7 @@ from typing import Dict, Optional, Sequence, Type
 from aiogram import Bot, Dispatcher, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.filters import Command
-from aiogram.fsm.state import State, StatesGroup, any_state
+from aiogram.fsm.state import any_state, State, StatesGroup
 from aiogram.types import Chat, Message, User
 
 from .manager import ManagerImpl
@@ -21,10 +21,10 @@ from .protocols import (
 from .update_handler import handle_update
 from ..context.events import DIALOG_EVENT_NAME, DialogUpdate, StartMode
 from ..context.intent_filter import (
+    context_saver_middleware,
     IntentErrorMiddleware,
     IntentFilter,
     IntentMiddlewareFactory,
-    context_saver_middleware,
 )
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
@@ -103,7 +103,7 @@ class DialogRegistry(DialogRegistryProto):
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
         self.dp.message.register(
-            start_dialog, Command(commands="start"), any_state
+            start_dialog, Command(commands="start"), any_state,
         )
 
     def _register_middleware(self):
@@ -112,7 +112,7 @@ class DialogRegistry(DialogRegistryProto):
             self.dialog_manager_factory,
         )
         intent_middleware = IntentMiddlewareFactory(
-            storage=self.dp.fsm.storage, state_groups=self.state_groups
+            storage=self.dp.fsm.storage, state_groups=self.state_groups,
         )
         self.dp.message.middleware(manager_middleware)
         self.dp.callback_query.middleware(manager_middleware)
@@ -122,13 +122,13 @@ class DialogRegistry(DialogRegistryProto):
 
         self.dp.message.outer_middleware(intent_middleware.process_message)
         self.dp.callback_query.outer_middleware(
-            intent_middleware.process_callback_query
+            intent_middleware.process_callback_query,
         )
         self.update_handler.outer_middleware(
-            intent_middleware.process_aiogd_update
+            intent_middleware.process_aiogd_update,
         )
         self.dp.my_chat_member.outer_middleware(
-            intent_middleware.process_my_chat_member
+            intent_middleware.process_my_chat_member,
         )
 
         self.dp.message.middleware(context_saver_middleware)
@@ -138,8 +138,8 @@ class DialogRegistry(DialogRegistryProto):
 
         self.dp.errors.outer_middleware(
             IntentErrorMiddleware(
-                storage=self.dp.fsm.storage, state_groups=self.state_groups
-            )
+                storage=self.dp.fsm.storage, state_groups=self.state_groups,
+            ),
         )
 
     def find_dialog(self, state: State) -> ManagedDialogProto:
@@ -148,18 +148,19 @@ class DialogRegistry(DialogRegistryProto):
         except KeyError as e:
             raise UnregisteredDialogError(
                 f"No dialog found for `{state.group}`"
-                f" (looking by state `{state}`)"
+                f" (looking by state `{state}`)",
             ) from e
 
     def register_update_handler(
-            self, callback, *custom_filters, **kwargs
+            self, callback, *custom_filters, **kwargs,
     ) -> None:
         self.update_handler.register(callback, *custom_filters, **kwargs)
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
-        callback = lambda: asyncio.create_task(
-            self._process_update(bot, update)
-        )
+        def callback():
+            asyncio.create_task(
+                self._process_update(bot, update),
+            )
 
         asyncio.get_running_loop().call_soon(callback, context=copy_context())
 

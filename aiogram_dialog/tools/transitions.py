@@ -33,9 +33,9 @@ def widget_edges(nodes, dialog, starts, current_state, kbd):
         for from_, to_ in starts:
             if to_.group == current_state.group:
                 (
-                        nodes[current_state]
-                        >> Edge(color="grey", style="dashed")
-                        >> nodes[from_]
+                    nodes[current_state] >>
+                    Edge(color="grey", style="dashed") >>
+                    nodes[from_]
                 )
 
 
@@ -76,14 +76,14 @@ def render_transitions(
             with Cluster(dialog.states_group_name()):
                 for window in dialog.windows.values():
                     nodes[window.get_state()] = Custom(
-                        icon_path=ICON_PATH, label=window.get_state().state
+                        icon_path=ICON_PATH, label=window.get_state().state,
                     )
 
         starts = []
         for dialog in dialogs:
             for window in dialog.windows.values():
                 starts.extend(
-                    find_starts(window.get_state(), [window.keyboard])
+                    find_starts(window.get_state(), [window.keyboard]),
                 )
 
         for dialog in dialogs:
@@ -96,7 +96,7 @@ def render_transitions(
                     [window.keyboard],
                 )
                 preview_add_transitions = getattr(
-                    window, "preview_add_transitions", None
+                    window, "preview_add_transitions", None,
                 )
                 if preview_add_transitions:
                     walk_keyboard(

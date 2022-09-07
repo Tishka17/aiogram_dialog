@@ -4,7 +4,7 @@ statistics=True
 show-source=True
 
 max-line-length=79
-import-order-style=appnexus
+import-order-style=smarkets
 application-import-names=aiogram_dialog
 exclude=
     .venv,
@@ -14,6 +14,8 @@ docstring-convention=pep257
 ignore=
     # A002 argument "object" is shadowing a python builtin
     A002,
+    # A003 class attribute "id" is shadowing a python builtin
+    A003,
     # D100 Missing docstring in public module
     D100,
     # D101 Missing docstring in public class
