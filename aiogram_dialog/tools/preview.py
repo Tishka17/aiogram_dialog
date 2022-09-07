@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional, Dict
 
-from aiogram.filters.state import State, StatesGroup
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
 from jinja2 import Environment, PackageLoader, select_autoescape
 
