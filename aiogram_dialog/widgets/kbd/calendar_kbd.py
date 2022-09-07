@@ -2,17 +2,18 @@ from abc import ABC
 from calendar import monthcalendar
 from datetime import date
 from time import mktime
-from typing import List, Callable, Union, Awaitable, TypedDict, Optional
+from typing import Awaitable, Callable, List, Optional, TypedDict, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, \
-    ensure_event_processor
-from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ...deprecation_utils import manager_deprecated
+from ..managed import ManagedWidgetAdapter
+from .base import Keyboard
 
 OnDateSelected = Callable[[ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable]
 

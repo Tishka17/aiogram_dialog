@@ -2,23 +2,21 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import User, Chat, Message, ContentType, CallbackQuery
+from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import DialogRegistry, DialogManager, Dialog
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry
 from aiogram_dialog.context.context import Context
-from aiogram_dialog.context.events import (
-    DialogUpdateEvent, Action, StartMode, Data,
-)
+from aiogram_dialog.context.events import (Action, Data, DialogUpdateEvent,
+                                           StartMode)
 from aiogram_dialog.context.stack import Stack
 from aiogram_dialog.manager.dialog import ManagedDialogAdapter
-from aiogram_dialog.manager.protocols import (
-    NewMessage, DialogRegistryProto, MediaAttachment,
-    ManagedDialogAdapterProto,
-)
+from aiogram_dialog.manager.protocols import (DialogRegistryProto,
+                                              ManagedDialogAdapterProto,
+                                              MediaAttachment, NewMessage)
 
 
 @dataclass

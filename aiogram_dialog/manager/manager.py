@@ -1,25 +1,22 @@
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import Message, CallbackQuery, Document
+from aiogram.types import CallbackQuery, Document, Message
 
-from .bg_manager import BgManager
-from .dialog import ManagedDialogAdapter
-from .protocols import (
-    DialogManager, BaseDialogManager, LaunchMode,
-    ManagedDialogAdapterProto, ManagedDialogProto, DialogRegistryProto,
-    NewMessage,
-)
 from ..context.context import Context
-from ..context.events import (
-    ChatEvent, StartMode, ShowMode, Data, FakeChat, FakeUser,
-)
-from ..context.intent_filter import CONTEXT_KEY, STORAGE_KEY, STACK_KEY
-from ..context.stack import Stack, DEFAULT_STACK_ID
+from ..context.events import (ChatEvent, Data, FakeChat, FakeUser, ShowMode,
+                              StartMode)
+from ..context.intent_filter import CONTEXT_KEY, STACK_KEY, STORAGE_KEY
+from ..context.stack import DEFAULT_STACK_ID, Stack
 from ..context.storage import StorageProxy
 from ..exceptions import IncorrectBackgroundError
+from .bg_manager import BgManager
+from .dialog import ManagedDialogAdapter
+from .protocols import (BaseDialogManager, DialogManager, DialogRegistryProto,
+                        LaunchMode, ManagedDialogAdapterProto,
+                        ManagedDialogProto, NewMessage)
 
 logger = getLogger(__name__)
 

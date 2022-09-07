@@ -1,15 +1,10 @@
 from logging import getLogger
 from typing import Optional, Tuple
 
-from aiogram.types import (
-    Message, CallbackQuery, Chat, ChatMemberUpdated,
-    User,
-)
+from aiogram.types import CallbackQuery, Chat, ChatMemberUpdated, Message, User
 
-from .context.events import (
-    DialogUpdateEvent, ChatEvent
-)
-from .manager.protocols import NewMessage, MediaId
+from .context.events import ChatEvent, DialogUpdateEvent
+from .manager.protocols import MediaId, NewMessage
 
 logger = getLogger(__name__)
 

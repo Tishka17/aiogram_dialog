@@ -3,12 +3,11 @@ from .button import Button, Url, WebApp
 from .calendar_kbd import Calendar, ManagedCalendarAdapter
 from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .counter import Counter, ManagedCounterAdapter
-from .group import Group, Row, Column
-from .scrolling_group import ScrollingGroup, ManagedScrollingGroupAdapter
-from .select import (
-    Select, Radio, Multiselect, ManagedMultiSelectAdapter, ManagedRadioAdapter,
-)
+from .group import Column, Group, Row
 from .list_group import ListGroup, ManagedListGroupAdapter
+from .scrolling_group import ManagedScrollingGroupAdapter, ScrollingGroup
+from .select import (ManagedMultiSelectAdapter, ManagedRadioAdapter,
+                     Multiselect, Radio, Select)
 from .state import Back, Cancel, Next, Start, SwitchTo
 
 __all__ = [

@@ -1,13 +1,10 @@
-from typing import Any, Callable, Dict, Awaitable, Union
+from typing import Any, Awaitable, Callable, Dict, Union
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
-from .protocols import (
-    DialogManager, DialogRegistryProto, DialogManagerFactory,
-)
-from ..context.events import DialogUpdateEvent, ChatEvent
-
+from ..context.events import ChatEvent, DialogUpdateEvent
+from .protocols import DialogManager, DialogManagerFactory, DialogRegistryProto
 
 MANAGER_KEY = "dialog_manager"
 

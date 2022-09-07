@@ -1,11 +1,11 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from aiogram.filters.state import State
 
 from aiogram_dialog.deprecation_utils import manager_deprecated
-from aiogram_dialog.manager.protocols import (
-    ManagedDialogProto, DialogManager, ManagedDialogAdapterProto,
-)
+from aiogram_dialog.manager.protocols import (DialogManager,
+                                              ManagedDialogAdapterProto,
+                                              ManagedDialogProto)
 
 
 class ManagedDialogAdapter(ManagedDialogAdapterProto):

@@ -1,14 +1,15 @@
-from typing import Callable, Optional, Any
+from typing import Any, Callable, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog.context.events import ChatEvent, StartMode, Data
+from aiogram_dialog.context.events import ChatEvent, Data, StartMode
 from aiogram_dialog.manager.manager import DialogManager
-from aiogram_dialog.widgets.text import Text, Const
+from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
-from .button import Button, OnClick
+
 from ..when import WhenCondition
+from .button import Button, OnClick
 
 
 class EventProcessorButton(Button, WidgetEventProcessor):

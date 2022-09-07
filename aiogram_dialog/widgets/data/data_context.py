@@ -1,4 +1,4 @@
-from typing import Dict, Awaitable, Callable, List
+from typing import Awaitable, Callable, Dict, List
 
 from aiogram_dialog.manager.protocols import DialogManager
 

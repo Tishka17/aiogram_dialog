@@ -6,9 +6,9 @@ from typing import List, Optional
 
 from aiogram.fsm.state import State
 
+from ..exceptions import DialogStackOverflow
 from .context import Context
 from .events import Data
-from ..exceptions import DialogStackOverflow
 
 DEFAULT_STACK_ID = ""
 STACK_LIMIT = 100

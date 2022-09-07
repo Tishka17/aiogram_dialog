@@ -1,4 +1,4 @@
-from .base import MessageHandlerFunc, MessageInput, BaseInput
+from .base import BaseInput, MessageHandlerFunc, MessageInput
 from .text import TextInput
 
 __all__ = [

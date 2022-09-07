@@ -1,12 +1,9 @@
 from enum import Enum, auto
-from typing import Dict, Any, Optional, Literal
-from typing import Union, List
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from aiogram.fsm.state import State
-from aiogram.types import (
-    Message, User, CallbackQuery, Chat, ChatMemberUpdated, TelegramObject,
-    Update,
-)
+from aiogram.types import (CallbackQuery, Chat, ChatMemberUpdated, Message,
+                           TelegramObject, Update, User)
 
 DIALOG_EVENT_NAME = "aiogd_update"
 Data = Union[Dict, List, int, str, float, None]

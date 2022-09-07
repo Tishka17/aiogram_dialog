@@ -1,8 +1,8 @@
 from logging import getLogger
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery, UNSET
+from aiogram.types import UNSET, CallbackQuery, InlineKeyboardMarkup, Message
 
 from .dialog import Dialog, DialogWindowProto
 from .manager.protocols import DialogManager, MediaAttachment
@@ -10,9 +10,8 @@ from .utils import NewMessage
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
-from .widgets.utils import (
-    ensure_widgets, ensure_data_getter, GetterVariant, WidgetSrc,
-)
+from .widgets.utils import (GetterVariant, WidgetSrc, ensure_data_getter,
+                            ensure_widgets)
 
 logger = getLogger(__name__)
 

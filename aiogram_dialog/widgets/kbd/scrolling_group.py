@@ -1,15 +1,17 @@
-from typing import List, Dict, Optional, Callable, Awaitable, Union
+from typing import Awaitable, Callable, Dict, List, Optional, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.deprecation_utils import manager_deprecated
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
-from .base import Keyboard
-from .group import Group
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
+from .base import Keyboard
+from .group import Group
 
 OnStateChanged = Callable[
     [ChatEvent, "ManagedScrollingGroupAdapter", DialogManager],

@@ -5,13 +5,13 @@ from aiogram import Bot
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
-from .protocols import DialogRegistryProto, BaseDialogManager
-from ..context.events import (
-    Data, Action, DialogStartEvent, DialogSwitchEvent, DialogUpdateEvent,
-    StartMode, DialogUpdate,  FakeChat, FakeUser, ShowMode,
-)
+from ..context.events import (Action, Data, DialogStartEvent,
+                              DialogSwitchEvent, DialogUpdate,
+                              DialogUpdateEvent, FakeChat, FakeUser, ShowMode,
+                              StartMode)
 from ..context.stack import DEFAULT_STACK_ID
 from ..utils import is_chat_loaded, is_user_loaded
+from .protocols import BaseDialogManager, DialogRegistryProto
 
 logger = getLogger(__name__)
 

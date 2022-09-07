@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
 from operator import itemgetter
-from typing import Callable, Optional, Union, Dict, Any, List, Awaitable, Sequence
+from typing import (Any, Awaitable, Callable, Dict, List, Optional, Sequence,
+                    Union)
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.text import Text, Case
-from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor, ensure_event_processor,
-)
-from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.text import Case, Text
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ...deprecation_utils import manager_deprecated
+from ..managed import ManagedWidgetAdapter
+from .base import Keyboard
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]

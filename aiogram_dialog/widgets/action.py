@@ -1,9 +1,9 @@
 import re
-from typing import Optional, Any
+from typing import Any, Optional
 
-from .managed import ManagedWidget
-from ..manager.protocols import DialogManager
 from ..exceptions import InvalidWidgetIdError
+from ..manager.protocols import DialogManager
+from .managed import ManagedWidget
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 

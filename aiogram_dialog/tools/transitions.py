@@ -2,11 +2,12 @@ import os.path
 from typing import List, Sequence, Tuple, Union
 
 from aiogram.fsm.state import State
-from diagrams import Diagram, Cluster, Edge
+from diagrams import Cluster, Diagram, Edge
 from diagrams.custom import Custom
 
 from aiogram_dialog import Dialog, DialogRegistry
-from aiogram_dialog.widgets.kbd import Group, Back, Cancel, Start, SwitchTo, Next
+from aiogram_dialog.widgets.kbd import (Back, Cancel, Group, Next, Start,
+                                        SwitchTo)
 
 ICON_PATH = os.path.join(os.path.dirname(__file__), "calculator.png")
 

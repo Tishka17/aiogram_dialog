@@ -1,9 +1,10 @@
 import warnings
-from typing import Callable, Union, Dict, Any, Hashable
+from typing import Any, Callable, Dict, Hashable, Union
 
-from .base import Text, Multi as _Multi
-from ..when import WhenCondition
 from ...manager.manager import DialogManager
+from ..when import WhenCondition
+from .base import Multi as _Multi
+from .base import Text
 
 Selector = Callable[[Dict, "Case", DialogManager], Hashable]
 

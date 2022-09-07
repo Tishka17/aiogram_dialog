@@ -2,16 +2,13 @@ from logging import getLogger
 from typing import Optional, Union
 
 from aiogram import Bot
-from aiogram.types import (
-    FSInputFile, InputFile, URLInputFile,
-    Message, ContentType, InputMedia,
-)
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.types import (ContentType, FSInputFile, InputFile, InputMedia,
+                           Message, URLInputFile)
 
 from .context.events import ShowMode
-from .manager.protocols import (
-    MediaAttachment, NewMessage, MessageManagerProtocol,
-)
+from .manager.protocols import (MediaAttachment, MessageManagerProtocol,
+                                NewMessage)
 from .utils import get_media_id
 
 logger = getLogger(__name__)

@@ -1,14 +1,14 @@
-from typing import Callable, TypeVar, Generic, Awaitable, Union, Optional
+from typing import Awaitable, Callable, Generic, Optional, TypeVar, Union
 
-from aiogram.types import Message, ContentType
+from aiogram.types import ContentType, Message
 
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor, ensure_event_processor,
-)
-from .base import BaseInput
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ...deprecation_utils import manager_deprecated
+from ..managed import ManagedWidgetAdapter
+from .base import BaseInput
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]

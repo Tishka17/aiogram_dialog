@@ -1,24 +1,20 @@
 from logging import getLogger
-from typing import Dict, Callable, Awaitable, List, Union, Any, Optional, Type, TypeVar
-from typing import Protocol
+from typing import (Any, Awaitable, Callable, Dict, List, Optional, Protocol,
+                    Type, TypeVar, Union)
 
 from aiogram import Router
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
 from .context.events import Data
 from .exceptions import UnregisteredWindowError
-from .manager.protocols import (
-    DialogRegistryProto, ManagedDialogProto, DialogManager, NewMessage,
-    LaunchMode,
-)
+from .manager.protocols import (DialogManager, DialogRegistryProto, LaunchMode,
+                                ManagedDialogProto, NewMessage)
 from .utils import add_indent_id, get_media_id, remove_indent_id
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
-from .widgets.utils import (
-    ensure_data_getter, GetterVariant,
-)
+from .widgets.utils import GetterVariant, ensure_data_getter
 
 logger = getLogger(__name__)
 DIALOG_CONTEXT = "DIALOG_CONTEXT"

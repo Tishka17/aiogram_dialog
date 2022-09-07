@@ -1,12 +1,14 @@
-from typing import List, Callable, Optional, Union, Dict, Awaitable
+from typing import Awaitable, Callable, Dict, List, Optional, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery, WebAppInfo
+from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
-from aiogram_dialog.manager.manager import DialogManager,ManagedDialogProto
+from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Text
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, ensure_event_processor
-from .base import Keyboard
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ..when import WhenCondition
+from .base import Keyboard
 
 OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 

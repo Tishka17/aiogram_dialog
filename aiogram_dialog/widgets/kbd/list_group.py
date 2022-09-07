@@ -1,17 +1,17 @@
 import dataclasses
 from operator import itemgetter
-from typing import List, Dict, Optional, Union, Sequence, Callable, Any
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
-from aiogram_dialog.manager.protocols import (
-    DialogManager, Context, ManagedDialogAdapterProto, NewMessage,
-    ManagedDialogProto,
-)
-from .base import Keyboard
+from aiogram_dialog.manager.protocols import (Context, DialogManager,
+                                              ManagedDialogAdapterProto,
+                                              ManagedDialogProto, NewMessage)
+
+from ...context.stack import Stack
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
-from ...context.stack import Stack
+from .base import Keyboard
 
 
 class SubManager(DialogManager):

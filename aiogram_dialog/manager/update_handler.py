@@ -1,7 +1,8 @@
 from logging import getLogger
 
+from ..context.events import (Action, DialogStartEvent, DialogSwitchEvent,
+                              DialogUpdateEvent)
 from .manager import ManagerImpl
-from ..context.events import DialogUpdateEvent, DialogStartEvent, Action, DialogSwitchEvent
 
 logger = getLogger(__name__)
 

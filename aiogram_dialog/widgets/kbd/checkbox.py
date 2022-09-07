@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Union, Dict, Awaitable, List
+from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
-from aiogram_dialog.widgets.text import Text, Case
-from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor, ensure_event_processor,
-)
-from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
+from aiogram_dialog.widgets.text import Case, Text
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
+
 from ...deprecation_utils import manager_deprecated
+from ..managed import ManagedWidgetAdapter
+from .base import Keyboard
 
 OnStateChanged = Callable[
     [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable]

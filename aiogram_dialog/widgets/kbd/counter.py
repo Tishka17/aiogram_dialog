@@ -1,6 +1,6 @@
-from typing import List, Dict, Optional, Callable, Awaitable, Union
+from typing import Awaitable, Callable, Dict, List, Optional, Union
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
@@ -8,8 +8,8 @@ from aiogram_dialog.widgets.kbd.base import Keyboard
 from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor, \
-    ensure_event_processor
+from aiogram_dialog.widgets.widget_event import (WidgetEventProcessor,
+                                                 ensure_event_processor)
 
 OnClick = Callable[
     [ChatEvent, "ManagedCounterAdapter", DialogManager],

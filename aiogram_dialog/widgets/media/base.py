@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.manager.protocols import MediaAttachment

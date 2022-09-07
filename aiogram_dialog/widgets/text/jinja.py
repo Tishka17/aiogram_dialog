@@ -1,11 +1,12 @@
-from typing import Dict, Any, Iterable, Optional, Callable, Union, Tuple, Mapping
+from typing import (Any, Callable, Dict, Iterable, Mapping, Optional, Tuple,
+                    Union)
 
 from aiogram import Bot
-from jinja2 import Environment, BaseLoader
+from jinja2 import BaseLoader, Environment
 
-from .base import Text
-from ..when import WhenCondition
 from ...manager.manager import DialogManager
+from ..when import WhenCondition
+from .base import Text
 
 BOT_ENV_FIELD = "DialogsJinjaEnvironment"
 

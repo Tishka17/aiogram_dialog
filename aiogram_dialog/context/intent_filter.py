@@ -1,20 +1,17 @@
 from logging import getLogger
-from typing import Optional, Type, Dict, Union, Any, Callable, Awaitable
+from typing import Any, Awaitable, Callable, Dict, Optional, Type, Union
 
+from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.filters.base import BaseFilter
 from aiogram.fsm.state import StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
-from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import (
-    Message, CallbackQuery, Update, TelegramObject,
-)
+from aiogram.types import CallbackQuery, Message, TelegramObject, Update
 
-from .context import Context
-from .events import DialogUpdateEvent, DialogUpdate, ChatEvent
-from .storage import DEFAULT_STACK_ID
-from .storage import StorageProxy
 from ..exceptions import InvalidStackIdError, OutdatedIntent
 from ..utils import remove_indent_id
+from .context import Context
+from .events import ChatEvent, DialogUpdate, DialogUpdateEvent
+from .storage import DEFAULT_STACK_ID, StorageProxy
 
 STORAGE_KEY = "aiogd_storage_proxy"
 STACK_KEY = "aiogd_stack"

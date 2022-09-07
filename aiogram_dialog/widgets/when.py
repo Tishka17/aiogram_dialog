@@ -1,10 +1,9 @@
-from typing import Union, Callable, Dict
+from typing import Callable, Dict, Union
 
 from magic_filter import MagicFilter
 
-from .managed import ManagedWidget
 from ..manager.protocols import DialogManager
-
+from .managed import ManagedWidget
 
 Predicate = Callable[[Dict, "Whenable", DialogManager], bool]
 WhenCondition = Union[str, MagicFilter, Predicate, None]

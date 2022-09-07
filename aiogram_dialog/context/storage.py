@@ -1,13 +1,13 @@
 from copy import copy
-from typing import Dict, Type, Optional
+from typing import Dict, Optional, Type
 
 from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
+from ..exceptions import UnknownIntent, UnknownState
 from .context import Context
-from .stack import Stack, DEFAULT_STACK_ID
-from ..exceptions import UnknownState, UnknownIntent
+from .stack import DEFAULT_STACK_ID, Stack
 
 
 class StorageProxy:

@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Dict, Union
 
 from aiogram_dialog.manager.manager import DialogManager
 from aiogram_dialog.widgets.when import Whenable, WhenCondition, true

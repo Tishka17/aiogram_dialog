@@ -1,28 +1,26 @@
 import asyncio
 from contextvars import copy_context
-from typing import Sequence, Type, Dict, Optional
+from typing import Dict, Optional, Sequence, Type
 
-from aiogram import Dispatcher, Bot, Router
+from aiogram import Bot, Dispatcher, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup, any_state
-from aiogram.types import User, Chat, Message
+from aiogram.types import Chat, Message, User
 
-from .manager import ManagerImpl
-from .manager_middleware import ManagerMiddleware
-from .protocols import (
-    ManagedDialogProto, DialogRegistryProto, DialogManager,
-    MediaIdStorageProtocol, MessageManagerProtocol, DialogManagerFactory,
-)
-from .update_handler import handle_update
-from ..context.events import StartMode, DIALOG_EVENT_NAME, DialogUpdate
-from ..context.intent_filter import (
-    IntentFilter, IntentMiddlewareFactory, IntentErrorMiddleware,
-    context_saver_middleware,
-)
+from ..context.events import DIALOG_EVENT_NAME, DialogUpdate, StartMode
+from ..context.intent_filter import (IntentErrorMiddleware, IntentFilter,
+                                     IntentMiddlewareFactory,
+                                     context_saver_middleware)
 from ..context.media_storage import MediaIdStorage
 from ..exceptions import UnregisteredDialogError
 from ..message_manager import MessageManager
+from .manager import ManagerImpl
+from .manager_middleware import ManagerMiddleware
+from .protocols import (DialogManager, DialogManagerFactory,
+                        DialogRegistryProto, ManagedDialogProto,
+                        MediaIdStorageProtocol, MessageManagerProtocol)
+from .update_handler import handle_update
 
 
 class DialogEventObserver(TelegramEventObserver):

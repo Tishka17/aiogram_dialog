@@ -1,9 +1,10 @@
 from operator import itemgetter
-from typing import Dict, Union, Sequence, Callable
+from typing import Callable, Dict, Sequence, Union
 
 from aiogram_dialog.manager.manager import DialogManager
-from .base import Text
+
 from ..when import WhenCondition
+from .base import Text
 
 ItemsGetter = Callable[[Dict], Sequence]
 

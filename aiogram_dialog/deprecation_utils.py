@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 def manager_deprecated(manager: Optional[Any]):

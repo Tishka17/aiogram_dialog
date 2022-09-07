@@ -1,11 +1,12 @@
 from itertools import chain
-from typing import List, Dict, Optional, Iterable
+from typing import Dict, Iterable, List, Optional
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
-from .base import Keyboard
+
 from ..when import WhenCondition
+from .base import Keyboard
 
 
 class Group(Keyboard):
