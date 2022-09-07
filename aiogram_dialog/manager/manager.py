@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Document, Message
+from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
@@ -270,6 +270,25 @@ class ManagerImpl(DialogManager):
         self.current_context().dialog_data.update(data)
         await self._dialog().show(self)
 
+    def is_same_chat(self, user: User, chat: Chat):
+        current_chat = self.data["event_chat"]
+        current_user = self.event.from_user
+        return user.id == current_user.id and chat.id == current_chat.id
+
+    def _get_fake_user(self, user_id: Optional[int] = None) -> User:
+        """Get User if we have info about him or FakeUser instead."""
+        current_user = self.event.from_user
+        if user_id in (None, current_user.id):
+            return current_user
+        return FakeUser(id=user_id, is_bot=False, first_name="")
+
+    def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
+        """Get Chat if we have info about him or FakeChat instead."""
+        current_chat = self.data["event_chat"]
+        if chat_id in (None, current_chat.id):
+            return current_chat
+        return FakeChat(id=chat_id, type="")
+
     def bg(
             self,
             user_id: Optional[int] = None,
@@ -277,22 +296,11 @@ class ManagerImpl(DialogManager):
             stack_id: Optional[str] = None,
             load: bool = False,
     ) -> "BaseDialogManager":
-        current_chat = self.data["event_chat"]
-        current_user = self.event.from_user
-        if chat_id in (None, current_chat.id):
-            chat = current_chat
-        else:
-            chat = FakeChat(id=chat_id, type="")
-
-        if user_id in (None, current_user.id):
-            user = current_user
-        else:
-            user = FakeUser(id=user_id, is_bot=False, first_name="")
-
-        same_chat = user.id == current_user.id and chat.id == current_chat.id
+        user = self._get_fake_user(user_id)
+        chat = self._get_fake_chat(chat_id)
         intent_id = None
         if stack_id is None:
-            if same_chat:
+            if self.is_same_chat(user, chat):
                 stack_id = self.current_stack().id
                 if self.current_context():
                     intent_id = self.current_context().id
