@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery, Message, TelegramObject, Update
 
 from .context import Context
 from .events import ChatEvent, DialogUpdate, DialogUpdateEvent
+from .stack import Stack
 from .storage import DEFAULT_STACK_ID, StorageProxy
 from ..exceptions import InvalidStackIdError, OutdatedIntent
 from ..utils import remove_indent_id
@@ -53,6 +54,21 @@ class IntentMiddlewareFactory:
         )
         return proxy
 
+    def _check_outdated(self, intent_id: str, stack: Stack):
+        """Check if intent id is outdated for stack."""
+        if stack.empty():
+            raise OutdatedIntent(
+                stack.id,
+                f"Outdated intent id ({intent_id}) "
+                f"for stack ({stack.id})",
+            )
+        elif intent_id != stack.last_intent_id():
+            raise OutdatedIntent(
+                stack.id,
+                f"Outdated intent id ({intent_id}) "
+                f"for stack ({stack.id})",
+            )
+
     async def _load_context(
             self,
             event: ChatEvent,
@@ -72,26 +88,12 @@ class IntentMiddlewareFactory:
         if intent_id is not None:
             context = await proxy.load_context(intent_id)
             stack = await proxy.load_stack(context.stack_id)
+            self._check_outdated(intent_id, stack)
         elif stack_id is not None:
             stack = await proxy.load_stack(stack_id)
             if stack.empty():
-                if intent_id is not None:
-                    raise OutdatedIntent(
-                        stack.id,
-                        f"Outdated intent id ({intent_id}) "
-                        f"for stack ({stack.id})",
-                    )
                 context = None
             else:
-                if (
-                        intent_id is not None and
-                        intent_id != stack.last_intent_id()
-                ):
-                    raise OutdatedIntent(
-                        stack.id,
-                        f"Outdated intent id ({intent_id}) "
-                        f"for stack ({stack.id})",
-                    )
                 context = await proxy.load_context(stack.last_intent_id())
         else:
             raise InvalidStackIdError(
@@ -125,19 +127,9 @@ class IntentMiddlewareFactory:
             data: dict,
     ):
         if intent_id := self._intent_id_from_reply(event, data):
-            await self._load_context(
-                event,
-                intent_id,
-                DEFAULT_STACK_ID,
-                data,
-            )
+            await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
         else:
-            await self._load_context(
-                event,
-                None,
-                DEFAULT_STACK_ID,
-                data,
-            )
+            await self._load_context(event, None, DEFAULT_STACK_ID, data)
         return await handler(event, data)
 
     async def process_my_chat_member(
@@ -146,12 +138,7 @@ class IntentMiddlewareFactory:
             event: Message,
             data: dict,
     ) -> None:
-        await self._load_context(
-            event,
-            None,
-            DEFAULT_STACK_ID,
-            data,
-        )
+        await self._load_context(event, None, DEFAULT_STACK_ID, data)
         return await handler(event, data)
 
     async def process_aiogd_update(
@@ -160,12 +147,7 @@ class IntentMiddlewareFactory:
             event: DialogUpdateEvent,
             data: dict,
     ):
-        await self._load_context(
-            event,
-            event.intent_id,
-            event.stack_id,
-            data,
-        )
+        await self._load_context(event, event.intent_id, event.stack_id, data)
         return await handler(event, data)
 
     async def process_callback_query(
@@ -179,12 +161,7 @@ class IntentMiddlewareFactory:
 
         original_data = event.data
         intent_id, callback_data = remove_indent_id(event.data)
-        await self._load_context(
-            event,
-            intent_id,
-            DEFAULT_STACK_ID,
-            data,
-        )
+        await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
         data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
 
