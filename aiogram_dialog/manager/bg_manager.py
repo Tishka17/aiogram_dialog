@@ -135,7 +135,7 @@ class BgManager(BaseDialogManager):
                 new_state=state,
                 mode=mode,
                 show_mode=show_mode,
-                **self._base_event_params()
+                **self._base_event_params(),
             )
         )
 
@@ -146,7 +146,7 @@ class BgManager(BaseDialogManager):
                 action=Action.SWITCH,
                 data={},
                 new_state=state,
-                **self._base_event_params()
+                **self._base_event_params(),
             )
         )
 

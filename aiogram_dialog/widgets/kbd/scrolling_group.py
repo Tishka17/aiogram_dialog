@@ -30,7 +30,7 @@ class ScrollingGroup(Group):
             when: WhenCondition = None,
             on_page_changed: Union[
                 OnStateChanged, WidgetEventProcessor, None
-            ] = None
+            ] = None,
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height

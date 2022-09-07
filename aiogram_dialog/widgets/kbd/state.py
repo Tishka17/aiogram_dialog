@@ -18,7 +18,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
             source: Any,
             manager: DialogManager,
             *args,
-            **kwargs
+            **kwargs,
     ):
         await self._on_click(event, self, manager)
 

@@ -14,7 +14,7 @@ class Group(Keyboard):
             *buttons: Keyboard,
             id: Optional[str] = None,
             width: int = None,
-            when: WhenCondition = None
+            when: WhenCondition = None,
     ):
         super().__init__(id, when)
         self.buttons = buttons
@@ -80,7 +80,7 @@ class Row(Group):
             self,
             *buttons: Keyboard,
             id: Optional[str] = None,
-            when: WhenCondition = None
+            when: WhenCondition = None,
     ):
         super().__init__(
             *buttons, id=id, width=9999, when=when
@@ -92,6 +92,6 @@ class Column(Group):
             self,
             *buttons: Keyboard,
             id: Optional[str] = None,
-            when: WhenCondition = None
+            when: WhenCondition = None,
     ):
         super().__init__(*buttons, id=id, when=when, width=1)

@@ -54,22 +54,32 @@ class DialogWindowProto(Protocol):
         raise NotImplementedError
 
     async def load_data(
-            self, dialog: "Dialog", manager: DialogManager,
+            self,
+            dialog: "Dialog",
+            manager: DialogManager,
     ) -> Dict:
         raise NotImplementedError
 
     async def process_message(
-            self, m: Message, dialog: "Dialog", manager: DialogManager,
+            self,
+            m: Message,
+            dialog: "Dialog",
+            manager: DialogManager,
     ):
         raise NotImplementedError
 
     async def process_callback(
-            self, c: CallbackQuery, dialog: "Dialog", manager: DialogManager,
+            self,
+            c: CallbackQuery,
+            dialog: "Dialog",
+            manager: DialogManager,
     ):
         raise NotImplementedError
 
     async def render(
-            self, dialog: "Dialog", manager: DialogManager,
+            self,
+            dialog: "Dialog",
+            manager: DialogManager,
     ) -> NewMessage:
         raise NotImplementedError
 
@@ -119,7 +129,7 @@ class Dialog(ManagedDialogProto):
             raise ValueError("No intent")
         new_state = self.states[
             self.states.index(manager.current_context().state) + 1
-        ]
+            ]
         await self.switch_to(new_state, manager)
 
     async def back(self, manager: DialogManager):
@@ -127,7 +137,7 @@ class Dialog(ManagedDialogProto):
             raise ValueError("No intent")
         new_state = self.states[
             self.states.index(manager.current_context().state) - 1
-        ]
+            ]
         await self.switch_to(new_state, manager)
 
     async def process_start(
@@ -213,7 +223,9 @@ class Dialog(ManagedDialogProto):
             await self.show(dialog_manager)
 
     async def _callback_handler(
-            self, c: CallbackQuery, dialog_manager: DialogManager,
+            self,
+            c: CallbackQuery,
+            dialog_manager: DialogManager,
     ):
         intent = dialog_manager.current_context()
         intent_id, callback_data = remove_indent_id(c.data)
@@ -232,7 +244,9 @@ class Dialog(ManagedDialogProto):
                     raise
 
     async def _update_handler(
-            self, event: ChatEvent, dialog_manager: DialogManager,
+            self,
+            event: ChatEvent,
+            dialog_manager: DialogManager,
     ):
         await self.show(dialog_manager)
 
@@ -252,7 +266,10 @@ class Dialog(ManagedDialogProto):
         return self._states_group.__full_group_name__
 
     async def process_result(
-            self, start_data: Data, result: Any, manager: DialogManager,
+            self,
+            start_data: Data,
+            result: Any,
+            manager: DialogManager,
     ):
         await self._process_callback(
             self.on_process_result, start_data, result, manager

@@ -11,7 +11,7 @@ class WidgetEventProcessor:
             source: Any,
             manager: DialogManager,
             *args,
-            **kwargs
+            **kwargs,
     ):
         raise NotImplementedError
 
@@ -26,7 +26,7 @@ class SimpleEventProcessor(WidgetEventProcessor):
             source: Any,
             manager: DialogManager,
             *args,
-            **kwargs
+            **kwargs,
     ):
         if self.callback:
             await self.callback(event, source, manager, *args, **kwargs)
