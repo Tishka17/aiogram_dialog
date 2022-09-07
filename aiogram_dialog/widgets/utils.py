@@ -43,7 +43,7 @@ def ensure_input(
             WidgetEventProcessor,
             BaseInput,
             Sequence[BaseInput],
-        ]
+        ],
 ) -> BaseInput:
     if isinstance(widget, BaseInput):
         return widget
@@ -88,7 +88,8 @@ def ensure_widgets(
         else:
             raise InvalidWidgetType(
                 f"Cannot add widget of type {type(w)}. "
-                f"Only str, Text, Keyboard, BaseInput and Callable are supported"
+                f"Only str, Text, Keyboard, BaseInput "
+                f"and Callable are supported",
             )
     return (
         ensure_text(texts),
@@ -110,5 +111,5 @@ def ensure_data_getter(getter: GetterVariant) -> DataGetter:
     else:
         raise InvalidWidgetType(
             f"Cannot add data getter of type {type(getter)}. "
-            f"Only Dict, Callable or List of Callables are supported"
+            f"Only Dict, Callable or List of Callables are supported",
         )

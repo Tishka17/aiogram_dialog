@@ -33,7 +33,7 @@ class SimpleEventProcessor(WidgetEventProcessor):
 
 
 def ensure_event_processor(
-        processor: Union[Callable, WidgetEventProcessor, None]
+        processor: Union[Callable, WidgetEventProcessor, None],
 ) -> WidgetEventProcessor:
     if isinstance(processor, WidgetEventProcessor):
         return processor

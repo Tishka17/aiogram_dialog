@@ -6,8 +6,8 @@ from aiogram_dialog.context.events import ChatEvent
 from aiogram_dialog.deprecation_utils import manager_deprecated
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 from .base import Keyboard
 from .group import Group
@@ -29,7 +29,7 @@ class ScrollingGroup(Group):
             height: int = 0,
             when: WhenCondition = None,
             on_page_changed: Union[
-                OnStateChanged, WidgetEventProcessor, None
+                OnStateChanged, WidgetEventProcessor, None,
             ] = None,
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
@@ -52,7 +52,7 @@ class ScrollingGroup(Group):
         pager = [
             [
                 InlineKeyboardButton(
-                    text="1", callback_data=self._item_callback_data("0")
+                    text="1", callback_data=self._item_callback_data("0"),
                 ),
                 InlineKeyboardButton(
                     text="<",
@@ -70,7 +70,7 @@ class ScrollingGroup(Group):
                     text=str(last_page + 1),
                     callback_data=self._item_callback_data(last_page),
                 ),
-            ]
+            ],
         ]
         page_offset = current_page * self.height
         return kbd[page_offset: page_offset + self.height] + pager
@@ -89,7 +89,7 @@ class ScrollingGroup(Group):
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
     async def set_page(
-            self, event: ChatEvent, page: int, manager: DialogManager
+            self, event: ChatEvent, page: int, manager: DialogManager,
     ) -> None:
         manager.current_context().widget_data[self.widget_id] = page
         await self.on_page_changed.process_event(

@@ -85,7 +85,7 @@ class ListGroup(Keyboard):
             self.items_getter = get_identity(items)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for pos, item in enumerate(self.items_getter(data)):
@@ -109,13 +109,13 @@ class ListGroup(Keyboard):
                 for btn in row:
                     if btn.callback_data:
                         btn.callback_data = self._item_callback_data(
-                            f"{item_id}:{btn.callback_data}"
+                            f"{item_id}:{btn.callback_data}",
                         )
             kbd.extend(b_kbd)
         return kbd
 
     def find_for_item(
-            self, manager: DialogManager, widget_id: str, item_id: str
+            self, manager: DialogManager, widget_id: str, item_id: str,
     ) -> Optional[Keyboard]:
         for btn in self.buttons:
             widget = btn.find(widget_id)
@@ -152,6 +152,6 @@ class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
                     self.manager,
                     self.widget.widget_id,
                     item_id,
-                )
+                ),
             )
         return None

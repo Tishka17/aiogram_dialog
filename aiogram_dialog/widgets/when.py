@@ -11,7 +11,7 @@ WhenCondition = Union[str, MagicFilter, Predicate, None]
 
 def new_when_field(fieldname: str) -> Predicate:
     def when_field(
-            data: Dict, widget: "Whenable", manager: DialogManager
+            data: Dict, widget: "Whenable", manager: DialogManager,
     ) -> bool:
         return bool(data.get(fieldname))
 
@@ -20,7 +20,7 @@ def new_when_field(fieldname: str) -> Predicate:
 
 def new_when_magic(f: MagicFilter) -> Predicate:
     def when_magic(
-            data: Dict, widget: "Whenable", manager: DialogManager
+            data: Dict, widget: "Whenable", manager: DialogManager,
     ) -> bool:
         return f.resolve(data)
 

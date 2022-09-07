@@ -40,11 +40,11 @@ class Keyboard(Actionable, Whenable):
         return f"{self.widget_id}:"
 
     def _own_callback_data(self):
-        """Callback data for only button in widget"""
+        """Create callback data for only button in widget."""
         return self.widget_id
 
     def _item_callback_data(self, data: Union[str, int]):
-        """Callback data for widgets button if multiple"""
+        """Create callback data for widgets button if multiple."""
         return f"{self.callback_prefix()}{data}"
 
     async def process_callback(
@@ -75,7 +75,7 @@ class Keyboard(Actionable, Whenable):
             dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
-        """Process callback related to _own_callback_data"""
+        """Process callback related to _own_callback_data."""
         return False
 
     async def _process_item_callback(
@@ -85,7 +85,7 @@ class Keyboard(Actionable, Whenable):
             dialog: ManagedDialogProto,
             manager: DialogManager,
     ) -> bool:
-        """Process callback related to _item_callback_data"""
+        """Process callback related to _item_callback_data."""
         return False
 
     async def _process_other_callback(

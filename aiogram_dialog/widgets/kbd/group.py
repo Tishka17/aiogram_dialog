@@ -83,7 +83,7 @@ class Row(Group):
             when: WhenCondition = None,
     ):
         super().__init__(
-            *buttons, id=id, width=9999, when=when
+            *buttons, id=id, width=9999, when=when,
         )  # telegram doe not allow even 100 columns
 
 

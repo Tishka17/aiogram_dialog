@@ -9,8 +9,8 @@ from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
 from aiogram_dialog.widgets.widget_event import (
-    WidgetEventProcessor,
     ensure_event_processor,
+    WidgetEventProcessor,
 )
 
 OnClick = Callable[
@@ -22,14 +22,18 @@ OnValueChanged = Callable[
     Awaitable,
 ]
 
+PLUS_TEXT = Const("+")
+MINUS_TEXT = Const("-")
+DEFAULT_COUNTER_TEXT = Format("{value:g}")
+
 
 class Counter(Keyboard):
     def __init__(
             self,
             id: str,
-            plus: Optional[Text] = Const("+"),
-            minus: Optional[Text] = Const("-"),
-            text: Optional[Text] = Format("{value:g}"),
+            plus: Optional[Text] = PLUS_TEXT,
+            minus: Optional[Text] = MINUS_TEXT,
+            text: Optional[Text] = DEFAULT_COUNTER_TEXT,
             min_value: float = 0,
             max_value: float = 999999,
             increment: float = 1,
@@ -37,7 +41,7 @@ class Counter(Keyboard):
             cycle: bool = False,
             on_click: Union[OnClick, WidgetEventProcessor, None] = None,
             on_value_changed: Union[
-                OnValueChanged, WidgetEventProcessor, None
+                OnValueChanged, WidgetEventProcessor, None,
             ] = None,
             when: WhenCondition = None,
     ):
@@ -55,7 +59,7 @@ class Counter(Keyboard):
 
     def get_value(self, manager: DialogManager) -> float:
         return manager.current_context().widget_data.get(
-            self.widget_id, self.default
+            self.widget_id, self.default,
         )
 
     async def set_value(self, manager: DialogManager, value: float) -> None:
@@ -79,7 +83,7 @@ class Counter(Keyboard):
                 InlineKeyboardButton(
                     text=minus,
                     callback_data=self._item_callback_data("-"),
-                )
+                ),
             )
         if self.text:
             text = await self.text.render_text(
@@ -90,7 +94,7 @@ class Counter(Keyboard):
                 InlineKeyboardButton(
                     text=text,
                     callback_data=self._item_callback_data(""),
-                )
+                ),
             )
         if self.plus:
             plus = await self.plus.render_text(data, manager)
@@ -98,7 +102,7 @@ class Counter(Keyboard):
                 InlineKeyboardButton(
                     text=plus,
                     callback_data=self._item_callback_data("+"),
-                )
+                ),
             )
         return [row]
 
