@@ -39,8 +39,8 @@ jobs:
 
       - name: Run flake8
         run: |
-          python -m flake8 --exit-zero
+          python -m flake8 aiogram_dialog
 
       - name: Run vulture
         run: |
-          python -m vulture dataclass_factory --min-confidence 70
+          python -m vulture aiogram_dialog --min-confidence 70

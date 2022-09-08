@@ -40,6 +40,7 @@ class Jinja(Text):
 
 class StubLoader(BaseLoader):
     def get_source(self, environment, template):
+        del environment  # unused
         return template, template, lambda: True
 
 

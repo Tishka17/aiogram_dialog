@@ -70,6 +70,8 @@ class BaseCheckbox(Keyboard, ABC):
     def _is_text_checked(
             self, data: Dict, case: Case, manager: DialogManager,
     ) -> bool:
+        del data  # unused
+        del case  # unused
         return self.is_checked(manager)
 
     @abstractmethod

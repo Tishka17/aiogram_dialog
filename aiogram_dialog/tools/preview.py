@@ -14,6 +14,7 @@ from aiogram_dialog.context.events import (
     Action,
     Data,
     DialogUpdateEvent,
+    ShowMode,
     StartMode,
 )
 from aiogram_dialog.context.stack import Stack
@@ -70,6 +71,12 @@ class FakeManager(DialogManager):
     async def load_data(self) -> Dict:
         return {}
 
+    async def close_manager(self) -> None:
+        pass
+
+    async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        self.reset_context()
+
     def set_dialog(self, dialog: Dialog):
         self._dialog = dialog
         self.reset_context()
@@ -101,6 +108,7 @@ class FakeManager(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode = ShowMode.AUTO,
     ) -> None:
         self.set_state(state)
 

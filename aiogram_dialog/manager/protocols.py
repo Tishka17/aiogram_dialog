@@ -227,7 +227,7 @@ class BaseDialogManager(Protocol):
         pass
 
 
-class DialogManager(BaseDialogManager):
+class DialogManager(BaseDialogManager, Protocol):
     event: ChatEvent  # current processing event
     data: Dict  # data from middleware
     show_mode: ShowMode  # mode used to show messages

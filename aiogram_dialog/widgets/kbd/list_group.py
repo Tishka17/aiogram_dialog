@@ -7,6 +7,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram_dialog.manager.protocols import (
     Context,
     DialogManager,
+    DialogRegistryProto,
     ManagedDialogAdapterProto,
     ManagedDialogProto,
     NewMessage,
@@ -52,8 +53,12 @@ class SubManager(DialogManager):
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         return await self.manager.reset_stack(remove_keyboard)
 
-    def __getattr__(self, item):
-        return getattr(self.manager, item)
+    async def load_data(self) -> Dict:
+        return await self.manager.load_data()
+
+    @property
+    def registry(self) -> DialogRegistryProto:
+        return self.manager.registry
 
 
 ItemsGetter = Callable[[Dict], Sequence]

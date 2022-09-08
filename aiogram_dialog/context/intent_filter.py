@@ -26,6 +26,7 @@ class IntentFilter(BaseFilter):
     aiogd_intent_state_group: Optional[Type[StatesGroup]]
 
     async def __call__(self, obj: TelegramObject, **kwargs) -> bool:
+        del obj  # unused
         if self.aiogd_intent_state_group is None:
             return True
 
