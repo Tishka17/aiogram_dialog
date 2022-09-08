@@ -1,4 +1,4 @@
-from enum import auto, Enum
+from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from aiogram.fsm.state import State
@@ -23,9 +23,9 @@ class ShowMode(Enum):
 
 
 class StartMode(Enum):
-    NORMAL = auto()
-    RESET_STACK = auto()
-    NEW_STACK = auto()
+    NORMAL = "NORMAL"
+    RESET_STACK = "RESET_STACK"
+    NEW_STACK = "NEW_STACK"
 
 
 class Action(Enum):
