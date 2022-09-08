@@ -10,6 +10,7 @@ aiogram-dialog
    transitions
    migration
    tools
+   faq
 
 
 Indices and tables
