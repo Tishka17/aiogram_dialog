@@ -4,13 +4,19 @@ from typing import Any, Dict, Optional, Protocol, Type, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Chat, ContentType, InlineKeyboardMarkup, Message
+from aiogram.types import Chat, InlineKeyboardMarkup, Message
 
-from aiogram_dialog.api.context import Context
-from aiogram_dialog.api.events import (
-    ChatEvent, Data, DialogUpdate, ShowMode, StartMode,
+from aiogram_dialog.api.entities import (
+    Context,
+    ChatEvent,
+    Data,
+    DialogUpdate,
+    MediaAttachment,
+    ShowMode,
+    Stack,
+    StartMode,
 )
-from aiogram_dialog.api.stack import Stack
+from aiogram_dialog.api.protocols import MediaIdStorageProtocol
 
 
 class LaunchMode(Enum):
@@ -101,56 +107,6 @@ class ManagedDialogProto(Protocol):
 
     def find(self, widget_id) -> Optional["ManagedWidgetProto"]:
         pass
-
-
-@dataclass
-class MediaId:
-    file_id: str
-    file_unique_id: Optional[str] = None
-
-    def __eq__(self, other):
-        if type(other) is not MediaId:
-            return False
-        if self.file_unique_id is None or other.file_unique_id is None:
-            return self.file_id == other.file_id
-        return self.file_unique_id == other.file_unique_id
-
-
-class MediaIdStorageProtocol(Protocol):
-    async def get_media_id(
-            self,
-            path: Optional[str],
-            url: Optional[str],
-            type: ContentType,
-    ) -> Optional[MediaId]:
-        raise NotImplementedError
-
-    async def save_media_id(
-            self,
-            path: Optional[str],
-            url: Optional[str],
-            type: ContentType,
-            media_id: MediaId,
-    ) -> None:
-        raise NotImplementedError
-
-
-class MediaAttachment:
-    def __init__(
-            self,
-            type: ContentType,
-            url: Optional[str] = None,
-            path: Optional[str] = None,
-            file_id: Optional[MediaId] = None,
-            **kwargs,
-    ):
-        if not (url or path or file_id):
-            raise ValueError("Neither url nor path not file_id are provided")
-        self.type = type
-        self.url = url
-        self.path = path
-        self.file_id = file_id
-        self.kwargs = kwargs
 
 
 @dataclass

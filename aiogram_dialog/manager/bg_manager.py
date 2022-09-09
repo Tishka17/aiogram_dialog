@@ -5,19 +5,20 @@ from aiogram import Bot
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
-from aiogram_dialog.api.events import (
-    Action,
+from aiogram_dialog.api.entities import (
     Data,
+    DEFAULT_STACK_ID,
+    DialogAction,
     DialogStartEvent,
     DialogSwitchEvent,
     DialogUpdate,
     DialogUpdateEvent,
-    FakeChat,
-    FakeUser,
     ShowMode,
     StartMode,
 )
-from aiogram_dialog.api.stack import DEFAULT_STACK_ID
+from aiogram_dialog.api.internal import (
+    FakeChat, FakeUser,
+)
 from .protocols import BaseDialogManager, DialogRegistryProto
 from ..utils import is_chat_loaded, is_user_loaded
 
@@ -116,7 +117,8 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.DONE, data=result, **self._base_event_params(),
+                action=DialogAction.DONE, data=result,
+                **self._base_event_params(),
             ),
         )
 
@@ -130,7 +132,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogStartEvent(
-                action=Action.START,
+                action=DialogAction.START,
                 data=data,
                 new_state=state,
                 mode=mode,
@@ -143,7 +145,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogSwitchEvent(
-                action=Action.SWITCH,
+                action=DialogAction.SWITCH,
                 data={},
                 new_state=state,
                 **self._base_event_params(),
@@ -154,6 +156,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.UPDATE, data=data, **self._base_event_params(),
+                action=DialogAction.UPDATE, data=data,
+                **self._base_event_params(),
             ),
         )

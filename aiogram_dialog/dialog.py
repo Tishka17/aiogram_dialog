@@ -17,7 +17,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
-from aiogram_dialog.api.events import Data
+from aiogram_dialog.api.entities import Data
 from aiogram_dialog.api.exceptions import UnregisteredWindowError
 from .manager.protocols import (
     DialogManager,

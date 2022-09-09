@@ -4,8 +4,9 @@ from typing import Dict, List, Optional
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
 
+from aiogram_dialog.api.entities import MediaAttachment
 from .dialog import Dialog, DialogWindowProto
-from .manager.protocols import DialogManager, MediaAttachment
+from .manager.protocols import DialogManager
 from .utils import NewMessage
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter

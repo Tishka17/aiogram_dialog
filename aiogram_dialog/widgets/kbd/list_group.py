@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
-from aiogram_dialog.api.stack import Stack
+from aiogram_dialog.api.entities import Stack
 from aiogram_dialog.manager.protocols import (
     Context,
     DialogManager,

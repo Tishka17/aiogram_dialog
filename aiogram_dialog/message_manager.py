@@ -12,9 +12,8 @@ from aiogram.types import (
     URLInputFile,
 )
 
-from aiogram_dialog.api.events import ShowMode
+from aiogram_dialog.api.entities import ShowMode, MediaAttachment
 from .manager.protocols import (
-    MediaAttachment,
     MessageManagerProtocol,
     NewMessage,
 )

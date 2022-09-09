@@ -1,11 +1,10 @@
 import warnings
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List, Union
 
 from aiogram.fsm.state import State
 
-from .events import Data
-
+Data = Union[Dict, List, int, str, float, None]
 DataDict = Dict[str, Data]
 
 

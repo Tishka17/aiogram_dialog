@@ -11,10 +11,3 @@ class StartMode(Enum):
     NORMAL = "NORMAL"
     RESET_STACK = "RESET_STACK"
     NEW_STACK = "NEW_STACK"
-
-
-class Action(Enum):
-    DONE = "DONE"
-    START = "START"
-    UPDATE = "UPDATE"
-    SWITCH = "SWITCH"

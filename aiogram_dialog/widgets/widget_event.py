@@ -1,6 +1,6 @@
 from typing import Any, Callable, Union
 
-from aiogram_dialog.api.events import ChatEvent
+from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager
 
 

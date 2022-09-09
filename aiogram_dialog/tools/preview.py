@@ -9,20 +9,20 @@ from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry
-from aiogram_dialog.api.context import Context
-from aiogram_dialog.api.events import (
-    Action,
+from aiogram_dialog.api.entities import (
+    Context,
     Data,
+    DialogAction,
     DialogUpdateEvent,
+    MediaAttachment,
     ShowMode,
+    Stack,
     StartMode,
 )
-from aiogram_dialog.api.stack import Stack
 from aiogram_dialog.manager.dialog import ManagedDialogAdapter
 from aiogram_dialog.manager.protocols import (
     DialogRegistryProto,
     ManagedDialogAdapterProto,
-    MediaAttachment,
     NewMessage,
 )
 
@@ -54,7 +54,7 @@ class FakeManager(DialogManager):
         self.event = DialogUpdateEvent(
             from_user=User(id=1, is_bot=False, first_name="Fake"),
             chat=Chat(id=1, type="private"),
-            action=Action.UPDATE,
+            action=DialogAction.UPDATE,
             data={},
             intent_id=None,
             stack_id=None,

@@ -13,7 +13,7 @@ from typing import (
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.api.events import ChatEvent
+from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (

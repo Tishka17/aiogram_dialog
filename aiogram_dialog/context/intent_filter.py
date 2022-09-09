@@ -7,13 +7,12 @@ from aiogram.fsm.state import StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
 from aiogram.types import CallbackQuery, Message, TelegramObject, Update
 
-from aiogram_dialog.api.context import Context
-from aiogram_dialog.api.events import (
+from aiogram_dialog.api.entities import (
+    Context, Stack, DEFAULT_STACK_ID,
     ChatEvent, DialogUpdate, DialogUpdateEvent,
 )
 from aiogram_dialog.api.exceptions import InvalidStackIdError, OutdatedIntent
-from aiogram_dialog.api.stack import Stack
-from .storage import DEFAULT_STACK_ID, StorageProxy
+from .storage import StorageProxy
 from ..utils import remove_indent_id
 
 STORAGE_KEY = "aiogd_storage_proxy"

@@ -8,9 +8,11 @@ from aiogram.filters import Command
 from aiogram.fsm.state import any_state, State, StatesGroup
 from aiogram.types import Chat, Message, User
 
-from aiogram_dialog.api.events import DIALOG_EVENT_NAME, DialogUpdate
+from aiogram_dialog.api.entities import (
+    DIALOG_EVENT_NAME, DialogUpdate, StartMode,
+)
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
-from aiogram_dialog.api.modes import StartMode
+from aiogram_dialog.api.protocols import MediaIdStorageProtocol
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
@@ -18,7 +20,6 @@ from .protocols import (
     DialogManagerFactory,
     DialogRegistryProto,
     ManagedDialogProto,
-    MediaIdStorageProtocol,
     MessageManagerProtocol,
 )
 from .update_handler import handle_update
