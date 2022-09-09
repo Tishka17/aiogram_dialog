@@ -12,7 +12,7 @@ from aiogram.types import (
     URLInputFile,
 )
 
-from .context.events import ShowMode
+from aiogram_dialog.api.events import ShowMode
 from .manager.protocols import (
     MediaAttachment,
     MessageManagerProtocol,

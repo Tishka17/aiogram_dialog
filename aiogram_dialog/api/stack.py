@@ -8,7 +8,7 @@ from aiogram.fsm.state import State
 
 from .context import Context
 from .events import Data
-from ..exceptions import DialogStackOverflow
+from .exceptions import DialogStackOverflow
 
 DEFAULT_STACK_ID = ""
 STACK_LIMIT = 100

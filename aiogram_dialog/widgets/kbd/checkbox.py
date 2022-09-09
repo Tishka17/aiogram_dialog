@@ -3,7 +3,7 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.context.events import ChatEvent
+from aiogram_dialog.api.events import ChatEvent
 from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (

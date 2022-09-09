@@ -1,12 +1,12 @@
 from logging import getLogger
 
-from .manager import ManagerImpl
-from ..context.events import (
+from aiogram_dialog.api.events import (
     Action,
     DialogStartEvent,
     DialogSwitchEvent,
     DialogUpdateEvent,
 )
+from .manager import ManagerImpl
 
 logger = getLogger(__name__)
 

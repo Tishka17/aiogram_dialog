@@ -1,12 +1,12 @@
 from typing import Callable, Dict, List, Sequence, Tuple, Union
 
+from aiogram_dialog.api.exceptions import InvalidWidget, InvalidWidgetType
 from .data.data_context import CompositeGetter, DataGetter, StaticGetter
 from .input import BaseInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
 from .media import Media
 from .text import Format, Multi, Text
 from .widget_event import WidgetEventProcessor
-from ..exceptions import InvalidWidget, InvalidWidgetType
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 

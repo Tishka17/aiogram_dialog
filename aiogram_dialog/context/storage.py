@@ -5,9 +5,9 @@ from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
-from .context import Context
-from .stack import DEFAULT_STACK_ID, Stack
-from ..exceptions import UnknownIntent, UnknownState
+from aiogram_dialog.api.context import Context
+from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
+from aiogram_dialog.api.stack import DEFAULT_STACK_ID, Stack
 
 
 class StorageProxy:

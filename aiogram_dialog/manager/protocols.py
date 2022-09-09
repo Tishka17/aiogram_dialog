@@ -6,9 +6,11 @@ from aiogram import Bot, Router
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Chat, ContentType, InlineKeyboardMarkup, Message
 
-from ..context.context import Context
-from ..context.events import ChatEvent, Data, DialogUpdate, ShowMode, StartMode
-from ..context.stack import Stack
+from aiogram_dialog.api.context import Context
+from aiogram_dialog.api.events import (
+    ChatEvent, Data, DialogUpdate, ShowMode, StartMode,
+)
+from aiogram_dialog.api.stack import Stack
 
 
 class LaunchMode(Enum):

@@ -9,15 +9,15 @@ from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import Dialog, DialogManager, DialogRegistry
-from aiogram_dialog.context.context import Context
-from aiogram_dialog.context.events import (
+from aiogram_dialog.api.context import Context
+from aiogram_dialog.api.events import (
     Action,
     Data,
     DialogUpdateEvent,
     ShowMode,
     StartMode,
 )
-from aiogram_dialog.context.stack import Stack
+from aiogram_dialog.api.stack import Stack
 from aiogram_dialog.manager.dialog import ManagedDialogAdapter
 from aiogram_dialog.manager.protocols import (
     DialogRegistryProto,

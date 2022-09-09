@@ -5,8 +5,7 @@ from aiogram import Bot
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
-from .protocols import BaseDialogManager, DialogRegistryProto
-from ..context.events import (
+from aiogram_dialog.api.events import (
     Action,
     Data,
     DialogStartEvent,
@@ -18,7 +17,8 @@ from ..context.events import (
     ShowMode,
     StartMode,
 )
-from ..context.stack import DEFAULT_STACK_ID
+from aiogram_dialog.api.stack import DEFAULT_STACK_ID
+from .protocols import BaseDialogManager, DialogRegistryProto
 from ..utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)

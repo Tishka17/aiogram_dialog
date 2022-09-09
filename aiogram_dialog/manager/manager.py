@@ -5,6 +5,17 @@ from typing import Any, Dict, Optional
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
+from aiogram_dialog.api.context import Context
+from aiogram_dialog.api.events import (
+    ChatEvent,
+    Data,
+    FakeChat,
+    FakeUser,
+    ShowMode,
+    StartMode,
+)
+from aiogram_dialog.api.exceptions import IncorrectBackgroundError
+from aiogram_dialog.api.stack import DEFAULT_STACK_ID, Stack
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
 from .protocols import (
@@ -16,19 +27,8 @@ from .protocols import (
     ManagedDialogProto,
     NewMessage,
 )
-from ..context.context import Context
-from ..context.events import (
-    ChatEvent,
-    Data,
-    FakeChat,
-    FakeUser,
-    ShowMode,
-    StartMode,
-)
 from ..context.intent_filter import CONTEXT_KEY, STACK_KEY, STORAGE_KEY
-from ..context.stack import DEFAULT_STACK_ID, Stack
 from ..context.storage import StorageProxy
-from ..exceptions import IncorrectBackgroundError
 
 logger = getLogger(__name__)
 

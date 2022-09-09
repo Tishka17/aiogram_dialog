@@ -1,8 +1,8 @@
 import re
 from typing import Any, Optional
 
+from aiogram_dialog.api.exceptions import InvalidWidgetIdError
 from .managed import ManagedWidget
-from ..exceptions import InvalidWidgetIdError
 from ..manager.protocols import DialogManager
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")

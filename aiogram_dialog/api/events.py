@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from aiogram.fsm.state import State
@@ -12,27 +11,14 @@ from aiogram.types import (
     User,
 )
 
+from .modes import (
+    Action,
+    ShowMode,
+    StartMode,
+)
+
 DIALOG_EVENT_NAME = "aiogd_update"
 Data = Union[Dict, List, int, str, float, None]
-
-
-class ShowMode(Enum):
-    AUTO = "auto"
-    EDIT = "edit"
-    SEND = "send"
-
-
-class StartMode(Enum):
-    NORMAL = "NORMAL"
-    RESET_STACK = "RESET_STACK"
-    NEW_STACK = "NEW_STACK"
-
-
-class Action(Enum):
-    DONE = "DONE"
-    START = "START"
-    UPDATE = "UPDATE"
-    SWITCH = "SWITCH"
 
 
 class DialogUpdateEvent(TelegramObject):

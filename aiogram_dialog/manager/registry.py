@@ -8,6 +8,9 @@ from aiogram.filters import Command
 from aiogram.fsm.state import any_state, State, StatesGroup
 from aiogram.types import Chat, Message, User
 
+from aiogram_dialog.api.events import DIALOG_EVENT_NAME, DialogUpdate
+from aiogram_dialog.api.exceptions import UnregisteredDialogError
+from aiogram_dialog.api.modes import StartMode
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .protocols import (
@@ -19,7 +22,6 @@ from .protocols import (
     MessageManagerProtocol,
 )
 from .update_handler import handle_update
-from ..context.events import DIALOG_EVENT_NAME, DialogUpdate, StartMode
 from ..context.intent_filter import (
     context_saver_middleware,
     IntentErrorMiddleware,
@@ -27,7 +29,6 @@ from ..context.intent_filter import (
     IntentMiddlewareFactory,
 )
 from ..context.media_storage import MediaIdStorage
-from ..exceptions import UnregisteredDialogError
 from ..message_manager import MessageManager
 
 

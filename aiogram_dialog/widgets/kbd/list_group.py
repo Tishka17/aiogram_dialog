@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
+from aiogram_dialog.api.stack import Stack
 from aiogram_dialog.manager.protocols import (
     Context,
     DialogManager,
@@ -15,7 +16,6 @@ from aiogram_dialog.manager.protocols import (
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
-from ...context.stack import Stack
 
 
 class SubManager(DialogManager):

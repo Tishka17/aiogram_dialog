@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 from aiogram.types import CallbackQuery, Chat, ChatMemberUpdated, Message, User
 
-from .context.events import ChatEvent, DialogUpdateEvent
+from aiogram_dialog.api.events import ChatEvent, DialogUpdateEvent
 from .manager.protocols import MediaId, NewMessage
 
 logger = getLogger(__name__)

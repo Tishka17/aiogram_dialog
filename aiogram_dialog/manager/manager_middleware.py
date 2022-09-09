@@ -3,8 +3,8 @@ from typing import Any, Awaitable, Callable, Dict, Union
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
+from aiogram_dialog.api.events import ChatEvent, DialogUpdateEvent
 from .protocols import DialogManager, DialogManagerFactory, DialogRegistryProto
-from ..context.events import ChatEvent, DialogUpdateEvent
 
 MANAGER_KEY = "dialog_manager"
 
