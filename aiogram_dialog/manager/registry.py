@@ -24,9 +24,11 @@ from .protocols import (
 )
 from .update_handler import handle_update
 from ..context.intent_filter import (
+    IntentFilter,
+)
+from ..context.intent_middleware import (
     context_saver_middleware,
     IntentErrorMiddleware,
-    IntentFilter,
     IntentMiddlewareFactory,
 )
 from ..context.media_storage import MediaIdStorage

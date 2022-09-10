@@ -7,13 +7,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Chat, InlineKeyboardMarkup, Message
 
 from aiogram_dialog.api.entities import (
-    Context,
-    ChatEvent,
-    Data,
-    DialogUpdate,
-    MediaAttachment,
-    ShowMode,
-    Stack,
+    ChatEvent, Context, Data, DialogUpdate, MediaAttachment, ShowMode, Stack,
     StartMode,
 )
 from aiogram_dialog.api.protocols import MediaIdStorageProtocol

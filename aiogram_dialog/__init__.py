@@ -1,6 +1,6 @@
 from .api import exceptions
 from .api.entities import (
-    ChatEvent, Data, ShowMode, StartMode, DEFAULT_STACK_ID
+    ChatEvent, Data, DEFAULT_STACK_ID, ShowMode, StartMode,
 )
 from .dialog import Dialog
 from .manager.protocols import BaseDialogManager, DialogManager

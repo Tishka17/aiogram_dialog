@@ -6,13 +6,8 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
 from aiogram_dialog.api.entities import (
-    Context,
-    ChatEvent,
-    Data,
-    DEFAULT_STACK_ID,
-    Stack,
-    ShowMode,
-    StartMode,
+    ChatEvent, Context, CONTEXT_KEY, Data, DEFAULT_STACK_ID, ShowMode, Stack,
+    STACK_KEY, StartMode, STORAGE_KEY,
 )
 from aiogram_dialog.api.exceptions import IncorrectBackgroundError
 from aiogram_dialog.api.internal import (
@@ -29,7 +24,6 @@ from .protocols import (
     ManagedDialogProto,
     NewMessage,
 )
-from ..context.intent_filter import CONTEXT_KEY, STACK_KEY, STORAGE_KEY
 from ..context.storage import StorageProxy
 
 logger = getLogger(__name__)

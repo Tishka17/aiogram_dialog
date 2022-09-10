@@ -40,11 +40,11 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-            message.audio or
-            message.animation or
-            message.document or
-            (message.photo[-1] if message.photo else None) or
-            message.video
+        message.audio or
+        message.animation or
+        message.document or
+        (message.photo[-1] if message.photo else None) or
+        message.video
     )
     if not media:
         return None

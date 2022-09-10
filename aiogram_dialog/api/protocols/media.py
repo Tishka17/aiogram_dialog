@@ -1,7 +1,9 @@
 from typing import Optional, Protocol
 
 from aiogram.types import ContentType
+
 from aiogram_dialog.api.entities import MediaId
+
 
 class MediaIdStorageProtocol(Protocol):
     async def get_media_id(
