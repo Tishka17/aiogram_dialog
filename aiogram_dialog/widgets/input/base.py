@@ -3,9 +3,9 @@ from typing import Awaitable, Callable, Sequence, Union
 from aiogram.filters.content_types import ContentTypesFilter
 from aiogram.types import ContentType, Message
 
+from aiogram_dialog.api.protocols import ManagedDialogProtocol
 from aiogram_dialog.manager.protocols import (
     DialogManager,
-    ManagedDialogAdapterProto,
     ManagedDialogProto,
 )
 from aiogram_dialog.widgets.action import Actionable
@@ -15,7 +15,7 @@ from aiogram_dialog.widgets.widget_event import (
 )
 
 MessageHandlerFunc = Callable[
-    [Message, ManagedDialogAdapterProto, DialogManager],
+    [Message, ManagedDialogProtocol, DialogManager],
     Awaitable,
 ]
 

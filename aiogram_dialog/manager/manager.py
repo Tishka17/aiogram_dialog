@@ -15,6 +15,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
+from aiogram_dialog.api.protocols import ManagedDialogProtocol
 from .bg_manager import BgManager
 from .dialog import ManagedDialogAdapter
 from .protocols import (
@@ -22,7 +23,6 @@ from .protocols import (
     DialogManager,
     DialogRegistryProto,
     LaunchMode,
-    ManagedDialogAdapterProto,
     ManagedDialogProto,
     NewMessage,
 )
@@ -65,7 +65,7 @@ class ManagerImpl(DialogManager):
     def is_preview(self) -> bool:
         return False
 
-    def dialog(self) -> ManagedDialogAdapterProto:
+    def dialog(self) -> ManagedDialogProtocol:
         return ManagedDialogAdapter(self._dialog(), self)
 
     def _dialog(self) -> ManagedDialogProto:

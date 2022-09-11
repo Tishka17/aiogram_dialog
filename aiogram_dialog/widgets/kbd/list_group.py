@@ -5,11 +5,11 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
 from aiogram_dialog.api.entities import Stack
+from aiogram_dialog.api.protocols import ManagedDialogProtocol
 from aiogram_dialog.manager.protocols import (
     Context,
     DialogManager,
     DialogRegistryProto,
-    ManagedDialogAdapterProto,
     ManagedDialogProto,
     NewMessage,
 )
@@ -41,7 +41,7 @@ class SubManager(DialogManager):
     def current_stack(self) -> Optional[Stack]:
         return self.manager.current_stack()
 
-    def dialog(self) -> ManagedDialogAdapterProto:
+    def dialog(self) -> ManagedDialogProtocol:
         return self.manager.dialog()
 
     async def close_manager(self) -> None:

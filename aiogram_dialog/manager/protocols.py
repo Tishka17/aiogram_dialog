@@ -10,7 +10,9 @@ from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, DialogUpdate, MediaAttachment, ShowMode, Stack,
     StartMode,
 )
-from aiogram_dialog.api.protocols import MediaIdStorageProtocol
+from aiogram_dialog.api.protocols import (
+    ManagedDialogProtocol, MediaIdStorageProtocol,
+)
 
 
 class LaunchMode(Enum):
@@ -37,23 +39,6 @@ class LaunchMode(Enum):
     ROOT = "root"
     EXCLUSIVE = "exclusive"
     SINGLE_TOP = "single_top"
-
-
-class ManagedDialogAdapterProto:
-    async def show(self):
-        pass
-
-    async def next(self):
-        pass
-
-    async def back(self):
-        pass
-
-    async def switch_to(self, state: State):
-        pass
-
-    def find(self, widget_id) -> Optional[Any]:
-        pass
 
 
 class ManagedDialogProto(Protocol):
@@ -193,7 +178,7 @@ class DialogManager(BaseDialogManager, Protocol):
     def current_stack(self) -> Optional[Stack]:
         raise NotImplementedError
 
-    def dialog(self) -> ManagedDialogAdapterProto:
+    def dialog(self) -> ManagedDialogProtocol:
         raise NotImplementedError
 
     async def close_manager(self) -> None:
