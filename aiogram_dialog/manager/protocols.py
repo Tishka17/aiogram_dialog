@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Any, Dict, Optional, Protocol, Type, Union
 
 from aiogram import Bot, Router
@@ -7,38 +6,13 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Chat, InlineKeyboardMarkup, Message
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DialogUpdate, MediaAttachment, ShowMode, Stack,
+    ChatEvent, Context, Data, DialogUpdate, LaunchMode,
+    MediaAttachment, ShowMode, Stack,
     StartMode,
 )
 from aiogram_dialog.api.protocols import (
     ManagedDialogProtocol, MediaIdStorageProtocol,
 )
-
-
-class LaunchMode(Enum):
-    """
-    Modes of launching new dialog.
-
-    `ROOT` dialogs will be always a root dialog in stack.
-        Starting such dialogs will automatically reset stack.
-        Example: main menu
-
-    `EXCLUSIVE` dialogs can be only a single dialog in stack.
-        Starting such dialogs will automatically reset stack.
-        Starting other dialogs on top of them is forbidden
-        Example: Banners
-
-    `SINGLE_TOP` dialogs will not be repeated on top of stack.
-        Starting the same dialog right on top of it will just replace it.
-        Example: product page
-
-    `STANDARD` dialogs have no limitations themselves
-    """
-
-    STANDARD = "standard"
-    ROOT = "root"
-    EXCLUSIVE = "exclusive"
-    SINGLE_TOP = "single_top"
 
 
 class ManagedDialogProto(Protocol):
