@@ -32,7 +32,7 @@ class ScrollingGroup(Group):
                 OnStateChanged, WidgetEventProcessor, None,
             ] = None,
             label_prev: str = "<",
-            label_next: str = ">"
+            label_next: str = ">",
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height
