@@ -7,10 +7,12 @@ from aiogram.fsm.storage.base import BaseStorage
 from aiogram.types import CallbackQuery, Message, Update
 
 from aiogram_dialog.api.entities import (
-    CALLBACK_DATA_KEY, ChatEvent, CONTEXT_KEY, DEFAULT_STACK_ID, DialogUpdate,
-    DialogUpdateEvent, Stack, STACK_KEY, STORAGE_KEY,
+    ChatEvent, DEFAULT_STACK_ID, DialogUpdate, DialogUpdateEvent, Stack,
 )
 from aiogram_dialog.api.exceptions import InvalidStackIdError, OutdatedIntent
+from aiogram_dialog.api.internal import (
+    CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
+)
 from .storage import StorageProxy
 from ..utils import remove_indent_id
 

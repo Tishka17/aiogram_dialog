@@ -4,7 +4,8 @@ from aiogram.filters import BaseFilter
 from aiogram.fsm.state import StatesGroup
 from aiogram.types import TelegramObject
 
-from aiogram_dialog.api.entities import Context, CONTEXT_KEY
+from aiogram_dialog.api.entities import Context
+from aiogram_dialog.api.internal import CONTEXT_KEY
 
 
 class IntentFilter(BaseFilter):

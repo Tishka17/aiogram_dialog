@@ -6,10 +6,12 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, CONTEXT_KEY, Data, DEFAULT_STACK_ID, ShowMode, Stack,
-    STACK_KEY, StartMode, STORAGE_KEY,
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, ShowMode, Stack, StartMode,
 )
 from aiogram_dialog.api.exceptions import IncorrectBackgroundError
+from aiogram_dialog.api.internal import (
+    CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
+)
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
