@@ -1,14 +1,16 @@
-from dataclasses import dataclass
 from typing import Any, Dict, Optional, Protocol, Type, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Chat, InlineKeyboardMarkup, Message
+from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, DialogUpdate, LaunchMode,
-    MediaAttachment, ShowMode, Stack,
+    ShowMode, Stack,
     StartMode,
+)
+from aiogram_dialog.api.internal import (
+    MessageManagerProtocol, NewMessage,
 )
 from aiogram_dialog.api.protocols import (
     ManagedDialogProtocol, MediaIdStorageProtocol,
@@ -60,28 +62,6 @@ class ManagedDialogProto(Protocol):
 
     def find(self, widget_id) -> Optional["ManagedWidgetProto"]:
         pass
-
-
-@dataclass
-class NewMessage:
-    chat: Chat
-    text: Optional[str] = None
-    reply_markup: Optional[InlineKeyboardMarkup] = None
-    parse_mode: Optional[str] = None
-    show_mode: ShowMode = ShowMode.AUTO
-    disable_web_page_preview: Optional[bool] = None
-    media: Optional[MediaAttachment] = None
-
-
-class MessageManagerProtocol(Protocol):
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
-        raise NotImplementedError
-
-    async def show_message(
-            self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message],
-    ):
-        raise NotImplementedError
 
 
 class DialogRegistryProto(Protocol):

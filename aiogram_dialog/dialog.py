@@ -249,7 +249,7 @@ class Dialog(ManagedDialogProto):
         await self.show(dialog_manager)
 
     def register(
-            self, registry: DialogRegistryProto, router: Router, *args,
+            self, router: Router, *args,
             **filters,
     ) -> None:
         router.callback_query.register(
