@@ -31,10 +31,14 @@ class ScrollingGroup(Group):
             on_page_changed: Union[
                 OnStateChanged, WidgetEventProcessor, None,
             ] = None,
+            label_prev: str = "<",
+            label_next: str = ">"
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
+        self.label_prev = label_prev
+        self.label_next = label_next
 
     async def _render_keyboard(
             self,
@@ -55,7 +59,7 @@ class ScrollingGroup(Group):
                     text="1", callback_data=self._item_callback_data("0"),
                 ),
                 InlineKeyboardButton(
-                    text="<",
+                    text=self.label_prev,
                     callback_data=self._item_callback_data(prev_page),
                 ),
                 InlineKeyboardButton(
@@ -63,7 +67,7 @@ class ScrollingGroup(Group):
                     callback_data=self._item_callback_data(current_page),
                 ),
                 InlineKeyboardButton(
-                    text=">",
+                    text=self.label_next,
                     callback_data=self._item_callback_data(next_page),
                 ),
                 InlineKeyboardButton(
