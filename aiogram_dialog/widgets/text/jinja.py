@@ -12,7 +12,7 @@ from typing import (
 from aiogram import Bot
 from jinja2 import BaseLoader, Environment
 
-from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.internal import DialogManager
 from .base import Text
 from ..when import WhenCondition
 
@@ -28,7 +28,7 @@ class Jinja(Text):
         self.template_text = text
 
     async def _render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         bot: Bot = manager.data["bot"]
         env: Environment = getattr(bot, BOT_ENV_FIELD, default_env)

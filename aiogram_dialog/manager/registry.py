@@ -21,7 +21,7 @@ from aiogram_dialog.api.protocols import (
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .update_handler import handle_update
-from .. import ActiveDialogManager
+from .. import DialogManager
 from ..context.intent_filter import (
     IntentFilter,
 )
@@ -102,7 +102,7 @@ class DialogRegistry(DialogRegistryProtocol):
 
     def register_start_handler(self, state: State):
         async def start_dialog(
-                message: Message, dialog_manager: ActiveDialogManager,
+                message: Message, dialog_manager: DialogManager,
         ) -> None:
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 

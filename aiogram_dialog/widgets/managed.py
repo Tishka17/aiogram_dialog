@@ -1,10 +1,10 @@
 from typing import Any, Generic, TypeVar
 
-from aiogram_dialog.api.protocols import ActiveDialogManager
+from aiogram_dialog.api.protocols import DialogManager
 
 
 class ManagedWidget:
-    def managed(self, manager: ActiveDialogManager) -> Any:
+    def managed(self, manager: DialogManager) -> Any:
         return ManagedWidgetAdapter(self, manager)
 
 
@@ -12,7 +12,7 @@ W = TypeVar("W", bound=ManagedWidget)
 
 
 class ManagedWidgetAdapter(Generic[W]):
-    def __init__(self, widget: W, manager: ActiveDialogManager):
+    def __init__(self, widget: W, manager: DialogManager):
         self.widget = widget
         self.manager = manager
 

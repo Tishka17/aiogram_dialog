@@ -3,21 +3,18 @@ from typing import Any, Optional
 from aiogram.filters.state import State
 
 from aiogram_dialog.api.internal import (
-    DialogShowerProtocol, InternalDialogManager,
+    DialogManager,
 )
 from aiogram_dialog.api.protocols import (
-    ManagedDialogProtocol,
+    ManagedDialogProtocol, DialogProtocol,
 )
 
 
 class ManagedDialogAdapter(ManagedDialogProtocol):
-    def __init__(self, dialog: DialogShowerProtocol,
-                 manager: InternalDialogManager):
+    def __init__(self, dialog: DialogProtocol,
+                 manager: DialogManager):
         self.dialog = dialog
         self.manager = manager
-
-    async def show(self):
-        return await self.dialog.show(self.manager)
 
     async def next(self):
         return await self.dialog.next(self.manager)

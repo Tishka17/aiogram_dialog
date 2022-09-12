@@ -1,12 +1,12 @@
-from typing import Any, Optional, Protocol, Type
+from typing import Any, Optional, Protocol, Type, Dict, List
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog.api.entities import (
-    Data, LaunchMode,
+    Data, LaunchMode, NewMessage,
 )
-from .manager import ActiveDialogManager
+from .manager import DialogManager
 
 
 class DialogProtocol(Protocol):
@@ -20,15 +20,18 @@ class DialogProtocol(Protocol):
     def states_group_name(self) -> str:
         raise NotImplementedError
 
+    def states(self) -> List[State]:
+        raise NotImplementedError
+
     def states_group(self) -> Type[StatesGroup]:
         raise NotImplementedError
 
-    async def process_close(self, result: Any, manager: "ActiveDialogManager"):
+    async def process_close(self, result: Any, manager: "DialogManager"):
         raise NotImplementedError
 
     async def process_start(
             self,
-            manager: "ActiveDialogManager",
+            manager: "DialogManager",
             start_data: Any,
             state: Optional[State] = None,
     ) -> None:
@@ -36,19 +39,17 @@ class DialogProtocol(Protocol):
 
     async def process_result(
             self, start_data: Data, result: Any,
-            manager: "ActiveDialogManager",
+            manager: "DialogManager",
     ) -> None:
         raise NotImplementedError
 
-    async def next(self, manager: "ActiveDialogManager") -> None:
-        raise NotImplementedError
-
-    async def back(self, manager: "ActiveDialogManager") -> None:
-        raise NotImplementedError
-
-    async def switch_to(self, state: State,
-                        manager: "ActiveDialogManager") -> None:
-        raise NotImplementedError
-
     def find(self, widget_id) -> Any:
+        raise NotImplementedError
+
+    async def load_data(
+            self, manager: DialogManager,
+    ) -> Dict:
+        raise NotImplementedError
+
+    async def render(self, manager: DialogManager) -> NewMessage:
         raise NotImplementedError

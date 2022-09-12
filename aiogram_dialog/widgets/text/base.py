@@ -1,6 +1,6 @@
 from typing import Dict, Union
 
-from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.internal import DialogManager
 from aiogram_dialog.widgets.when import true, Whenable, WhenCondition
 
 
@@ -9,13 +9,13 @@ class Text(Whenable):
         super().__init__(when)
 
     async def render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         if not self.is_(data, manager):
             return ""
         return await self._render_text(data, manager)
 
-    async def _render_text(self, data, manager: InternalDialogManager) -> str:
+    async def _render_text(self, data, manager: DialogManager) -> str:
         raise NotImplementedError
 
     def __add__(self, other: Union["Text", str]):
@@ -35,7 +35,7 @@ class Const(Text):
         self.text = text
 
     async def _render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         return self.text
 
@@ -47,7 +47,7 @@ class Multi(Text):
         self.sep = sep
 
     async def _render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))

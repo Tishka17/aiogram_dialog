@@ -1,7 +1,7 @@
 from operator import itemgetter
 from typing import Callable, Dict, Sequence, Union
 
-from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.internal import DialogManager
 from .base import Text
 from ..when import WhenCondition
 
@@ -34,7 +34,7 @@ class List(Text):
             self.items_getter = get_identity(items)
 
     async def _render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         texts = [
             await self.field.render_text(

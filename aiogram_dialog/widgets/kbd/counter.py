@@ -3,8 +3,8 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import InternalDialogManager
-from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
+from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.kbd.base import Keyboard
 from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
@@ -15,11 +15,11 @@ from aiogram_dialog.widgets.widget_event import (
 )
 
 OnClick = Callable[
-    [ChatEvent, "ManagedCounterAdapter", ActiveDialogManager],
+    [ChatEvent, "ManagedCounterAdapter", DialogManager],
     Awaitable,
 ]
 OnValueChanged = Callable[
-    [ChatEvent, "ManagedCounterAdapter", ActiveDialogManager],
+    [ChatEvent, "ManagedCounterAdapter", DialogManager],
     Awaitable,
 ]
 
@@ -58,12 +58,12 @@ class Counter(Keyboard):
         self.on_click = ensure_event_processor(on_click)
         self.on_value_changed = ensure_event_processor(on_value_changed)
 
-    def get_value(self, manager: ActiveDialogManager) -> float:
+    def get_value(self, manager: DialogManager) -> float:
         return manager.current_context().widget_data.get(
             self.widget_id, self.default,
         )
 
-    async def set_value(self, manager: ActiveDialogManager,
+    async def set_value(self, manager: DialogManager,
                         value: float) -> None:
         if self.min <= value <= self.max:
             manager.current_context().widget_data[self.widget_id] = value
@@ -76,7 +76,7 @@ class Counter(Keyboard):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         row = []
         if self.minus:
@@ -113,7 +113,7 @@ class Counter(Keyboard):
             c: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> bool:
         await self.on_click.process_event(c, self.managed(manager), manager)
 
@@ -130,10 +130,10 @@ class Counter(Keyboard):
             await self.set_value(manager, value)
         return True
 
-    def get_page(self, manager: ActiveDialogManager) -> int:
+    def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
-    def managed(self, manager: ActiveDialogManager):
+    def managed(self, manager: DialogManager):
         return ManagedCounterAdapter(self, manager)
 
 

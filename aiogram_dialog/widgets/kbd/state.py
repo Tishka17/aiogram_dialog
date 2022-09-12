@@ -4,7 +4,7 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.entities import ChatEvent, Data, StartMode
-from aiogram_dialog.api.protocols import ActiveDialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 from .button import Button, OnClick
@@ -20,7 +20,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
             self,
             event: ChatEvent,
             source: Any,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
             *args,
             **kwargs,
     ):
@@ -28,7 +28,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         raise NotImplementedError
 
@@ -49,7 +49,7 @@ class SwitchTo(EventProcessorButton):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -71,7 +71,7 @@ class Next(EventProcessorButton):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -93,7 +93,7 @@ class Back(EventProcessorButton):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -116,7 +116,7 @@ class Cancel(EventProcessorButton):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
@@ -143,7 +143,7 @@ class Start(EventProcessorButton):
 
     async def _on_click(
             self, c: CallbackQuery, button: Button,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)

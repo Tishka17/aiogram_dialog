@@ -3,8 +3,8 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import InternalDialogManager
-from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
+from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -15,7 +15,7 @@ from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
 
 OnStateChanged = Callable[
-    [ChatEvent, "ManagedScrollingGroupAdapter", ActiveDialogManager],
+    [ChatEvent, "ManagedScrollingGroupAdapter", DialogManager],
     Awaitable,
 ]
 
@@ -39,7 +39,7 @@ class ScrollingGroup(Group):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd = await super()._render_keyboard(data, manager)
         pages = len(kbd) // self.height + bool(len(kbd) % self.height)
@@ -80,16 +80,16 @@ class ScrollingGroup(Group):
             c: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> bool:
         await self.set_page(c, int(data), manager)
         return True
 
-    def get_page(self, manager: ActiveDialogManager) -> int:
+    def get_page(self, manager: DialogManager) -> int:
         return manager.current_context().widget_data.get(self.widget_id, 0)
 
     async def set_page(
-            self, event: ChatEvent, page: int, manager: ActiveDialogManager,
+            self, event: ChatEvent, page: int, manager: DialogManager,
     ) -> None:
         manager.current_context().widget_data[self.widget_id] = page
         await self.on_page_changed.process_event(
@@ -98,7 +98,7 @@ class ScrollingGroup(Group):
             manager,
         )
 
-    def managed(self, manager: ActiveDialogManager):
+    def managed(self, manager: DialogManager):
         return ManagedScrollingGroupAdapter(self, manager)
 
 

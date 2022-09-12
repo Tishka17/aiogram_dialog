@@ -1,11 +1,12 @@
 from typing import Any, Dict, Optional, Protocol
 
 from aiogram.fsm.state import State
+from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, ShowMode, Stack, StartMode,
 )
-from .managed import ManagedDialogProtocol
+from . import DialogProtocol
 
 
 class BaseDialogManager(Protocol):
@@ -44,7 +45,7 @@ class BaseDialogManager(Protocol):
         raise NotImplementedError
 
 
-class ActiveDialogManager(BaseDialogManager, Protocol):
+class DialogManager(BaseDialogManager, Protocol):
 
     @property
     def data(self) -> Dict:
@@ -61,14 +62,35 @@ class ActiveDialogManager(BaseDialogManager, Protocol):
         """Set current show mode, used for next show action."""
         raise NotImplementedError
 
+    def is_preview(self) -> bool:
+        raise NotImplementedError
+
+    async def show(self) -> Message:
+        raise NotImplementedError
+
     def current_context(self) -> Optional[Context]:
         raise NotImplementedError
 
     def current_stack(self) -> Optional[Stack]:
         raise NotImplementedError
 
-    def dialog(self) -> ManagedDialogProtocol:
+    async def next(self) -> None:
+        raise NotImplementedError
+
+    async def back(self) -> None:
+        raise NotImplementedError
+
+    def find(self, widget_id) -> Optional[Any]:
+        raise NotImplementedError
+
+    def dialog(self) -> DialogProtocol:
         raise NotImplementedError
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        raise NotImplementedError
+
+    async def load_data(self) -> Dict:
+        raise NotImplementedError
+
+    async def close_manager(self) -> None:
         raise NotImplementedError

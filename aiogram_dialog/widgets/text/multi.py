@@ -1,12 +1,12 @@
 from typing import Any, Callable, Dict, Hashable, Union
 from warnings import warn
 
-from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.internal import DialogManager
 from .base import Multi as _Multi
 from .base import Text
 from ..when import WhenCondition
 
-Selector = Callable[[Dict, "Case", InternalDialogManager], Hashable]
+Selector = Callable[[Dict, "Case", DialogManager], Hashable]
 
 
 class Multi(_Multi):
@@ -23,7 +23,7 @@ class Multi(_Multi):
 
 def new_case_field(fieldname: str) -> Selector:
     def case_field(
-            data: Dict, widget: "Case", manager: InternalDialogManager,
+            data: Dict, widget: "Case", manager: DialogManager,
     ) -> Hashable:
         return data.get(fieldname)
 
@@ -44,6 +44,6 @@ class Case(Text):
         else:
             self.selector = selector
 
-    async def _render_text(self, data, manager: InternalDialogManager) -> str:
+    async def _render_text(self, data, manager: DialogManager) -> str:
         selection = self.selector(data, self, manager)
         return await self.texts[selection].render_text(data, manager)

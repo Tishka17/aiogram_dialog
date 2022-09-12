@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from .base import Keyboard
 from ..when import WhenCondition
-from ...api.internal import InternalDialogManager
+from ...api.internal import DialogManager
 from ...api.protocols import DialogProtocol
 
 
@@ -34,7 +34,7 @@ class Group(Keyboard):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for b in self.buttons:
@@ -68,7 +68,7 @@ class Group(Keyboard):
             self,
             c: CallbackQuery,
             dialog: DialogProtocol,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> bool:
         for b in self.buttons:
             if await b.process_callback(c, dialog, manager):

@@ -1,7 +1,7 @@
 from typing import Any, Callable, Union
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.protocols import ActiveDialogManager
+from aiogram_dialog.api.protocols import DialogManager
 
 
 class WidgetEventProcessor:
@@ -9,7 +9,7 @@ class WidgetEventProcessor:
             self,
             event: ChatEvent,
             source: Any,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
             *args,
             **kwargs,
     ):
@@ -24,7 +24,7 @@ class SimpleEventProcessor(WidgetEventProcessor):
             self,
             event: ChatEvent,
             source: Any,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
             *args,
             **kwargs,
     ):

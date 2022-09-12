@@ -2,8 +2,8 @@ from typing import Awaitable, Callable, Generic, TypeVar, Union
 
 from aiogram.types import ContentType, Message
 
-from aiogram_dialog.api.internal import InternalDialogManager
-from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
+from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -13,8 +13,8 @@ from ..managed import ManagedWidgetAdapter
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
-OnSuccess = Callable[[Message, "TextInput", ActiveDialogManager, T], Awaitable]
-OnError = Callable[[Message, "TextInput", ActiveDialogManager], Awaitable]
+OnSuccess = Callable[[Message, "TextInput", DialogManager, T], Awaitable]
+OnError = Callable[[Message, "TextInput", DialogManager], Awaitable]
 
 
 class TextInput(BaseInput, Generic[T]):
@@ -34,7 +34,7 @@ class TextInput(BaseInput, Generic[T]):
             self,
             message: Message,
             dialog: DialogProtocol,
-            manager: ActiveDialogManager,
+            manager: DialogManager,
     ):
         if message.content_type != ContentType.TEXT:
             return False
@@ -47,10 +47,10 @@ class TextInput(BaseInput, Generic[T]):
             self.set_widget_data(manager, message.text)
             await self.on_success.process_event(message, self, manager, value)
 
-    def get_value(self, manager: ActiveDialogManager) -> T:
+    def get_value(self, manager: DialogManager) -> T:
         return self.type_factory(self.get_widget_data(manager, None))
 
-    def managed(self, manager: InternalDialogManager):
+    def managed(self, manager: DialogManager):
         return ManagedTextInputAdapter(self, manager)
 
 

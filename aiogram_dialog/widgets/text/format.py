@@ -1,6 +1,6 @@
 from typing import Dict
 
-from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.internal import DialogManager
 from .base import Text
 from ..when import WhenCondition
 
@@ -34,7 +34,7 @@ class Format(Text):
         self.text = text
 
     async def _render_text(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> str:
         if manager.is_preview():
             return self.text.format_map(_FormatDataStub(data=data))

@@ -6,8 +6,8 @@ from typing import Awaitable, Callable, Dict, List, TypedDict, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import InternalDialogManager
-from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
+from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -16,7 +16,7 @@ from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 
 OnDateSelected = Callable[
-    [ChatEvent, "ManagedCalendarAdapter", ActiveDialogManager,
+    [ChatEvent, "ManagedCalendarAdapter", DialogManager,
      date], Awaitable,
 ]
 
@@ -52,7 +52,7 @@ class Calendar(Keyboard):
         self.on_click = ensure_event_processor(on_click)
 
     async def _render_keyboard(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
         current_scope = self.get_scope(manager)
@@ -69,7 +69,7 @@ class Calendar(Keyboard):
             c: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> bool:
         current_offset = self.get_offset(manager)
 
@@ -213,12 +213,12 @@ class Calendar(Keyboard):
             ],
         ]
 
-    def get_scope(self, manager: ActiveDialogManager) -> str:
+    def get_scope(self, manager: DialogManager) -> str:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_scope = calendar_data.get("current_scope")
         return current_scope or SCOPE_DAYS
 
-    def get_offset(self, manager: ActiveDialogManager) -> date:
+    def get_offset(self, manager: DialogManager) -> date:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_offset = calendar_data.get("current_offset")
         if current_offset is None:
@@ -226,15 +226,15 @@ class Calendar(Keyboard):
         return date.fromisoformat(current_offset)
 
     def set_offset(self, new_offset: date,
-                   manager: ActiveDialogManager) -> None:
+                   manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
         data["current_offset"] = new_offset.isoformat()
 
-    def set_scope(self, new_scope: str, manager: ActiveDialogManager) -> None:
+    def set_scope(self, new_scope: str, manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
         data["current_scope"] = new_scope
 
-    def managed(self, manager: ActiveDialogManager):
+    def managed(self, manager: DialogManager):
         return ManagedCalendarAdapter(self, manager)
 
 

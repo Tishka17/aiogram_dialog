@@ -8,25 +8,24 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
 from aiogram_dialog.api.protocols import DialogProtocol
-from .dialog import DialogShowerProtocol
-from .manager import InternalDialogManager
+from .manager import DialogManager
 from .new_message import NewMessage
 
 
 class WindowProtocol(Protocol):
     async def render_text(self, data: Dict,
-                          manager: InternalDialogManager) -> str:
+                          manager: DialogManager) -> str:
         raise NotImplementedError
 
     async def render_kbd(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> InlineKeyboardMarkup:
         raise NotImplementedError
 
     async def load_data(
             self,
             dialog: "DialogShowerProtocol",
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> Dict:
         raise NotImplementedError
 
@@ -34,7 +33,7 @@ class WindowProtocol(Protocol):
             self,
             m: Message,
             dialog: "DialogProtocol",
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ):
         raise NotImplementedError
 
@@ -42,14 +41,14 @@ class WindowProtocol(Protocol):
             self,
             c: CallbackQuery,
             dialog: "DialogProtocol",
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ):
         raise NotImplementedError
 
     async def render(
             self,
-            dialog: "DialogShowerProtocol",
-            manager: InternalDialogManager,
+            dialog: "DialogProtocol",
+            manager: DialogManager,
     ) -> NewMessage:
         raise NotImplementedError
 

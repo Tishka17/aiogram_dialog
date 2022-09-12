@@ -4,6 +4,7 @@ __all__ = [
     "LaunchMode",
     "MediaAttachment", "MediaId",
     "ShowMode", "StartMode",
+    "NewMessage",
     "DEFAULT_STACK_ID", "Stack",
     "DIALOG_EVENT_NAME", "DialogAction", "DialogUpdateEvent",
     "DialogStartEvent", "DialogSwitchEvent", "DialogUpdate",
@@ -14,6 +15,7 @@ from .events import ChatEvent
 from .launch_mode import LaunchMode
 from .media import MediaAttachment, MediaId
 from .modes import ShowMode, StartMode
+from .new_message import NewMessage
 from .stack import DEFAULT_STACK_ID, Stack
 from .update_event import (
     DIALOG_EVENT_NAME, DialogAction, DialogStartEvent, DialogSwitchEvent,

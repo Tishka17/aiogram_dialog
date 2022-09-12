@@ -6,20 +6,20 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import (
-    InternalDialogManager, NewMessage,
+    DialogManager, NewMessage,
 )
 from aiogram_dialog.api.protocols import (
-    ActiveDialogManager, DialogProtocol, ManagedDialogProtocol,
+    DialogManager, DialogProtocol, ManagedDialogProtocol,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
 
 
-class SubManager(InternalDialogManager):
+class SubManager(DialogManager):
     def __init__(
             self,
-            manager: InternalDialogManager,
+            manager: DialogManager,
             widget_id: str,
             item_id: str,
     ):
@@ -84,7 +84,7 @@ class ListGroup(Keyboard):
             self.items_getter = get_identity(items)
 
     async def _render_keyboard(
-            self, data: Dict, manager: InternalDialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for pos, item in enumerate(self.items_getter(data)):
@@ -96,7 +96,7 @@ class ListGroup(Keyboard):
             pos: int,
             item: Any,
             data: Dict,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
@@ -114,7 +114,7 @@ class ListGroup(Keyboard):
         return kbd
 
     def find_for_item(
-            self, manager: InternalDialogManager, widget_id: str, item_id: str,
+            self, manager: DialogManager, widget_id: str, item_id: str,
     ) -> Optional[Keyboard]:
         for btn in self.buttons:
             widget = btn.find(widget_id)
@@ -127,7 +127,7 @@ class ListGroup(Keyboard):
             c: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
-            manager: InternalDialogManager,
+            manager: DialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
         c_vars = vars(c)
@@ -138,7 +138,7 @@ class ListGroup(Keyboard):
             if await b.process_callback(c, dialog, sub_manager):
                 return True
 
-    def managed(self, manager: ActiveDialogManager):
+    def managed(self, manager: DialogManager):
         return ManagedListGroupAdapter(self, manager)
 
 

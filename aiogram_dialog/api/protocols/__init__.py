@@ -1,13 +1,13 @@
 __all__ = [
     "DialogProtocol",
-    "ManagedDialogProtocol",
-    "ActiveDialogManager", "BaseDialogManager",
+    "DialogManager", "BaseDialogManager",
     "MediaIdStorageProtocol",
+    "MessageManagerProtocol",
     "DialogProtocol", "DialogRegistryProtocol",
 ]
 
 from .dialog import DialogProtocol
-from .managed import ManagedDialogProtocol
-from .manager import ActiveDialogManager, BaseDialogManager
+from .manager import DialogManager, BaseDialogManager
 from .media import MediaIdStorageProtocol
+from .message_manager import MessageManagerProtocol
 from .registry import DialogRegistryProtocol
