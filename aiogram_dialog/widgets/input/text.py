@@ -1,20 +1,20 @@
-from typing import Awaitable, Callable, Generic, Optional, TypeVar, Union
+from typing import Awaitable, Callable, Generic, TypeVar, Union
 
 from aiogram.types import ContentType, Message
 
-from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import BaseInput
 from ..managed import ManagedWidgetAdapter
-from ...deprecation_utils import manager_deprecated
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
-OnSuccess = Callable[[Message, "TextInput", DialogManager, T], Awaitable]
-OnError = Callable[[Message, "TextInput", DialogManager], Awaitable]
+OnSuccess = Callable[[Message, "TextInput", ActiveDialogManager, T], Awaitable]
+OnError = Callable[[Message, "TextInput", ActiveDialogManager], Awaitable]
 
 
 class TextInput(BaseInput, Generic[T]):
@@ -33,8 +33,8 @@ class TextInput(BaseInput, Generic[T]):
     async def process_message(
             self,
             message: Message,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: ActiveDialogManager,
     ):
         if message.content_type != ContentType.TEXT:
             return False
@@ -47,14 +47,13 @@ class TextInput(BaseInput, Generic[T]):
             self.set_widget_data(manager, message.text)
             await self.on_success.process_event(message, self, manager, value)
 
-    def get_value(self, manager: DialogManager) -> T:
+    def get_value(self, manager: ActiveDialogManager) -> T:
         return self.type_factory(self.get_widget_data(manager, None))
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: InternalDialogManager):
         return ManagedTextInputAdapter(self, manager)
 
 
 class ManagedTextInputAdapter(ManagedWidgetAdapter[TextInput[T]], Generic[T]):
-    def get_value(self, manager: Optional[DialogManager] = None) -> T:
-        manager_deprecated(manager)
+    def get_value(self) -> T:
         return self.widget.get_value(self.manager)

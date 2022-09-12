@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 from aiogram.types import CallbackQuery, Chat, ChatMemberUpdated, Message, User
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent, MediaId
-from .manager.protocols import NewMessage
+from aiogram_dialog.api.internal import NewMessage
 
 logger = getLogger(__name__)
 

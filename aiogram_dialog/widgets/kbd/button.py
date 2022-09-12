@@ -2,7 +2,8 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
-from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
@@ -11,7 +12,7 @@ from aiogram_dialog.widgets.widget_event import (
 from .base import Keyboard
 from ..when import WhenCondition
 
-OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
+OnClick = Callable[[CallbackQuery, "Button", ActiveDialogManager], Awaitable]
 
 
 class Button(Keyboard):
@@ -29,8 +30,8 @@ class Button(Keyboard):
     async def _process_own_callback(
             self,
             c: CallbackQuery,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         await self.on_click.process_event(c, self, manager)
         return True
@@ -38,7 +39,7 @@ class Button(Keyboard):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [
             [
@@ -65,7 +66,7 @@ class Url(Keyboard):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [
             [
@@ -79,7 +80,7 @@ class Url(Keyboard):
 
 class WebApp(Url):
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: Dict, manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         text = await self.text.render_text(data, manager)
 

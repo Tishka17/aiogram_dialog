@@ -2,8 +2,8 @@ from .api import exceptions
 from .api.entities import (
     ChatEvent, Data, DEFAULT_STACK_ID, ShowMode, StartMode,
 )
+from .api.protocols import ActiveDialogManager, BaseDialogManager
 from .dialog import Dialog
-from .manager.protocols import BaseDialogManager, DialogManager
 from .manager.registry import DialogRegistry
 from .window import Window
 
@@ -14,7 +14,7 @@ __all__ = [
     "ChatEvent",
     "StartMode",
     "BaseDialogManager",
-    "DialogManager",
+    "ActiveDialogManager",
     "DialogRegistry",
     "ShowMode",
     "Window",

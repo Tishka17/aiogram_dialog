@@ -4,7 +4,8 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
@@ -12,10 +13,9 @@ from aiogram_dialog.widgets.widget_event import (
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
-from ...deprecation_utils import manager_deprecated
 
 OnStateChanged = Callable[
-    [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable,
+    [ChatEvent, "ManagedCheckboxAdapter", ActiveDialogManager], Awaitable,
 ]
 OnStateChangedVariant = Union[
     OnStateChanged, WidgetEventProcessor, None,
@@ -41,7 +41,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.on_state_changed = ensure_event_processor(on_state_changed)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: Dict, manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
@@ -58,8 +58,8 @@ class BaseCheckbox(Keyboard, ABC):
             self,
             c: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         # remove prefix and cast "0" as False, "1" as True
         checked = data != "0"
@@ -68,19 +68,20 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: Dict, case: Case, manager: ActiveDialogManager,
     ) -> bool:
         del data  # unused
         del case  # unused
         return self.is_checked(manager)
 
     @abstractmethod
-    def is_checked(self, manager: DialogManager) -> bool:
+    def is_checked(self, manager: ActiveDialogManager) -> bool:
         raise NotImplementedError
 
     @abstractmethod
     async def set_checked(
-            self, event: ChatEvent, checked: bool, manager: DialogManager,
+            self, event: ChatEvent, checked: bool,
+            manager: ActiveDialogManager,
     ):
         raise NotImplementedError
 
@@ -101,31 +102,29 @@ class Checkbox(BaseCheckbox):
         )
         self.default = default
 
-    def is_checked(self, manager: DialogManager) -> bool:
+    def is_checked(self, manager: ActiveDialogManager) -> bool:
         return self.get_widget_data(manager, self.default)
 
     async def set_checked(
-            self, event: ChatEvent, checked: bool, manager: DialogManager,
+            self, event: ChatEvent, checked: bool,
+            manager: ActiveDialogManager,
     ) -> None:
         self.set_widget_data(manager, checked)
         await self.on_state_changed.process_event(
             event, self.managed(manager), manager,
         )
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: ActiveDialogManager):
         return ManagedCheckboxAdapter(self, manager)
 
 
 class ManagedCheckboxAdapter(ManagedWidgetAdapter[Checkbox]):
-    def is_checked(self, manager: Optional[DialogManager] = None) -> bool:
-        manager_deprecated(manager)
+    def is_checked(self) -> bool:
         return self.widget.is_checked(self.manager)
 
     async def set_checked(
             self,
             event: ChatEvent,
             checked: bool,
-            manager: Optional[DialogManager] = None,
     ) -> None:
-        manager_deprecated(manager)
         return await self.widget.set_checked(event, checked, self.manager)

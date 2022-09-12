@@ -4,7 +4,10 @@ from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
-from .protocols import DialogManager, DialogManagerFactory, DialogRegistryProto
+from aiogram_dialog.api.internal import (
+    DialogManagerFactory, InternalDialogManager,
+)
+from aiogram_dialog.api.protocols import DialogRegistryProtocol
 
 MANAGER_KEY = "dialog_manager"
 
@@ -12,7 +15,7 @@ MANAGER_KEY = "dialog_manager"
 class ManagerMiddleware(BaseMiddleware):
     def __init__(
             self,
-            registry: DialogRegistryProto,
+            registry: DialogRegistryProtocol,
             dialog_manager_factory: DialogManagerFactory,
     ):
         super().__init__()
@@ -37,6 +40,6 @@ class ManagerMiddleware(BaseMiddleware):
         try:
             return await handler(event, data)
         finally:
-            manager: DialogManager = data.pop(MANAGER_KEY, None)
+            manager: InternalDialogManager = data.pop(MANAGER_KEY, None)
             if manager:
                 await manager.close_manager()

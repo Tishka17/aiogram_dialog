@@ -1,18 +1,18 @@
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
-from ..manager.protocols import DialogManager, ManagedWidgetProto
+from aiogram_dialog.api.protocols import ActiveDialogManager
 
 
-class ManagedWidget(ManagedWidgetProto):
-    def managed(self, manager: DialogManager):
+class ManagedWidget:
+    def managed(self, manager: ActiveDialogManager) -> Any:
         return ManagedWidgetAdapter(self, manager)
 
 
 W = TypeVar("W", bound=ManagedWidget)
 
 
-class ManagedWidgetAdapter(ManagedWidgetProto, Generic[W]):
-    def __init__(self, widget: W, manager: DialogManager):
+class ManagedWidgetAdapter(Generic[W]):
+    def __init__(self, widget: W, manager: ActiveDialogManager):
         self.widget = widget
         self.manager = manager
 

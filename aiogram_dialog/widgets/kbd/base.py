@@ -2,7 +2,8 @@ from typing import List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.internal import InternalDialogManager
+from aiogram_dialog.api.protocols import DialogProtocol
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.when import Whenable, WhenCondition
 
@@ -15,7 +16,7 @@ class Keyboard(Actionable, Whenable):
     async def render_keyboard(
             self,
             data,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         """
         Render keyboard if needed.
@@ -30,7 +31,7 @@ class Keyboard(Actionable, Whenable):
     async def _render_keyboard(
             self,
             data,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         raise NotImplementedError
 
@@ -50,8 +51,8 @@ class Keyboard(Actionable, Whenable):
     async def process_callback(
             self,
             c: CallbackQuery,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         if c.data == self.widget_id:
             return await self._process_own_callback(
@@ -72,8 +73,8 @@ class Keyboard(Actionable, Whenable):
     async def _process_own_callback(
             self,
             c: CallbackQuery,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         """Process callback related to _own_callback_data."""
         return False
@@ -82,8 +83,8 @@ class Keyboard(Actionable, Whenable):
             self,
             c: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         """Process callback related to _item_callback_data."""
         return False
@@ -91,8 +92,8 @@ class Keyboard(Actionable, Whenable):
     async def _process_other_callback(
             self,
             c: CallbackQuery,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         """
         Process callback for unknown callback data.

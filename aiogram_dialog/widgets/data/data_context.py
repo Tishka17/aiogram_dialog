@@ -1,6 +1,6 @@
 from typing import Awaitable, Callable, Dict, List
 
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.api.internal import InternalDialogManager
 
 DataGetter = Callable[..., Awaitable[Dict]]
 
@@ -29,7 +29,7 @@ class PreviewAwareGetter:
         self.normal_getter = normal_getter
         self.preview_getter = preview_getter
 
-    async def __call__(self, dialog_manager: DialogManager, **kwargs):
+    async def __call__(self, dialog_manager: InternalDialogManager, **kwargs):
         if dialog_manager.is_preview():
             return await self.preview_getter(
                 dialog_manager=dialog_manager, **kwargs,

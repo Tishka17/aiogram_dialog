@@ -14,7 +14,7 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.protocols import ActiveDialogManager, DialogProtocol
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
@@ -22,16 +22,16 @@ from aiogram_dialog.widgets.widget_event import (
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
-from ...deprecation_utils import manager_deprecated
+from ...api.internal import InternalDialogManager
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
-    [ChatEvent, ManagedWidgetAdapter["Select"], DialogManager, str],
+    [ChatEvent, ManagedWidgetAdapter["Select"], ActiveDialogManager, str],
     Awaitable,
 ]
 OnItemClick = Callable[
-    [CallbackQuery, ManagedWidgetAdapter["Select"], DialogManager, str],
+    [CallbackQuery, ManagedWidgetAdapter["Select"], ActiveDialogManager, str],
     Awaitable,
 ]
 
@@ -65,7 +65,7 @@ class Select(Keyboard):
     async def _render_keyboard(
             self,
             data: Dict,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [
             [
@@ -75,7 +75,8 @@ class Select(Keyboard):
         ]
 
     async def _render_button(
-            self, pos: int, item: Any, data: Dict, manager: DialogManager,
+            self, pos: int, item: Any, data: Dict,
+            manager: InternalDialogManager,
     ) -> InlineKeyboardButton:
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
         item_id = self.item_id_getter(item)
@@ -88,8 +89,8 @@ class Select(Keyboard):
             self,
             c: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: ActiveDialogManager,
     ) -> bool:
         await self.on_click.process_event(
             c,
@@ -125,7 +126,7 @@ class StatefulSelect(Select, ABC):
         self.on_state_changed = ensure_event_processor(on_state_changed)
 
     async def _process_on_state_changed(
-            self, event: ChatEvent, item_id: str, manager: DialogManager,
+            self, event: ChatEvent, item_id: str, manager: ActiveDialogManager,
     ):
         if self.on_state_changed:
             await self.on_state_changed.process_event(
@@ -134,7 +135,7 @@ class StatefulSelect(Select, ABC):
 
     @abstractmethod
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: Dict, case: Case, manager: ActiveDialogManager,
     ) -> bool:
         raise NotImplementedError
 
@@ -142,7 +143,7 @@ class StatefulSelect(Select, ABC):
             self,
             c: CallbackQuery,
             select: ManagedWidgetAdapter[Select],
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             item_id: str,
     ):
         if self.on_item_click:
@@ -154,19 +155,19 @@ class StatefulSelect(Select, ABC):
             self,
             c: CallbackQuery,
             select: ManagedWidgetAdapter[Select],
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             item_id: str,
     ):
         raise NotImplementedError
 
 
 class Radio(StatefulSelect):
-    def get_checked(self, manager: DialogManager) -> Optional[str]:
+    def get_checked(self, manager: ActiveDialogManager) -> Optional[str]:
         return self.get_widget_data(manager, None)
 
     async def set_checked(
             self, event: ChatEvent, item_id: Optional[str],
-            manager: DialogManager,
+            manager: ActiveDialogManager,
     ):
         checked = self.get_checked(manager)
         self.set_widget_data(manager, item_id)
@@ -174,15 +175,17 @@ class Radio(StatefulSelect):
             await self._process_on_state_changed(event, item_id, manager)
 
     def is_checked(
-            self, item_id: Union[str, int], manager: DialogManager,
+            self, item_id: Union[str, int], manager: ActiveDialogManager,
     ) -> bool:
         return str(item_id) == self.get_checked(manager)
 
-    def _preview_checked_id(self, manager: DialogManager, item_id: str) -> str:
+    def _preview_checked_id(
+            self, manager: ActiveDialogManager, item_id: str,
+    ) -> str:
         return self.get_widget_data(manager, item_id)
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: Dict, case: Case, manager: InternalDialogManager,
     ) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
         if manager.is_preview():
@@ -193,36 +196,29 @@ class Radio(StatefulSelect):
             self,
             c: CallbackQuery,
             select: Select,
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             item_id: str,
     ):
         await self.set_checked(c, item_id, manager)
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: ActiveDialogManager):
         return ManagedRadioAdapter(self, manager)
 
 
 class ManagedRadioAdapter(ManagedWidgetAdapter[Radio]):
-    def get_checked(
-            self, manager: Optional[DialogManager] = None,
-    ) -> Optional[str]:
-        manager_deprecated(manager)
+    def get_checked(self) -> Optional[str]:
         return self.widget.get_checked(self.manager)
 
     async def set_checked(
             self,
             event: ChatEvent,
             item_id: Optional[str],
-            manager: Optional[DialogManager] = None,
     ):
-        manager_deprecated(manager)
         return await self.widget.set_checked(event, item_id, self.manager)
 
     def is_checked(
             self, item_id: Union[str, int],
-            manager: Optional[DialogManager] = None,
     ) -> bool:
-        manager_deprecated(manager)
         return self.widget.is_checked(item_id, self.manager)
 
 
@@ -256,7 +252,7 @@ class Multiselect(StatefulSelect):
         self.max_selected = max_selected
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: Dict, case: Case, manager: InternalDialogManager,
     ) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
         if manager.is_preview():
@@ -267,15 +263,17 @@ class Multiselect(StatefulSelect):
         return self.is_checked(item_id, manager)
 
     def is_checked(
-            self, item_id: Union[str, int], manager: DialogManager,
+            self, item_id: Union[str, int], manager: ActiveDialogManager,
     ) -> bool:
         data: List = self.get_checked(manager)
         return str(item_id) in data
 
-    def get_checked(self, manager: DialogManager) -> List[str]:
+    def get_checked(self, manager: ActiveDialogManager) -> List[str]:
         return self.get_widget_data(manager, [])
 
-    async def reset_checked(self, event: ChatEvent, manager: DialogManager):
+    async def reset_checked(
+            self, event: ChatEvent, manager: ActiveDialogManager,
+    ) -> None:
         self.set_widget_data(manager, [])
 
     async def set_checked(
@@ -283,7 +281,7 @@ class Multiselect(StatefulSelect):
             event: ChatEvent,
             item_id: str,
             checked: bool,
-            manager: DialogManager,
+            manager: ActiveDialogManager,
     ) -> None:
         data: List = self.get_checked(manager)
         changed = False
@@ -305,35 +303,29 @@ class Multiselect(StatefulSelect):
             self,
             c: CallbackQuery,
             select: Select,
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             item_id: str,
     ):
         await self.set_checked(
             c, item_id, not self.is_checked(item_id, manager), manager,
         )
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: ActiveDialogManager):
         return ManagedMultiSelectAdapter(self, manager)
 
 
 class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
     def is_checked(
             self, item_id: Union[str, int],
-            manager: Optional[DialogManager] = None,
     ) -> bool:
-        manager_deprecated(manager)
         return self.widget.is_checked(item_id, self.manager)
 
-    def get_checked(
-            self, manager: Optional[DialogManager] = None,
-    ) -> List[str]:
-        manager_deprecated(manager)
+    def get_checked(self) -> List[str]:
         return self.widget.get_checked(self.manager)
 
     async def reset_checked(
-            self, event: ChatEvent, manager: Optional[DialogManager] = None,
+            self, event: ChatEvent,
     ):
-        manager_deprecated(manager)
         return await self.widget.reset_checked(event, self.manager)
 
     async def set_checked(
@@ -341,9 +333,7 @@ class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
             event: ChatEvent,
             item_id: str,
             checked: bool,
-            manager: Optional[DialogManager] = None,
     ) -> None:
-        manager_deprecated(manager)
         return await self.widget.set_checked(
             event, item_id, checked, self.manager,
         )

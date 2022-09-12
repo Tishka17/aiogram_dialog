@@ -6,44 +6,46 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, ShowMode, Stack, StartMode,
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, ShowMode, Stack,
+    StartMode,
 )
 from aiogram_dialog.api.exceptions import IncorrectBackgroundError
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
+    CONTEXT_KEY, DialogShowerProtocol, InternalDialogManager, NewMessage,
+    STACK_KEY, STORAGE_KEY,
 )
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
-from aiogram_dialog.api.protocols import ManagedDialogProtocol
-from .bg_manager import BgManager
-from .dialog import ManagedDialogAdapter
-from .protocols import (
-    BaseDialogManager,
-    DialogManager,
-    DialogRegistryProto,
-    LaunchMode,
-    ManagedDialogProto,
-    NewMessage,
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, DialogProtocol, DialogRegistryProtocol,
+    ManagedDialogProtocol,
 )
+from .bg_manager import BgManager
 from ..context.storage import StorageProxy
 
 logger = getLogger(__name__)
 
 
-class ManagerImpl(DialogManager):
+class ManagerImpl(InternalDialogManager):
     def __init__(
-            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict,
+            self, event: ChatEvent, registry: DialogRegistryProtocol,
+            data: Dict,
     ):
         self.disabled = False
         self._registry = registry
-        self.event = event
-        self.data = data
+        self._event = event
+        self._data = data
         self.show_mode: ShowMode = ShowMode.AUTO
 
     @property
-    def registry(self) -> DialogRegistryProto:
-        return self._registry
+    def event(self) -> ChatEvent:
+        return self._event
+
+    @property
+    def data(self) -> Dict:
+        """Middleware data."""
+        return self._data
 
     def check_disabled(self):
         if self.disabled:
@@ -66,14 +68,14 @@ class ManagerImpl(DialogManager):
         return False
 
     def dialog(self) -> ManagedDialogProtocol:
-        return ManagedDialogAdapter(self._dialog(), self)
+        return self._dialog().managed(self)
 
-    def _dialog(self) -> ManagedDialogProto:
+    def _dialog(self) -> DialogShowerProtocol:  # TODO
         self.check_disabled()
         current = self.current_context()
         if not current:
             raise RuntimeError
-        return self.registry.find_dialog(current.state)
+        return self._registry.find_dialog(current.state)
 
     def current_context(self) -> Optional[Context]:
         return self.data[CONTEXT_KEY]
@@ -92,7 +94,7 @@ class ManagerImpl(DialogManager):
             message_id=self.current_stack().last_message_id,
             date=datetime.now(),
         )
-        await self._registry.message_manager.remove_kbd(
+        await self._registry.message_manager.remove_kbd(  # TODO
             bot,
             message,
         )
@@ -121,7 +123,7 @@ class ManagerImpl(DialogManager):
         await dialog.process_result(old_context.start_data, result, self)
         new_context = self.current_context()
         if new_context and context.id == new_context.id:
-            await self._dialog().show(self)
+            await self._dialog().show(self)  # TODO
 
     async def mark_closed(self) -> None:
         self.check_disabled()
@@ -169,7 +171,7 @@ class ManagerImpl(DialogManager):
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
         stack = self.current_stack()
-        old_dialog: Optional[ManagedDialogProto] = None
+        old_dialog: Optional[DialogProtocol] = None
         if not stack.empty():
             old_dialog = self._dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
@@ -178,7 +180,7 @@ class ManagerImpl(DialogManager):
                     "of one with launch_mode==SINGLE",
                 )
 
-        new_dialog = self.registry.find_dialog(state)
+        new_dialog = self._registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
         if launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
@@ -309,7 +311,7 @@ class ManagerImpl(DialogManager):
             user=user,
             chat=chat,
             bot=self.data["bot"],
-            registry=self.registry,
+            registry=self._registry,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,
@@ -319,5 +321,5 @@ class ManagerImpl(DialogManager):
         self.check_disabled()
         self.disabled = True
         del self._registry
-        del self.event
-        del self.data
+        del self._event
+        del self._data

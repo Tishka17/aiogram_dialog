@@ -5,9 +5,11 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
 
 from aiogram_dialog.api.entities import MediaAttachment
-from .dialog import Dialog, DialogWindowProto
-from .manager.protocols import DialogManager
-from .utils import NewMessage
+from aiogram_dialog.api.internal import (
+    DialogShowerProtocol, InternalDialogManager,
+    NewMessage, WindowProtocol,
+)
+from .api.protocols import DialogProtocol
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
@@ -21,7 +23,7 @@ from .widgets.utils import (
 logger = getLogger(__name__)
 
 
-class Window(DialogWindowProto):
+class Window(WindowProtocol):
     def __init__(
             self,
             *widgets: WidgetSrc,
@@ -47,42 +49,48 @@ class Window(DialogWindowProto):
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
 
-    async def render_text(self, data: Dict, manager: DialogManager) -> str:
+    async def render_text(
+            self, data: Dict, manager: InternalDialogManager,
+    ) -> str:
         return await self.text.render_text(data, manager)
 
     async def render_media(
-            self, data: Dict, manager: DialogManager,
+            self, data: Dict, manager: InternalDialogManager,
     ) -> Optional[MediaAttachment]:
         if self.media:
             return await self.media.render_media(data, manager)
 
     async def render_kbd(
-            self, data: Dict, manager: DialogManager,
+            self, data: Dict, manager: InternalDialogManager,
     ) -> InlineKeyboardMarkup:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
     async def load_data(
-            self, dialog: "Dialog", manager: DialogManager,
+            self, dialog: "DialogShowerProtocol",
+            manager: InternalDialogManager,
     ) -> Dict:
         data = await dialog.load_data(manager)
         data.update(await self.getter(**manager.data))
         return data
 
     async def process_message(
-            self, message: Message, dialog: Dialog, manager: DialogManager,
+            self, message: Message, dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ):
         if self.on_message:
             await self.on_message.process_message(message, dialog, manager)
 
     async def process_callback(
-            self, c: CallbackQuery, dialog: Dialog, manager: DialogManager,
+            self, c: CallbackQuery, dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ):
         if self.keyboard:
             await self.keyboard.process_callback(c, dialog, manager)
 
     async def render(
-            self, dialog: Dialog, manager: DialogManager,
+            self, dialog: DialogShowerProtocol,
+            manager: InternalDialogManager,
     ) -> NewMessage:
         logger.debug("Show window: %s", self)
         chat = manager.data["event_chat"]

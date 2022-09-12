@@ -4,24 +4,22 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
-from aiogram_dialog.api.entities import Stack
-from aiogram_dialog.api.protocols import ManagedDialogProtocol
-from aiogram_dialog.manager.protocols import (
-    Context,
-    DialogManager,
-    DialogRegistryProto,
-    ManagedDialogProto,
-    NewMessage,
+from aiogram_dialog.api.entities import Context, Stack
+from aiogram_dialog.api.internal import (
+    InternalDialogManager, NewMessage,
+)
+from aiogram_dialog.api.protocols import (
+    ActiveDialogManager, DialogProtocol, ManagedDialogProtocol,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
 from ..when import WhenCondition
 
 
-class SubManager(DialogManager):
+class SubManager(InternalDialogManager):
     def __init__(
             self,
-            manager: DialogManager,
+            manager: InternalDialogManager,
             widget_id: str,
             item_id: str,
     ):
@@ -56,10 +54,6 @@ class SubManager(DialogManager):
     async def load_data(self) -> Dict:
         return await self.manager.load_data()
 
-    @property
-    def registry(self) -> DialogRegistryProto:
-        return self.manager.registry
-
 
 ItemsGetter = Callable[[Dict], Sequence]
 ItemIdGetter = Callable[[Any], Union[str, int]]
@@ -90,7 +84,7 @@ class ListGroup(Keyboard):
             self.items_getter = get_identity(items)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: Dict, manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         for pos, item in enumerate(self.items_getter(data)):
@@ -102,7 +96,7 @@ class ListGroup(Keyboard):
             pos: int,
             item: Any,
             data: Dict,
-            manager: DialogManager,
+            manager: InternalDialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         kbd: List[List[InlineKeyboardButton]] = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
@@ -120,7 +114,7 @@ class ListGroup(Keyboard):
         return kbd
 
     def find_for_item(
-            self, manager: DialogManager, widget_id: str, item_id: str,
+            self, manager: InternalDialogManager, widget_id: str, item_id: str,
     ) -> Optional[Keyboard]:
         for btn in self.buttons:
             widget = btn.find(widget_id)
@@ -132,8 +126,8 @@ class ListGroup(Keyboard):
             self,
             c: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
-            manager: DialogManager,
+            dialog: DialogProtocol,
+            manager: InternalDialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
         c_vars = vars(c)
@@ -144,7 +138,7 @@ class ListGroup(Keyboard):
             if await b.process_callback(c, dialog, sub_manager):
                 return True
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: ActiveDialogManager):
         return ManagedListGroupAdapter(self, manager)
 
 

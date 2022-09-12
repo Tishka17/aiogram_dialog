@@ -1,6 +1,6 @@
 from typing import Dict
 
-from aiogram_dialog.manager.manager import DialogManager
+from aiogram_dialog.api.internal import InternalDialogManager
 from aiogram_dialog.widgets.when import WhenCondition
 from .base import Text
 
@@ -20,7 +20,9 @@ class Progress(Text):
         self.filled = filled
         self.empty = empty
 
-    async def _render_text(self, data: Dict, manager: DialogManager) -> str:
+    async def _render_text(
+            self, data: Dict, manager: InternalDialogManager,
+    ) -> str:
         if manager.is_preview():
             percent = 15
         else:

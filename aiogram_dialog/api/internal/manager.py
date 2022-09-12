@@ -1,4 +1,4 @@
-from typing import Dict, Protocol, Any
+from typing import Any, Dict, Protocol
 
 from aiogram.types import Message
 

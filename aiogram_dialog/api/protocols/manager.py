@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Protocol
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Data, ShowMode, StartMode, Context, Stack,
+    ChatEvent, Context, Data, ShowMode, Stack, StartMode,
 )
 from .managed import ManagedDialogProtocol
 
@@ -48,7 +48,7 @@ class ActiveDialogManager(BaseDialogManager, Protocol):
 
     @property
     def data(self) -> Dict:
-        """Middleware data"""
+        """Middleware data."""
         raise NotImplementedError
 
     @property

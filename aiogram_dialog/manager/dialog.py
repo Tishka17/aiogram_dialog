@@ -2,15 +2,17 @@ from typing import Any, Optional
 
 from aiogram.filters.state import State
 
-from aiogram_dialog.api.protocols import ManagedDialogProtocol
-from aiogram_dialog.manager.protocols import (
-    DialogManager,
-    ManagedDialogProto,
+from aiogram_dialog.api.internal import (
+    DialogShowerProtocol, InternalDialogManager,
+)
+from aiogram_dialog.api.protocols import (
+    ManagedDialogProtocol,
 )
 
 
 class ManagedDialogAdapter(ManagedDialogProtocol):
-    def __init__(self, dialog: ManagedDialogProto, manager: DialogManager):
+    def __init__(self, dialog: DialogShowerProtocol,
+                 manager: InternalDialogManager):
         self.dialog = dialog
         self.manager = manager
 

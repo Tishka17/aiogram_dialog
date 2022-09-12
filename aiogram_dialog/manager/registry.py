@@ -12,17 +12,16 @@ from aiogram_dialog.api.entities import (
     DIALOG_EVENT_NAME, DialogUpdate, StartMode,
 )
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
-from aiogram_dialog.api.protocols import MediaIdStorageProtocol
+from aiogram_dialog.api.internal import (
+    DialogManagerFactory, MessageManagerProtocol,
+)
+from aiogram_dialog.api.protocols import (
+    DialogProtocol, DialogRegistryProtocol, MediaIdStorageProtocol,
+)
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
-from .protocols import (
-    DialogManager,
-    DialogManagerFactory,
-    DialogRegistryProto,
-    ManagedDialogProto,
-    MessageManagerProtocol,
-)
 from .update_handler import handle_update
+from .. import ActiveDialogManager
 from ..context.intent_filter import (
     IntentFilter,
 )
@@ -39,11 +38,11 @@ class DialogEventObserver(TelegramEventObserver):
     pass
 
 
-class DialogRegistry(DialogRegistryProto):
+class DialogRegistry(DialogRegistryProtocol):
     def __init__(
             self,
             dp: Dispatcher,
-            dialogs: Sequence[ManagedDialogProto] = (),
+            dialogs: Sequence[DialogProtocol] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
             dialog_manager_factory: DialogManagerFactory = ManagerImpl,
@@ -84,7 +83,7 @@ class DialogRegistry(DialogRegistryProto):
 
     def register(
             self,
-            dialog: ManagedDialogProto,
+            dialog: DialogProtocol,
             *args,
             router: Router = None,
             **kwargs,
@@ -95,7 +94,6 @@ class DialogRegistry(DialogRegistryProto):
         self.dialogs[group] = dialog
         self.state_groups[dialog.states_group_name()] = group
         dialog.register(
-            self,
             router if router else self.default_router,
             IntentFilter(aiogd_intent_state_group=group),
             *args,
@@ -103,7 +101,9 @@ class DialogRegistry(DialogRegistryProto):
         )
 
     def register_start_handler(self, state: State):
-        async def start_dialog(m: Message, dialog_manager: DialogManager):
+        async def start_dialog(
+                message: Message, dialog_manager: ActiveDialogManager,
+        ) -> None:
             await dialog_manager.start(state, mode=StartMode.RESET_STACK)
 
         self.dp.message.register(
@@ -146,7 +146,7 @@ class DialogRegistry(DialogRegistryProto):
             ),
         )
 
-    def find_dialog(self, state: State) -> ManagedDialogProto:
+    def find_dialog(self, state: State) -> DialogProtocol:
         try:
             return self.dialogs[state.group]
         except KeyError as e:

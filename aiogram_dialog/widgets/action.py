@@ -2,8 +2,8 @@ import re
 from typing import Any, Optional
 
 from aiogram_dialog.api.exceptions import InvalidWidgetIdError
+from aiogram_dialog.api.protocols import ActiveDialogManager
 from .managed import ManagedWidget
-from ..manager.protocols import DialogManager
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 
@@ -22,7 +22,7 @@ class Actionable(ManagedWidget):
 
     def get_widget_data(
             self,
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             default: Any,
     ) -> Any:
         """Get data for current widget id, setting default if needed."""
@@ -33,7 +33,7 @@ class Actionable(ManagedWidget):
 
     def set_widget_data(
             self,
-            manager: DialogManager,
+            manager: ActiveDialogManager,
             value: Any,
     ) -> Any:
         """Set data for current widget id."""
