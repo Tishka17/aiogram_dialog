@@ -13,10 +13,11 @@ from aiogram_dialog.api.entities import (
 )
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import (
-    DialogManagerFactory, MessageManagerProtocol,
+    DialogManagerFactory,
 )
 from aiogram_dialog.api.protocols import (
-    DialogProtocol, DialogRegistryProtocol, MediaIdStorageProtocol,
+    DialogProtocol, DialogRegistryProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
@@ -112,8 +113,9 @@ class DialogRegistry(DialogRegistryProtocol):
 
     def _register_middleware(self):
         manager_middleware = ManagerMiddleware(
-            self,
-            self.dialog_manager_factory,
+            message_manager=self.message_manager,
+            media_id_storage=self.media_id_storage,
+            dialog_manager_factory=self.dialog_manager_factory,
         )
         intent_middleware = IntentMiddlewareFactory(
             storage=self.dp.fsm.storage, state_groups=self.state_groups,

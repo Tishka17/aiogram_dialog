@@ -4,7 +4,7 @@ from aiogram.filters.content_types import ContentTypesFilter
 from aiogram.types import ContentType, Message
 
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol, ManagedDialogProtocol,
+    DialogManager, DialogProtocol,
 )
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.widget_event import (
@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.widget_event import (
 )
 
 MessageHandlerFunc = Callable[
-    [Message, ManagedDialogProtocol, DialogManager],
+    [Message, DialogProtocol, DialogManager],
     Awaitable,
 ]
 
@@ -39,7 +39,7 @@ class MessageInput(BaseInput):
     async def process_message(
             self,
             message: Message,
-            dialog: ManagedDialogProtocol,
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         if not await self.filter(message):

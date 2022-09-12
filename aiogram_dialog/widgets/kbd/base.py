@@ -2,8 +2,7 @@ from typing import List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.api.internal import DialogManager
-from aiogram_dialog.api.protocols import DialogProtocol
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.action import Actionable
 from aiogram_dialog.widgets.when import Whenable, WhenCondition
 

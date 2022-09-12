@@ -1,10 +1,13 @@
 from logging import getLogger
 from typing import Optional, Tuple
 
-from aiogram.types import CallbackQuery, Chat, ChatMemberUpdated, Message, User
+from aiogram.types import (
+    CallbackQuery, Chat, ChatMemberUpdated, Message, User,
+)
 
-from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent, MediaId
-from aiogram_dialog.api.internal import NewMessage
+from aiogram_dialog.api.entities import (
+    ChatEvent, DialogUpdateEvent, MediaId, NewMessage,
+)
 
 logger = getLogger(__name__)
 
@@ -40,11 +43,11 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-        message.audio or
-        message.animation or
-        message.document or
-        (message.photo[-1] if message.photo else None) or
-        message.video
+            message.audio or
+            message.animation or
+            message.document or
+            (message.photo[-1] if message.photo else None) or
+            message.video
     )
     if not media:
         return None

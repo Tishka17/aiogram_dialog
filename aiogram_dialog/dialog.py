@@ -16,21 +16,18 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import Data, LaunchMode
+from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
 from aiogram_dialog.api.exceptions import UnregisteredWindowError
-from aiogram_dialog.api.internal import WindowProtocol, \
-    NewMessage
+from aiogram_dialog.api.internal import WindowProtocol
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol, ManagedDialogProtocol,
+    DialogManager, DialogProtocol,
 )
-from .manager.dialog import ManagedDialogAdapter
 from .utils import add_indent_id, remove_indent_id
 from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
 
 logger = getLogger(__name__)
-DIALOG_CONTEXT = "DIALOG_CONTEXT"
 
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
@@ -193,8 +190,3 @@ class Dialog(DialogProtocol):
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}({self.states_group()})>"
-
-    def managed(
-            self, manager: "DialogManager",
-    ) -> ManagedDialogProtocol:
-        return ManagedDialogAdapter(self, manager)

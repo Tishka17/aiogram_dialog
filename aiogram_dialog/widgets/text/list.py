@@ -1,7 +1,7 @@
 from operator import itemgetter
 from typing import Callable, Dict, Sequence, Union
 
-from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from .base import Text
 from ..when import WhenCondition
 

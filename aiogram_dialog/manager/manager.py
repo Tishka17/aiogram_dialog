@@ -246,7 +246,7 @@ class ManagerImpl(DialogManager):
         new_message = await self.dialog().render(self)
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
-        self._fix_cached_media_id(new_message)
+        await self._fix_cached_media_id(new_message)
 
         sent_message = await self.message_manager.show_message(
             bot, new_message, old_message,
@@ -265,7 +265,7 @@ class ManagerImpl(DialogManager):
             stack.last_income_media_group_id = self.event.media_group_id
         return sent_message
 
-    def _fix_cached_media_id(self, new_message: NewMessage):
+    async def _fix_cached_media_id(self, new_message: NewMessage):
         if not new_message.media or new_message.media.file_id:
             return
         new_message.media.file_id = await self.media_id_storage.get_media_id(

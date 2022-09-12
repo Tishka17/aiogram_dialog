@@ -2,7 +2,6 @@ from typing import Awaitable, Callable, Generic, TypeVar, Union
 
 from aiogram.types import ContentType, Message
 
-from aiogram_dialog.api.internal import DialogManager
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,

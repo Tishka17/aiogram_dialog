@@ -7,9 +7,9 @@ from typing import (
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
+from aiogram_dialog.api.entities import NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
 from .manager import DialogManager
-from .new_message import NewMessage
 
 
 class WindowProtocol(Protocol):
@@ -24,7 +24,7 @@ class WindowProtocol(Protocol):
 
     async def load_data(
             self,
-            dialog: "DialogShowerProtocol",
+            dialog: "DialogProtocol",
             manager: DialogManager,
     ) -> Dict:
         raise NotImplementedError

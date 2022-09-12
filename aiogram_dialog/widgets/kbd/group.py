@@ -3,10 +3,9 @@ from typing import Dict, Iterable, List, Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from .base import Keyboard
 from ..when import WhenCondition
-from ...api.internal import DialogManager
-from ...api.protocols import DialogProtocol
 
 
 class Group(Keyboard):

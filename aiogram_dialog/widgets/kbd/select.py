@@ -22,7 +22,6 @@ from aiogram_dialog.widgets.widget_event import (
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
-from ...api.internal import DialogManager
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
@@ -258,7 +257,7 @@ class Multiselect(StatefulSelect):
         if manager.is_preview():
             return (
                 # just stupid way to make it differ in preview
-                ord(item_id[-1]) % 2 == 1
+                    ord(item_id[-1]) % 2 == 1
             )
         return self.is_checked(item_id, manager)
 

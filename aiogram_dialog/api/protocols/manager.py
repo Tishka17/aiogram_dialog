@@ -6,7 +6,6 @@ from aiogram.types import Message
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, ShowMode, Stack, StartMode,
 )
-from . import DialogProtocol
 
 
 class BaseDialogManager(Protocol):
@@ -81,9 +80,6 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     def find(self, widget_id) -> Optional[Any]:
-        raise NotImplementedError
-
-    def dialog(self) -> DialogProtocol:
         raise NotImplementedError
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:

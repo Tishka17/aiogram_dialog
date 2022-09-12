@@ -2,7 +2,6 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
-from aiogram_dialog.api.internal import DialogManager
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (

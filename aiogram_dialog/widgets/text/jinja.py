@@ -12,7 +12,7 @@ from typing import (
 from aiogram import Bot
 from jinja2 import BaseLoader, Environment
 
-from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from .base import Text
 from ..when import WhenCondition
 

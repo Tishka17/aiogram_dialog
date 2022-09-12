@@ -1,6 +1,6 @@
 from typing import Dict, Union
 
-from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.when import true, Whenable, WhenCondition
 
 

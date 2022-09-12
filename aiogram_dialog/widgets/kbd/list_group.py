@@ -5,11 +5,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
 from aiogram_dialog.api.entities import Context, Stack
-from aiogram_dialog.api.internal import (
-    DialogManager, NewMessage,
-)
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol, ManagedDialogProtocol,
+    DialogManager, DialogProtocol,
 )
 from .base import Keyboard
 from ..managed import ManagedWidgetAdapter
@@ -17,6 +14,7 @@ from ..when import WhenCondition
 
 
 class SubManager(DialogManager):
+    # FIXME other methods
     def __init__(
             self,
             manager: DialogManager,
@@ -39,14 +37,11 @@ class SubManager(DialogManager):
     def current_stack(self) -> Optional[Stack]:
         return self.manager.current_stack()
 
-    def dialog(self) -> ManagedDialogProtocol:
-        return self.manager.dialog()
-
     async def close_manager(self) -> None:
         return await self.manager.close_manager()
 
-    async def show(self, new_message: NewMessage) -> Message:
-        return await self.manager.show(new_message)
+    async def show(self) -> Message:
+        return await self.manager.show()
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         return await self.manager.reset_stack(remove_keyboard)

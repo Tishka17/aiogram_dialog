@@ -1,6 +1,6 @@
 from typing import Dict
 
-from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from .base import Text
 from ..when import WhenCondition
 

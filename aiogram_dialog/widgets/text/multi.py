@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, Hashable, Union
 from warnings import warn
 
-from aiogram_dialog.api.internal import DialogManager
+from aiogram_dialog.api.protocols import DialogManager
 from .base import Multi as _Multi
 from .base import Text
 from ..when import WhenCondition
