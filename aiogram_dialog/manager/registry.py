@@ -9,23 +9,22 @@ from aiogram.fsm.state import any_state, State, StatesGroup
 from aiogram.types import Chat, Message, User
 
 from aiogram_dialog.api.entities import (
-    DIALOG_EVENT_NAME, DialogUpdate, StartMode,
+    ChatEvent, DIALOG_EVENT_NAME, DialogUpdate, StartMode,
 )
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import (
     DialogManagerFactory,
 )
 from aiogram_dialog.api.protocols import (
-    DialogProtocol, DialogRegistryProtocol,
+    DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol,
+)
+from aiogram_dialog.context.intent_filter import (
+    IntentFilter,
 )
 from .manager import ManagerImpl
 from .manager_middleware import ManagerMiddleware
 from .update_handler import handle_update
-from .. import DialogManager
-from ..context.intent_filter import (
-    IntentFilter,
-)
 from ..context.intent_middleware import (
     context_saver_middleware,
     IntentErrorMiddleware,
@@ -39,6 +38,27 @@ class DialogEventObserver(TelegramEventObserver):
     pass
 
 
+class DefaultManagerFactory(DialogManagerFactory):
+    def __init__(
+            self,
+            message_manager: MessageManagerProtocol,
+            media_id_storage: MediaIdStorageProtocol,
+            registry: DialogRegistryProtocol,
+    ):
+        self.message_manager = message_manager
+        self.media_id_storage = media_id_storage
+        self.registry = registry
+
+    def __call__(self, event: ChatEvent, data: Dict) -> DialogManager:
+        return ManagerImpl(
+            event=event,
+            data=data,
+            message_manager=self.message_manager,
+            media_id_storage=self.media_id_storage,
+            registry=self.registry,
+        )
+
+
 class DialogRegistry(DialogRegistryProtocol):
     def __init__(
             self,
@@ -46,7 +66,7 @@ class DialogRegistry(DialogRegistryProtocol):
             dialogs: Sequence[DialogProtocol] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
-            dialog_manager_factory: DialogManagerFactory = ManagerImpl,
+            dialog_manager_factory: Optional[DialogManagerFactory] = None,
             default_router: Optional[Router] = None,
     ):
         self.dp = dp
@@ -71,6 +91,12 @@ class DialogRegistry(DialogRegistryProtocol):
         if message_manager is None:
             message_manager = MessageManager()
         self._message_manager = message_manager
+        if dialog_manager_factory is None:
+            dialog_manager_factory = DefaultManagerFactory(
+                message_manager=message_manager,
+                media_id_storage=media_id_storage,
+                registry=self,
+            )
         self.dialog_manager_factory = dialog_manager_factory
         self._register_middleware()
 
@@ -113,8 +139,6 @@ class DialogRegistry(DialogRegistryProtocol):
 
     def _register_middleware(self):
         manager_middleware = ManagerMiddleware(
-            message_manager=self.message_manager,
-            media_id_storage=self.media_id_storage,
             dialog_manager_factory=self.dialog_manager_factory,
         )
         intent_middleware = IntentMiddlewareFactory(

@@ -4,28 +4,15 @@ from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
-from aiogram_dialog.api.internal import (
-    DialogManagerFactory,
-)
-from aiogram_dialog.api.protocols import (
-    DialogManager,
-    MessageManagerProtocol,
-    MediaIdStorageProtocol,
-)
+from aiogram_dialog.api.internal import DialogManagerFactory
+from aiogram_dialog.api.protocols import DialogManager
 
 MANAGER_KEY = "dialog_manager"
 
 
 class ManagerMiddleware(BaseMiddleware):
-    def __init__(
-            self,
-            message_manager: MessageManagerProtocol,
-            media_id_storage: MediaIdStorageProtocol,
-            dialog_manager_factory: DialogManagerFactory,
-    ):
+    def __init__(self, dialog_manager_factory: DialogManagerFactory):
         super().__init__()
-        self.message_manager = message_manager
-        self.media_id_storage = media_id_storage
         self.dialog_manager_factory = dialog_manager_factory
 
     async def __call__(
@@ -39,8 +26,6 @@ class ManagerMiddleware(BaseMiddleware):
     ) -> Any:
         data[MANAGER_KEY] = self.dialog_manager_factory(
             event=event,
-            message_manager=self.message_manager,
-            media_id_storage=self.media_id_storage,
             data=data,
         )
 

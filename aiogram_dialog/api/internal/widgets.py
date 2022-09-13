@@ -1,6 +1,6 @@
-from typing import Protocol, Any, Dict, List, Optional, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment
@@ -63,7 +63,7 @@ class InputWidget(Widget, Protocol):
             manager: DialogManager,
     ) -> bool:
         """
-        Handle incoming message from user
+        Handle incoming message from user.
 
         Invoked regardless if callback belongs to current widget.
 

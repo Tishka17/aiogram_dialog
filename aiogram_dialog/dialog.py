@@ -18,7 +18,7 @@ from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
 from aiogram_dialog.api.exceptions import UnregisteredWindowError
-from aiogram_dialog.api.internal import WindowProtocol, Widget
+from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )

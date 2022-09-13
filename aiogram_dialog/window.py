@@ -5,7 +5,7 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage
-from aiogram_dialog.api.internal import WindowProtocol, Widget
+from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.protocols import DialogManager, DialogProtocol
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard

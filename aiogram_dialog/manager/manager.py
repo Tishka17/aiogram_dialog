@@ -3,11 +3,11 @@ from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import Chat, Message, User, CallbackQuery, Document
+from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, ShowMode, Stack,
-    StartMode, NewMessage,
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
+    ShowMode, Stack, StartMode,
 )
 from aiogram_dialog.api.exceptions import IncorrectBackgroundError
 from aiogram_dialog.api.internal import (
@@ -17,8 +17,8 @@ from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogProtocol, MessageManagerProtocol,
-    MediaIdStorageProtocol,
+    BaseDialogManager, DialogProtocol, DialogRegistryProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from .bg_manager import BgManager
 from .. import DialogManager
@@ -34,6 +34,7 @@ class ManagerImpl(DialogManager):
             self, event: ChatEvent,
             message_manager: MessageManagerProtocol,
             media_id_storage: MediaIdStorageProtocol,
+            registry: DialogRegistryProtocol,
             data: Dict,
     ):
         self.disabled = False
@@ -42,6 +43,7 @@ class ManagerImpl(DialogManager):
         self._event = event
         self._data = data
         self._show_mode: ShowMode = ShowMode.AUTO
+        self._registry = registry
 
     @property
     def show_mode(self) -> ShowMode:
@@ -209,7 +211,7 @@ class ManagerImpl(DialogManager):
         self.data[CONTEXT_KEY] = context
         await self.dialog().process_start(self, data, state)
         if context.id == self.current_context().id:
-            await self.dialog().show(self)
+            await self.show()
 
     async def next(self) -> None:
         context = self.current_context()
@@ -392,6 +394,7 @@ class ManagerImpl(DialogManager):
     async def close_manager(self) -> None:
         self.check_disabled()
         self.disabled = True
-        del self._registry
+        del self.media_id_storage
+        del self.message_manager
         del self._event
         del self._data

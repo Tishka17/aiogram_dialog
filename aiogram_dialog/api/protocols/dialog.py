@@ -1,4 +1,4 @@
-from typing import Any, Optional, Protocol, Type, Dict, List
+from typing import Any, Dict, List, Optional, Protocol, Type
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
