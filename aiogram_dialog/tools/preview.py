@@ -8,22 +8,20 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry
+from aiogram_dialog import (
+    Dialog, DialogManager, DialogProtocol, DialogRegistry,
+)
 from aiogram_dialog.api.entities import (
+    ChatEvent,
     Context,
     Data,
     DialogAction,
     DialogUpdateEvent,
     MediaAttachment,
+    NewMessage,
     ShowMode,
     Stack,
     StartMode,
-)
-from aiogram_dialog.manager.dialog import ManagedDialogAdapter
-from aiogram_dialog.manager.protocols import (
-    DialogRegistryProto,
-    ManagedDialogAdapterProto,
-    NewMessage,
 )
 
 
@@ -51,7 +49,7 @@ class RenderDialog:
 
 class FakeManager(DialogManager):
     def __init__(self, registry: DialogRegistry):
-        self.event = DialogUpdateEvent(
+        self._event = DialogUpdateEvent(
             from_user=User(id=1, is_bot=False, first_name="Fake"),
             chat=Chat(id=1, type="private"),
             action=DialogAction.UPDATE,
@@ -61,12 +59,20 @@ class FakeManager(DialogManager):
         )
         self._registry = registry
         self._context: Optional[Context] = None
-        self._dialog = None
-        self.data = {
+        self._dialog: Optional[DialogProtocol] = None
+        self._data = {
             "dialog_manager": self,
             "event_chat": Chat(id=1, type="private"),
             "event_from_user": User(id=1, is_bot=False, first_name="Fake"),
         }
+
+    @property
+    def data(self) -> Dict:
+        return self._data
+
+    @property
+    def event(self) -> ChatEvent:
+        return self._event
 
     async def load_data(self) -> Dict:
         return {}
@@ -83,9 +89,6 @@ class FakeManager(DialogManager):
 
     def set_state(self, state: State):
         self._context.state = state
-
-    def dialog(self) -> ManagedDialogAdapterProto:
-        return ManagedDialogAdapter(self._dialog, self)
 
     def is_preview(self) -> bool:
         return True
@@ -121,15 +124,8 @@ class FakeManager(DialogManager):
     def current_context(self) -> Optional[Context]:
         return self._context
 
-    async def show(self, new_message: NewMessage) -> Message:
-        self.new_message = new_message
-        return Message(
-            message_id=1, date=datetime.now(), chat=Chat(id=1, type="private"),
-        )
-
-    @property
-    def registry(self) -> DialogRegistryProto:
-        return self._registry
+    async def show_raw(self) -> NewMessage:
+        return await self._dialog.render(self)
 
 
 def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
@@ -266,13 +262,13 @@ async def render_dialog(
     windows = []
     for state in group.__states__:
         manager.set_state(state)
-        await dialog.show(manager)
+        new_message = await manager.show_raw()
         windows.append(
             await create_window(
                 manager=manager,
                 state=state,
                 dialog=dialog,
-                message=manager.new_message,
+                message=new_message,
                 simulate_events=simulate_events,
             ),
         )

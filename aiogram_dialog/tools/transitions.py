@@ -6,7 +6,7 @@ from diagrams import Cluster, Diagram, Edge
 from diagrams.custom import Custom
 
 from aiogram_dialog import Dialog, DialogRegistry
-from aiogram_dialog.dialog import DialogWindowProto
+from aiogram_dialog.api.internal import WindowProtocol
 from aiogram_dialog.widgets.kbd import (
     Back,
     Cancel,
@@ -20,23 +20,24 @@ ICON_PATH = os.path.join(os.path.dirname(__file__), "calculator.png")
 
 
 def widget_edges(nodes, dialog, starts, current_state, kbd):
+    states = dialog.states()
     if isinstance(kbd, Start):
         nodes[current_state] >> Edge(color="#338a3e") >> nodes[kbd.state]
     elif isinstance(kbd, SwitchTo):
         nodes[current_state] >> Edge(color="#0086c3") >> nodes[kbd.state]
     elif isinstance(kbd, Next):
-        new_state = dialog.states[dialog.states.index(current_state) + 1]
+        new_state = states[states.index(current_state) + 1]
         nodes[current_state] >> Edge(color="#0086c3") >> nodes[new_state]
     elif isinstance(kbd, Back):
-        new_state = dialog.states[dialog.states.index(current_state) - 1]
+        new_state = states[states.index(current_state) - 1]
         nodes[current_state] >> Edge(color="grey") >> nodes[new_state]
     elif isinstance(kbd, Cancel):
         for from_, to_ in starts:
             if to_.group == current_state.group:
                 (
-                    nodes[current_state] >>
-                    Edge(color="grey", style="dashed") >>
-                    nodes[from_]
+                        nodes[current_state] >>
+                        Edge(color="grey", style="dashed") >>
+                        nodes[from_]
                 )
 
 
@@ -66,7 +67,7 @@ def find_starts(
 
 def render_window(
         nodes: dict, dialog: Dialog, starts: List[Tuple[State, State]],
-        window: DialogWindowProto,
+        window: WindowProtocol,
 ):
     walk_keyboard(
         nodes,

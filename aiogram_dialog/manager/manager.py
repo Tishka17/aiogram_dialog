@@ -140,7 +140,7 @@ class ManagerImpl(DialogManager):
         await dialog.process_result(old_context.start_data, result, self)
         new_context = self.current_context()
         if new_context and context.id == new_context.id:
-            await self.dialog().show(self)  # TODO
+            await self.show()
 
     async def mark_closed(self) -> None:
         self.check_disabled()

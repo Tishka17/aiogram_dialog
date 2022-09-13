@@ -10,10 +10,10 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, ChatEvent, StartMode, Window,
+    Dialog, DialogManager, DialogProtocol, DialogRegistry,
+    ChatEvent, StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent
-from aiogram_dialog.api.protocols import DialogProtocol
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
 from aiogram_dialog.widgets.media import StaticMedia
@@ -21,7 +21,7 @@ from aiogram_dialog.widgets.text import Const, Format, Multi
 
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 class DialogSG(StatesGroup):
