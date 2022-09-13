@@ -35,9 +35,9 @@ def widget_edges(nodes, dialog, starts, current_state, kbd):
         for from_, to_ in starts:
             if to_.group == current_state.group:
                 (
-                        nodes[current_state] >>
-                        Edge(color="grey", style="dashed") >>
-                        nodes[from_]
+                    nodes[current_state] >>
+                    Edge(color="grey", style="dashed") >>
+                    nodes[from_]
                 )
 
 
