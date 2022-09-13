@@ -1,8 +1,8 @@
 from typing import Dict
 
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
-from ..when import WhenCondition
 
 
 class _FormatDataStub:
@@ -30,7 +30,7 @@ class _FormatDataStub:
 
 class Format(Text):
     def __init__(self, text: str, when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(when=when)
         self.text = text
 
     async def _render_text(

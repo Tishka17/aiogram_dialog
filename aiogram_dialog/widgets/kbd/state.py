@@ -5,10 +5,10 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.entities import ChatEvent, Data, StartMode
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 from .button import Button, OnClick
-from ..when import WhenCondition
 
 BACK_TEXT = Const("Back")
 NEXT_TEXT = Const("Next")
@@ -42,7 +42,10 @@ class SwitchTo(EventProcessorButton):
             on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
     ):
-        super().__init__(text, id, self._on_click, when)
+        super().__init__(
+            text=text, on_click=self._on_click,
+            id=id, when=when,
+        )
         self.text = text
         self.user_on_click = on_click
         self.state = state
@@ -53,20 +56,23 @@ class SwitchTo(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().switch_to(self.state)
+        await manager.switch_to(self.state)
 
 
 class Next(EventProcessorButton):
     def __init__(
             self,
             text: Text = NEXT_TEXT,
-            callback_data: str = "__next__",
+            id: str = "__next__",
             on_click: Optional[Callable] = None,
             when: WhenCondition = None,
     ):
-        super().__init__(text, callback_data, self._on_click, when)
+        super().__init__(
+            text=text,
+            on_click=self._on_click,
+            id=id, when=when,
+        )
         self.text = text
-        self.callback_data = callback_data
         self.user_on_click = on_click
 
     async def _on_click(
@@ -75,7 +81,7 @@ class Next(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().next()
+        await manager.next()
 
 
 class Back(EventProcessorButton):
@@ -86,7 +92,10 @@ class Back(EventProcessorButton):
             on_click: Optional[Callable] = None,
             when: WhenCondition = None,
     ):
-        super().__init__(text, id, self._on_click, when)
+        super().__init__(
+            text=text, on_click=self._on_click,
+            id=id, when=when,
+        )
         self.text = text
         self.callback_data = id
         self.user_on_click = on_click
@@ -97,7 +106,7 @@ class Back(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(c, self, manager)
-        await manager.dialog().back()
+        await manager.back()
 
 
 class Cancel(EventProcessorButton):
@@ -109,7 +118,10 @@ class Cancel(EventProcessorButton):
             on_click: Optional[Callable] = None,
             when: WhenCondition = None,
     ):
-        super().__init__(text, id, self._on_click, when)
+        super().__init__(
+            text=text, on_click=self._on_click,
+            id=id, when=when,
+        )
         self.text = text
         self.result = result
         self.user_on_click = on_click
@@ -134,7 +146,10 @@ class Start(EventProcessorButton):
             mode: StartMode = StartMode.NORMAL,
             when: WhenCondition = None,
     ):
-        super().__init__(text, id, self._on_click, when)
+        super().__init__(
+            text=text, on_click=self._on_click,
+            id=id, when=when,
+        )
         self.text = text
         self.start_data = data
         self.user_on_click = on_click

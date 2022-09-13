@@ -1,21 +1,35 @@
 from typing import Dict, Union
 
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.when import true, Whenable, WhenCondition
+from aiogram_dialog.widgets.common import (
+    BaseWidget, true_condition, WhenCondition, Whenable,
+)
 
 
-class Text(Whenable):
+class Text(Whenable, BaseWidget, TextWidget):
     def __init__(self, when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(when=when)
 
     async def render_text(
             self, data: Dict, manager: DialogManager,
     ) -> str:
+        """
+        Create text.
+
+        When inheriting override `_render_text` method instead
+        if you want to keep processing of `when` condition
+        """
         if not self.is_(data, manager):
             return ""
         return await self._render_text(data, manager)
 
     async def _render_text(self, data, manager: DialogManager) -> str:
+        """
+        Create text.
+
+        Called if widget is not hidden only (regarding `when`-condition)
+        """
         raise NotImplementedError
 
     def __add__(self, other: Union["Text", str]):
@@ -31,7 +45,7 @@ class Text(Whenable):
 
 class Const(Text):
     def __init__(self, text: str, when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(when=when)
         self.text = text
 
     async def _render_text(
@@ -42,7 +56,7 @@ class Const(Text):
 
 class Multi(Text):
     def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
-        super().__init__(when)
+        super().__init__(when=when)
         self.texts = texts
         self.sep = sep
 
@@ -60,7 +74,7 @@ class Multi(Text):
     def __add__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
-        if self.condition is true and self.sep == "":
+        if self.condition is true_condition and self.sep == "":
             # reduce nesting
             return Multi(*self.texts, other, sep="")
         else:
@@ -69,7 +83,7 @@ class Multi(Text):
     def __radd__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
-        if self.condition is true and self.sep == "":
+        if self.condition is true_condition and self.sep == "":
             # reduce nesting
             return Multi(other, *self.texts, sep="")
         else:

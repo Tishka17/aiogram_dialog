@@ -2,8 +2,8 @@ from operator import itemgetter
 from typing import Callable, Dict, Sequence, Union
 
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
-from ..when import WhenCondition
 
 ItemsGetter = Callable[[Dict], Sequence]
 
@@ -23,7 +23,7 @@ class List(Text):
             sep: str = "\n",
             when: WhenCondition = None,
     ):
-        super().__init__(when)
+        super().__init__(when=when)
         self.field = field
         self.sep = sep
         if isinstance(items, str):

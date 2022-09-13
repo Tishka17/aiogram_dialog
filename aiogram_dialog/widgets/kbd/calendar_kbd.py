@@ -7,12 +7,12 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
 
 OnDateSelected = Callable[
     [ChatEvent, "ManagedCalendarAdapter", DialogManager,
@@ -45,9 +45,9 @@ class Calendar(Keyboard):
             self,
             id: str,
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
-            when: Union[str, Callable] = None,
+            when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.on_click = ensure_event_processor(on_click)
 
     async def _render_keyboard(
@@ -237,7 +237,7 @@ class Calendar(Keyboard):
         return ManagedCalendarAdapter(self, manager)
 
 
-class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
+class ManagedCalendarAdapter(ManagedWidget[Calendar]):
     def get_scope(self) -> str:
         return self.widget.get_scope(self.manager)
 

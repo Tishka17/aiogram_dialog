@@ -2,15 +2,17 @@ from typing import List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.internal import KeyboardWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
-from aiogram_dialog.widgets.action import Actionable
-from aiogram_dialog.widgets.when import Whenable, WhenCondition
+from aiogram_dialog.widgets.common import (
+    Actionable, Whenable, WhenCondition,
+)
 
 
-class Keyboard(Actionable, Whenable):
+class Keyboard(Actionable, Whenable, KeyboardWidget):
     def __init__(self, id: Optional[str] = None, when: WhenCondition = None):
-        Actionable.__init__(self, id)
-        Whenable.__init__(self, when)
+        Actionable.__init__(self, id=id)
+        Whenable.__init__(self, when=when)
 
     async def render_keyboard(
             self,
@@ -18,7 +20,7 @@ class Keyboard(Actionable, Whenable):
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         """
-        Render keyboard if needed.
+        Create inline keyboard contents.
 
         When inheriting override `_render_keyboard` method instead
         if you want to keep processing of `when` condition
@@ -32,6 +34,11 @@ class Keyboard(Actionable, Whenable):
             data,
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
+        """
+        Create inline keyboard contents.
+
+        Called if widget is not hidden only (regarding `when`-condition)
+        """
         raise NotImplementedError
 
     def callback_prefix(self):

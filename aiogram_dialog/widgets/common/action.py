@@ -3,12 +3,12 @@ from typing import Any, Optional
 
 from aiogram_dialog.api.exceptions import InvalidWidgetIdError
 from aiogram_dialog.api.protocols import DialogManager
-from .managed import ManagedWidget
+from aiogram_dialog.widgets.common import BaseWidget
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 
 
-class Actionable(ManagedWidget):
+class Actionable(BaseWidget):
     def __init__(self, id: Optional[str] = None):
         if id and not ID_PATTERN.match(id):
             raise InvalidWidgetIdError(f"Invalid widget id: {id}")

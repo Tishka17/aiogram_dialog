@@ -1,24 +1,10 @@
 from typing import Any, Callable, Dict, Hashable, Union
-from warnings import warn
 
 from aiogram_dialog.api.protocols import DialogManager
-from .base import Multi as _Multi
+from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
-from ..when import WhenCondition
 
 Selector = Callable[[Dict, "Case", DialogManager], Hashable]
-
-
-class Multi(_Multi):
-    def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
-        super().__init__(*texts, sep=sep, when=when)
-        warn(
-            "This is compatibility class"
-            " and will be removed in aiogram_dialog==2.0, "
-            " fix using `from aiogram_dialog.widgets.text import Multi`",
-            DeprecationWarning,
-            stacklevel=2,
-        )
 
 
 def new_case_field(fieldname: str) -> Selector:
@@ -37,7 +23,7 @@ class Case(Text):
             selector: Union[str, Selector],
             when: WhenCondition = None,
     ):
-        super().__init__(when)
+        super().__init__(when=when)
         self.texts = texts
         if isinstance(selector, str):
             self.selector = new_case_field(selector)

@@ -4,10 +4,9 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd.base import Keyboard
-from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
-from aiogram_dialog.widgets.when import WhenCondition
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -136,7 +135,7 @@ class Counter(Keyboard):
         return ManagedCounterAdapter(self, manager)
 
 
-class ManagedCounterAdapter(ManagedWidgetAdapter[Counter]):
+class ManagedCounterAdapter(ManagedWidget[Counter]):
     def get_value(self) -> float:
         return self.widget.get_value(self.manager)
 

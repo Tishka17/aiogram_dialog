@@ -8,9 +8,8 @@ from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
-from ..when import WhenCondition
 
 
 class SubManager(DialogManager):
@@ -70,7 +69,7 @@ class ListGroup(Keyboard):
             items: Union[str, Sequence],
             when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.buttons = buttons
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
@@ -137,7 +136,7 @@ class ListGroup(Keyboard):
         return ManagedListGroupAdapter(self, manager)
 
 
-class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
+class ManagedListGroupAdapter(ManagedWidget[ListGroup]):
     def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
         widget = self.widget.find_for_item(self.manager, widget_id, item_id)
         if widget:

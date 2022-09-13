@@ -4,9 +4,9 @@ from aiogram.types import ContentType
 
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
 from .base import Media
-from ..when import WhenCondition
 
 
 class StaticMedia(Media):
@@ -19,7 +19,7 @@ class StaticMedia(Media):
             media_params: Dict = None,
             when: WhenCondition = None,
     ):
-        super().__init__(when)
+        super().__init__(when=when)
         if not (url or path):
             raise ValueError("Neither url nor path are provided")
         self.type = type

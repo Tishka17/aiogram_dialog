@@ -3,10 +3,11 @@ from typing import Awaitable, Callable, Sequence, Union
 from aiogram.filters.content_types import ContentTypesFilter
 from aiogram.types import ContentType, Message
 
+from aiogram_dialog.api.internal import InputWidget
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
-from aiogram_dialog.widgets.action import Actionable
+from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -18,7 +19,7 @@ MessageHandlerFunc = Callable[
 ]
 
 
-class BaseInput(Actionable):
+class BaseInput(Actionable, InputWidget):
     async def process_message(
             self, m: Message, dialog: DialogProtocol,
             manager: DialogManager,
@@ -44,5 +45,5 @@ class MessageInput(BaseInput):
     ) -> bool:
         if not await self.filter(message):
             return False
-        await self.func.process_event(message, manager.dialog(), manager)
+        await self.func.process_event(message, self, manager)
         return True

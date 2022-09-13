@@ -5,13 +5,13 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
 
 OnStateChanged = Callable[
     [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable,
@@ -29,9 +29,9 @@ class BaseCheckbox(Keyboard, ABC):
             id: str,
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
-            when: Union[str, Callable] = None,
+            when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.text = Case(
             {True: checked_text, False: unchecked_text},
             selector=self._is_text_checked,
@@ -94,10 +94,12 @@ class Checkbox(BaseCheckbox):
             on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
             on_state_changed: Optional[OnStateChanged] = None,
             default: bool = False,
-            when: Union[str, Callable] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(
-            checked_text, unchecked_text, id, on_click, on_state_changed, when,
+            checked_text=checked_text, unchecked_text=unchecked_text,
+            on_click=on_click, on_state_changed=on_state_changed,
+            id=id, when=when,
         )
         self.default = default
 
@@ -117,13 +119,11 @@ class Checkbox(BaseCheckbox):
         return ManagedCheckboxAdapter(self, manager)
 
 
-class ManagedCheckboxAdapter(ManagedWidgetAdapter[Checkbox]):
+class ManagedCheckboxAdapter(ManagedWidget[Checkbox]):
     def is_checked(self) -> bool:
         return self.widget.is_checked(self.manager)
 
-    async def set_checked(
-            self,
-            event: ChatEvent,
-            checked: bool,
-    ) -> None:
-        return await self.widget.set_checked(event, checked, self.manager)
+    async def set_checked(self, checked: bool) -> None:
+        return await self.widget.set_checked(
+            self.manager.event, checked, self.manager,
+        )

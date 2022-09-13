@@ -15,22 +15,22 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
-    [ChatEvent, ManagedWidgetAdapter["Select"], DialogManager, str],
+    [ChatEvent, ManagedWidget["Select"], DialogManager, str],
     Awaitable,
 ]
 OnItemClick = Callable[
-    [CallbackQuery, ManagedWidgetAdapter["Select"], DialogManager, str],
+    [CallbackQuery, ManagedWidget["Select"], DialogManager, str],
     Awaitable,
 ]
 
@@ -50,9 +50,9 @@ class Select(Keyboard):
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
             on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
-            when: Union[str, Callable] = None,
+            when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.text = text
         self.on_click = ensure_event_processor(on_click)
         self.item_id_getter = item_id_getter
@@ -119,7 +119,10 @@ class StatefulSelect(Select, ABC):
             selector=self._is_text_checked,
         )
         super().__init__(
-            text, id, item_id_getter, items, self._process_click, when,
+            text=text,
+            item_id_getter=item_id_getter, items=items,
+            on_click=self._process_click,
+            id=id, when=when,
         )
         self.on_item_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
@@ -141,7 +144,7 @@ class StatefulSelect(Select, ABC):
     async def _process_click(
             self,
             c: CallbackQuery,
-            select: ManagedWidgetAdapter[Select],
+            select: ManagedWidget[Select],
             manager: DialogManager,
             item_id: str,
     ):
@@ -153,7 +156,7 @@ class StatefulSelect(Select, ABC):
     async def _on_click(
             self,
             c: CallbackQuery,
-            select: ManagedWidgetAdapter[Select],
+            select: ManagedWidget[Select],
             manager: DialogManager,
             item_id: str,
     ):
@@ -204,16 +207,14 @@ class Radio(StatefulSelect):
         return ManagedRadioAdapter(self, manager)
 
 
-class ManagedRadioAdapter(ManagedWidgetAdapter[Radio]):
+class ManagedRadioAdapter(ManagedWidget[Radio]):
     def get_checked(self) -> Optional[str]:
         return self.widget.get_checked(self.manager)
 
-    async def set_checked(
-            self,
-            event: ChatEvent,
-            item_id: Optional[str],
-    ):
-        return await self.widget.set_checked(event, item_id, self.manager)
+    async def set_checked(self, item_id: Optional[str]):
+        return await self.widget.set_checked(
+            self.manager.event, item_id, self.manager,
+        )
 
     def is_checked(
             self, item_id: Union[str, int],
@@ -238,14 +239,13 @@ class Multiselect(StatefulSelect):
             when: Union[str, Callable] = None,
     ):
         super().__init__(
-            checked_text,
-            unchecked_text,
-            id,
-            item_id_getter,
-            items,
-            on_click,
-            on_state_changed,
-            when,
+            checked_text=checked_text,
+            unchecked_text=unchecked_text,
+            item_id_getter=item_id_getter,
+            items=items,
+            on_click=on_click,
+            on_state_changed=on_state_changed,
+            id=id, when=when,
         )
         self.min_selected = min_selected
         self.max_selected = max_selected
@@ -313,7 +313,7 @@ class Multiselect(StatefulSelect):
         return ManagedMultiSelectAdapter(self, manager)
 
 
-class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
+class ManagedMultiSelectAdapter(ManagedWidget[Multiselect]):
     def is_checked(
             self, item_id: Union[str, int],
     ) -> bool:
@@ -322,17 +322,12 @@ class ManagedMultiSelectAdapter(ManagedWidgetAdapter[Multiselect]):
     def get_checked(self) -> List[str]:
         return self.widget.get_checked(self.manager)
 
-    async def reset_checked(
-            self, event: ChatEvent,
-    ):
-        return await self.widget.reset_checked(event, self.manager)
+    async def reset_checked(self):
+        return await self.widget.reset_checked(
+            self.manager.event, self.manager,
+        )
 
-    async def set_checked(
-            self,
-            event: ChatEvent,
-            item_id: str,
-            checked: bool,
-    ) -> None:
+    async def set_checked(self, item_id: str, checked: bool) -> None:
         return await self.widget.set_checked(
-            event, item_id, checked, self.manager,
+            self.manager.event, item_id, checked, self.manager,
         )

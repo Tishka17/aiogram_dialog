@@ -4,14 +4,13 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
 from .group import Group
-from ..managed import ManagedWidgetAdapter
-from ..when import WhenCondition
 
 OnStateChanged = Callable[
     [ChatEvent, "ManagedScrollingGroupAdapter", DialogManager],
@@ -101,9 +100,11 @@ class ScrollingGroup(Group):
         return ManagedScrollingGroupAdapter(self, manager)
 
 
-class ManagedScrollingGroupAdapter(ManagedWidgetAdapter[ScrollingGroup]):
+class ManagedScrollingGroupAdapter(ManagedWidget[ScrollingGroup]):
     def get_page(self) -> int:
         return self.widget.get_page(self.manager)
 
-    async def set_page(self, event: ChatEvent, page: int) -> None:
-        return await self.widget.set_page(event, page, self.manager)
+    async def set_page(self, page: int) -> None:
+        return await self.widget.set_page(
+            self.manager.event, page, self.manager,
+        )
