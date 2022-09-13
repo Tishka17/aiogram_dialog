@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from aiogram_dialog.api.exceptions import InvalidWidgetIdError
 from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.common import BaseWidget
+from .base import BaseWidget
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 

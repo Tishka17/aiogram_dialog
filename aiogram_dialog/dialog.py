@@ -18,12 +18,11 @@ from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
 from aiogram_dialog.api.exceptions import UnregisteredWindowError
-from aiogram_dialog.api.internal import WindowProtocol
+from aiogram_dialog.api.internal import WindowProtocol, Widget
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
 from .utils import add_indent_id, remove_indent_id
-from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
 
@@ -32,7 +31,7 @@ logger = getLogger(__name__)
 ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
-W = TypeVar("W", bound=Actionable)
+W = TypeVar("W", bound=Widget)
 
 _INVALUD_QUERY_ID_MSG = (
     "query is too old and response timeout expired or query id is invalid"

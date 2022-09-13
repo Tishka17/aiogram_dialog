@@ -5,9 +5,8 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage
-from aiogram_dialog.api.internal import WindowProtocol
+from aiogram_dialog.api.internal import WindowProtocol, Widget
 from .api.protocols import DialogManager, DialogProtocol
-from .widgets.action import Actionable
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.utils import (
@@ -104,7 +103,7 @@ class Window(WindowProtocol):
     def get_state(self) -> State:
         return self.state
 
-    def find(self, widget_id) -> Optional[Actionable]:
+    def find(self, widget_id) -> Optional[Widget]:
         if self.keyboard:
             res = self.keyboard.find(widget_id)
             if res:
