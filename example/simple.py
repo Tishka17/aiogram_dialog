@@ -9,14 +9,15 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window, ChatEvent, StartMode
-from aiogram_dialog.exceptions import UnknownIntent
-from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
+from aiogram_dialog import (
+    Dialog, DialogManager, DialogRegistry, ChatEvent, StartMode, Window,
+)
+from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram_dialog.api.protocols import DialogProtocol
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Select, Row, SwitchTo, Back
+from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, Multi
-
 
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
@@ -38,17 +39,18 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(m: Message, dialog: ManagedDialogAdapterProto,
+async def name_handler(m: Message, dialog: DialogProtocol,
                        manager: DialogManager):
     if manager.is_preview():
-        await dialog.next()
+        await manager.next()
         return
     manager.current_context().dialog_data["name"] = m.text
     await m.answer(f"Nice to meet you, {m.text}")
-    await dialog.next()
+    await manager.next()
 
 
-async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
+async def on_finish(c: CallbackQuery, button: Button,
+                    manager: DialogManager):
     if manager.is_preview():
         await manager.done()
         return
@@ -56,10 +58,11 @@ async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
     await manager.done()
 
 
-async def on_age_changed(c: ChatEvent, select: Any, manager: DialogManager,
+async def on_age_changed(c: ChatEvent, select: Any,
+                         manager: DialogManager,
                          item_id: str):
     manager.current_context().dialog_data["age"] = item_id
-    await manager.dialog().next()
+    await manager.next()
 
 
 dialog = Dialog(
@@ -110,7 +113,8 @@ async def start(m: Message, dialog_manager: DialogManager):
 async def error_handler(update, exception, dialog_manager: DialogManager):
     """Example of handling UnknownIntent Error and starting new dialog"""
     if isinstance(exception, UnknownIntent):
-        await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
+        await dialog_manager.start(DialogSG.greeting,
+                                   mode=StartMode.RESET_STACK)
     else:
         return UNHANDLED
 
