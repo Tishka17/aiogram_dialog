@@ -1,17 +1,20 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BaseDialogManager, \
-    StartMode
+from aiogram_dialog import (
+    BaseDialogManager, Dialog, DialogManager, DialogRegistry,
+    StartMode, Window,
+)
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 # name input dialog
@@ -21,8 +24,9 @@ class Bg(StatesGroup):
 
 
 async def get_bg_data(dialog_manager: DialogManager, **kwargs):
+    context = dialog_manager.current_context()
     return {
-        "progress": dialog_manager.current_context().dialog_data.get("progress", 0)
+        "progress": context.dialog_data.get("progress", 0)
     }
 
 
