@@ -5,6 +5,7 @@ from .api.entities import (
 from .api.protocols import BaseDialogManager, DialogManager, DialogProtocol
 from .dialog import Dialog
 from .manager.registry import DialogRegistry
+from .manager.sub_manager import SubManager
 from .window import Window
 
 __all__ = [
@@ -19,6 +20,7 @@ __all__ = [
     "DialogProtocol",
     "DialogRegistry",
     "ShowMode",
+    "SubManager",
     "Window",
     "exceptions",
 ]

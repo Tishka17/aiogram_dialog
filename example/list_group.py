@@ -8,13 +8,12 @@ from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from aiogram_dialog import (
-    Dialog, DialogRegistry, LaunchMode, Window,
+    Dialog, DialogRegistry, LaunchMode, SubManager, Window,
 )
 from aiogram_dialog.widgets.kbd import (
     Row, Checkbox, Radio, ManagedCheckboxAdapter,
     ListGroup,
 )
-from aiogram_dialog.widgets.kbd.list_group import SubManager
 from aiogram_dialog.widgets.text import Const, Format
 
 API_TOKEN = os.getenv("BOT_TOKEN")

@@ -47,7 +47,7 @@ class BaseDialogManager(Protocol):
 class DialogManager(BaseDialogManager, Protocol):
 
     @property
-    def data(self) -> Dict:
+    def middleware_data(self) -> Dict:
         """Middleware data."""
         raise NotImplementedError
 
