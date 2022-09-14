@@ -113,7 +113,9 @@ class Counter(Keyboard):
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(callback, self.managed(manager), manager)
+        await self.on_click.process_event(
+            callback, self.managed(manager), manager,
+        )
 
         value = self.get_value(manager)
         if data == "+":

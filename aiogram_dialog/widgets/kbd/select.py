@@ -149,7 +149,9 @@ class StatefulSelect(Select, ABC):
             item_id: str,
     ):
         if self.on_item_click:
-            await self.on_item_click.process_event(callback, select, manager, item_id)
+            await self.on_item_click.process_event(
+                callback, select, manager, item_id,
+            )
         await self._on_click(callback, select, manager, item_id)
 
     @abstractmethod
