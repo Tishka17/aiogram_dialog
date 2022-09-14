@@ -1,4 +1,3 @@
-import warnings
 from dataclasses import dataclass, field
 from typing import Dict, List, Union
 
@@ -24,4 +23,3 @@ class Context:
     @property
     def stack_id(self):
         return self._stack_id
-

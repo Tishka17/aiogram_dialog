@@ -5,12 +5,11 @@ from aiogram.fsm.state import State
 from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Data, StartMode, ShowMode,
+    ChatEvent, Data, ShowMode, StartMode,
 )
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import Widget
-from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogManager, )
+from aiogram_dialog.api.protocols import BaseDialogManager, DialogManager
 
 
 class SubManager(DialogManager):
