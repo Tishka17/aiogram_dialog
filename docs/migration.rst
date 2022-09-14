@@ -2,7 +2,21 @@
 Migration from previous versions
 ***********************************
 
-Incompatible changes with 0.11:
+Migration 1.x -> 2.0b10
+==========================
+
+* Main objects like ``Dialog``, ``LaunchMode`` and ``DialogManager`` should be imported directly from ``aiogram_dialog`` package.
+* ``Whenable`` is moved to ``widgets.common`` subpackage
+* When finding widget by ``id`` you will get managed version of widget. This objects no more expect ``DialogManager`` or ``ChatEvent`` arguments in their methods
+* For ``ListGroup`` items callbacks you will get ``SubManager`` which behavior slightly changed.
+* ``ManagedDialog`` protocol renamed to ``DialogProtocol``
+* ``Dialog`` no more contains ``.next``, ``.back`` and ``.switch_to`` methods. They are available in ``DialogManager``
+* ``DialogManagerFactory`` protocol simplified
+* no more ``ManagedDialogAdapterProto``. You will get ``Dialog`` instance instead
+
+
+Migration 0.11 -> 1.0
+========================
 
 * ``reset_stack`` was replaced with ``StartMode``. E.g. ``reset_stack=true`` is now ``mode=StartMode.RESET_STACK``
 * dialog no more changes current aiogram state
