@@ -17,13 +17,12 @@ from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogProtocol, DialogRegistryProtocol,
+    BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol,
 )
+from aiogram_dialog.context.storage import StorageProxy
+from aiogram_dialog.utils import get_media_id
 from .bg_manager import BgManager
-from .. import DialogManager
-from ..context.storage import StorageProxy
-from ..utils import get_media_id
 
 logger = getLogger(__name__)
 

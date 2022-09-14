@@ -22,7 +22,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogRegistryProtocol,
 )
-from ..utils import is_chat_loaded, is_user_loaded
+from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)
 

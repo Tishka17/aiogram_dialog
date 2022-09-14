@@ -14,7 +14,7 @@ from aiogram.types import (
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage, ShowMode
 from aiogram_dialog.api.protocols import MessageManagerProtocol
-from .utils import get_media_id
+from aiogram_dialog.utils import get_media_id
 
 logger = getLogger(__name__)
 

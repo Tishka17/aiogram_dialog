@@ -22,16 +22,16 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.context.intent_filter import (
     IntentFilter,
 )
-from .manager import ManagerImpl
-from .manager_middleware import ManagerMiddleware
-from .update_handler import handle_update
-from ..context.intent_middleware import (
+from aiogram_dialog.context.intent_middleware import (
     context_saver_middleware,
     IntentErrorMiddleware,
     IntentMiddlewareFactory,
 )
-from ..context.media_storage import MediaIdStorage
-from ..message_manager import MessageManager
+from aiogram_dialog.context.media_storage import MediaIdStorage
+from .manager import ManagerImpl
+from .manager_middleware import ManagerMiddleware
+from .message_manager import MessageManager
+from .update_handler import handle_update
 
 
 class DialogEventObserver(TelegramEventObserver):
