@@ -1,7 +1,7 @@
 from typing import Any, Callable, Union
 
-from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.manager.protocols import DialogManager
+from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.protocols import DialogManager
 
 
 class WidgetEventProcessor:

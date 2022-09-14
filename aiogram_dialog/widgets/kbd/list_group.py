@@ -1,65 +1,15 @@
-import dataclasses
 from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.manager.protocols import (
-    Context,
-    DialogManager,
-    DialogRegistryProto,
-    ManagedDialogAdapterProto,
-    ManagedDialogProto,
-    NewMessage,
+from aiogram_dialog.api.internal import Widget
+from aiogram_dialog.api.protocols import (
+    DialogManager, DialogProtocol,
 )
+from aiogram_dialog.manager.sub_manager import SubManager
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
-from ..when import WhenCondition
-from ...context.stack import Stack
-
-
-class SubManager(DialogManager):
-    def __init__(
-            self,
-            manager: DialogManager,
-            widget_id: str,
-            item_id: str,
-    ):
-        self.manager = manager
-        self.widget_id = widget_id
-        self.item_id = item_id
-
-    def current_context(self) -> Optional[Context]:
-        context = self.manager.current_context()
-        data = context.widget_data.setdefault(self.widget_id, {})
-        row_data = data.setdefault(self.item_id, {})
-        return dataclasses.replace(context, widget_data=row_data)
-
-    def is_preview(self) -> bool:
-        return self.manager.is_preview()
-
-    def current_stack(self) -> Optional[Stack]:
-        return self.manager.current_stack()
-
-    def dialog(self) -> ManagedDialogAdapterProto:
-        return self.manager.dialog()
-
-    async def close_manager(self) -> None:
-        return await self.manager.close_manager()
-
-    async def show(self, new_message: NewMessage) -> Message:
-        return await self.manager.show(new_message)
-
-    async def reset_stack(self, remove_keyboard: bool = True) -> None:
-        return await self.manager.reset_stack(remove_keyboard)
-
-    async def load_data(self) -> Dict:
-        return await self.manager.load_data()
-
-    @property
-    def registry(self) -> DialogRegistryProto:
-        return self.manager.registry
-
 
 ItemsGetter = Callable[[Dict], Sequence]
 ItemIdGetter = Callable[[Any], Union[str, int]]
@@ -81,7 +31,7 @@ class ListGroup(Keyboard):
             items: Union[str, Sequence],
             when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.buttons = buttons
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
@@ -107,7 +57,12 @@ class ListGroup(Keyboard):
         kbd: List[List[InlineKeyboardButton]] = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
         item_id = str(self.item_id_getter(item))
-        sub_manager = SubManager(manager, self.widget_id, item_id)
+        sub_manager = SubManager(
+            widget=self,
+            manager=manager,
+            widget_id=self.widget_id,
+            item_id=item_id,
+        )
         for b in self.buttons:
             b_kbd = await b.render_keyboard(data, sub_manager)
             for row in b_kbd:
@@ -119,9 +74,9 @@ class ListGroup(Keyboard):
             kbd.extend(b_kbd)
         return kbd
 
-    def find_for_item(
-            self, manager: DialogManager, widget_id: str, item_id: str,
-    ) -> Optional[Keyboard]:
+    def find(self, widget_id: str) -> Optional[Widget]:
+        if widget_id == self.widget_id:
+            return self
         for btn in self.buttons:
             widget = btn.find(widget_id)
             if widget:
@@ -130,33 +85,39 @@ class ListGroup(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
-        c_vars = vars(c)
+        c_vars = vars(callback)
         c_vars["data"] = callback_data
-        c = CallbackQuery(**c_vars)
-        sub_manager = SubManager(manager, self.widget_id, item_id)
+        callback = CallbackQuery(**c_vars)
+        sub_manager = SubManager(
+            widget=self,
+            manager=manager,
+            widget_id=self.widget_id,
+            item_id=item_id,
+        )
         for b in self.buttons:
-            if await b.process_callback(c, dialog, sub_manager):
+            if await b.process_callback(callback, dialog, sub_manager):
                 return True
 
     def managed(self, manager: DialogManager):
         return ManagedListGroupAdapter(self, manager)
 
 
-class ManagedListGroupAdapter(ManagedWidgetAdapter[ListGroup]):
+class ManagedListGroupAdapter(ManagedWidget[ListGroup]):
     def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
-        widget = self.widget.find_for_item(self.manager, widget_id, item_id)
+        widget = self.widget.find(widget_id)
         if widget:
             return widget.managed(
                 SubManager(
-                    self.manager,
-                    self.widget.widget_id,
-                    item_id,
+                    widget=self.widget,
+                    manager=self.manager,
+                    widget_id=self.widget.widget_id,
+                    item_id=item_id,
                 ),
             )
         return None

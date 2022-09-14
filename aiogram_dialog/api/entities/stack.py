@@ -6,13 +6,12 @@ from typing import List, Optional
 
 from aiogram.fsm.state import State
 
-from .context import Context
-from .events import Data
-from ..exceptions import DialogStackOverflow
+from aiogram_dialog.api.exceptions import DialogStackOverflow
+from .context import Context, Data
 
 DEFAULT_STACK_ID = ""
-STACK_LIMIT = 100
-ID_SYMS = string.digits + string.ascii_letters
+_STACK_LIMIT = 100
+_ID_SYMS = string.digits + string.ascii_letters
 
 
 def new_int_id() -> int:
@@ -21,12 +20,12 @@ def new_int_id() -> int:
 
 def id_to_str(int_id: int) -> str:
     if not int_id:
-        return ID_SYMS[0]
-    base = len(ID_SYMS)
+        return _ID_SYMS[0]
+    base = len(_ID_SYMS)
     res = ""
     while int_id:
         int_id, mod = divmod(int_id, base)
-        res += ID_SYMS[mod]
+        res += _ID_SYMS[mod]
     return res
 
 
@@ -50,10 +49,10 @@ class Stack:
         return self._id
 
     def push(self, state: State, data: Data) -> Context:
-        if len(self.intents) >= STACK_LIMIT:
+        if len(self.intents) >= _STACK_LIMIT:
             raise DialogStackOverflow(
                 f"Cannot open more dialogs in current stack. "
-                f"Max count is {STACK_LIMIT}",
+                f"Max count is {_STACK_LIMIT}",
             )
         context = Context(
             _intent_id=new_id(),

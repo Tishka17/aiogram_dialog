@@ -5,21 +5,24 @@ from aiogram import Bot
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
-from .protocols import BaseDialogManager, DialogRegistryProto
-from ..context.events import (
-    Action,
+from aiogram_dialog.api.entities import (
     Data,
+    DEFAULT_STACK_ID,
+    DialogAction,
     DialogStartEvent,
     DialogSwitchEvent,
     DialogUpdate,
     DialogUpdateEvent,
-    FakeChat,
-    FakeUser,
     ShowMode,
     StartMode,
 )
-from ..context.stack import DEFAULT_STACK_ID
-from ..utils import is_chat_loaded, is_user_loaded
+from aiogram_dialog.api.internal import (
+    FakeChat, FakeUser,
+)
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, DialogRegistryProtocol,
+)
+from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)
 
@@ -30,7 +33,7 @@ class BgManager(BaseDialogManager):
             user: User,
             chat: Chat,
             bot: Bot,
-            registry: DialogRegistryProto,
+            registry: DialogRegistryProtocol,
             intent_id: Optional[str],
             stack_id: Optional[str],
             load: bool = False,
@@ -42,10 +45,6 @@ class BgManager(BaseDialogManager):
         self.intent_id = intent_id
         self.stack_id = stack_id
         self.load = load
-
-    @property
-    def registry(self) -> DialogRegistryProto:
-        return self._registry
 
     def bg(
             self,
@@ -79,7 +78,7 @@ class BgManager(BaseDialogManager):
             user=user,
             chat=chat,
             bot=self.bot,
-            registry=self.registry,
+            registry=self._registry,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,
@@ -94,7 +93,7 @@ class BgManager(BaseDialogManager):
         }
 
     async def _notify(self, event: DialogUpdateEvent):
-        await self.registry.notify(
+        await self._registry.notify(
             bot=self.bot, update=DialogUpdate(aiogd_update=event),
         )
 
@@ -116,7 +115,8 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.DONE, data=result, **self._base_event_params(),
+                action=DialogAction.DONE, data=result,
+                **self._base_event_params(),
             ),
         )
 
@@ -130,7 +130,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogStartEvent(
-                action=Action.START,
+                action=DialogAction.START,
                 data=data,
                 new_state=state,
                 mode=mode,
@@ -143,7 +143,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogSwitchEvent(
-                action=Action.SWITCH,
+                action=DialogAction.SWITCH,
                 data={},
                 new_state=state,
                 **self._base_event_params(),
@@ -154,6 +154,7 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=Action.UPDATE, data=data, **self._base_event_params(),
+                action=DialogAction.UPDATE, data=data,
+                **self._base_event_params(),
             ),
         )

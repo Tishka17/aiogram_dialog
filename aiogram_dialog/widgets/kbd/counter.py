@@ -2,12 +2,11 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd.base import Keyboard
-from aiogram_dialog.widgets.managed import ManagedWidgetAdapter
 from aiogram_dialog.widgets.text import Const, Format, Text
-from aiogram_dialog.widgets.when import WhenCondition
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
@@ -62,7 +61,8 @@ class Counter(Keyboard):
             self.widget_id, self.default,
         )
 
-    async def set_value(self, manager: DialogManager, value: float) -> None:
+    async def set_value(self, manager: DialogManager,
+                        value: float) -> None:
         if self.min <= value <= self.max:
             manager.current_context().widget_data[self.widget_id] = value
             await self.on_value_changed.process_event(
@@ -108,12 +108,14 @@ class Counter(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(c, self.managed(manager), manager)
+        await self.on_click.process_event(
+            callback, self.managed(manager), manager,
+        )
 
         value = self.get_value(manager)
         if data == "+":
@@ -135,7 +137,7 @@ class Counter(Keyboard):
         return ManagedCounterAdapter(self, manager)
 
 
-class ManagedCounterAdapter(ManagedWidgetAdapter[Counter]):
+class ManagedCounterAdapter(ManagedWidget[Counter]):
     def get_value(self) -> float:
         return self.widget.get_value(self.manager)
 

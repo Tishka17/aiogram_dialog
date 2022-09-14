@@ -1,8 +1,7 @@
-from typing import Awaitable, Callable, Dict, List
+from typing import Dict, List
 
-from aiogram_dialog.manager.protocols import DialogManager
-
-DataGetter = Callable[..., Awaitable[Dict]]
+from aiogram_dialog.api.internal.widgets import DataGetter
+from aiogram_dialog.api.protocols import DialogManager
 
 
 class CompositeGetter:

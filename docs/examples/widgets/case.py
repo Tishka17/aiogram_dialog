@@ -1,7 +1,7 @@
 from typing import Dict
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.text import Multi, Const, Format, Case
+from aiogram_dialog.widgets.text import Case, Const, Format
 
 
 # let's assume this is our window data getter

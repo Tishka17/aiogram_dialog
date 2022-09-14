@@ -1,5 +1,4 @@
 from aiogram.filters.state import StatesGroup, State
-from aiogram.types import ParseMode
 
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.text import Jinja
@@ -26,7 +25,7 @@ html_text = Jinja("""
 
 window = Window(
     html_text,
-    parse_mode=ParseMode.HTML,  # do not forget to set parse mode
+    parse_mode="HTML",  # do not forget to set parse mode
     state=DialogSG.ANIMALS,
     getter=get_data
 )

@@ -12,13 +12,9 @@ from aiogram.types import (
     URLInputFile,
 )
 
-from .context.events import ShowMode
-from .manager.protocols import (
-    MediaAttachment,
-    MessageManagerProtocol,
-    NewMessage,
-)
-from .utils import get_media_id
+from aiogram_dialog.api.entities import MediaAttachment, NewMessage, ShowMode
+from aiogram_dialog.api.protocols import MessageManagerProtocol
+from aiogram_dialog.utils import get_media_id
 
 logger = getLogger(__name__)
 

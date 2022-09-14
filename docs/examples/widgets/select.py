@@ -1,5 +1,5 @@
-from typing import Any
 import operator
+from typing import Any
 
 from aiogram.types import CallbackQuery
 
@@ -22,14 +22,16 @@ async def get_data(**kwargs):
     }
 
 
-async def on_fruit_selected(c: CallbackQuery, widget: Any, manager: DialogManager, item_id: str):
+async def on_fruit_selected(callback: CallbackQuery, widget: Any,
+                            manager: DialogManager, item_id: str):
     print("Fruit selected: ", item_id)
 
 
 fruits_kbd = Select(
     Format("{item[0]} ({pos}/{data[count]})"),  # E.g `✓ Apple (1/4)`
     id="s_fruits",
-    item_id_getter=operator.itemgetter(1),  # each item is a tuple with id on a first position
+    item_id_getter=operator.itemgetter(1),
+    # each item is a tuple with id on a first position
     items="fruits",  # we will use items from window data at a key `fruits`
     on_click=on_fruit_selected,
 )

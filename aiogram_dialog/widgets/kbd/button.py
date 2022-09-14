@@ -2,14 +2,14 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
-from aiogram_dialog.manager.manager import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..when import WhenCondition
 
 OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
@@ -22,17 +22,17 @@ class Button(Keyboard):
             on_click: Union[OnClick, WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.text = text
         self.on_click = ensure_event_processor(on_click)
 
     async def _process_own_callback(
             self,
-            c: CallbackQuery,
-            dialog: ManagedDialogProto,
+            callback: CallbackQuery,
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(c, self, manager)
+        await self.on_click.process_event(callback, self, manager)
         return True
 
     async def _render_keyboard(
@@ -58,7 +58,7 @@ class Url(Keyboard):
             id: Optional[str] = None,
             when: Union[str, Callable, None] = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.text = text
         self.url = url
 

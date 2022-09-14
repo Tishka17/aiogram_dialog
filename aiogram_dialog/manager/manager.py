@@ -5,47 +5,73 @@ from typing import Any, Dict, Optional
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
+from aiogram_dialog.api.entities import (
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
+    ShowMode, Stack, StartMode,
+)
+from aiogram_dialog.api.exceptions import IncorrectBackgroundError
+from aiogram_dialog.api.internal import (
+    CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
+)
+from aiogram_dialog.api.internal import (
+    FakeChat, FakeUser,
+)
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
+)
+from aiogram_dialog.context.storage import StorageProxy
+from aiogram_dialog.utils import get_media_id
 from .bg_manager import BgManager
-from .dialog import ManagedDialogAdapter
-from .protocols import (
-    BaseDialogManager,
-    DialogManager,
-    DialogRegistryProto,
-    LaunchMode,
-    ManagedDialogAdapterProto,
-    ManagedDialogProto,
-    NewMessage,
-)
-from ..context.context import Context
-from ..context.events import (
-    ChatEvent,
-    Data,
-    FakeChat,
-    FakeUser,
-    ShowMode,
-    StartMode,
-)
-from ..context.intent_filter import CONTEXT_KEY, STACK_KEY, STORAGE_KEY
-from ..context.stack import DEFAULT_STACK_ID, Stack
-from ..context.storage import StorageProxy
-from ..exceptions import IncorrectBackgroundError
 
 logger = getLogger(__name__)
 
 
 class ManagerImpl(DialogManager):
+
     def __init__(
-            self, event: ChatEvent, registry: DialogRegistryProto, data: Dict,
+            self, event: ChatEvent,
+            message_manager: MessageManagerProtocol,
+            media_id_storage: MediaIdStorageProtocol,
+            registry: DialogRegistryProtocol,
+            data: Dict,
     ):
         self.disabled = False
+        self.message_manager = message_manager
+        self.media_id_storage = media_id_storage
+        self._event = event
+        self._data = data
+        self._show_mode: ShowMode = ShowMode.AUTO
         self._registry = registry
-        self.event = event
-        self.data = data
-        self.show_mode: ShowMode = ShowMode.AUTO
 
     @property
-    def registry(self) -> DialogRegistryProto:
-        return self._registry
+    def show_mode(self) -> ShowMode:
+        """Get current show mode, used for next show action."""
+        return self._show_mode
+
+    @show_mode.setter
+    def show_mode(self, show_mode: ShowMode) -> None:
+        """Set current show mode, used for next show action."""
+        self._show_mode = show_mode
+
+    @property
+    def event(self) -> ChatEvent:
+        return self._event
+
+    @property
+    def data(self) -> Dict:
+        """Middleware data."""
+        return self._data
+
+    @property
+    def dialog_data(self) -> Dict:
+        """Dialog data for current context."""
+        return self.current_context().dialog_data
+
+    @property
+    def start_data(self) -> Dict:
+        """Start data for current context."""
+        return self.current_context().start_data
 
     def check_disabled(self):
         if self.disabled:
@@ -67,20 +93,19 @@ class ManagerImpl(DialogManager):
     def is_preview(self) -> bool:
         return False
 
-    def dialog(self) -> ManagedDialogAdapterProto:
-        return ManagedDialogAdapter(self._dialog(), self)
-
-    def _dialog(self) -> ManagedDialogProto:
+    def dialog(self) -> DialogProtocol:
         self.check_disabled()
         current = self.current_context()
         if not current:
             raise RuntimeError
-        return self.registry.find_dialog(current.state)
+        return self._registry.find_dialog(current.state)
 
     def current_context(self) -> Optional[Context]:
+        self.check_disabled()
         return self.data[CONTEXT_KEY]
 
     def current_stack(self) -> Optional[Stack]:
+        self.check_disabled()
         return self.data[STACK_KEY]
 
     def storage(self) -> StorageProxy:
@@ -94,7 +119,7 @@ class ManagerImpl(DialogManager):
             message_id=self.current_stack().last_message_id,
             date=datetime.now(),
         )
-        await self._registry.message_manager.remove_kbd(
+        await self.message_manager.remove_kbd(
             bot,
             message,
         )
@@ -109,7 +134,8 @@ class ManagerImpl(DialogManager):
         await self._remove_kbd()
 
     async def done(self, result: Any = None) -> None:
-        await self._dialog().process_close(result, self)
+        self.check_disabled()
+        await self.dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
         context = self.current_context()
@@ -119,11 +145,11 @@ class ManagerImpl(DialogManager):
                 result,
             )
             return
-        dialog = self._dialog()
+        dialog = self.dialog()
         await dialog.process_result(old_context.start_data, result, self)
         new_context = self.current_context()
         if new_context and context.id == new_context.id:
-            await self._dialog().show(self)
+            await self.show()
 
     async def mark_closed(self) -> None:
         self.check_disabled()
@@ -157,6 +183,7 @@ class ManagerImpl(DialogManager):
             raise ValueError(f"Unknown start mode: {mode}")
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        self.check_disabled()
         storage = self.storage()
         stack = self.current_stack()
         while not stack.empty():
@@ -171,16 +198,16 @@ class ManagerImpl(DialogManager):
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
         stack = self.current_stack()
-        old_dialog: Optional[ManagedDialogProto] = None
+        old_dialog: Optional[DialogProtocol] = None
         if not stack.empty():
-            old_dialog = self._dialog()
+            old_dialog = self.dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError(
                     "Cannot start dialog on top "
                     "of one with launch_mode==SINGLE",
                 )
 
-        new_dialog = self.registry.find_dialog(state)
+        new_dialog = self._registry.find_dialog(state)
         launch_mode = new_dialog.launch_mode
         if launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
@@ -191,9 +218,27 @@ class ManagerImpl(DialogManager):
         await self.storage().save_context(self.current_context())
         context = stack.push(state, data)
         self.data[CONTEXT_KEY] = context
-        await self._dialog().process_start(self, data, state)
+        await self.dialog().process_start(self, data, state)
         if context.id == self.current_context().id:
-            await self._dialog().show(self)
+            await self.show()
+
+    async def next(self) -> None:
+        context = self.current_context()
+        if not context:
+            raise ValueError("No intent")
+        states = self.dialog().states()
+        current_index = states.index(context.state)
+        new_state = states[current_index + 1]
+        await self.switch_to(new_state)
+
+    async def back(self) -> None:
+        context = self.current_context()
+        if not context:
+            raise ValueError("No intent")
+        states = self.dialog().states()
+        current_index = states.index(context.state)
+        new_state = states[current_index - 1]
+        await self.switch_to(new_state)
 
     async def switch_to(self, state: State) -> None:
         self.check_disabled()
@@ -205,51 +250,83 @@ class ManagerImpl(DialogManager):
             )
         context.state = state
 
-    async def show(self, new_message: NewMessage) -> Message:
+    async def show(self) -> Message:
         stack = self.current_stack()
         bot = self.data["bot"]
+        old_message = self._get_last_message()
+        new_message = await self.dialog().render(self)
+        if new_message.show_mode is ShowMode.AUTO:
+            new_message.show_mode = self._calc_show_mode()
+        await self._fix_cached_media_id(new_message)
+
+        sent_message = await self.message_manager.show_message(
+            bot, new_message, old_message,
+        )
+
+        self._save_last_message(sent_message)
+        self.show_mode = ShowMode.EDIT
+        if new_message.media:
+            await self.media_id_storage.save_media_id(
+                path=new_message.media.path,
+                url=new_message.media.url,
+                type=new_message.media.type,
+                media_id=get_media_id(sent_message),
+            )
+        if isinstance(self.event, Message):
+            stack.last_income_media_group_id = self.event.media_group_id
+        return sent_message
+
+    async def _fix_cached_media_id(self, new_message: NewMessage):
+        if not new_message.media or new_message.media.file_id:
+            return
+        new_message.media.file_id = await self.media_id_storage.get_media_id(
+            path=new_message.media.path,
+            url=new_message.media.url,
+            type=new_message.media.type,
+        )
+
+    def _get_last_message(self) -> Optional[Message]:
+        stack = self.current_stack()
         chat = self.data["event_chat"]
         if (
                 isinstance(self.event, CallbackQuery) and
                 self.event.message and
                 stack.last_message_id == self.event.message.message_id
         ):
-            old_message = self.event.message
+            return self.event.message
+        if not stack or not stack.last_message_id:
+            return None
+        if stack.last_media_id:
+            # we create document because
+            # * there is no method to set content type explicitly
+            # * we don't really care fo exact content type
+            document = Document(
+                file_id=stack.last_media_id,
+                file_unique_id=stack.last_media_unique_id,
+            )
+            text = None
         else:
-            if stack and stack.last_message_id:
-                if stack.last_media_id:
-                    # we create document because
-                    # * there is no method to set content type explicitly
-                    # * we don't really care fo exact content type
-                    document = Document(
-                        file_id=stack.last_media_id,
-                        file_unique_id=stack.last_media_unique_id,
-                    )
-                    text = None
-                else:
-                    document = None
-                    # we set some non empty-text which is not equal to anything
-                    text = "𝔞𝔦𝔬𝔤𝔯𝔞𝔪 𝔡𝔦𝔞𝔩𝔬𝔤 𝔲𝔫𝔦𝔮𝔲𝔢 𝔱𝔢𝔵𝔱"
-                old_message = Message(
-                    message_id=stack.last_message_id,
-                    document=document,
-                    text=text,
-                    chat=chat,
-                    date=datetime.now(),
-                )
-            else:
-                old_message = None
-        if new_message.show_mode is ShowMode.AUTO:
-            new_message.show_mode = self._calc_show_mode()
-        res = await self._registry.message_manager.show_message(
-            bot,
-            new_message,
-            old_message,
+            document = None
+            # we set some non empty-text which is not equal to anything
+            text = "𝔞𝔦𝔬𝔤𝔯𝔞𝔪 𝔡𝔦𝔞𝔩𝔬𝔤 𝔲𝔫𝔦𝔮𝔲𝔢 𝔱𝔢𝔵𝔱"
+        return Message(
+            message_id=stack.last_message_id,
+            document=document,
+            text=text,
+            chat=chat,
+            date=datetime.now(),
         )
-        if isinstance(self.event, Message):
-            stack.last_income_media_group_id = self.event.media_group_id
-        self.show_mode = ShowMode.EDIT
-        return res
+
+    def _save_last_message(self, message: Message):
+        stack = self.current_stack()
+        stack.last_message_id = message.message_id
+        media_id = get_media_id(message)
+        if media_id:
+            stack.last_media_id = media_id.file_id
+            stack.last_media_unique_id = media_id.file_unique_id
+        else:
+            stack.last_media_id = None
+            stack.last_media_unique_id = None
 
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
@@ -268,7 +345,13 @@ class ManagerImpl(DialogManager):
 
     async def update(self, data: Dict) -> None:
         self.current_context().dialog_data.update(data)
-        await self._dialog().show(self)
+        await self.show()
+
+    def find(self, widget_id) -> Optional[Any]:
+        widget = self.dialog().find(widget_id)
+        if not widget:
+            return None
+        return widget.managed(self)
 
     def is_same_chat(self, user: User, chat: Chat):
         current_chat = self.data["event_chat"]
@@ -311,7 +394,7 @@ class ManagerImpl(DialogManager):
             user=user,
             chat=chat,
             bot=self.data["bot"],
-            registry=self.registry,
+            registry=self._registry,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,
@@ -320,6 +403,7 @@ class ManagerImpl(DialogManager):
     async def close_manager(self) -> None:
         self.check_disabled()
         self.disabled = True
-        del self._registry
-        del self.event
-        del self.data
+        del self.media_id_storage
+        del self.message_manager
+        del self._event
+        del self._data

@@ -1,9 +1,11 @@
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
-from aiogram_dialog import Window, Dialog, DialogRegistry, DialogManager, StartMode
+from aiogram_dialog import (
+    Dialog, DialogManager, DialogRegistry, StartMode, Window,
+)
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 
@@ -27,7 +29,7 @@ registry.register(dialog)
 
 
 @dp.message(commands=["start"])
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.main, mode=StartMode.RESET_STACK)
 
 

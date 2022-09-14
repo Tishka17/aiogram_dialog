@@ -1,34 +1,23 @@
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
-    CallbackQuery,
     Chat,
-    ChatMemberUpdated,
-    Message,
     TelegramObject,
     Update,
     User,
 )
 
+from .modes import (
+    ShowMode,
+    StartMode,
+)
+
 DIALOG_EVENT_NAME = "aiogd_update"
-Data = Union[Dict, List, int, str, float, None]
 
 
-class ShowMode(Enum):
-    AUTO = "auto"
-    EDIT = "edit"
-    SEND = "send"
-
-
-class StartMode(Enum):
-    NORMAL = "NORMAL"
-    RESET_STACK = "RESET_STACK"
-    NEW_STACK = "NEW_STACK"
-
-
-class Action(Enum):
+class DialogAction(Enum):
     DONE = "DONE"
     START = "START"
     UPDATE = "UPDATE"
@@ -45,7 +34,7 @@ class DialogUpdateEvent(TelegramObject):
 
     from_user: User
     chat: Chat
-    action: Action
+    action: DialogAction
     data: Any
     intent_id: Optional[str]
     stack_id: Optional[str]
@@ -61,9 +50,6 @@ class DialogSwitchEvent(DialogUpdateEvent):
     new_state: State
 
 
-ChatEvent = Union[CallbackQuery, Message, DialogUpdateEvent, ChatMemberUpdated]
-
-
 class DialogUpdate(Update):
     aiogd_update: DialogUpdateEvent
 
@@ -77,11 +63,3 @@ class DialogUpdate(Update):
     @property
     def event(self) -> DialogUpdateEvent:
         return self.aiogd_update
-
-
-class FakeUser(User):
-    fake: Literal[True] = True
-
-
-class FakeChat(Chat):
-    fake: Literal[True] = True

@@ -2,23 +2,22 @@ import asyncio
 import datetime
 import logging
 import operator
+import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog.manager.protocols import ManagedDialogAdapterProto
-
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, Window, StartMode,
+    Dialog, DialogManager, DialogProtocol, DialogRegistry, StartMode, Window,
 )
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Multiselect, Cancel, Start
+from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 class DialogSG(StatesGroup):
@@ -26,13 +25,12 @@ class DialogSG(StatesGroup):
 
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    dialog_data = dialog_manager.current_context().dialog_data
     return {
         "stack": dialog_manager.current_stack(),
         "context": dialog_manager.current_context(),
         "now": datetime.datetime.now(),
-        "counter": dialog_data.get("counter", 0),
-        "last_text": dialog_data.get("last_text", ""),
+        "counter": dialog_manager.dialog_data.get("counter", 0),
+        "last_text": dialog_manager.dialog_data.get("last_text", ""),
         "fruits": [
             ("Apple", 1),
             ("Pear", 2),
@@ -42,14 +40,17 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(m: Message, dialog: ManagedDialogAdapterProto, manager: DialogManager):
-    manager.current_context().dialog_data["last_text"] = m.text
-    await m.answer(f"Nice to meet you, {m.text}")
+async def name_handler(
+        message: Message, dialog: DialogProtocol, manager: DialogManager,
+):
+    manager.dialog_data["last_text"] = message.text
+    await message.answer(f"Nice to meet you, {message.text}")
 
 
-async def on_click(c: CallbackQuery, button: Button, manager: DialogManager):
-    counter = manager.current_context().dialog_data.get("counter", 0)
-    manager.current_context().dialog_data["counter"] = counter + 1
+async def on_click(callback: CallbackQuery, button: Button,
+                   manager: DialogManager):
+    counter = manager.dialog_data.get("counter", 0)
+    manager.dialog_data["counter"] = counter + 1
 
 
 multi = Multiselect(
@@ -81,7 +82,7 @@ dialog = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.NEW_STACK)
 
 
@@ -93,7 +94,7 @@ async def main():
     dp = Dispatcher(storage=storage)
     registry = DialogRegistry(dp)
     # register handler which resets stack and start dialogs on /start command
-    dp.message.register(start, Command(commands=('start', )))
+    dp.message.register(start, Command(commands=('start',)))
     registry.register(dialog)
 
     await dp.start_polling(bot)

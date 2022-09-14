@@ -1,10 +1,10 @@
 from aiogram.filters.state import StatesGroup, State
 from aiogram.types import Message
 
-from aiogram_dialog import Dialog, Window, DialogManager
+from aiogram_dialog import Dialog, DialogManager, DialogProtocol, Window
 from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Next, Back
+from aiogram_dialog.widgets.kbd import Back, Next
 from aiogram_dialog.widgets.text import Const
 
 
@@ -14,9 +14,11 @@ class RenderSG(StatesGroup):
     last = State()
 
 
-async def on_input(m: Message, dialog: Dialog, manager: DialogManager):
-    manager.current_context().dialog_data["name"] = m.text
-    await dialog.next()
+async def on_input(
+        message: Message, dialog: DialogProtocol, manager: DialogManager,
+):
+    manager.dialog_data["name"] = message.text
+    await manager.next()
 
 
 dialog = Dialog(

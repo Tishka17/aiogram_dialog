@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from typing import Dict
 
 from aiogram import Bot, Dispatcher
@@ -7,26 +8,26 @@ from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, Window,
+    Dialog, DialogRegistry, LaunchMode, SubManager, Window,
 )
-from aiogram_dialog.manager.protocols import LaunchMode
 from aiogram_dialog.widgets.kbd import (
     Row, Checkbox, Radio, ManagedCheckboxAdapter,
-    ListGroup, ManagedListGroupAdapter,
+    ListGroup,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 class DialogSG(StatesGroup):
     greeting = State()
 
 
-def when_checked(data: Dict, widget, manager: DialogManager) -> bool:
-    lg: ManagedListGroupAdapter = manager.dialog().find("lg")
-    # normally we need to get id from `data["item"]`
-    check: ManagedCheckboxAdapter = lg.find_for_item("check", data["item"])
+def when_checked(data: Dict, widget, manager: SubManager) -> bool:
+    # manager for our case is already adapted for current ListGroup row
+    # so `.find` returns widget adapted for current row
+    # if you need to find widgets outside the row, use `.find_in_parent`
+    check: ManagedCheckboxAdapter = manager.find("check")
     return check.is_checked()
 
 

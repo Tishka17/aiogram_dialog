@@ -1,22 +1,22 @@
 from calendar import monthcalendar
 from datetime import date
 from time import mktime
-from typing import Awaitable, Callable, List, Optional, TypedDict, Union
+from typing import Awaitable, Callable, Dict, List, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.context.events import ChatEvent
-from aiogram_dialog.manager.protocols import DialogManager, ManagedDialogProto
+from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..managed import ManagedWidgetAdapter
-from ...deprecation_utils import manager_deprecated
 
 OnDateSelected = Callable[
-    [ChatEvent, "ManagedCalendarAdapter", DialogManager, date], Awaitable,
+    [ChatEvent, "ManagedCalendarAdapter", DialogManager,
+     date], Awaitable,
 ]
 
 # Constants for managing widget rendering scope
@@ -45,13 +45,13 @@ class Calendar(Keyboard):
             self,
             id: str,
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
-            when: Union[str, Callable] = None,
+            when: WhenCondition = None,
     ):
-        super().__init__(id, when)
+        super().__init__(id=id, when=when)
         self.on_click = ensure_event_processor(on_click)
 
     async def _render_keyboard(
-            self, data, manager: DialogManager,
+            self, data: Dict, manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         offset = self.get_offset(manager)
         current_scope = self.get_scope(manager)
@@ -65,9 +65,9 @@ class Calendar(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
-            dialog: ManagedDialogProto,
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         current_offset = self.get_offset(manager)
@@ -108,7 +108,7 @@ class Calendar(Keyboard):
         else:
             raw_date = int(data)
             await self.on_click.process_event(
-                c,
+                callback,
                 self.managed(manager),
                 manager,
                 date.fromtimestamp(raw_date),
@@ -224,7 +224,8 @@ class Calendar(Keyboard):
             return date.today()
         return date.fromisoformat(current_offset)
 
-    def set_offset(self, new_offset: date, manager: DialogManager) -> None:
+    def set_offset(self, new_offset: date,
+                   manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
         data["current_offset"] = new_offset.isoformat()
 
@@ -236,23 +237,19 @@ class Calendar(Keyboard):
         return ManagedCalendarAdapter(self, manager)
 
 
-class ManagedCalendarAdapter(ManagedWidgetAdapter[Calendar]):
-    def get_scope(self, manager: Optional[DialogManager] = None) -> str:
-        manager_deprecated(manager)
+class ManagedCalendarAdapter(ManagedWidget[Calendar]):
+    def get_scope(self) -> str:
         return self.widget.get_scope(self.manager)
 
-    def get_offset(self, manager: Optional[DialogManager] = None) -> date:
-        manager_deprecated(manager)
+    def get_offset(self) -> date:
         return self.widget.get_offset(self.manager)
 
     def set_offset(
-            self, new_offset: date, manager: Optional[DialogManager] = None,
+            self, new_offset: date,
     ) -> None:
-        manager_deprecated(manager)
         return self.widget.set_offset(new_offset, self.manager)
 
     def set_scope(
-            self, new_scope: str, manager: Optional[DialogManager] = None,
+            self, new_scope: str,
     ) -> None:
-        manager_deprecated(manager)
         return self.widget.set_scope(new_scope, self.manager)

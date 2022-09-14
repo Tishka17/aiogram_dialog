@@ -1,16 +1,18 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
-from aiogram_dialog import Dialog, Window, DialogRegistry
-from aiogram_dialog.manager.protocols import LaunchMode, DialogManager
+from aiogram_dialog import (
+    Dialog, DialogRegistry, DialogManager, LaunchMode, Window,
+)
 from aiogram_dialog.widgets.kbd import Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 class BannerSG(StatesGroup):
