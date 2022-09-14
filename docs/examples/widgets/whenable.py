@@ -3,9 +3,9 @@ from typing import Dict
 from aiogram.filters.state import StatesGroup, State
 
 from aiogram_dialog import Window, DialogManager
+from aiogram_dialog.widgets.common import Whenable
 from aiogram_dialog.widgets.kbd import Button, Row, Group
 from aiogram_dialog.widgets.text import Const, Format, Multi
-from aiogram_dialog.widgets.when import Whenable
 
 
 class MySG(StatesGroup):

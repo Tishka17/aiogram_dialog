@@ -1,7 +1,7 @@
 from aiogram.filters.state import StatesGroup, State
 
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.kbd import Row, SwitchTo, Next, Back
+from aiogram_dialog.widgets.kbd import Back, Next, Row, SwitchTo
 from aiogram_dialog.widgets.text import Const
 
 

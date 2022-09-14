@@ -1,10 +1,10 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
-from aiogram_dialog import Dialog, Window, DialogRegistry
+from aiogram_dialog import Dialog, DialogRegistry, Window
 from aiogram_dialog.tools import render_preview
 from aiogram_dialog.widgets.kbd import Cancel
 from aiogram_dialog.widgets.text import Format
