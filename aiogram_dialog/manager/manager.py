@@ -109,7 +109,7 @@ class ManagerImpl(DialogManager):
             message_id=self.current_stack().last_message_id,
             date=datetime.now(),
         )
-        await self._registry.message_manager.remove_kbd(  # TODO
+        await self.message_manager.remove_kbd(
             bot,
             message,
         )
