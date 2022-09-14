@@ -30,18 +30,18 @@ class NameSG(StatesGroup):
 async def name_handler(
         message: Message, dialog: DialogProtocol, manager: DialogManager
 ):
-    manager.current_context().dialog_data["name"] = message.text
+    manager.dialog_data["name"] = message.text
     await manager.next()
 
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "name": dialog_manager.current_context().dialog_data.get("name")
+        "name": dialog_manager.dialog_data.get("name")
     }
 
 
 async def on_finish(callback: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.done({"name": manager.current_context().dialog_data["name"]})
+    await manager.done({"name": manager.dialog_data["name"]})
 
 
 name_dialog = Dialog(
@@ -74,18 +74,18 @@ class MainSG(StatesGroup):
 async def process_result(start_data: Data, result: Any,
                          manager: DialogManager):
     if result:
-        manager.current_context().dialog_data["name"] = result["name"]
+        manager.dialog_data["name"] = result["name"]
 
 
 async def get_main_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "name": dialog_manager.current_context().dialog_data.get("name"),
+        "name": dialog_manager.dialog_data.get("name"),
     }
 
 
 async def on_reset_name(callback: CallbackQuery, button: Button,
                         manager: DialogManager):
-    del manager.current_context().dialog_data["name"]
+    del manager.dialog_data["name"]
 
 
 main_menu = Dialog(

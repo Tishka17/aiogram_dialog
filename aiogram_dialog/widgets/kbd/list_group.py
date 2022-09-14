@@ -27,6 +27,16 @@ class SubManager(DialogManager):
         self.widget_id = widget_id
         self.item_id = item_id
 
+    @property
+    def dialog_data(self) -> Dict:
+        """Dialog data for current context."""
+        return self.current_context().dialog_data
+
+    @property
+    def start_data(self) -> Dict:
+        """Start data for current context."""
+        return self.current_context().start_data
+
     def current_context(self) -> Optional[Context]:
         context = self.manager.current_context()
         data = context.widget_data.setdefault(self.widget_id, {})

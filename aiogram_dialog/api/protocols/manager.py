@@ -52,6 +52,16 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @property
+    def dialog_data(self) -> Dict:
+        """Dialog data for current context."""
+        raise NotImplementedError
+
+    @property
+    def start_data(self) -> Dict:
+        """Start data for current context."""
+        raise NotImplementedError
+
+    @property
     def show_mode(self) -> ShowMode:
         """Get current show mode, used for next show action."""
         raise NotImplementedError

@@ -13,7 +13,8 @@ Migration 1.x -> 2.0b10
 * ``Dialog`` no more contains ``.next``, ``.back`` and ``.switch_to`` methods. They are available in ``DialogManager``
 * ``DialogManagerFactory`` protocol simplified
 * no more ``ManagedDialogAdapterProto``. You will get ``Dialog`` instance instead
-
+* no more ``data`` in ``Context``. Renamed to ``start_data`` many time ago
+* ``dialog_data`` and ``start_data`` added to ``DialogManager``
 
 Migration 0.11 -> 1.0
 ========================

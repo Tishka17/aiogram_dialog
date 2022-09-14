@@ -31,9 +31,9 @@ class DialogSG(StatesGroup):
 
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    age = dialog_manager.current_context().dialog_data.get("age", None)
+    age = dialog_manager.dialog_data.get("age", None)
     return {
-        "name": dialog_manager.current_context().dialog_data.get("name", ""),
+        "name": dialog_manager.dialog_data.get("name", ""),
         "age": age,
         "can_smoke": age in ("18-25", "25-40", "40+"),
     }
@@ -44,7 +44,7 @@ async def name_handler(message: Message, dialog: DialogProtocol,
     if manager.is_preview():
         await manager.next()
         return
-    manager.current_context().dialog_data["name"] = message.text
+    manager.dialog_data["name"] = message.text
     await message.answer(f"Nice to meet you, {message.text}")
     await manager.next()
 
@@ -61,7 +61,7 @@ async def on_finish(callback: CallbackQuery, button: Button,
 async def on_age_changed(callback: ChatEvent, select: Any,
                          manager: DialogManager,
                          item_id: str):
-    manager.current_context().dialog_data["age"] = item_id
+    manager.dialog_data["age"] = item_id
     await manager.next()
 
 

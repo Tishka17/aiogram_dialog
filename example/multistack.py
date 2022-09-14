@@ -25,13 +25,12 @@ class DialogSG(StatesGroup):
 
 
 async def get_data(dialog_manager: DialogManager, **kwargs):
-    dialog_data = dialog_manager.current_context().dialog_data
     return {
         "stack": dialog_manager.current_stack(),
         "context": dialog_manager.current_context(),
         "now": datetime.datetime.now(),
-        "counter": dialog_data.get("counter", 0),
-        "last_text": dialog_data.get("last_text", ""),
+        "counter": dialog_manager.dialog_data.get("counter", 0),
+        "last_text": dialog_manager.dialog_data.get("last_text", ""),
         "fruits": [
             ("Apple", 1),
             ("Pear", 2),
@@ -44,13 +43,14 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 async def name_handler(
         message: Message, dialog: DialogProtocol, manager: DialogManager,
 ):
-    manager.current_context().dialog_data["last_text"] = message.text
+    manager.dialog_data["last_text"] = message.text
     await message.answer(f"Nice to meet you, {message.text}")
 
 
-async def on_click(callback: CallbackQuery, button: Button, manager: DialogManager):
-    counter = manager.current_context().dialog_data.get("counter", 0)
-    manager.current_context().dialog_data["counter"] = counter + 1
+async def on_click(callback: CallbackQuery, button: Button,
+                   manager: DialogManager):
+    counter = manager.dialog_data.get("counter", 0)
+    manager.dialog_data["counter"] = counter + 1
 
 
 multi = Multiselect(

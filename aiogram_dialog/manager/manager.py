@@ -63,6 +63,16 @@ class ManagerImpl(DialogManager):
         """Middleware data."""
         return self._data
 
+    @property
+    def dialog_data(self) -> Dict:
+        """Dialog data for current context."""
+        return self.current_context().dialog_data
+
+    @property
+    def start_data(self) -> Dict:
+        """Start data for current context."""
+        return self.current_context().start_data
+
     def check_disabled(self):
         if self.disabled:
             raise IncorrectBackgroundError(

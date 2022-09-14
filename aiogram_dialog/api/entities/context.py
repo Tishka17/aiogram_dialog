@@ -25,7 +25,3 @@ class Context:
     def stack_id(self):
         return self._stack_id
 
-    @property
-    def data(self):
-        warnings.warn("use `context.start_data` instead", DeprecationWarning)
-        return self.start_data
