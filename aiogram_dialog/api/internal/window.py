@@ -31,7 +31,7 @@ class WindowProtocol(Protocol):
 
     async def process_message(
             self,
-            m: Message,
+            message: Message,
             dialog: "DialogProtocol",
             manager: DialogManager,
     ):
@@ -39,7 +39,7 @@ class WindowProtocol(Protocol):
 
     async def process_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: "DialogProtocol",
             manager: DialogManager,
     ):

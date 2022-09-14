@@ -55,15 +55,15 @@ class BaseCheckbox(Keyboard, ABC):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         # remove prefix and cast "0" as False, "1" as True
         checked = data != "0"
-        await self.on_click.process_event(c, self.managed(manager), manager)
-        await self.set_checked(c, not checked, manager)
+        await self.on_click.process_event(callback, self.managed(manager), manager)
+        await self.set_checked(callback, not checked, manager)
         return True
 
     def _is_text_checked(

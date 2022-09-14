@@ -5,8 +5,8 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 
 
-async def go_clicked(c: CallbackQuery, button: Button, manager: DialogManager):
-    await c.message.answer("Going on!")
+async def go_clicked(callback: CallbackQuery, button: Button, manager: DialogManager):
+    await callback.message.answer("Going on!")
 
 
 go_btn = Button(

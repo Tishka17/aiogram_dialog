@@ -47,12 +47,12 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def start_bg(c: CallbackQuery, button: Button, manager: DialogManager):
+async def start_bg(callback: CallbackQuery, button: Button, manager: DialogManager):
     await manager.start(Bg.progress)
-    asyncio.create_task(background(c, manager.bg()))
+    asyncio.create_task(background(callback, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: BaseDialogManager):
+async def background(callback: CallbackQuery, manager: BaseDialogManager):
     count = 10
     for i in range(1, count + 1):
         await asyncio.sleep(1)
@@ -72,7 +72,7 @@ main_menu = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 

@@ -86,13 +86,13 @@ class Select(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         await self.on_click.process_event(
-            c,
+            callback,
             self.managed(manager),
             manager,
             data,
@@ -143,19 +143,19 @@ class StatefulSelect(Select, ABC):
 
     async def _process_click(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             select: ManagedWidget[Select],
             manager: DialogManager,
             item_id: str,
     ):
         if self.on_item_click:
-            await self.on_item_click.process_event(c, select, manager, item_id)
-        await self._on_click(c, select, manager, item_id)
+            await self.on_item_click.process_event(callback, select, manager, item_id)
+        await self._on_click(callback, select, manager, item_id)
 
     @abstractmethod
     async def _on_click(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             select: ManagedWidget[Select],
             manager: DialogManager,
             item_id: str,
@@ -196,12 +196,12 @@ class Radio(StatefulSelect):
 
     async def _on_click(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             select: Select,
             manager: DialogManager,
             item_id: str,
     ):
-        await self.set_checked(c, item_id, manager)
+        await self.set_checked(callback, item_id, manager)
 
     def managed(self, manager: DialogManager):
         return ManagedRadioAdapter(self, manager)
@@ -300,13 +300,13 @@ class Multiselect(StatefulSelect):
 
     async def _on_click(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             select: Select,
             manager: DialogManager,
             item_id: str,
     ):
         await self.set_checked(
-            c, item_id, not self.is_checked(item_id, manager), manager,
+            callback, item_id, not self.is_checked(item_id, manager), manager,
         )
 
     def managed(self, manager: DialogManager):

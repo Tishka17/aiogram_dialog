@@ -65,7 +65,7 @@ class Calendar(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
@@ -108,7 +108,7 @@ class Calendar(Keyboard):
         else:
             raw_date = int(data)
             await self.on_click.process_event(
-                c,
+                callback,
                 self.managed(manager),
                 manager,
                 date.fromtimestamp(raw_date),

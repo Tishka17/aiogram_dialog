@@ -78,11 +78,11 @@ class Window(WindowProtocol):
             await self.on_message.process_message(message, dialog, manager)
 
     async def process_callback(
-            self, c: CallbackQuery, dialog: DialogProtocol,
+            self, callback: CallbackQuery, dialog: DialogProtocol,
             manager: DialogManager,
     ):
         if self.keyboard:
-            await self.keyboard.process_callback(c, dialog, manager)
+            await self.keyboard.process_callback(callback, dialog, manager)
 
     async def render(
             self, dialog: DialogProtocol,

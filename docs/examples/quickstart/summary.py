@@ -27,7 +27,7 @@ registry.register(dialog)
 
 
 @dp.message(commands=["start"])
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.main, mode=StartMode.RESET_STACK)
 
 

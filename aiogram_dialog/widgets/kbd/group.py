@@ -65,12 +65,12 @@ class Group(Keyboard):
 
     async def _process_other_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         for b in self.buttons:
-            if await b.process_callback(c, dialog, manager):
+            if await b.process_callback(callback, dialog, manager):
                 return True
         return False
 

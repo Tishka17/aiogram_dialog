@@ -39,26 +39,26 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(m: Message, dialog: DialogProtocol,
+async def name_handler(message: Message, dialog: DialogProtocol,
                        manager: DialogManager):
     if manager.is_preview():
         await manager.next()
         return
-    manager.current_context().dialog_data["name"] = m.text
-    await m.answer(f"Nice to meet you, {m.text}")
+    manager.current_context().dialog_data["name"] = message.text
+    await message.answer(f"Nice to meet you, {message.text}")
     await manager.next()
 
 
-async def on_finish(c: CallbackQuery, button: Button,
+async def on_finish(callback: CallbackQuery, button: Button,
                     manager: DialogManager):
     if manager.is_preview():
         await manager.done()
         return
-    await c.message.answer("Thank you. To start again click /start")
+    await callback.message.answer("Thank you. To start again click /start")
     await manager.done()
 
 
-async def on_age_changed(c: ChatEvent, select: Any,
+async def on_age_changed(callback: ChatEvent, select: Any,
                          manager: DialogManager,
                          item_id: str):
     manager.current_context().dialog_data["age"] = item_id
@@ -105,7 +105,7 @@ dialog = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     # it is important to reset stack because user wants to restart everything
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 

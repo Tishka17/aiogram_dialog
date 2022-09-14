@@ -42,13 +42,13 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 
 async def name_handler(
-        m: Message, dialog: DialogProtocol, manager: DialogManager,
+        message: Message, dialog: DialogProtocol, manager: DialogManager,
 ):
-    manager.current_context().dialog_data["last_text"] = m.text
-    await m.answer(f"Nice to meet you, {m.text}")
+    manager.current_context().dialog_data["last_text"] = message.text
+    await message.answer(f"Nice to meet you, {message.text}")
 
 
-async def on_click(c: CallbackQuery, button: Button, manager: DialogManager):
+async def on_click(callback: CallbackQuery, button: Button, manager: DialogManager):
     counter = manager.current_context().dialog_data.get("counter", 0)
     manager.current_context().dialog_data["counter"] = counter + 1
 
@@ -82,7 +82,7 @@ dialog = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.NEW_STACK)
 
 

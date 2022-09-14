@@ -56,29 +56,29 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
 
     async def process_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        if c.data == self.widget_id:
+        if callback.data == self.widget_id:
             return await self._process_own_callback(
-                c,
+                callback,
                 dialog,
                 manager,
             )
         prefix = self.callback_prefix()
-        if prefix and c.data.startswith(prefix):
+        if prefix and callback.data.startswith(prefix):
             return await self._process_item_callback(
-                c,
-                c.data[len(prefix):],
+                callback,
+                callback.data[len(prefix):],
                 dialog,
                 manager,
             )
-        return await self._process_other_callback(c, dialog, manager)
+        return await self._process_other_callback(callback, dialog, manager)
 
     async def _process_own_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
@@ -87,7 +87,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
@@ -97,7 +97,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
 
     async def _process_other_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:

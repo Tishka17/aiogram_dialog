@@ -28,11 +28,11 @@ class Button(Keyboard):
 
     async def _process_own_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(c, self, manager)
+        await self.on_click.process_event(callback, self, manager)
         return True
 
     async def _render_keyboard(

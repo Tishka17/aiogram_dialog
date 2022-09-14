@@ -108,12 +108,12 @@ class Counter(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(c, self.managed(manager), manager)
+        await self.on_click.process_event(callback, self.managed(manager), manager)
 
         value = self.get_value(manager)
         if data == "+":

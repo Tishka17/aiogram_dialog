@@ -28,9 +28,9 @@ class NameSG(StatesGroup):
 
 
 async def name_handler(
-        m: Message, dialog: DialogProtocol, manager: DialogManager
+        message: Message, dialog: DialogProtocol, manager: DialogManager
 ):
-    manager.current_context().dialog_data["name"] = m.text
+    manager.current_context().dialog_data["name"] = message.text
     await manager.next()
 
 
@@ -40,7 +40,7 @@ async def get_name_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_finish(c: CallbackQuery, button: Button, manager: DialogManager):
+async def on_finish(callback: CallbackQuery, button: Button, manager: DialogManager):
     await manager.done({"name": manager.current_context().dialog_data["name"]})
 
 
@@ -83,7 +83,7 @@ async def get_main_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_reset_name(c: CallbackQuery, button: Button,
+async def on_reset_name(callback: CallbackQuery, button: Button,
                         manager: DialogManager):
     del manager.current_context().dialog_data["name"]
 

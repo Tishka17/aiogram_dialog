@@ -27,7 +27,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
         await self._on_click(event, self, manager)
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         raise NotImplementedError
@@ -51,11 +51,11 @@ class SwitchTo(EventProcessorButton):
         self.state = state
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         if self.user_on_click:
-            await self.user_on_click(c, self, manager)
+            await self.user_on_click(callback, self, manager)
         await manager.switch_to(self.state)
 
 
@@ -76,11 +76,11 @@ class Next(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         if self.user_on_click:
-            await self.user_on_click(c, self, manager)
+            await self.user_on_click(callback, self, manager)
         await manager.next()
 
 
@@ -101,11 +101,11 @@ class Back(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         if self.user_on_click:
-            await self.user_on_click(c, self, manager)
+            await self.user_on_click(callback, self, manager)
         await manager.back()
 
 
@@ -127,11 +127,11 @@ class Cancel(EventProcessorButton):
         self.user_on_click = on_click
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         if self.user_on_click:
-            await self.user_on_click(c, self, manager)
+            await self.user_on_click(callback, self, manager)
         await manager.done(self.result)
 
 
@@ -157,9 +157,9 @@ class Start(EventProcessorButton):
         self.mode = mode
 
     async def _on_click(
-            self, c: CallbackQuery, button: Button,
+            self, callback: CallbackQuery, button: Button,
             manager: DialogManager,
     ):
         if self.user_on_click:
-            await self.user_on_click(c, self, manager)
+            await self.user_on_click(callback, self, manager)
         await manager.start(self.state, self.start_data, self.mode)

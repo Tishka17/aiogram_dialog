@@ -123,29 +123,29 @@ class Dialog(DialogProtocol):
         return new_message
 
     async def _message_handler(
-            self, m: Message, dialog_manager: DialogManager,
+            self, message: Message, dialog_manager: DialogManager,
     ):
         intent = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
-        await window.process_message(m, self, dialog_manager)
+        await window.process_message(message, self, dialog_manager)
         if dialog_manager.current_context() == intent:  # no new dialog started
             await dialog_manager.show()
 
     async def _callback_handler(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             dialog_manager: DialogManager,
     ):
         intent = dialog_manager.current_context()
-        intent_id, callback_data = remove_indent_id(c.data)
-        cleaned_callback = c.copy(update={"data": callback_data})
+        intent_id, callback_data = remove_indent_id(callback.data)
+        cleaned_callback = callback.copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
         if dialog_manager.current_context() == intent:  # no new dialog started
             await dialog_manager.show()
         if not dialog_manager.is_preview():
             try:
-                await c.answer()
+                await callback.answer()
             except TelegramAPIError as e:
                 if _INVALUD_QUERY_ID_MSG in e.message:
                     logger.warning("Cannot answer callback: %s", e)

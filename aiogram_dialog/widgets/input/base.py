@@ -21,7 +21,7 @@ MessageHandlerFunc = Callable[
 
 class BaseInput(Actionable, InputWidget):
     async def process_message(
-            self, m: Message, dialog: DialogProtocol,
+            self, message: Message, dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         raise NotImplementedError

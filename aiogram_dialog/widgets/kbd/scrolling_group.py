@@ -75,12 +75,12 @@ class ScrollingGroup(Group):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        await self.set_page(c, int(data), manager)
+        await self.set_page(callback, int(data), manager)
         return True
 
     def get_page(self, manager: DialogManager) -> int:

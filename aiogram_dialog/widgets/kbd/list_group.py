@@ -133,21 +133,21 @@ class ListGroup(Keyboard):
 
     async def _process_item_callback(
             self,
-            c: CallbackQuery,
+            callback: CallbackQuery,
             data: str,
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
-        c_vars = vars(c)
+        c_vars = vars(callback)
         c_vars["data"] = callback_data
-        c = CallbackQuery(**c_vars)
+        callback = CallbackQuery(**c_vars)
         sub_manager = SubManager(
             list_group=self, manager=manager,
             widget_id=self.widget_id, item_id=item_id,
         )
         for b in self.buttons:
-            if await b.process_callback(c, dialog, sub_manager):
+            if await b.process_callback(callback, dialog, sub_manager):
                 return True
 
     def managed(self, manager: DialogManager):
