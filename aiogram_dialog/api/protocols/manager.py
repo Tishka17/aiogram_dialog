@@ -72,31 +72,50 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     def is_preview(self) -> bool:
+        """Check if this manager is used only to generate dialog preview."""
         raise NotImplementedError
 
     async def show(self) -> Message:
+        """Show current state to the user."""
         raise NotImplementedError
 
     def current_context(self) -> Optional[Context]:
+        """Get current dialog context."""
         raise NotImplementedError
 
     def current_stack(self) -> Optional[Stack]:
+        """Get current dialog stack."""
         raise NotImplementedError
 
     async def next(self) -> None:
+        """Switch to the next state within current dialog."""
         raise NotImplementedError
 
     async def back(self) -> None:
+        """Switch to the previous state within current dialog."""
         raise NotImplementedError
 
     def find(self, widget_id) -> Optional[Any]:
+        """
+        Find a widget in current dialog by its id.
+
+        Returns managed adapdter for found widget,
+        which does not require to pass manager and has only subset of methods.
+        """
         raise NotImplementedError
 
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
+        """
+        Reset current stack.
+
+        No callbacks are called, contexts are removed from storage.
+        """
         raise NotImplementedError
 
     async def load_data(self) -> Dict:
+        """Load data for current state."""
         raise NotImplementedError
 
     async def close_manager(self) -> None:
+        """Release all resources and disable usage of many methods."""
         raise NotImplementedError
