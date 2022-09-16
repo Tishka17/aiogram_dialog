@@ -67,7 +67,7 @@ class Window(WindowProtocol):
             manager: DialogManager,
     ) -> Dict:
         data = await dialog.load_data(manager)
-        data.update(await self.getter(**manager.data))
+        data.update(await self.getter(**manager.middleware_data))
         return data
 
     async def process_message(
@@ -89,7 +89,7 @@ class Window(WindowProtocol):
             manager: DialogManager,
     ) -> NewMessage:
         logger.debug("Show window: %s", self)
-        chat = manager.data["event_chat"]
+        chat = manager.middleware_data["event_chat"]
         current_data = await self.load_data(dialog, manager)
         return NewMessage(
             chat=chat,

@@ -59,7 +59,7 @@ class ManagerImpl(DialogManager):
         return self._event
 
     @property
-    def data(self) -> Dict:
+    def middleware_data(self) -> Dict:
         """Middleware data."""
         return self._data
 
@@ -86,7 +86,7 @@ class ManagerImpl(DialogManager):
         return {
             "dialog_data": context.dialog_data,
             "start_data": context.start_data,
-            "middleware_data": self.data,
+            "middleware_data": self._data,
             "event": self.event,
         }
 
@@ -102,18 +102,18 @@ class ManagerImpl(DialogManager):
 
     def current_context(self) -> Optional[Context]:
         self.check_disabled()
-        return self.data[CONTEXT_KEY]
+        return self._data[CONTEXT_KEY]
 
     def current_stack(self) -> Optional[Stack]:
         self.check_disabled()
-        return self.data[STACK_KEY]
+        return self._data[STACK_KEY]
 
     def storage(self) -> StorageProxy:
-        return self.data[STORAGE_KEY]
+        return self._data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
-        chat = self.data["event_chat"]
-        bot = self.data["bot"]
+        chat = self._data["event_chat"]
+        bot = self._data["bot"]
         message = Message(
             chat=chat,
             message_id=self.current_stack().last_message_id,
@@ -157,10 +157,10 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         await storage.remove_context(stack.pop())
         if stack.empty():
-            self.data[CONTEXT_KEY] = None
+            self._data[CONTEXT_KEY] = None
         else:
             intent_id = stack.last_intent_id()
-            self.data[CONTEXT_KEY] = await storage.load_context(intent_id)
+            self._data[CONTEXT_KEY] = await storage.load_context(intent_id)
             await storage.save_stack(stack)
 
     async def start(
@@ -190,7 +190,7 @@ class ManagerImpl(DialogManager):
             await storage.remove_context(stack.pop())
         if remove_keyboard:
             await self._remove_kbd()
-        self.data[CONTEXT_KEY] = None
+        self._data[CONTEXT_KEY] = None
 
     async def _start_new_stack(self, state: State, data: Data = None) -> None:
         stack = Stack()
@@ -217,7 +217,7 @@ class ManagerImpl(DialogManager):
 
         await self.storage().save_context(self.current_context())
         context = stack.push(state, data)
-        self.data[CONTEXT_KEY] = context
+        self._data[CONTEXT_KEY] = context
         await self.dialog().process_start(self, data, state)
         if context.id == self.current_context().id:
             await self.show()
@@ -252,7 +252,7 @@ class ManagerImpl(DialogManager):
 
     async def show(self) -> Message:
         stack = self.current_stack()
-        bot = self.data["bot"]
+        bot = self._data["bot"]
         old_message = self._get_last_message()
         new_message = await self.dialog().render(self)
         if new_message.show_mode is ShowMode.AUTO:
@@ -287,7 +287,7 @@ class ManagerImpl(DialogManager):
 
     def _get_last_message(self) -> Optional[Message]:
         stack = self.current_stack()
-        chat = self.data["event_chat"]
+        chat = self._data["event_chat"]
         if (
                 isinstance(self.event, CallbackQuery) and
                 self.event.message and
@@ -354,7 +354,7 @@ class ManagerImpl(DialogManager):
         return widget.managed(self)
 
     def is_same_chat(self, user: User, chat: Chat):
-        current_chat = self.data["event_chat"]
+        current_chat = self._data["event_chat"]
         current_user = self.event.from_user
         return user.id == current_user.id and chat.id == current_chat.id
 
@@ -367,7 +367,7 @@ class ManagerImpl(DialogManager):
 
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
-        current_chat = self.data["event_chat"]
+        current_chat = self._data["event_chat"]
         if chat_id in (None, current_chat.id):
             return current_chat
         return FakeChat(id=chat_id, type="")
@@ -393,7 +393,7 @@ class ManagerImpl(DialogManager):
         return BgManager(
             user=user,
             chat=chat,
-            bot=self.data["bot"],
+            bot=self._data["bot"],
             registry=self._registry,
             intent_id=intent_id,
             stack_id=stack_id,

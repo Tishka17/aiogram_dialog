@@ -112,7 +112,7 @@ class Dialog(DialogProtocol):
             self, manager: DialogManager,
     ) -> Dict:
         data = await manager.load_data()
-        data.update(await self.getter(**manager.data))
+        data.update(await self.getter(**manager.middleware_data))
         return data
 
     async def render(self, manager: DialogManager) -> NewMessage:
