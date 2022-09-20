@@ -67,8 +67,11 @@ An example from above may be rewritten using these buttons:
     If you have multiple buttons of the same type in a window with ``on_click`` callback, you should explicitly set different ids.
 
 
+.. _start-dialog:
+
 Starting a dialog
 =======================
+
 
 Each dialog is like a function in python. Is has some input (``start_data``), output (``result``) and is local data (``dialog_data`` and ``widget_data``).
 When you start dialog in same stack (not passing ``StartMode.NEW_STACK``) it is show "above" current dialog. User stop interacting with current dialog windows and sees new one from this moment.
@@ -89,8 +92,11 @@ You can even open the same dialog multiple times and each time it will placed ab
 
 .. literalinclude:: examples/transitions/start.py
 
+.. _close-dialog:
+
 Closing a dialog
 =================
+
 
 When dialog is closed it is removed from stack deleting context. From this moment user returns to a dialog which was underneath the current one.
 
