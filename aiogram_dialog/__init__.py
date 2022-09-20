@@ -1,4 +1,3 @@
-from .api import exceptions
 from .api.entities import (
     ChatEvent, Data, DEFAULT_STACK_ID, LaunchMode, ShowMode, StartMode,
 )
@@ -22,5 +21,4 @@ __all__ = [
     "ShowMode",
     "SubManager",
     "Window",
-    "exceptions",
 ]
