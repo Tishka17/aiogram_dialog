@@ -69,3 +69,11 @@ Get it as a ``dialog_manager.event.from_user``.
 
 **Caution**: in case of background updates (done via ``BgManager``) it can contain only ``id``. If it is not suitable for you case set ``load=True`` while creating bg manager.
 
+
+How can I pass data between dialogs?
+=======================================
+
+Input - pass via ``dialog_manager.start(..., data="here")``, read using ``dialog_manager.start_data``.
+Output - pass via ``dialog_manager.done(result="here")``, read as a parameter to ``on_process_result`` of parent dialog
+
+More details: :ref:`start-dialog`, :ref:`close-dialog`.

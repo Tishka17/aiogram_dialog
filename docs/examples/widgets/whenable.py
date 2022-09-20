@@ -1,6 +1,7 @@
 from typing import Dict
 
 from aiogram.filters.state import StatesGroup, State
+from magic_filter import F
 
 from aiogram_dialog import Window, DialogManager
 from aiogram_dialog.widgets.common import Whenable
@@ -33,7 +34,7 @@ window = Window(
         Row(
             Button(Const("Wait"), id="wait"),
             Button(Const("Ignore"), id="ignore"),
-            when="extended",
+            when=F["extended"],
         ),
         Button(Const("Admin mode"), id="nothing", when=is_tishka17),
     ),
