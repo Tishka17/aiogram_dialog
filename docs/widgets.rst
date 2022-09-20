@@ -40,12 +40,13 @@ Widget types
 Base information
 ********************
 
-Currently there are 3 kinds of widgets: `texts <Text widget types_>`_, `keyboards <Keyboard widget types_>`_ and
+Currently there are 4 kinds of widgets: `texts <Text widget types_>`_, `keyboards <Keyboard widget types_>`_ and
 `media <Media widget types_>`_.
 
 * **Texts** used to render text anywhere in dialog. It can be message text, button title and so on.
 * **Keyboards** represent parts of ``InlineKeyboard``
 * **Media** represent media attachment to message
+* **Input** allows to process incoming messages from user. Is has no representation.
 
 Also there are 2 general types:
 
@@ -82,15 +83,16 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * `Button`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
 * `Url`_ - single inline button with url
 * :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
-* :ref:`ScrollingGroup<scrolling_group>` - the same as the ``Group``, but with the ability to scroll through pages with buttons.
-* ``ListGroup`` - group of widgets applied repeated multiple times for each item in list
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
 * :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
+* :ref:`ScrollingGroup<scrolling_group>` - the same as the ``Group``, but with the ability to scroll through pages with buttons.
+* ``ListGroup`` - group of widgets applied repeated multiple times for each item in list
 * `Checkbox`_ - button with two states
 * `Select`_ - dynamic group of buttons intended for selection use.
 * `Radio`_ - switch between multiple items. Like select but stores chosen item and renders it differently.
 * `Multiselect`_ - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.
 * `Calendar`_ - simulates a calendar in the form of a keyboard.
+* ``Counter`` - couple of buttons +/- to input a number
 * ``SwitchTo`` - switches window within a dialog using provided state
 * ``Next``/``Back`` - switches state forward or backward
 * ``Start`` - starts a new dialog with no params
@@ -101,7 +103,7 @@ Combining texts
 
 .. _multi_text:
 
-To combine multiple texts you can use ``Multi`` widget. You can use any texts inside it. Also you can provide a string separator
+To combine multiple texts you can use ``Multi`` widget. You can use any texts inside it. Also you can provide a string separator. In simple cases you can just concatenate widgets using ``+`` operator.
 
 .. literalinclude:: examples/widgets/multi.py
 
@@ -367,7 +369,7 @@ Hiding widgets
 ====================
 
 Actually every widget can be hidden including texts, buttons, groups and so on.
-It is managed by ``when`` attribute. It can be either a data key or a predicate function
+It is managed by ``when`` attribute. It can be either a data key, a predicate function or a F-filter (from ``magic-filter``)
 
 .. literalinclude:: examples/widgets/whenable.py
 
