@@ -12,6 +12,8 @@ Talking to user you will need to switch between different chat states. It can be
 * *Start* a dialog in new stack. In this case dialog will be shown in a new message and behave independently from current one.
 * *Close* dialog. Dialog will be removed from stack, its data erased. underlying dialog will be shown
 
+.. image:: resources/stack_transitions.png
+
 Task stack
 ===============
 
@@ -33,9 +35,9 @@ Dialog context is kept the same, so all your data is still available.
 
 There are several ways to do it:
 
-* ``dialog.switch_to`` method. Pass another state and window will be switched
-* ``dialog.next`` method. It will switch to the next window in the same order they were passed during dialog creation. Cannot be called when the last window is active
-* ``dialog.back`` method. Switch to the opposite direction (to the previous one). Cannot be called when the first window is active
+* ``dialog_manager.switch_to`` method. Pass another state and window will be switched
+* ``dialog_manager.next`` method. It will switch to the next window in the same order they were passed during dialog creation. Cannot be called when the last window is active
+* ``dialog_manager.back`` method. Switch to the opposite direction (to the previous one). Cannot be called when the first window is active
 
 Let's create thee windows with buttons and these transitions:
 
@@ -63,3 +65,41 @@ An example from above may be rewritten using these buttons:
     You can wonder, why we do not set an id to Back/Next buttons. Though it is normally recommended, these buttons do usually the same action so they have default ``id``.
 
     If you have multiple buttons of the same type in a window with ``on_click`` callback, you should explicitly set different ids.
+
+
+Starting a dialog
+=======================
+
+Each dialog is like a function in python. Is has some input (``start_data``), output (``result``) and is local data (``dialog_data`` and ``widget_data``).
+When you start dialog in same stack (not passing ``StartMode.NEW_STACK``) it is show "above" current dialog. User stop interacting with current dialog windows and sees new one from this moment.
+
+Dialog is identified by his starting state and you need to pass it when starting a dialog. It doesn't have to be a first state in dialog, but be careful with it.
+There are several ways to do it:
+
+* call ``dialog_manager.start`` method.
+* use ``Start`` keyboard widget, which calls same method by itself.
+
+Started dialog will have his own empty context and has no access to parent one. You can specify its behavior passing some data to ``start`` method. It will be stored inside context and is available as ``dialog_manager.start_data``.
+
+You can store data in ``dialog_manager.dialog_data`` and it will be kept until it is closed and accessed only within this dialog handlers. Stateful widgets store their data is similar way and it is also not shared across opened dialogs.
+
+You have no limitations which dialog to start. You are limited only by a depth of a stack: no more than 100 dialogs can be placed in one stack simultaneously.
+You can even open the same dialog multiple times and each time it will placed above and have new context.
+
+
+.. literalinclude:: examples/transitions/start.py
+
+Closing a dialog
+=================
+
+When dialog is closed it is removed from stack deleting context. From this moment user returns to a dialog which was underneath the current one.
+
+To close a dialog you have to methods:
+
+* call ``dialog_manager.done``.
+* use ``Cancel`` button.
+
+Parent dialog has no access to the context of child one. But you can pass some data as a result to ``done()`` method and then process it in ``on_process_result`` callback of parent dialog.
+
+
+.. literalinclude:: examples/transitions/done.py
