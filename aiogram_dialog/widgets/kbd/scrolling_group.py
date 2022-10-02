@@ -29,10 +29,12 @@ class ScrollingGroup(Group):
             on_page_changed: Union[
                 OnStateChanged, WidgetEventProcessor, None,
             ] = None,
+            hide_on_single_page: bool = False,
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
+        self.hide_on_single_page = hide_on_single_page
 
     async def _render_keyboard(
             self,
@@ -42,7 +44,7 @@ class ScrollingGroup(Group):
         kbd = await super()._render_keyboard(data, manager)
         pages = len(kbd) // self.height + bool(len(kbd) % self.height)
         last_page = pages - 1
-        if pages == 0:
+        if pages == 0 or (pages == 1 and self.hide_on_single_page):
             return kbd
         current_page = min(last_page, self.get_page(manager))
         next_page = min(last_page, current_page + 1)
