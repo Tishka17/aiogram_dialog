@@ -13,7 +13,7 @@ setup(
     description='Mini-framework for dialogs on top of aiogram',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='2.0.0b10.dev2',
+    version='2.0.0b11',
     url='https://github.com/tishka17/aiogram_dialog',
     author='A. Tikhonov',
     author_email='17@itishka.org',
@@ -26,7 +26,7 @@ setup(
     ],
     packages=find_packages(include=['aiogram_dialog', 'aiogram_dialog.*']),
     install_requires=[
-        'aiogram>=3.0.0b4,<4.0.0',
+        'aiogram>=3.0.0b5,<4.0.0',
         'jinja2',
         'cachetools==4.*',
         'magic_filter',
