@@ -124,5 +124,5 @@ async def user_start(message: Message, dialog_manager: DialogManager):
 dp.message.register(user_start, F.text == "/start")
 ```
 
-> **Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
+> **Info:** Always set `mode=StartMode.RESET_STACK` in your top level start command. Otherwise, dialogs are stacked just as they do
 on your mobile phone, so you can reach stackoverflow error
