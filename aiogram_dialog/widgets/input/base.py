@@ -1,6 +1,7 @@
-from typing import Awaitable, Callable, Sequence, Union
+from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
-from aiogram.filters.content_types import ContentTypesFilter
+from aiogram import F
+from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import ContentType, Message
 
 from aiogram_dialog.api.internal import InputWidget
@@ -32,10 +33,21 @@ class MessageInput(BaseInput):
             self,
             func: Union[MessageHandlerFunc, WidgetEventProcessor, None],
             content_types: Union[Sequence[str], str] = ContentType.ANY,
+            filter: Optional[Callable[..., Any]] = None,
     ):
         super().__init__()
         self.func = ensure_event_processor(func)
-        self.filter = ContentTypesFilter(content_types=content_types)
+
+        filters = []
+        if isinstance(content_types, str):
+            if content_types != ContentType.ANY:
+                filters.append(FilterObject(F.content_type == content_types))
+        else:
+            if ContentType.ANY not in content_types:
+                filters.append(FilterObject(F.content_type.in_(content_types)))
+        if filter:
+            filters.append(FilterObject(filter))
+        self.filters = filters
 
     async def process_message(
             self,
@@ -43,7 +55,10 @@ class MessageInput(BaseInput):
             dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
-        if not await self.filter(message):
-            return False
+        for handler_filter in self.filters:
+            if not await handler_filter.call(
+                    manager.event, **manager.middleware_data,
+            ):
+                return False
         await self.func.process_event(message, self, manager)
         return True

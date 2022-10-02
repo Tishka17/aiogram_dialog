@@ -49,6 +49,11 @@ async def name_handler(message: Message, dialog: DialogProtocol,
     await manager.next()
 
 
+async def other_type_handler(message: Message, dialog: DialogProtocol,
+                             manager: DialogManager):
+    await message.answer("Text is expected")
+
+
 async def on_finish(callback: CallbackQuery, button: Button,
                     manager: DialogManager):
     if manager.is_preview():
@@ -73,6 +78,7 @@ dialog = Dialog(
             type=ContentType.PHOTO,
         ),
         MessageInput(name_handler, content_types=[ContentType.TEXT]),
+        MessageInput(other_type_handler),
         state=DialogSG.greeting,
     ),
     Window(

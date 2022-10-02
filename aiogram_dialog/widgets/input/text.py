@@ -1,5 +1,6 @@
-from typing import Awaitable, Callable, Generic, TypeVar, Union
+from typing import Any, Awaitable, Callable, Generic, Optional, TypeVar, Union
 
+from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import ContentType, Message
 
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
@@ -23,8 +24,13 @@ class TextInput(BaseInput, Generic[T]):
             type_factory: TypeFactory[T] = str,
             on_success: Union[OnSuccess[T], WidgetEventProcessor, None] = None,
             on_error: Union[OnError, WidgetEventProcessor, None] = None,
+            filter: Optional[Callable[..., Any]] = None,
     ):
         super().__init__(id=id)
+        if filter:
+            self.filter = FilterObject(filter)
+        else:
+            self.filter = None
         self.type_factory = type_factory
         self.on_success = ensure_event_processor(on_success)
         self.on_error = ensure_event_processor(on_error)
@@ -37,6 +43,10 @@ class TextInput(BaseInput, Generic[T]):
     ):
         if message.content_type != ContentType.TEXT:
             return False
+        if self.filter and not await self.filter.call(
+                manager.event, **manager.middleware_data,
+        ):
+            return False
         try:
             value = self.type_factory(message.text)
         except ValueError:
@@ -45,6 +55,7 @@ class TextInput(BaseInput, Generic[T]):
             # store original text
             self.set_widget_data(manager, message.text)
             await self.on_success.process_event(message, self, manager, value)
+        return True
 
     def get_value(self, manager: DialogManager) -> T:
         return self.type_factory(self.get_widget_data(manager, None))

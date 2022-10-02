@@ -9,7 +9,8 @@ from aiogram_dialog.api.internal import CONTEXT_KEY
 
 
 class IntentFilter(BaseFilter):
-    aiogd_intent_state_group: Optional[Type[StatesGroup]]
+    def __init__(self, aiogd_intent_state_group: Optional[Type[StatesGroup]]):
+        self.aiogd_intent_state_group = aiogd_intent_state_group
 
     async def __call__(self, obj: TelegramObject, **kwargs) -> bool:
         del obj  # unused

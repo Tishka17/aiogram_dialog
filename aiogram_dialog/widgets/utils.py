@@ -1,9 +1,9 @@
 from typing import Callable, Dict, List, Sequence, Tuple, Union
 
-from aiogram_dialog.api.exceptions import InvalidWidget, InvalidWidgetType
+from aiogram_dialog.api.exceptions import InvalidWidgetType
 from aiogram_dialog.api.internal import DataGetter
 from .data.data_context import CompositeGetter, StaticGetter
-from .input import BaseInput, MessageHandlerFunc, MessageInput
+from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
 from .media import Media
 from .text import Format, Multi, Text
@@ -54,7 +54,7 @@ def ensure_input(
         elif len(widget) == 1:
             return widget[0]
         else:
-            raise InvalidWidget(f"Only 1 input supported, got {len(widget)}")
+            return CombinedInput(*widget)
     else:
         return MessageInput(widget)
 
