@@ -93,6 +93,17 @@ class FakeManager(DialogManager):
     def is_preview(self) -> bool:
         return True
 
+    @property
+    def middleware_data(self) -> Dict:
+        return {
+            "event_chat": self.event.chat,
+            "dialog_manager": self,
+        }
+
+    @property
+    def dialog_data(self) -> Dict:
+        return self._context.dialog_data
+
     def reset_context(self) -> None:
         self._context = Context(
             _intent_id="0",
