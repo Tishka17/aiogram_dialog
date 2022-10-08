@@ -11,7 +11,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogProtocol, DialogRegistry, StartMode, Window,
+    Dialog, DialogManager, DialogRegistry, StartMode, Window,
 )
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
@@ -41,7 +41,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
 
 
 async def name_handler(
-        message: Message, dialog: DialogProtocol, manager: DialogManager,
+        message: Message, message_input: MessageInput, manager: DialogManager,
 ):
     manager.dialog_data["last_text"] = message.text
     await message.answer(f"Nice to meet you, {message.text}")

@@ -10,7 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogProtocol, DialogRegistry,
+    Dialog, DialogManager, DialogRegistry,
     ChatEvent, StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent
@@ -39,7 +39,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(message: Message, dialog: DialogProtocol,
+async def name_handler(message: Message, message_input: MessageInput,
                        manager: DialogManager):
     if manager.is_preview():
         await manager.next()
@@ -49,7 +49,7 @@ async def name_handler(message: Message, dialog: DialogProtocol,
     await manager.next()
 
 
-async def other_type_handler(message: Message, dialog: DialogProtocol,
+async def other_type_handler(message: Message, message_input: MessageInput,
                              manager: DialogManager):
     await message.answer("Text is expected")
 
