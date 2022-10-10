@@ -98,6 +98,12 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * ``Start`` - starts a new dialog with no params
 * ``Cancel`` - closes the current dialog with no result. An underlying dialog is shown
 
+Media widget types
+***********************
+
+* `StaticMedia`_ - simple way to share media by url or file path
+* `DynamicMedia`_ - some media attachment constructed dynamically
+
 Combining texts
 =================
 
@@ -341,10 +347,15 @@ It is possible to switch to the state for choosing the month of the current year
 .. image::  resources/calendar3.png
 
 
-Media widget types
+Media
 =====================
 
-Currently ``StaticMedia`` is only existing out of the box media widget.
+
+StaticMedia
+********************
+
+``StaticMedia`` allows you to share media files by their path os URLs. Though address supports string interpolation as it can be ``Text`` widget, other parameters remain static.
+
 You can use it providing ``path`` or ``url`` to the file, it's ContentType and additional parameters if required.
 Also you might need to change media type (``type=ContentType.Photo``) or provide any additional params supported by aiogram using ``media_params``
 
@@ -364,6 +375,27 @@ For more complex cases you can read source code of ``StaticMedia`` and create yo
     This make media sending much faster. ``aiogram_dialog`` uses this feature and caches sent file ids in memory
 
     If you want to persistent ``file_id`` cache, implement ``MediaIdStorageProtocol`` and pass instance to your dialog registry
+
+DynamicMedia
+*******************
+
+``StaticMedia`` allows you to share any supported media files. Just return a ``MediaAttachment`` from data getter and set ``selector`` for a field name.
+Other option is to pass a callable returning ``MediaAttachment`` as a selector
+
+Other media sources
+*********************
+
+Sometimes you have some custom sources for media files: neither file in fulesystem, not URL in the interner, nor existing file in telegram.
+It could be some internal storage like database or private s3-compatible one or even runtime generated objects.
+
+In this case recommended steps to solve a problem are:
+
+1. Generate some custom URI identifying you media. It could be string like "bot://1234" or whatever you want
+2. Inherit from ``MessageManager`` class and redefine ``get_media_source`` method to load data identified by your URI from custom source
+3. Pass you message manager instance when constructing ``Registry``
+
+With such implementation you will be able to implement custom media retrieving and keep usage of existing media widgets and file id caching
+
 
 Hiding widgets
 ====================
