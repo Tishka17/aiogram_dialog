@@ -1,13 +1,14 @@
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional, Type, Union
+from typing import Any, Awaitable, Callable, Dict, Optional, Type
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.state import StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
-from aiogram.types import CallbackQuery, Message, Update
+from aiogram.types import CallbackQuery, Message
+from aiogram.types.error_event import ErrorEvent
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, DEFAULT_STACK_ID, DialogUpdate, DialogUpdateEvent, Stack,
+    ChatEvent, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
 )
 from aiogram_dialog.api.exceptions import InvalidStackIdError, OutdatedIntent
 from aiogram_dialog.api.internal import (
@@ -179,17 +180,16 @@ class IntentErrorMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdate], Dict[str, Any]], Awaitable[Any],
+                [ErrorEvent, Dict[str, Any]], Awaitable[Any],
             ],
-            event: Update,
+            event: ErrorEvent,
             data: Dict[str, Any],
     ) -> Any:
-
         try:
-            error = data["exception"]
+            error = event.exception
             if isinstance(error, InvalidStackIdError):
                 return
-            if event.event_type not in SUPPORTED_ERROR_EVENTS:
+            if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
                 return
 
             chat = data["event_chat"]

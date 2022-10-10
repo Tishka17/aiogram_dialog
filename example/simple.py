@@ -116,9 +116,9 @@ async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 
 
-async def error_handler(update, exception, dialog_manager: DialogManager):
+async def error_handler(event, dialog_manager: DialogManager):
     """Example of handling UnknownIntent Error and starting new dialog"""
-    if isinstance(exception, UnknownIntent):
+    if isinstance(event.exception, UnknownIntent):
         await dialog_manager.start(DialogSG.greeting,
                                    mode=StartMode.RESET_STACK)
     else:
