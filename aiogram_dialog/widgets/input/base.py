@@ -15,7 +15,7 @@ from aiogram_dialog.widgets.widget_event import (
 )
 
 MessageHandlerFunc = Callable[
-    [Message, DialogProtocol, DialogManager],
+    [Message, "MessageInput", DialogManager],
     Awaitable,
 ]
 
