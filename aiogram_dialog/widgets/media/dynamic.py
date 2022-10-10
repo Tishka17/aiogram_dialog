@@ -1,12 +1,12 @@
 """
-Dynamic media
+Dynamic media.
 
 Originally developed in aiogram-dialog-extras project
 https://github.com/SamWarden/aiogram_dialog_extras
 """
 
 from operator import itemgetter
-from typing import Optional, Callable, Union
+from typing import Callable, Optional, Union
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment
