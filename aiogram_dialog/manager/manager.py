@@ -73,6 +73,10 @@ class ManagerImpl(DialogManager):
         """Start data for current context."""
         return self.current_context().start_data
 
+    @property
+    def data(self) -> Dict:
+        return self._data
+
     def check_disabled(self):
         if self.disabled:
             raise IncorrectBackgroundError(
