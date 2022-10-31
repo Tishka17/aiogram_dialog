@@ -30,7 +30,7 @@ class Jinja(Text):
     async def _render_text(
             self, data: Dict, manager: DialogManager,
     ) -> str:
-        bot: Bot = manager.data["bot"]
+        bot: Bot = manager.middleware_data["bot"]
         env: Environment = getattr(bot, BOT_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
 
