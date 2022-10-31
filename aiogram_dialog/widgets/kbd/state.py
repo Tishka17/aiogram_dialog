@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
@@ -64,7 +64,7 @@ class Next(EventProcessorButton):
             self,
             text: Text = NEXT_TEXT,
             id: str = "__next__",
-            on_click: Optional[Callable] = None,
+            on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -89,7 +89,7 @@ class Back(EventProcessorButton):
             self,
             text: Text = BACK_TEXT,
             id: str = "__back__",
-            on_click: Optional[Callable] = None,
+            on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -115,7 +115,7 @@ class Cancel(EventProcessorButton):
             text: Text = CANCEL_TEXT,
             id: str = "__cancel__",
             result: Any = None,
-            on_click: Optional[Callable] = None,
+            on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
     ):
         super().__init__(
