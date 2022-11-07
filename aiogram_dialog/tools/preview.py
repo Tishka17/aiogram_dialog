@@ -163,7 +163,7 @@ async def create_button(
     if not simulate_events:
         return RenderButton(title=title, state=state.state)
     callback_query = CallbackQuery(
-        id=1,
+        id="1",
         from_user=User(id=1, is_bot=False, first_name=""),
         chat_instance="",
         data=callback,
@@ -308,5 +308,5 @@ async def render_preview(
     )
     template = env.get_template("message.html")
     res = template.render(dialogs=dialogs)
-    with open(file, "w") as f:
+    with open(file, "w", encoding="utf-8") as f:
         f.write(res)
