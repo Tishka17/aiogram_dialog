@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Sequence, Tuple, Union
+from typing import Callable, Dict, List, Sequence, Tuple, Union, Any, Awaitable
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
 from aiogram_dialog.api.internal import DataGetter
@@ -11,7 +11,10 @@ from .widget_event import WidgetEventProcessor
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 
-SingleGetterBase = Union[DataGetter, Dict]
+SingleGetterBase = Union[
+    Callable[[..., Dict[str, Any]], Awaitable[Dict]],
+    Dict,
+]
 GetterVariant = Union[
     None,
     SingleGetterBase,
