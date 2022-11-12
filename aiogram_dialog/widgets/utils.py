@@ -11,10 +11,7 @@ from .widget_event import WidgetEventProcessor
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 
-SingleGetterBase = Union[
-    Callable[[..., Dict[str, Any]], Awaitable[Dict]],
-    Dict,
-]
+SingleGetterBase = Union[Callable[[Any], Awaitable[Dict]], Dict]
 GetterVariant = Union[
     None,
     SingleGetterBase,
