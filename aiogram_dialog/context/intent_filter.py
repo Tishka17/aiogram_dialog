@@ -17,7 +17,7 @@ class IntentFilter(BaseFilter):
         if self.aiogd_intent_state_group is None:
             return True
 
-        context: Context = kwargs[CONTEXT_KEY]
+        context: Context = kwargs.get(CONTEXT_KEY, None)
         if not context:
             return False
         return context.state.group == self.aiogd_intent_state_group

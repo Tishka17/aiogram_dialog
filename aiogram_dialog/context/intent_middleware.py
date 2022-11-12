@@ -141,13 +141,15 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
-        proxy = self.storage_proxy(data)
-        data[STORAGE_KEY] = proxy
+        # buttons from inline mode does not contain chat
+        if data["event_chat"]:
+            proxy = self.storage_proxy(data)
+            data[STORAGE_KEY] = proxy
 
-        original_data = event.data
-        intent_id, callback_data = remove_indent_id(event.data)
-        await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
-        data[CALLBACK_DATA_KEY] = original_data
+            original_data = event.data
+            intent_id, callback_data = remove_indent_id(event.data)
+            await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
+            data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
 
 
