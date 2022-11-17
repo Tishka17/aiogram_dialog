@@ -112,6 +112,8 @@ class ManagerImpl(DialogManager):
         return self._data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
+        if self.current_stack().last_message_id is None:
+            return
         chat = self._data["event_chat"]
         bot = self._data["bot"]
         message = Message(
