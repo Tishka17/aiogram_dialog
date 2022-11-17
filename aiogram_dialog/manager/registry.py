@@ -166,7 +166,7 @@ class DialogRegistry(DialogRegistryProtocol):
         self.update_handler.middleware(context_saver_middleware)
         self.dp.my_chat_member.middleware(context_saver_middleware)
 
-        self.dp.errors.outer_middleware(
+        self.dp.errors.middleware(
             IntentErrorMiddleware(
                 storage=self.dp.fsm.storage, state_groups=self.state_groups,
             ),

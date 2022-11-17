@@ -161,7 +161,7 @@ class ManagerImpl(DialogManager):
         else:
             intent_id = stack.last_intent_id()
             self._data[CONTEXT_KEY] = await storage.load_context(intent_id)
-            await storage.save_stack(stack)
+        await storage.save_stack(stack)
 
     async def start(
             self,
@@ -188,6 +188,7 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         while not stack.empty():
             await storage.remove_context(stack.pop())
+        await storage.save_stack(stack)
         if remove_keyboard:
             await self._remove_kbd()
         self._data[CONTEXT_KEY] = None
