@@ -185,13 +185,13 @@ class IntentErrorMiddleware(BaseMiddleware):
             event: ErrorEvent,
             data: Dict[str, Any],
     ) -> Any:
-        try:
-            error = event.exception
-            if isinstance(error, InvalidStackIdError):
-                return
-            if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
-                return
+        error = event.exception
+        if isinstance(error, InvalidStackIdError):
+            return await handler(event, data)
+        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+            return await handler(event, data)
 
+        try:
             chat = data["event_chat"]
 
             proxy = StorageProxy(
