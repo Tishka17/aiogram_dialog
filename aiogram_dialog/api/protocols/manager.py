@@ -103,8 +103,9 @@ class DialogManager(BaseDialogManager, Protocol):
         which does not require to pass manager and has only subset of methods.
         """
         raise NotImplementedError
-
-    async def reset_stack(self, remove_keyboard: bool = True) -> None:
+    
+    # Shao-mod
+    async def reset_stack(self, new_text: Optional[str], remove_keyboard: bool = True) -> None:
         """
         Reset current stack.
 

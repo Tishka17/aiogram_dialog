@@ -91,6 +91,34 @@ class MessageManager(MessageManagerProtocol):
             return await self.send_message(bot, new_message)
 
         return await self.edit_message_safe(bot, new_message, old_message)
+    
+    # New text (Shao-mod)
+    async def new_text(self, bot: Bot, new_text: str, old_message: Optional[Message]):
+        if not old_message:
+            return
+        logger.debug("new_text in %s", old_message.chat)
+        try:
+            if old_message.photo:
+                await bot.edit_message_caption(
+                    chat_id=old_message.chat.id,
+                    message_id=old_message.message_id,
+                    caption=new_text,
+            )
+            else:
+                await bot.edit_message_text(
+                    chat_id=old_message.chat.id,
+                    message_id=old_message.message_id,
+                    text=new_text,
+            )
+        except TelegramBadRequest as err:
+            if "message is not modified" in err.message:
+                pass  # nothing to remove
+            elif "message can't be edited" in err.message:
+                pass
+            elif "message to edit not found" in err.message:
+                pass
+            else:
+                raise err
 
     # Clear
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
