@@ -111,24 +111,6 @@ class ManagerImpl(DialogManager):
     def storage(self) -> StorageProxy:
         return self._data[STORAGE_KEY]
 
-    # # Shao-mod
-    async def _new_text(self, new_text: str) -> None:
-        if self.current_stack().last_message_id is None:
-            return
-        chat = self._data["event_chat"]
-        bot = self._data["bot"]
-        message = Message(
-            chat=chat,
-            message_id=self.current_stack().last_message_id,
-            date=datetime.now(),
-        )
-        await self.message_manager.new_text(
-            bot,
-            new_text,
-            message,
-        )
-        # self.current_stack().last_message_id = None - might need to be corrected
-
     async def _remove_kbd(self) -> None:
         if self.current_stack().last_message_id is None:
             return
@@ -144,6 +126,24 @@ class ManagerImpl(DialogManager):
             message,
         )
         self.current_stack().last_message_id = None
+
+    async def _update_text(self, new_text: str, reset_last_message_id: bool = False) -> None:
+        if self.current_stack().last_message_id is None:
+            return
+        chat = self._data["event_chat"]
+        bot = self._data["bot"]
+        message = Message(
+            chat=chat,
+            message_id=self.current_stack().last_message_id,
+            date=datetime.now(),
+        )
+        await self.message_manager.update_text(
+            bot,
+            new_text,
+            message,
+        )
+        if reset_last_message_id:
+            self.current_stack().last_message_id = None
 
     async def _process_last_dialog_result(
             self,
@@ -195,25 +195,24 @@ class ManagerImpl(DialogManager):
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
-            # Shao-mod
-            await self.reset_stack(new_text=None, remove_keyboard=False)
+            await self.reset_stack(remove_keyboard=False, update_text=None)
             await self._start_normal(state, data)
         elif mode is StartMode.NEW_STACK:
             await self._start_new_stack(state, data)
         else:
             raise ValueError(f"Unknown start mode: {mode}")
     
-    # Shao-mod
-    async def reset_stack(self, new_text: Optional[str], remove_keyboard: bool = True) -> None:
+    async def reset_stack(self, remove_keyboard: bool = True, update_text: str = None) -> None:
         self.check_disabled()
         storage = self.storage()
         stack = self.current_stack()
         while not stack.empty():
             await storage.remove_context(stack.pop())
         await storage.save_stack(stack)
-        # Shao-mod
-        if new_text:
-            await self._new_text(new_text)
+        if remove_keyboard and update_text:
+            await self._update_text(update_text)
+        elif update_text:
+            await self._update_text(new_text=update_text, reset_last_message_id=True)
         if remove_keyboard:
             await self._remove_kbd()
         self._data[CONTEXT_KEY] = None

@@ -104,8 +104,7 @@ class DialogManager(BaseDialogManager, Protocol):
         """
         raise NotImplementedError
     
-    # Shao-mod
-    async def reset_stack(self, new_text: Optional[str], remove_keyboard: bool = True) -> None:
+    async def reset_stack(self, remove_keyboard: bool = True, update_text: str = None) -> None:
         """
         Reset current stack.
 

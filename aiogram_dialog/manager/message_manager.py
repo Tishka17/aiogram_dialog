@@ -92,33 +92,21 @@ class MessageManager(MessageManagerProtocol):
 
         return await self.edit_message_safe(bot, new_message, old_message)
     
-    # New text (Shao-mod)
-    async def new_text(self, bot: Bot, new_text: str, old_message: Optional[Message]):
+    # DialogManagar.reset_stack() -> update_text
+    async def update_text(self, bot: Bot, new_text: str, old_message: Optional[Message]):
         if not old_message:
             return
-        logger.debug("new_text in %s", old_message.chat)
-        try:
-            if old_message.photo:
-                await bot.edit_message_caption(
-                    chat_id=old_message.chat.id,
-                    message_id=old_message.message_id,
-                    caption=new_text,
-            )
-            else:
-                await bot.edit_message_text(
-                    chat_id=old_message.chat.id,
-                    message_id=old_message.message_id,
-                    text=new_text,
-            )
-        except TelegramBadRequest as err:
-            if "message is not modified" in err.message:
-                pass  # nothing to remove
-            elif "message can't be edited" in err.message:
-                pass
-            elif "message to edit not found" in err.message:
-                pass
-            else:
-                raise err
+        logger.debug("update_text in %s", old_message.chat)
+        message = Message(
+            message_id=old_message.message_id,
+            chat=old_message.chat,
+            text=new_text,
+            media=old_message.media_group_id,
+            date=old_message.date,
+            parse_mode='HTML',
+            disable_web_page_preview=True,
+        )
+        await self.edit_message_safe(bot, message, old_message)
 
     # Clear
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):

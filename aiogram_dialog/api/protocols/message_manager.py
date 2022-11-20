@@ -7,11 +7,10 @@ from aiogram_dialog.api.entities import NewMessage
 
 
 class MessageManagerProtocol(Protocol):
-    # Shao-mod
-    async def new_text(self, bot: Bot, new_text: str, old_message: Optional[Message]):
+    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         raise NotImplementedError
 
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
+    async def update_text(self, bot: Bot, new_text: str, old_message: Optional[Message]):
         raise NotImplementedError
 
     async def show_message(
