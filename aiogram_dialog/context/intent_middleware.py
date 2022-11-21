@@ -143,7 +143,7 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
-        if not "event_chat" in data:
+        if "event_chat" not in data:
             return await handler(event, data)
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
