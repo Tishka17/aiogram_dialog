@@ -141,6 +141,8 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
+        if not "event_chat" in data:
+            return await handler(event, data)
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
 
@@ -189,6 +191,8 @@ class IntentErrorMiddleware(BaseMiddleware):
         if isinstance(error, InvalidStackIdError):
             return await handler(event, data)
         if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+            return await handler(event, data)
+        if "event_chat" not in data:
             return await handler(event, data)
 
         try:
