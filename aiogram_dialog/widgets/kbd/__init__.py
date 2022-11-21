@@ -3,6 +3,7 @@ __all__ = [
     "Button",
     "Url",
     "WebApp",
+    "SwitchInlineQuery",
     "Calendar",
     "ManagedCalendarAdapter",
     "Counter",
@@ -29,7 +30,7 @@ __all__ = [
 ]
 
 from .base import Keyboard
-from .button import Button, Url, WebApp
+from .button import Button, SwitchInlineQuery, Url, WebApp
 from .calendar_kbd import Calendar, ManagedCalendarAdapter
 from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .counter import Counter, ManagedCounterAdapter
