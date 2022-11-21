@@ -181,6 +181,16 @@ class IntentErrorMiddleware(BaseMiddleware):
         self.storage = storage
         self.state_groups = state_groups
 
+    async def _is_error_supported(
+            self, event: ErrorEvent, data: Dict[str, Any],
+    ) -> bool:
+        if isinstance(event, InvalidStackIdError):
+            return False
+        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+            return False
+        if "event_chat" not in data:
+            return False
+
     async def __call__(
             self,
             handler: Callable[
@@ -190,11 +200,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             data: Dict[str, Any],
     ) -> Any:
         error = event.exception
-        if isinstance(error, InvalidStackIdError):
-            return await handler(event, data)
-        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
-            return await handler(event, data)
-        if "event_chat" not in data:
+        if not self._is_error_supported(event, data):
             return await handler(event, data)
 
         try:
