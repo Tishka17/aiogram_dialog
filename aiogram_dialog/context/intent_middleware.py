@@ -10,7 +10,9 @@ from aiogram.types.error_event import ErrorEvent
 from aiogram_dialog.api.entities import (
     ChatEvent, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
 )
-from aiogram_dialog.api.exceptions import InvalidStackIdError, OutdatedIntent
+from aiogram_dialog.api.exceptions import (
+    InvalidStackIdError, OutdatedIntent, UnknownState,
+)
 from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
 )
@@ -141,6 +143,8 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
+        if "event_chat" not in data:
+            return await handler(event, data)
         proxy = self.storage_proxy(data)
         data[STORAGE_KEY] = proxy
 
@@ -177,6 +181,16 @@ class IntentErrorMiddleware(BaseMiddleware):
         self.storage = storage
         self.state_groups = state_groups
 
+    async def _is_error_supported(
+            self, event: ErrorEvent, data: Dict[str, Any],
+    ) -> bool:
+        if isinstance(event, InvalidStackIdError):
+            return False
+        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+            return False
+        if "event_chat" not in data:
+            return False
+
     async def __call__(
             self,
             handler: Callable[
@@ -186,9 +200,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             data: Dict[str, Any],
     ) -> Any:
         error = event.exception
-        if isinstance(error, InvalidStackIdError):
-            return await handler(event, data)
-        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+        if not self._is_error_supported(event, data):
             return await handler(event, data)
 
         try:
@@ -202,12 +214,11 @@ class IntentErrorMiddleware(BaseMiddleware):
                 state_groups=self.state_groups,
             )
             data[STORAGE_KEY] = proxy
-
             if isinstance(error, OutdatedIntent):
                 stack = await proxy.load_stack(stack_id=error.stack_id)
             else:
                 stack = await proxy.load_stack()
-            if stack.empty():
+            if stack.empty() or isinstance(error, UnknownState):
                 context = None
             else:
                 context = await proxy.load_context(stack.last_intent_id())

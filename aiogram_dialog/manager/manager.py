@@ -356,7 +356,10 @@ class ManagerImpl(DialogManager):
             return None
         return widget.managed(self)
 
-    def is_same_chat(self, user: User, chat: Chat):
+    def is_same_chat(self, user: User, chat: Chat) -> bool:
+        if "event_chat" not in self._data:
+            return False
+
         current_chat = self._data["event_chat"]
         current_user = self.event.from_user
         return user.id == current_user.id and chat.id == current_chat.id
@@ -370,9 +373,15 @@ class ManagerImpl(DialogManager):
 
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
-        current_chat = self._data["event_chat"]
-        if chat_id in (None, current_chat.id):
-            return current_chat
+        if "event_chat" in self._data:
+            current_chat = self._data["event_chat"]
+            if chat_id in (None, current_chat.id):
+                return current_chat
+        elif chat_id is None:
+            raise ValueError(
+                "Explicit `chat_id` is required "
+                "for events without current chat",
+            )
         return FakeChat(id=chat_id, type="")
 
     def bg(
