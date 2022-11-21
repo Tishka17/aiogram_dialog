@@ -1,4 +1,7 @@
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+from typing import (
+    Any, Awaitable, Callable, Dict, List, Optional, Protocol,
+    runtime_checkable,
+)
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 
@@ -72,6 +75,4 @@ class InputWidget(Widget, Protocol):
         raise NotImplementedError
 
 
-class DataGetter(Protocol):
-    async def __call__(self, **kwargs) -> Dict:
-        raise NotImplementedError
+DataGetter = Callable[..., Awaitable[Dict]]

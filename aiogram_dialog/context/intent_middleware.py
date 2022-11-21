@@ -141,15 +141,15 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
-        # buttons from inline mode does not contain chat
-        if data["event_chat"]:
-            proxy = self.storage_proxy(data)
-            data[STORAGE_KEY] = proxy
+        if not "event_chat" in data:
+            return await handler(event, data)
+        proxy = self.storage_proxy(data)
+        data[STORAGE_KEY] = proxy
 
-            original_data = event.data
-            intent_id, callback_data = remove_indent_id(event.data)
-            await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
-            data[CALLBACK_DATA_KEY] = original_data
+        original_data = event.data
+        intent_id, callback_data = remove_indent_id(event.data)
+        await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
+        data[CALLBACK_DATA_KEY] = original_data
         return await handler(event, data)
 
 
@@ -187,13 +187,15 @@ class IntentErrorMiddleware(BaseMiddleware):
             event: ErrorEvent,
             data: Dict[str, Any],
     ) -> Any:
-        try:
-            error = event.exception
-            if isinstance(error, InvalidStackIdError):
-                return
-            if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
-                return
+        error = event.exception
+        if isinstance(error, InvalidStackIdError):
+            return await handler(event, data)
+        if event.update.event_type not in SUPPORTED_ERROR_EVENTS:
+            return await handler(event, data)
+        if "event_chat" not in data:
+            return await handler(event, data)
 
+        try:
             chat = data["event_chat"]
 
             proxy = StorageProxy(

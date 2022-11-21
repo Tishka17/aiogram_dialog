@@ -112,6 +112,8 @@ class ManagerImpl(DialogManager):
         return self._data[STORAGE_KEY]
 
     async def _remove_kbd(self) -> None:
+        if self.current_stack().last_message_id is None:
+            return
         chat = self._data["event_chat"]
         bot = self._data["bot"]
         message = Message(
@@ -161,7 +163,7 @@ class ManagerImpl(DialogManager):
         else:
             intent_id = stack.last_intent_id()
             self._data[CONTEXT_KEY] = await storage.load_context(intent_id)
-            await storage.save_stack(stack)
+        await storage.save_stack(stack)
 
     async def start(
             self,
@@ -188,6 +190,7 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         while not stack.empty():
             await storage.remove_context(stack.pop())
+        await storage.save_stack(stack)
         if remove_keyboard:
             await self._remove_kbd()
         self._data[CONTEXT_KEY] = None
@@ -353,7 +356,10 @@ class ManagerImpl(DialogManager):
             return None
         return widget.managed(self)
 
-    def is_same_chat(self, user: User, chat: Chat):
+    def is_same_chat(self, user: User, chat: Chat) -> bool:
+        if "event_chat" not in self._data:
+            return False
+
         current_chat = self._data["event_chat"]
         current_user = self.event.from_user
         return user.id == current_user.id and chat.id == current_chat.id
@@ -367,9 +373,15 @@ class ManagerImpl(DialogManager):
 
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
-        current_chat = self._data["event_chat"]
-        if chat_id in (None, current_chat.id):
-            return current_chat
+        if "event_chat" in self._data:
+            current_chat = self._data["event_chat"]
+            if chat_id in (None, current_chat.id):
+                return current_chat
+        elif chat_id is None:
+            raise ValueError(
+                "Explicit `chat_id` is required "
+                "for events without current chat",
+            )
         return FakeChat(id=chat_id, type="")
 
     def bg(

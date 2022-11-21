@@ -87,3 +87,32 @@ class WebApp(Url):
         web_app_info = WebAppInfo(url=web_app_url)
 
         return [[InlineKeyboardButton(text=text, web_app=web_app_info)]]
+
+
+class SwitchInlineQuery(Keyboard):
+    def __init__(
+        self,
+        text: Text,
+        switch_inline_query: Text,
+        id: Optional[str] = None,
+        when: Union[str, Callable, None] = None,
+    ):
+        super().__init__(id=id, when=when)
+        self.text = text
+        self.switch_inline = switch_inline_query
+
+    async def _render_keyboard(
+        self,
+        data: Dict,
+        manager: DialogManager,
+    ) -> List[List[InlineKeyboardButton]]:
+        return [
+            [
+                InlineKeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    switch_inline_query=await self.switch_inline.render_text(
+                        data, manager,
+                    ),
+                ),
+            ],
+        ]
