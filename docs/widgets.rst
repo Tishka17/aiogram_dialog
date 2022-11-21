@@ -73,6 +73,7 @@ Every time you need to render text use any of text widgets:
 * :ref:`Multi<multi_text>` - multiple texts, joined with a separator
 * :ref:`Case<case_text>` - shows one of texts based on condition
 * ``Progress`` - shows a progress bar
+* ``List`` - shows a dynamic group of texts (similar to `Select`_ keyboard widget)
 * :ref:`Jinja<jinja>` - represents a HTML rendered using jinja2 template
 
 Keyboard widget types
@@ -82,6 +83,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 
 * `Button`_ - single inline button. User provided ``on_click`` method is called when it is clicked.
 * `Url`_ - single inline button with url
+* ``SwitchInlineQuery`` - single inline button to switch inline mode
 * :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
 * :ref:`Column<column>` - another simplified version of group. All buttons placed in single column one per row.
