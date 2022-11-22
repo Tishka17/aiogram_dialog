@@ -181,7 +181,7 @@ class IntentErrorMiddleware(BaseMiddleware):
         self.storage = storage
         self.state_groups = state_groups
 
-    async def _is_error_supported(
+    def _is_error_supported(
             self, event: ErrorEvent, data: Dict[str, Any],
     ) -> bool:
         if isinstance(event, InvalidStackIdError):
@@ -190,6 +190,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             return False
         if "event_chat" not in data:
             return False
+        return True
 
     async def __call__(
             self,
