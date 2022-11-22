@@ -48,6 +48,9 @@ class RenderDialog:
 
 
 class FakeManager(DialogManager):
+    async def answer_callback(self) -> None:
+        pass
+
     def __init__(self, registry: DialogRegistry):
         self._event = DialogUpdateEvent(
             from_user=User(id=1, is_bot=False, first_name="Fake"),

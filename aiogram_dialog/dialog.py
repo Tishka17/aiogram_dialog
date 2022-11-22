@@ -145,7 +145,7 @@ class Dialog(DialogProtocol):
             await dialog_manager.show()
         if not dialog_manager.is_preview():
             try:
-                await callback.answer()
+                await dialog_manager.answer_callback()
             except TelegramAPIError as e:
                 if _INVALUD_QUERY_ID_MSG in e.message:
                     logger.warning("Cannot answer callback: %s", e)

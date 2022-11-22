@@ -48,6 +48,11 @@ class MockMessageManager(MessageManagerProtocol):
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         pass
 
+    async def answer_callback(
+            self, bot: Bot, callback_query: CallbackQuery,
+    ) -> None:
+        pass
+
     async def show_message(self, bot: Bot, new_message: NewMessage,
                            old_message: Optional[Message]):
         self.last_message = new_message
@@ -61,14 +66,11 @@ class MockMessageManager(MessageManagerProtocol):
 
 class FakeBot(Bot):
     def __init__(self):
-        pass
+        pass  # do not call super, so it is invalid bot, used only as a stub
 
     @property
     def id(self):
         return 1
-
-    async def __call__(self, *args, **kwargs):
-        pass  # TODO Remove, move callback.answer() to message manager
 
 
 @pytest.mark.asyncio
