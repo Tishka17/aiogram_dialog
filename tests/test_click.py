@@ -1,16 +1,12 @@
-from datetime import datetime
-from typing import Optional
 from unittest.mock import Mock
 
 import pytest
-from aiogram import Dispatcher, Bot
+from aiogram import Dispatcher
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, Update, Chat, User, CallbackQuery
 
 from aiogram_dialog import Dialog, Window, DialogRegistry, DialogManager
-from aiogram_dialog.api.entities import NewMessage
-from aiogram_dialog.api.protocols import MessageManagerProtocol
+from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Format, Const
 
@@ -37,88 +33,28 @@ dialog = Dialog(
     )
 )
 
-TEST_CHAT = Chat(id=1, type="")
-TEST_USER = User(id=1, is_bot=False, first_name="")
-
-
-class MockMessageManager(MessageManagerProtocol):
-    def __init__(self):
-        self.last_message: Optional[NewMessage] = None
-
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
-        pass
-
-    async def answer_callback(
-            self, bot: Bot, callback_query: CallbackQuery,
-    ) -> None:
-        pass
-
-    async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]):
-        self.last_message = new_message
-        return Message(
-            message_id=1,
-            text="fake",
-            date=datetime.now(),
-            chat=new_message.chat,
-        )
-
-
-class FakeBot(Bot):
-    def __init__(self):
-        pass  # do not call super, so it is invalid bot, used only as a stub
-
-    @property
-    def id(self):
-        return 1
-
 
 @pytest.mark.asyncio
 async def test_click():
     usecase = Mock()
-    bot = FakeBot()
     dp = Dispatcher(usecase=usecase, storage=MemoryStorage())
+    client = BotClient(dp)
     message_manager = MockMessageManager()
     registry = DialogRegistry(dp, message_manager=message_manager)
     registry.register_start_handler(MainSG.start)
     registry.register(dialog)
 
-    await dp.feed_update(bot=bot, update=Update(
-        update_id=1,
-        message=Message(
-            message_id=1,
-            date=datetime.fromtimestamp(1234567890),
-            chat=TEST_CHAT,
-            from_user=TEST_USER,
-            text="/start",
-        )
-    ))
+    await client.send("/start")
 
-    first_message = message_manager.last_message
-    assert first_message
+    assert len(message_manager.sent_messages) == 1
+    first_message = message_manager.sent_messages[-1]
     assert first_message.text == "stub"
     assert first_message.reply_markup
-    first_keyboard = first_message.reply_markup.inline_keyboard
-    print(first_keyboard)
 
-    await dp.feed_update(bot=bot, update=Update(
-        update_id=2,
-        callback_query=CallbackQuery(
-            id=1,
-            data=first_keyboard[0][0].callback_data,
-            chat_instance="--",
-            from_user=TEST_USER,
-            message=Message(
-                message_id=1,
-                text="fake",
-                date=datetime.now(),
-                chat=TEST_CHAT,
-            ),
-        ),
-    ))
+    message_manager.reset_history()
 
+    await client.click(first_message, pattern="Button")
     usecase.assert_called()
-    second_message = message_manager.last_message
-    assert second_message
+    second_message = message_manager.sent_messages[-1]
     assert second_message.text == "next"
     assert not second_message.reply_markup.inline_keyboard
