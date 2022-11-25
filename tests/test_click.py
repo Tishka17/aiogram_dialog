@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from unittest.mock import Mock
 
 import pytest
@@ -21,6 +22,12 @@ async def on_click(event, button, manager: DialogManager) -> None:
     await manager.next()
 
 
+async def second_getter(user_getter, **kwargs) -> Dict[str, Any]:
+    return {
+        "user": user_getter(),
+    }
+
+
 dialog = Dialog(
     Window(
         Format("stub"),
@@ -28,8 +35,9 @@ dialog = Dialog(
         state=MainSG.start,
     ),
     Window(
-        Format("next"),
+        Format("Next {user}"),
         state=MainSG.next,
+        getter=second_getter,
     )
 )
 
@@ -37,7 +45,11 @@ dialog = Dialog(
 @pytest.mark.asyncio
 async def test_click():
     usecase = Mock()
-    dp = Dispatcher(usecase=usecase, storage=MemoryStorage())
+    user_getter = Mock(side_effect=["Username"])
+    dp = Dispatcher(
+        usecase=usecase, user_getter=user_getter,
+        storage=MemoryStorage(),
+    )
     client = BotClient(dp)
     message_manager = MockMessageManager()
     registry = DialogRegistry(dp, message_manager=message_manager)
@@ -45,16 +57,24 @@ async def test_click():
     registry.register(dialog)
 
     await client.send("/start")
-
     assert len(message_manager.sent_messages) == 1
     first_message = message_manager.sent_messages[-1]
     assert first_message.text == "stub"
     assert first_message.reply_markup
+    user_getter.assert_not_called()
 
     message_manager.reset_history()
+    await client.send("whatever")
 
+    assert len(message_manager.sent_messages) == 1
+    first_message = message_manager.sent_messages[-1]
+    assert first_message.text == "stub"
+
+    message_manager.reset_history()
     await client.click(first_message, pattern="Button")
+
     usecase.assert_called()
     second_message = message_manager.sent_messages[-1]
-    assert second_message.text == "next"
+    assert second_message.text == "Next Username"
     assert not second_message.reply_markup.inline_keyboard
+    user_getter.assert_called_once()
