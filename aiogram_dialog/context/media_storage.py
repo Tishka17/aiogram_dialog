@@ -17,7 +17,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
             url: Optional[str],
             type: ContentType,
     ) -> Optional[MediaId]:
-        if not path:
+        if not path and not url:
             return None
         return self.cache.get((path, url, type))
 
