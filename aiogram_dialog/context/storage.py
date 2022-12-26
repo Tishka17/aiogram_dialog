@@ -107,7 +107,10 @@ class StorageProxy:
 
     def _state(self, state: str) -> State:
         group, *_ = state.partition(":")
-        for real_state in self.state_groups[group].__all_states__:
-            if real_state.state == state:
-                return real_state
+        try:
+            for real_state in self.state_groups[group].__all_states__:
+                if real_state.state == state:
+                    return real_state
+        except KeyError:
+            raise UnknownState(f"Unknown state group {group}")
         raise UnknownState(f"Unknown state {state}")
