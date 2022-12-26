@@ -8,6 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from aiogram_dialog import Dialog, Window, DialogRegistry, DialogManager
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
+from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Format, Const
 
@@ -71,7 +72,7 @@ async def test_click():
     assert first_message.text == "stub"
 
     message_manager.reset_history()
-    await client.click(first_message, pattern="Button")
+    await client.click(first_message, InlineButtonTextLocator("Button"))
 
     usecase.assert_called()
     second_message = message_manager.sent_messages[-1]

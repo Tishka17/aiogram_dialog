@@ -1,12 +1,13 @@
-import re
 import uuid
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import (
     CallbackQuery, Chat, InlineKeyboardButton, Message, Update, User,
 )
+
+from .keyboard import InlineButtonLocator
 
 
 class FakeBot(Bot):
@@ -79,39 +80,15 @@ class BotClient:
             message=message,
         )
 
-    def _find_button(
-            self, keyboard: List[List[InlineKeyboardButton]], pattern: str,
-    ):
-        regex = re.compile(pattern)
-        for row in keyboard:
-            for button in row:
-                if regex.fullmatch(button.text):
-                    return button
-        raise ValueError(
-            f"Button to match pattern `{pattern}` not found",
-        )
-
     async def click(
             self, message: Message,
-            position: Optional[Tuple[int, int]] = None,
-            pattern: Optional[str] = None,
+            locator: InlineButtonLocator,
     ):
-        keyboard = message.reply_markup.inline_keyboard
-        if not keyboard:
+        button = locator.find_button(message)
+        if not button:
             raise ValueError(
-                "No inline keyboard found",
+                f"No button matching {locator} found",
             )
-        if position and pattern:
-            raise ValueError(
-                "Cannot match position and pattern simultaneously",
-            )
-        elif position:
-            row_num, column = position
-            button = keyboard[row_num][column]
-        elif pattern:
-            button = self._find_button(keyboard, pattern)
-        else:
-            raise ValueError("Neither position nor pattern provided")
 
         return await self.dp.feed_update(self.bot, Update(
             update_id=self._new_update_id(),
