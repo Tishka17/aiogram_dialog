@@ -1,6 +1,6 @@
 from .base import Media
-from .static import StaticMedia
 from .dynamic import DynamicMedia
+from .static import StaticMedia
 
 __all__ = [
     "Media",
