@@ -16,6 +16,7 @@ class StaticMedia(Media):
             path: Union[Text, str, None] = None,
             url: Union[Text, str, None] = None,
             type: ContentType = ContentType.PHOTO,
+            use_pipe: bool = False,
             media_params: Dict = None,
             when: WhenCondition = None,
     ):
@@ -29,6 +30,7 @@ class StaticMedia(Media):
         if isinstance(url, str):
             url = Const(url)
         self.url = url
+        self.use_pipe = use_pipe
         self.media_params = media_params or {}
 
     async def _render_media(
@@ -47,5 +49,6 @@ class StaticMedia(Media):
             type=self.type,
             url=url,
             path=path,
+            use_pipe=self.use_pipe,
             **self.media_params,
         )

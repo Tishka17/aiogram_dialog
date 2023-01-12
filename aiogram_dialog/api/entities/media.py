@@ -24,6 +24,7 @@ class MediaAttachment:
             url: Optional[str] = None,
             path: Optional[str] = None,
             file_id: Optional[MediaId] = None,
+            use_pipe: bool = False,
             **kwargs,
     ):
         if not (url or path or file_id):
@@ -32,4 +33,5 @@ class MediaAttachment:
         self.url = url
         self.path = path
         self.file_id = file_id
+        self.use_pipe = use_pipe
         self.kwargs = kwargs
