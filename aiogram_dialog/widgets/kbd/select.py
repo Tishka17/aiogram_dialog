@@ -8,6 +8,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    TypeVar,
     Union,
 )
 
@@ -23,6 +24,8 @@ from aiogram_dialog.widgets.widget_event import (
 )
 from .base import Keyboard
 
+T = TypeVar("T")
+TypeFactory = Callable[[str], T]
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
@@ -30,7 +33,7 @@ OnItemStateChanged = Callable[
     Awaitable,
 ]
 OnItemClick = Callable[
-    [CallbackQuery, ManagedWidget["Select"], DialogManager, str],
+    [CallbackQuery, ManagedWidget["Select"], DialogManager, T],
     Awaitable,
 ]
 
@@ -49,11 +52,13 @@ class Select(Keyboard):
             id: str,
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
+            type_factory: TypeFactory[T] = str,
             on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
+        self.type_factory = type_factory
         self.on_click = ensure_event_processor(on_click)
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
@@ -95,7 +100,7 @@ class Select(Keyboard):
             callback,
             self.managed(manager),
             manager,
-            data,
+            self.type_factory(data),
         )
         return True
 
