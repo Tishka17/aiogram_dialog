@@ -14,3 +14,4 @@ flake8-polyfill
 flake8-print
 
 pytest
+pytest-asyncio

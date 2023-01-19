@@ -153,6 +153,14 @@ class ManagerImpl(DialogManager):
         if new_context and context.id == new_context.id:
             await self.show()
 
+    async def answer_callback(self) -> None:
+        if not isinstance(self.event, CallbackQuery):
+            return
+        return await self.message_manager.answer_callback(
+            bot=self._data["bot"],
+            callback_query=self.event,
+        )
+
     async def mark_closed(self) -> None:
         self.check_disabled()
         storage = self.storage()

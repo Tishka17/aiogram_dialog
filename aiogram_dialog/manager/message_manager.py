@@ -4,6 +4,7 @@ from typing import Optional, Union
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import (
+    CallbackQuery,
     ContentType,
     FSInputFile,
     InputFile,
@@ -32,6 +33,13 @@ SEND_METHODS = {
 
 
 class MessageManager(MessageManagerProtocol):
+    async def answer_callback(
+            self, bot: Bot, callback_query: CallbackQuery,
+    ) -> None:
+        await bot.answer_callback_query(
+            callback_query_id=callback_query.id,
+        )
+
     async def get_media_source(
             self, media: MediaAttachment,
     ) -> Union[InputFile, str]:

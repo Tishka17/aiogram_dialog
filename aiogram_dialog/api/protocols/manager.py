@@ -79,6 +79,10 @@ class DialogManager(BaseDialogManager, Protocol):
         """Show current state to the user."""
         raise NotImplementedError
 
+    async def answer_callback(self) -> None:
+        """Show current state to the user."""
+        raise NotImplementedError
+
     def current_context(self) -> Optional[Context]:
         """Get current dialog context."""
         raise NotImplementedError

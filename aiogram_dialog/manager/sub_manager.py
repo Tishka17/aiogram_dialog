@@ -62,6 +62,9 @@ class SubManager(DialogManager):
     async def show(self) -> Message:
         return await self.manager.show()
 
+    async def answer_callback(self) -> None:
+        return await self.manager.answer_callback()
+
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         return await self.manager.reset_stack(remove_keyboard)
 
