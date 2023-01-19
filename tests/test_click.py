@@ -3,14 +3,14 @@ from unittest.mock import Mock
 
 import pytest
 from aiogram import Dispatcher
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from aiogram_dialog import Dialog, Window, DialogRegistry, DialogManager
+from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
-from aiogram_dialog.widgets.text import Format, Const
+from aiogram_dialog.widgets.text import Const, Format
 
 
 class MainSG(StatesGroup):
@@ -39,7 +39,7 @@ dialog = Dialog(
         Format("Next {user}"),
         state=MainSG.next,
         getter=second_getter,
-    )
+    ),
 )
 
 

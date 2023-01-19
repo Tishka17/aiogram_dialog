@@ -39,7 +39,7 @@ jobs:
 
       - name: Run flake8
         run: |
-          python -m flake8 aiogram_dialog
+          python -m flake8 aiogram_dialog tests
 
       - name: Run tests
         run: |
