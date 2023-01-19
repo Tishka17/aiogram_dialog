@@ -39,7 +39,7 @@ jobs:
 
       - name: Run flake8
         run: |
-          python -m flake8 aiogram_dialog tests
+          python -m flake8 src/aiogram_dialog tests
 
       - name: Run tests
         run: |
@@ -47,4 +47,4 @@ jobs:
 
       - name: Run vulture
         run: |
-          python -m vulture aiogram_dialog --min-confidence 70
+          python -m vulture src/aiogram_dialog --min-confidence 70
