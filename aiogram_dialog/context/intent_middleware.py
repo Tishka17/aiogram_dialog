@@ -4,11 +4,11 @@ from typing import Any, Awaitable, Callable, Dict, Optional, Type
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.state import StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
+    ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
 )
 from aiogram_dialog.api.exceptions import (
     InvalidStackIdError, OutdatedIntent, UnknownState,
@@ -192,6 +192,27 @@ class IntentErrorMiddleware(BaseMiddleware):
             return False
         return True
 
+    async def _fix_broken_stack(
+            self, storage: StorageProxy, stack: Stack,
+    ) -> None:
+        while not stack.empty():
+            await storage.remove_context(stack.pop())
+        await storage.save_stack(stack)
+
+    async def _load_last_context(
+            self, storage: StorageProxy, stack: Stack,
+            chat: Chat, user: User,
+    ) -> Optional[Context]:
+        try:
+            return await storage.load_context(stack.last_intent_id())
+        except OutdatedIntent:
+            logger.warning(
+                "Stack is broken for user %s, chat %s, resetting",
+                user.id, chat.id,
+            )
+            await self._fix_broken_stack(storage, stack)
+        return None
+
     async def __call__(
             self,
             handler: Callable[
@@ -206,11 +227,12 @@ class IntentErrorMiddleware(BaseMiddleware):
 
         try:
             chat = data["event_chat"]
+            user = data["event_from_user"]
 
             proxy = StorageProxy(
                 bot=data["bot"],
                 storage=self.storage,
-                user_id=data["event_from_user"].id,
+                user_id=user.id,
                 chat_id=chat.id,
                 state_groups=self.state_groups,
             )
@@ -222,7 +244,9 @@ class IntentErrorMiddleware(BaseMiddleware):
             if stack.empty() or isinstance(error, UnknownState):
                 context = None
             else:
-                context = await proxy.load_context(stack.last_intent_id())
+                context = await self._load_last_context(
+                    storage=proxy, stack=stack, chat=chat, user=user,
+                )
             data[STACK_KEY] = stack
             data[CONTEXT_KEY] = context
             return await handler(event, data)
