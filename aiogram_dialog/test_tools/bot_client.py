@@ -73,7 +73,7 @@ class BotClient:
         if not button.callback_data:
             raise ValueError("Button has no callback data")
         return CallbackQuery(
-            id=uuid.uuid4().int,
+            id=str(uuid.uuid4()),
             data=button.callback_data,
             chat_instance="--",
             from_user=self.user,
@@ -83,14 +83,16 @@ class BotClient:
     async def click(
             self, message: Message,
             locator: InlineButtonLocator,
-    ):
+    ) -> str:
         button = locator.find_button(message)
         if not button:
             raise ValueError(
                 f"No button matching {locator} found",
             )
 
-        return await self.dp.feed_update(self.bot, Update(
+        callback = self._new_callback(message, button)
+        await self.dp.feed_update(self.bot, Update(
             update_id=self._new_update_id(),
-            callback_query=self._new_callback(message, button),
+            callback_query=callback,
         ))
+        return callback.id

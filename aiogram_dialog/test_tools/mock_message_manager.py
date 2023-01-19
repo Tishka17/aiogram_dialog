@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Set
 from uuid import uuid4
 
 from aiogram import Bot
@@ -37,11 +37,26 @@ MEDIA_CLASSES = {
 
 class MockMessageManager(MessageManagerProtocol):
     def __init__(self):
+        self.answered_callbacks: Set[str] = set()
         self.sent_messages = []
         self.last_message_id = 0
 
     def reset_history(self):
         self.sent_messages.clear()
+        self.answered_callbacks.clear()
+
+    def assert_one_message(self) -> None:
+        assert len(self.sent_messages) == 1
+
+    def last_message(self) -> Message:
+        return self.sent_messages[-1]
+
+    def first_message(self) -> Message:
+        return self.sent_messages[0]
+
+    def one_message(self) -> Message:
+        self.assert_one_message()
+        return self.first_message()
 
     async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
         pass
@@ -49,7 +64,10 @@ class MockMessageManager(MessageManagerProtocol):
     async def answer_callback(
             self, bot: Bot, callback_query: CallbackQuery,
     ) -> None:
-        pass
+        self.answered_callbacks.add(callback_query.id)
+
+    def assert_answered(self, callback_id: str) -> None:
+        assert callback_id in self.answered_callbacks
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
                            old_message: Optional[Message]) -> Message:

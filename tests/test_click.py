@@ -58,8 +58,7 @@ async def test_click():
     registry.register(dialog)
 
     await client.send("/start")
-    assert len(message_manager.sent_messages) == 1
-    first_message = message_manager.sent_messages[-1]
+    first_message = message_manager.one_message()
     assert first_message.text == "stub"
     assert first_message.reply_markup
     user_getter.assert_not_called()
@@ -67,15 +66,17 @@ async def test_click():
     message_manager.reset_history()
     await client.send("whatever")
 
-    assert len(message_manager.sent_messages) == 1
-    first_message = message_manager.sent_messages[-1]
+    first_message = message_manager.one_message()
     assert first_message.text == "stub"
 
     message_manager.reset_history()
-    await client.click(first_message, InlineButtonTextLocator("Button"))
+    callback_id = await client.click(
+        first_message, InlineButtonTextLocator("Button"),
+    )
 
+    message_manager.assert_answered(callback_id)
     usecase.assert_called()
-    second_message = message_manager.sent_messages[-1]
+    second_message = message_manager.one_message()
     assert second_message.text == "Next Username"
     assert not second_message.reply_markup.inline_keyboard
     user_getter.assert_called_once()
