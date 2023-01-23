@@ -95,3 +95,9 @@ class MockMessageManager(MessageManagerProtocol):
         )
         self.sent_messages.append(message)
         return message
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.reset_history()
