@@ -153,13 +153,14 @@ class Dialog(DialogProtocol):
                     raise
 
     def register(
-            self, router: Router, *args,
-            **filters,
+            self, router: Router, *args, **filters,
     ) -> None:
         router.callback_query.register(
             self._callback_handler, *args, **filters,
         )
-        router.message.register(self._message_handler, *args, **filters)
+        router.message.register(
+            self._message_handler, *args, **filters,
+        )
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group

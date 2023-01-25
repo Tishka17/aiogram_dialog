@@ -62,28 +62,26 @@ class DefaultManagerFactory(DialogManagerFactory):
 class DialogRegistry(DialogRegistryProtocol):
     def __init__(
             self,
-            dp: Dispatcher,
+            dp: Optional[Dispatcher],
             dialogs: Sequence[DialogProtocol] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
             dialog_manager_factory: Optional[DialogManagerFactory] = None,
             default_router: Optional[Router] = None,
     ):
-        self.dp = dp
-        self.update_handler = self.dp.observers[
-            DIALOG_EVENT_NAME
-        ] = DialogEventObserver(router=self.dp, event_name=DIALOG_EVENT_NAME)
         self.default_router = (
-            default_router
-            if default_router
-            else dp.include_router(Router(name="aiogram_dialog_router"))
+                default_router or
+                Router(name="aiogram_dialog_router")
         )
 
-        self.dialogs = {d.states_group(): d for d in dialogs}
-        self.state_groups: Dict[str, Type[StatesGroup]] = {
-            d.states_group_name(): d.states_group() for d in dialogs
+        self.dialogs = {
+            d.states_group(): d
+            for d in dialogs
         }
-        self.register_update_handler(handle_update, any_state)
+        self.state_groups: Dict[str, Type[StatesGroup]] = {
+            d.states_group_name(): d.states_group()
+            for d in dialogs
+        }
 
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
@@ -98,7 +96,30 @@ class DialogRegistry(DialogRegistryProtocol):
                 registry=self,
             )
         self.dialog_manager_factory = dialog_manager_factory
+
+        self.dp = dp
+        self.update_handler: Optional[DialogEventObserver] = None
+        if dp:
+            self.setup_dp(dp)
+
+    def setup_dp(self, dp: Dispatcher):
+        if self.dp:
+            raise RuntimeError("Dispatcher is already configured for Registry")
+        self.update_handler = DialogEventObserver(
+            router=dp, event_name=DIALOG_EVENT_NAME
+        )
+        dp.observers[DIALOG_EVENT_NAME] = self.update_handler
+        dp.include_router(self.default_router)
+        self.register_update_handler(
+            handle_update, any_state,
+        )
         self._register_middleware()
+        for group, dialog in self.dialogs.items():
+            # TODO router and other args
+            dialog.register(
+                self.default_router,
+                IntentFilter(aiogd_intent_state_group=group),
+            )
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
@@ -120,12 +141,14 @@ class DialogRegistry(DialogRegistryProtocol):
             raise ValueError(f"StatesGroup `{group}` is already used")
         self.dialogs[group] = dialog
         self.state_groups[dialog.states_group_name()] = group
-        dialog.register(
-            router if router else self.default_router,
-            IntentFilter(aiogd_intent_state_group=group),
-            *args,
-            **kwargs,
-        )
+
+        # TODO save params for delayed registration
+        if self.dp:
+            dialog.register(
+                router if router else self.default_router,
+                IntentFilter(aiogd_intent_state_group=group),
+                *args, **kwargs,
+            )
 
     def register_start_handler(self, state: State):
         async def start_dialog(
