@@ -83,6 +83,12 @@ class DialogRegistry(DialogRegistryProtocol):
             for d in dialogs
         }
 
+        for group, dialog in self.dialogs.items():
+            dialog.register(
+                self.default_router,
+                IntentFilter(aiogd_intent_state_group=group),
+            )
+
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
         self._media_id_storage = media_id_storage
@@ -114,12 +120,6 @@ class DialogRegistry(DialogRegistryProtocol):
             handle_update, any_state,
         )
         self._register_middleware()
-        for group, dialog in self.dialogs.items():
-            # TODO router and other args
-            dialog.register(
-                self.default_router,
-                IntentFilter(aiogd_intent_state_group=group),
-            )
 
     @property
     def media_id_storage(self) -> MediaIdStorageProtocol:
@@ -142,13 +142,11 @@ class DialogRegistry(DialogRegistryProtocol):
         self.dialogs[group] = dialog
         self.state_groups[dialog.states_group_name()] = group
 
-        # TODO save params for delayed registration
-        if self.dp:
-            dialog.register(
-                router if router else self.default_router,
-                IntentFilter(aiogd_intent_state_group=group),
-                *args, **kwargs,
-            )
+        dialog.register(
+            router if router else self.default_router,
+            IntentFilter(aiogd_intent_state_group=group),
+            *args, **kwargs,
+        )
 
     def register_start_handler(self, state: State):
         async def start_dialog(
