@@ -62,7 +62,7 @@ class DefaultManagerFactory(DialogManagerFactory):
 class DialogRegistry(DialogRegistryProtocol):
     def __init__(
             self,
-            dp: Optional[Dispatcher],
+            dp: Optional[Dispatcher] = None,
             dialogs: Sequence[DialogProtocol] = (),
             media_id_storage: Optional[MediaIdStorageProtocol] = None,
             message_manager: Optional[MessageManagerProtocol] = None,
