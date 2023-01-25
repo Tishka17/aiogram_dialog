@@ -290,11 +290,10 @@ async def render_dialog(
     return RenderDialog(state_group=str(group), windows=windows)
 
 
-async def render_preview(
+async def render_preview_content(
         registry: DialogRegistry,
-        file: str,
         simulate_events: bool = False,
-):
+) -> str:
     fake_manager = FakeManager(registry)
     dialogs = [
         await render_dialog(
@@ -310,6 +309,14 @@ async def render_preview(
         autoescape=select_autoescape(),
     )
     template = env.get_template("message.html")
-    res = template.render(dialogs=dialogs)
+    return template.render(dialogs=dialogs)
+
+
+async def render_preview(
+        registry: DialogRegistry,
+        file: str,
+        simulate_events: bool = False,
+):
+    res = await render_preview_content(registry, simulate_events)
     with open(file, "w", encoding="utf-8") as f:
         f.write(res)

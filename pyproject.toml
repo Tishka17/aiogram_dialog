@@ -33,8 +33,12 @@ dependencies = [
 [project.optional-dependencies]
 tools = [
     "diagrams",
+    "aiohttp",
 ]
 [project.urls]
 "Homepage" = "https://github.com/tishka17/aiogram_dialog"
 "Documentation" = "https://aiogram_dialog.readthedocs.org"
 "Bug Tracker" = "https://github.com/tishka17/aiogram_dialog/issues"
+
+[project.scripts]
+aiogram-dialog-preview = "aiogram_dialog.tools.web_preview:main"
