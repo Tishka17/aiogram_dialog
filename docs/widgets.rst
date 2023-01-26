@@ -50,7 +50,7 @@ Currently there are 4 kinds of widgets: `texts <Text widget types_>`_, `keyboard
 
 Also there are 2 general types:
 
-* ``Whenable`` can be hidden or shown depending on data or some conditions. Currently al widgets are whenable.
+* ``Whenable`` can be hidden or shown depending on data or some conditions. Currently all widgets are whenable.
   See: `Hiding widgets`_
 * ``Actionable`` is any widget with action (currently only any type of keyboard). It has ``id`` and can be found by that id.
   It recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog.
@@ -154,7 +154,7 @@ Button
 
 In simple case you can use keyboard consisting of single button. Button consts of text, id, on-click callback and when condition.
 
-Text can be any ``Text`` widget, that represents plain text. It will receive window data so you button will have dynamic caption
+Text can be any ``Text`` widget, that represents plain text. It will receive window data so your button will have dynamic caption
 
 Callback is normal async function. It is called when user clicks a button
 Unlike normal handlers you should not call callback.answer(), as it is done automatically.
@@ -208,7 +208,7 @@ You can place any keyboard widgets inside it (for example buttons or groups) and
 
 .. image:: resources/group.png
 
-Also it can be used to produce rows of fixed width. To do it just set ``width`` to desired value. Honestly, ``Row`` and ``Column`` widgets are groups with predefined width.
+Also it can be used to produce rows of fixed width. To do it just set ``width`` to desired value. ``Row`` and ``Column`` widgets are groups with predefined width.
 
 .. literalinclude:: examples/widgets/group_width.py
 
@@ -229,7 +229,7 @@ Checkbox
 
 Some of the widgets are stateful. They have some state which is affected by on user clicks.
 
-On of such widgets is **Checkbox**. It can be in checked and unchecked state represented by two texts.
+One of such widgets is **Checkbox**. It can be in checked and unchecked state represented by two texts.
 On each click it inverses its state.
 
 If a dialog with checkbox is visible, you can check its state by calling ``is_checked`` method and change it calling ``set_checked``
