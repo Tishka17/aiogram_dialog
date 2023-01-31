@@ -128,7 +128,7 @@ class StatefulSelect(Select, ABC):
             text=text,
             item_id_getter=item_id_getter, items=items,
             on_click=self._process_click,
-            id=id, when=when, type_factory=type_factory
+            id=id, when=when, type_factory=type_factory,
         )
         self.on_item_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
@@ -138,7 +138,8 @@ class StatefulSelect(Select, ABC):
     ):
         if self.on_state_changed:
             await self.on_state_changed.process_event(
-                event, self.managed(manager), manager, self.type_factory(item_id),
+                event, self.managed(manager), manager,
+                self.type_factory(item_id),
             )
 
     @abstractmethod
