@@ -5,6 +5,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Generic,
     List,
     Optional,
     Sequence,
@@ -45,7 +46,7 @@ def get_identity(items: Sequence) -> ItemsGetter:
     return identity
 
 
-class Select(Keyboard):
+class Select(Keyboard, Generic[T]):
     def __init__(
             self,
             text: Text,
@@ -53,7 +54,7 @@ class Select(Keyboard):
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -105,7 +106,7 @@ class Select(Keyboard):
         return True
 
 
-class StatefulSelect(Select, ABC):
+class StatefulSelect(Select, ABC, Generic[T]):
     def __init__(
             self,
             checked_text: Text,
@@ -114,9 +115,9 @@ class StatefulSelect(Select, ABC):
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
-                OnItemStateChanged, WidgetEventProcessor, None,
+                OnItemStateChanged[T], WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
@@ -242,9 +243,9 @@ class Multiselect(StatefulSelect):
             min_selected: int = 0,
             max_selected: int = 0,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
-                OnItemStateChanged, WidgetEventProcessor, None,
+                OnItemStateChanged[T], WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
