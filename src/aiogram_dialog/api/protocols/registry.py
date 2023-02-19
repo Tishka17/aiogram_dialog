@@ -9,7 +9,9 @@ from .dialog import DialogProtocol
 
 class DialogRegistryProtocol(Protocol):
     def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
-        pass
+        raise NotImplementedError
 
+
+class DialogUpdaterProtocol(Protocol):
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
-        pass
+        raise NotImplementedError

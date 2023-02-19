@@ -22,6 +22,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogRegistryProtocol,
 )
+from aiogram_dialog.api.protocols.registry import DialogUpdaterProtocol
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)
@@ -33,7 +34,7 @@ class BgManager(BaseDialogManager):
             user: User,
             chat: Chat,
             bot: Bot,
-            registry: DialogRegistryProtocol,
+            updater: DialogUpdaterProtocol,
             intent_id: Optional[str],
             stack_id: Optional[str],
             load: bool = False,
@@ -41,7 +42,7 @@ class BgManager(BaseDialogManager):
         self.user = user
         self.chat = chat
         self.bot = bot
-        self._registry = registry
+        self._updater = updater
         self.intent_id = intent_id
         self.stack_id = stack_id
         self.load = load
@@ -78,7 +79,7 @@ class BgManager(BaseDialogManager):
             user=user,
             chat=chat,
             bot=self.bot,
-            registry=self._registry,
+            updater=self._updater,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,
@@ -93,7 +94,7 @@ class BgManager(BaseDialogManager):
         }
 
     async def _notify(self, event: DialogUpdateEvent):
-        await self._registry.notify(
+        await self._updater.notify(
             bot=self.bot, update=DialogUpdate(aiogd_update=event),
         )
 
