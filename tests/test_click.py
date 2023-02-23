@@ -53,9 +53,11 @@ async def test_click():
     )
     client = BotClient(dp)
     message_manager = MockMessageManager()
-    registry = DialogRegistry(dp, message_manager=message_manager)
-    registry.register_start_handler(MainSG.start)
+    registry = DialogRegistry(message_manager=message_manager)
     registry.register(dialog)
+
+    registry.register_start_handler(router=dp, state=MainSG.start)
+    registry.setup_dp(dp)
 
     await client.send("/start")
     first_message = message_manager.one_message()

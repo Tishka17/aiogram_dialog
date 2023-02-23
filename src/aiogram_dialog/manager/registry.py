@@ -146,7 +146,7 @@ class DialogRegistry(DialogRegistryProtocol):
             for d in self.dialogs.values()
         }
 
-    def register_start_handler(self, router: Router, state: State):
+    def register_start_handler(self, state: State, router: Router):
         async def start_dialog(
                 message: Message, dialog_manager: DialogManager,
         ) -> None:
