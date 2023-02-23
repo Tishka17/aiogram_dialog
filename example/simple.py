@@ -141,6 +141,7 @@ async def main():
     dp.message.register(start, F.text == "/start")
     dp.errors.register(error_handler)
     registry = new_registry()
+
     registry.setup_dp(dp)
 
     await dp.start_polling(bot)

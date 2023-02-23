@@ -40,7 +40,8 @@ async def get_name_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_finish(callback: CallbackQuery, button: Button, manager: DialogManager):
+async def on_finish(callback: CallbackQuery, button: Button,
+                    manager: DialogManager):
     await manager.done({"name": manager.dialog_data["name"]})
 
 
@@ -113,10 +114,7 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry(dp)
-    # register default handler,
-    # which resets stack and start dialogs on /start command
-    registry.register_start_handler(MainSG.main)
+    registry = DialogRegistry()
     # register dialogs
     registry.register(name_dialog)
     registry.register(main_menu)
@@ -124,6 +122,12 @@ async def main():
     render_transitions(registry)
     # render windows preview
     await render_preview(registry, "preview.html")
+
+    # register default handler,
+    # which resets stack and start dialogs on /start command
+    registry.register_start_handler(state=MainSG.main, router=dp)
+    # setup dispatcher to use dialogs
+    registry.setup_dp(dp)
 
     await dp.start_polling(bot)
 

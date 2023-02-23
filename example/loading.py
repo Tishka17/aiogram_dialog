@@ -46,7 +46,8 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def start_bg(callback: CallbackQuery, button: Button, manager: DialogManager):
+async def start_bg(callback: CallbackQuery, button: Button,
+                   manager: DialogManager):
     await manager.start(Bg.progress)
     asyncio.create_task(background(callback, manager.bg()))
 
@@ -82,11 +83,12 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
-    registry = DialogRegistry(dp)
+    registry = DialogRegistry()
     registry.register(bg_dialog)
     registry.register(main_menu)
-    dp.message.register(start, F.text == "/start")
 
+    dp.message.register(start, F.text == "/start")
+    registry.setup_dp(dp)
     await dp.start_polling(bot)
 
 
