@@ -1,6 +1,6 @@
 import asyncio
 from contextvars import copy_context
-from typing import Dict, Optional, Sequence, Type
+from typing import Any, Dict, Optional, Sequence, Type
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
@@ -111,9 +111,9 @@ class DialogRegistry(DialogRegistryProtocol):
     def register(
             self,
             dialog: DialogProtocol,
-            *args,
+            *args: Any,
             router: Router = None,
-            **kwargs,
+            **kwargs: Any,
     ):
         group = dialog.states_group()
         if group in self.dialogs:
