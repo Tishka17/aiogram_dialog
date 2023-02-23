@@ -107,6 +107,10 @@ main_menu = Dialog(
     on_process_result=process_result,
 )
 
+registry = DialogRegistry()
+registry.register(name_dialog)
+registry.register(main_menu)
+
 
 async def main():
     # real main
@@ -114,10 +118,7 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry()
-    # register dialogs
-    registry.register(name_dialog)
-    registry.register(main_menu)
+
     # render graph with current transtions
     render_transitions(registry)
     # render windows preview
