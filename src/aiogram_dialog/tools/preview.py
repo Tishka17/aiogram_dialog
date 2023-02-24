@@ -2,7 +2,7 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
@@ -268,7 +268,7 @@ async def create_window(
 
 async def render_dialog(
         manager: FakeManager,
-        group: StatesGroup,
+        group: Type[StatesGroup],
         dialog: Dialog,
         simulate_events: bool,
 ) -> RenderDialog:
@@ -290,26 +290,33 @@ async def render_dialog(
     return RenderDialog(state_group=str(group), windows=windows)
 
 
-async def render_preview(
+async def render_preview_content(
         registry: DialogRegistry,
-        file: str,
         simulate_events: bool = False,
-):
+) -> str:
     fake_manager = FakeManager(registry)
     dialogs = [
         await render_dialog(
             manager=fake_manager,
             group=group,
-            dialog=dialog,
+            dialog=dialog_config.dialog,
             simulate_events=simulate_events,
         )
-        for group, dialog in registry.dialogs.items()
+        for group, dialog_config in registry.dialogs.items()
     ]
     env = Environment(
         loader=PackageLoader("aiogram_dialog.tools"),
         autoescape=select_autoescape(),
     )
     template = env.get_template("message.html")
-    res = template.render(dialogs=dialogs)
+    return template.render(dialogs=dialogs)
+
+
+async def render_preview(
+        registry: DialogRegistry,
+        file: str,
+        simulate_events: bool = False,
+):
+    res = await render_preview_content(registry, simulate_events)
     with open(file, "w", encoding="utf-8") as f:
         f.write(res)

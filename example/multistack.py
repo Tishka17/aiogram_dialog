@@ -92,11 +92,12 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry(dp)
-    # register handler which resets stack and start dialogs on /start command
-    dp.message.register(start, Command(commands=('start',)))
+    registry = DialogRegistry()
     registry.register(dialog)
 
+    # register handler which resets stack and start dialogs on /start command
+    dp.message.register(start, Command(commands=('start',)))
+    registry.setup_dp(dp)
     await dp.start_polling(bot)
 
 

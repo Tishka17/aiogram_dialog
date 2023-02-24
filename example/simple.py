@@ -125,17 +125,24 @@ async def error_handler(event, dialog_manager: DialogManager):
         return UNHANDLED
 
 
+def new_registry():
+    registry = DialogRegistry()
+    registry.register(dialog)
+    return registry
+
+
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
-    storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
+
+    storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
     dp.errors.register(error_handler)
+    registry = new_registry()
 
-    registry = DialogRegistry(dp)
-    registry.register(dialog)
+    registry.setup_dp(dp)
 
     await dp.start_polling(bot)
 

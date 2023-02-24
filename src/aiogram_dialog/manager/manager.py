@@ -18,6 +18,7 @@ from aiogram_dialog.api.internal import (
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
+    DialogUpdaterProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from aiogram_dialog.context.storage import StorageProxy
@@ -34,6 +35,7 @@ class ManagerImpl(DialogManager):
             message_manager: MessageManagerProtocol,
             media_id_storage: MediaIdStorageProtocol,
             registry: DialogRegistryProtocol,
+            updater: DialogUpdaterProtocol,
             data: Dict,
     ):
         self.disabled = False
@@ -43,6 +45,7 @@ class ManagerImpl(DialogManager):
         self._data = data
         self._show_mode: ShowMode = ShowMode.AUTO
         self._registry = registry
+        self._updater = updater
 
     @property
     def show_mode(self) -> ShowMode:
@@ -414,7 +417,7 @@ class ManagerImpl(DialogManager):
             user=user,
             chat=chat,
             bot=self._data["bot"],
-            registry=self._registry,
+            updater=self._updater,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,

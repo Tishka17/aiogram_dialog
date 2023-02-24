@@ -1,5 +1,5 @@
 import os.path
-from typing import Iterable, List, Sequence, Tuple, Union
+from typing import Iterable, List, Sequence, Tuple
 
 from aiogram.fsm.state import State
 from diagrams import Cluster, Diagram, Edge
@@ -90,14 +90,14 @@ def render_window(
 
 
 def render_transitions(
-        dialogs: Union[List[Dialog], DialogRegistry],
+        registry: DialogRegistry,
         title: str = "Aiogram Dialog",
-        filename: str = "aiogram_dialog.png",
+        filename: str = "aiogram_dialog",
         format: str = "png",
 ):
-    if isinstance(dialogs, DialogRegistry):
-        dialogs = list(dialogs.dialogs.values())
-
+    dialogs = [
+        d.dialog for d in registry.dialogs.values()
+    ]
     with Diagram(title, filename=filename, outformat=format, show=False):
         nodes = {}
         for dialog in dialogs:

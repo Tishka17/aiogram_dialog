@@ -69,9 +69,11 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry(dp)
-    registry.register_start_handler(DialogSG.greeting)
+    registry = DialogRegistry()
     registry.register(dialog)
+
+    registry.register_start_handler(state=DialogSG.greeting, router=dp)
+    registry.setup_dp(dp)
 
     await dp.start_polling(bot)
 
