@@ -45,22 +45,22 @@ class DefaultManagerFactory(DialogManagerFactory):
             self,
             message_manager: MessageManagerProtocol,
             media_id_storage: MediaIdStorageProtocol,
-            registry: DialogRegistryProtocol,
-            updater: DialogUpdaterProtocol,
     ) -> None:
         self.message_manager = message_manager
         self.media_id_storage = media_id_storage
-        self.registry = registry
-        self.updater = updater
 
-    def __call__(self, event: ChatEvent, data: Dict) -> DialogManager:
+    def __call__(
+            self, event: ChatEvent, data: Dict,
+            registry: DialogRegistryProtocol,
+            updater: DialogUpdaterProtocol,
+    ) -> DialogManager:
         return ManagerImpl(
             event=event,
             data=data,
             message_manager=self.message_manager,
             media_id_storage=self.media_id_storage,
-            registry=self.registry,
-            updater=self.updater
+            registry=registry,
+            updater=updater
         )
 
 
@@ -107,11 +107,15 @@ class DialogRegistry(DialogRegistryProtocol):
     ):
         if media_id_storage is None:
             media_id_storage = MediaIdStorage()
-        self._media_id_storage = media_id_storage
         if message_manager is None:
             message_manager = MessageManager()
-        self._message_manager = message_manager
-        self.dialog_manager_factory = dialog_manager_factory
+
+        if dialog_manager_factory is None:
+            dialog_manager_factory = DefaultManagerFactory(
+                message_manager=message_manager,
+                media_id_storage=media_id_storage,
+            )
+        self._dialog_manager_factory = dialog_manager_factory
         self.dialogs: Dict[Type[StatesGroup], _DialogConfig] = {}
 
     def register(
@@ -196,17 +200,10 @@ class DialogRegistry(DialogRegistryProtocol):
             self, dp: Dispatcher, update_handler: DialogEventObserver,
     ):
         state_groups = self._state_groups()
-        if self.dialog_manager_factory is None:
-            dialog_manager_factory = DefaultManagerFactory(
-                message_manager=self._message_manager,
-                media_id_storage=self._media_id_storage,
-                registry=self, updater=_Updater(dp)
-            )
-        else:
-            dialog_manager_factory = self.dialog_manager_factory
-
         manager_middleware = ManagerMiddleware(
-            dialog_manager_factory=dialog_manager_factory,
+            dialog_manager_factory=self._dialog_manager_factory,
+            updater=_Updater(dp),
+            registry=self,
         )
         intent_middleware = IntentMiddlewareFactory(
             storage=dp.fsm.storage, state_groups=state_groups,
