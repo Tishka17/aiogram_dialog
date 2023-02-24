@@ -106,7 +106,7 @@ class Select(Keyboard, Generic[T]):
         return True
 
 
-class StatefulSelect(Select, ABC, Generic[T]):
+class StatefulSelect(Select[T], ABC, Generic[T]):
     def __init__(
             self,
             checked_text: Text,
@@ -173,7 +173,7 @@ class StatefulSelect(Select, ABC, Generic[T]):
         raise NotImplementedError
 
 
-class Radio(StatefulSelect):
+class Radio(StatefulSelect[T], Generic[T]):
     def get_checked(self, manager: DialogManager) -> Optional[str]:
         return self.get_widget_data(manager, None)
 
@@ -232,7 +232,7 @@ class ManagedRadioAdapter(ManagedWidget[Radio]):
         return self.widget.is_checked(item_id, self.manager)
 
 
-class Multiselect(StatefulSelect):
+class Multiselect(StatefulSelect[T], Generic[T]):
     def __init__(
             self,
             checked_text: Text,
