@@ -48,7 +48,7 @@ class Controller:
     def __init__(self, app_module, app_registry):
         self.renderer = Renderer(app_module, app_registry)
 
-    async def preview(self, request):
+    async def preview(self, _request):
         loop = asyncio.get_event_loop()
         with ProcessPoolExecutor(max_workers=1) as executor:
             text = await loop.run_in_executor(
@@ -59,7 +59,7 @@ class Controller:
             headers={"Content-Type": "text/html"},
         )
 
-    async def transitions(self, request):
+    async def transitions(self, _request):
         loop = asyncio.get_event_loop()
         with NamedTemporaryFile(suffix=".png") as f:
             with ProcessPoolExecutor(max_workers=1) as executor:
@@ -87,6 +87,10 @@ http://127.0.0.1:{PORT}/transitions
 """
 
 
+def disable_print(*_args, **_kwargs):
+    pass
+
+
 def main():
     path, _, app_spec = sys.argv[1].rpartition(os.path.sep)
     if path:
@@ -102,4 +106,4 @@ def main():
     app = web.Application()
     app.add_routes(routes)
     print(INTRO)  # noqa: T201
-    web.run_app(app, port=PORT, print=lambda *a, **kw: None)
+    web.run_app(app, port=PORT, print=disable_print)
