@@ -117,9 +117,9 @@ class DialogRegistry(DialogRegistryProtocol):
     def register(
             self,
             dialog: DialogProtocol,
-            *args,
+            *args: Any,
             router: Router = None,
-            **kwargs,
+            **kwargs: Any,
     ):
         group = dialog.states_group()
         if group in self.dialogs:
