@@ -10,9 +10,7 @@ class MainSG(StatesGroup):
 
 
 def test_register():
-    dp = Dispatcher()
-    registry = DialogRegistry(dp)
-
+    registry = DialogRegistry()
     dialog = Dialog(
         Window(
             Format("stub"),
@@ -20,3 +18,6 @@ def test_register():
         ),
     )
     registry.register(dialog)
+
+    dp = Dispatcher()
+    registry.setup_dp(dp)
