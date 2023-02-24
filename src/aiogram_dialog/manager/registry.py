@@ -169,13 +169,14 @@ class DialogRegistry(DialogRegistryProtocol):
             handle_update, update_handler,
         )
         self._register_middleware(dp, update_handler)
-        self._register_dialogs(dp, default_router)
 
-    def _register_dialogs(self, dp: Dispatcher, default_router: Router):
         default_router = (
                 default_router or
                 Router(name="aiogram_dialog_router")
         )
+        self._register_dialogs(dp, default_router)
+
+    def _register_dialogs(self, dp: Dispatcher, default_router: Router):
         for group, dialog_config in self.dialogs.items():
             router = dialog_config.router or default_router
             dialog_config.dialog.register(
