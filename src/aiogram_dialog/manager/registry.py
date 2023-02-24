@@ -14,11 +14,11 @@ from aiogram_dialog.api.entities import (
 )
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import (
-    DialogManagerFactory, FakeUser, FakeChat,
+    DialogManagerFactory, FakeChat, FakeUser,
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, DialogUpdaterProtocol,
+    DialogUpdaterProtocol, MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from aiogram_dialog.context.intent_filter import (
     IntentFilter,
@@ -60,7 +60,7 @@ class DefaultManagerFactory(DialogManagerFactory):
             message_manager=self.message_manager,
             media_id_storage=self.media_id_storage,
             registry=registry,
-            updater=updater
+            updater=updater,
         )
 
 
@@ -166,7 +166,7 @@ class DialogRegistry(DialogRegistryProtocol):
             default_router: Optional[Router] = None,
     ):
         update_handler = DialogEventObserver(
-            router=dp, event_name=DIALOG_EVENT_NAME
+            router=dp, event_name=DIALOG_EVENT_NAME,
         )
         dp.observers[DIALOG_EVENT_NAME] = update_handler
         self._register_update_handler(
@@ -174,10 +174,8 @@ class DialogRegistry(DialogRegistryProtocol):
         )
         self._register_middleware(dp, update_handler)
 
-        default_router = (
-                default_router or
-                Router(name="aiogram_dialog_router")
-        )
+        if default_router is None:
+            default_router = Router(name="aiogram_dialog_router")
         self._register_dialogs(dp, default_router)
 
     def _register_dialogs(self, dp: Dispatcher, default_router: Router):

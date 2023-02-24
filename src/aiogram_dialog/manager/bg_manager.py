@@ -19,9 +19,7 @@ from aiogram_dialog.api.entities import (
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
-from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogRegistryProtocol,
-)
+from aiogram_dialog.api.protocols import BaseDialogManager
 from aiogram_dialog.api.protocols.registry import DialogUpdaterProtocol
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 

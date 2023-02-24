@@ -34,8 +34,6 @@ class Renderer:
 
     async def _load_transitions(self, path: str):
         registry = await self._get_registry()
-        print()
-        print("render to path", path, flush=True)
         name = path.removesuffix(".png")
         render_transitions(registry, filename=name)
 
@@ -63,7 +61,6 @@ class Controller:
 
     async def transitions(self, request):
         loop = asyncio.get_event_loop()
-        print("_transitions")
         with NamedTemporaryFile(suffix=".png") as f:
             with ProcessPoolExecutor(max_workers=1) as executor:
                 await loop.run_in_executor(
@@ -81,10 +78,10 @@ Aiogram Dialog
 ====================
 
 HTML preview:
-http://127.0.0.1:{PORT}/ 
+http://127.0.0.1:{PORT}/
 
 PNG transitions diagram:
-http://127.0.0.1:{PORT}/transitions 
+http://127.0.0.1:{PORT}/transitions
 
 ======================
 """
@@ -92,7 +89,6 @@ http://127.0.0.1:{PORT}/transitions
 
 def main():
     path, _, app_spec = sys.argv[1].rpartition(os.path.sep)
-    print(path, app_spec)
     if path:
         sys.path.append(path)
     else:
@@ -105,5 +101,5 @@ def main():
 
     app = web.Application()
     app.add_routes(routes)
-    print(INTRO)
+    print(INTRO)  # noqa: T201
     web.run_app(app, port=PORT, print=lambda *a, **kw: None)
