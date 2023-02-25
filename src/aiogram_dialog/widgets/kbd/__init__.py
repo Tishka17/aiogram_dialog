@@ -16,8 +16,13 @@ __all__ = [
     "Group",
     "Row",
     "Column",
+    "FirstPage",
+    "LastPage",
+    "NextPage",
+    "NumberedPager",
+    "PrevPage",
+    "SwitchPage",
     "ScrollingGroup",
-    "ManagedScrollingGroupAdapter",
     "Checkbox",
     "ManagedCheckboxAdapter",
     "Select",
@@ -36,7 +41,15 @@ from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .counter import Counter, ManagedCounterAdapter
 from .group import Column, Group, Row
 from .list_group import ListGroup, ManagedListGroupAdapter
-from .scrolling_group import ManagedScrollingGroupAdapter, ScrollingGroup
+from .pager import (
+    FirstPage,
+    LastPage,
+    NextPage,
+    NumberedPager,
+    PrevPage,
+    SwitchPage,
+)
+from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiSelectAdapter,
     ManagedRadioAdapter,
