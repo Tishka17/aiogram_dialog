@@ -135,12 +135,12 @@ class ScrollingGroup(Group, Scroll):
         return self._get_page_count(keyboard=keyboard)
 
     async def get_page(self, manager: DialogManager) -> int:
-        return manager.current_context().widget_data.get(self.widget_id, 0)
+        return self.get_widget_data(manager, 0)
 
     async def set_page(
             self, event: ChatEvent, page: int, manager: DialogManager,
     ) -> None:
-        manager.current_context().widget_data[self.widget_id] = page
+        self.set_widget_data(manager, page)
         await self.on_page_changed.process_event(
             event,
             self.managed(manager),

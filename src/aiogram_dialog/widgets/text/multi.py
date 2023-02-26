@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Hashable, Union
+from typing import Any, Callable, Dict, Hashable, Optional, Union
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
@@ -33,3 +33,9 @@ class Case(Text):
     async def _render_text(self, data, manager: DialogManager) -> str:
         selection = self.selector(data, self, manager)
         return await self.texts[selection].render_text(data, manager)
+
+    def find(self, widget_id: str) -> Optional[Text]:
+        for text in self.texts:
+            if found := text.find(widget_id):
+                return found
+        return None

@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
@@ -42,6 +42,9 @@ class Text(Whenable, BaseWidget, TextWidget):
             other = Const(other)
         return Multi(other, self, sep="")
 
+    def find(self, widget_id: str) -> Optional["Text"]:
+        return None
+
 
 class Const(Text):
     def __init__(self, text: str, when: WhenCondition = None):
@@ -66,12 +69,13 @@ class Multi(Text):
         texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))
 
-    def __iadd__(self, other: Union["Text", str]):
+    def __iadd__(self, other: Union[Text, str]) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         self.texts += (other,)
+        return self
 
-    def __add__(self, other: Union["Text", str]):
+    def __add__(self, other: Union[Text, str]) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -80,7 +84,7 @@ class Multi(Text):
         else:
             return Multi(self, other, sep="")
 
-    def __radd__(self, other: Union["Text", str]):
+    def __radd__(self, other: Union[Text, str]) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -88,3 +92,9 @@ class Multi(Text):
             return Multi(other, *self.texts, sep="")
         else:
             return Multi(other, self, sep="")
+
+    def find(self, widget_id: str) -> Optional[Text]:
+        for text in self.texts:
+            if found := text.find(widget_id):
+                return found
+        return None
