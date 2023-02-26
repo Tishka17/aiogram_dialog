@@ -104,12 +104,10 @@ class Window(WindowProtocol):
         return self.state
 
     def find(self, widget_id) -> Optional[Widget]:
-        if self.keyboard:
-            res = self.keyboard.find(widget_id)
-            if res:
-                return res
-        if self.on_message:
-            return self.on_message.find(widget_id)
+        for root in (self.text, self.keyboard, self.on_message):
+            if root:
+                if found := root.find(widget_id):
+                    return found
         return None
 
     def __repr__(self):
