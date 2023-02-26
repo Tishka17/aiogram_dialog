@@ -16,6 +16,7 @@ __all__ = [
     "Group",
     "Row",
     "Column",
+    "CurrentPage",
     "FirstPage",
     "LastPage",
     "NextPage",
@@ -43,6 +44,7 @@ from .counter import Counter, ManagedCounterAdapter
 from .group import Column, Group, Row
 from .list_group import ListGroup, ManagedListGroupAdapter
 from .pager import (
+    CurrentPage,
     FirstPage,
     LastPage,
     NextPage,
