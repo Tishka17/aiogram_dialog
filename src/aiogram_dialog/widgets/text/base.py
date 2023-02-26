@@ -43,7 +43,8 @@ class Text(Whenable, BaseWidget, TextWidget):
         return Multi(other, self, sep="")
 
     def find(self, widget_id: str) -> Optional["Text"]:
-        return None
+        # no reimplementation, just change return type
+        return super().find(widget_id)
 
 
 class Const(Text):

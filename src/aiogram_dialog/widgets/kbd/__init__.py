@@ -32,6 +32,7 @@ __all__ = [
     "ManagedRadioAdapter",
     "ListGroup",
     "ManagedListGroupAdapter",
+    "StubScroll",
 ]
 
 from .base import Keyboard
@@ -58,3 +59,4 @@ from .select import (
     Select,
 )
 from .state import Back, Cancel, Next, Start, SwitchTo
+from .stub_scroll import StubScroll

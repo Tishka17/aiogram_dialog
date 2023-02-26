@@ -1,24 +1,23 @@
-from typing import Dict, Optional
+from typing import Dict
 
-from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    Actionable, ManagedScroll, Scroll, WhenCondition,
+    BaseScroll, OnPageChangedVariants, WhenCondition,
 )
-from aiogram_dialog.widgets.text import Text
+from .base import Text
 
 
-class ScrollingText(Text, Actionable, Scroll):
+class ScrollingText(Text, BaseScroll):
     def __init__(
             self,
             text: Text,
             id: str,
             page_size: int = 0,
             when: WhenCondition = None,
+            on_page_changed: OnPageChangedVariants = None,
     ):
         Text.__init__(self, when=when)
-        Actionable.__init__(self, id=id)
+        BaseScroll.__init__(self, id=id, on_page_changed=on_page_changed)
         self.text = text
         self.page_size = page_size
 
@@ -48,19 +47,3 @@ class ScrollingText(Text, Actionable, Scroll):
     async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
         text = await self._render_contents(data, manager)
         return self._get_page_count(text)
-
-    async def get_page(self, manager: DialogManager) -> int:
-        return self.get_widget_data(manager, 0)
-
-    async def set_page(
-            self, event: ChatEvent, page: int, manager: DialogManager,
-    ) -> None:
-        self.set_widget_data(manager, page)
-
-    def managed(self, manager: DialogManager):
-        return ManagedScroll(self, manager)
-
-    def find(self, widget_id: str) -> Optional[Widget]:
-        if self.widget_id == widget_id:
-            return self
-        return None

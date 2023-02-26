@@ -1,26 +1,16 @@
-from typing import Awaitable, Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
-    ManagedScroll, Scroll, WhenCondition,
-)
-from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
-    WidgetEventProcessor,
+    BaseScroll, OnPageChangedVariants, WhenCondition,
 )
 from .base import Keyboard
 from .group import Group
 
-OnStateChanged = Callable[
-    [ChatEvent, ManagedScroll, DialogManager],
-    Awaitable,
-]
 
-
-class ScrollingGroup(Group, Scroll):
+class ScrollingGroup(Group, BaseScroll):
     def __init__(
             self,
             *buttons: Keyboard,
@@ -28,15 +18,13 @@ class ScrollingGroup(Group, Scroll):
             width: Optional[int] = None,
             height: int = 0,
             when: WhenCondition = None,
-            on_page_changed: Union[
-                OnStateChanged, WidgetEventProcessor, None,
-            ] = None,
+            on_page_changed: OnPageChangedVariants = None,
             hide_on_single_page: bool = False,
             hide_pager: bool = False,
     ):
-        super().__init__(*buttons, id=id, width=width, when=when)
+        Group.__init__(self, *buttons, id=id, width=width, when=when)
+        BaseScroll.__init__(self, id=id, on_page_changed=on_page_changed)
         self.height = height
-        self.on_page_changed = ensure_event_processor(on_page_changed)
         self.hide_on_single_page = hide_on_single_page
         self.hide_pager = hide_pager
 
@@ -133,19 +121,3 @@ class ScrollingGroup(Group, Scroll):
     async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
         keyboard = await self._render_contents(data, manager)
         return self._get_page_count(keyboard=keyboard)
-
-    async def get_page(self, manager: DialogManager) -> int:
-        return self.get_widget_data(manager, 0)
-
-    async def set_page(
-            self, event: ChatEvent, page: int, manager: DialogManager,
-    ) -> None:
-        self.set_widget_data(manager, page)
-        await self.on_page_changed.process_event(
-            event,
-            self.managed(manager),
-            manager,
-        )
-
-    def managed(self, manager: DialogManager):
-        return ManagedScroll(self, manager)
