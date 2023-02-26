@@ -5,6 +5,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Generic,
     List,
     Optional,
     Sequence,
@@ -29,7 +30,7 @@ TypeFactory = Callable[[str], T]
 ItemIdGetter = Callable[[Any], Union[str, int]]
 ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
-    [ChatEvent, ManagedWidget["Select"], DialogManager, str],
+    [ChatEvent, ManagedWidget["Select"], DialogManager, T],
     Awaitable,
 ]
 OnItemClick = Callable[
@@ -45,7 +46,7 @@ def get_identity(items: Sequence) -> ItemsGetter:
     return identity
 
 
-class Select(Keyboard):
+class Select(Keyboard, Generic[T]):
     def __init__(
             self,
             text: Text,
@@ -53,7 +54,7 @@ class Select(Keyboard):
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -105,7 +106,7 @@ class Select(Keyboard):
         return True
 
 
-class StatefulSelect(Select, ABC):
+class StatefulSelect(Select[T], ABC, Generic[T]):
     def __init__(
             self,
             checked_text: Text,
@@ -113,9 +114,10 @@ class StatefulSelect(Select, ABC):
             id: str,
             item_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            type_factory: TypeFactory[T] = str,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
-                OnItemStateChanged, WidgetEventProcessor, None,
+                OnItemStateChanged[T], WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
@@ -127,7 +129,7 @@ class StatefulSelect(Select, ABC):
             text=text,
             item_id_getter=item_id_getter, items=items,
             on_click=self._process_click,
-            id=id, when=when,
+            id=id, when=when, type_factory=type_factory,
         )
         self.on_item_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
@@ -137,7 +139,8 @@ class StatefulSelect(Select, ABC):
     ):
         if self.on_state_changed:
             await self.on_state_changed.process_event(
-                event, self.managed(manager), manager, item_id,
+                event, self.managed(manager), manager,
+                self.type_factory(item_id),
             )
 
     @abstractmethod
@@ -155,9 +158,9 @@ class StatefulSelect(Select, ABC):
     ):
         if self.on_item_click:
             await self.on_item_click.process_event(
-                callback, select, manager, item_id,
+                callback, select, manager, self.type_factory(item_id),
             )
-        await self._on_click(callback, select, manager, item_id)
+        await self._on_click(callback, select, manager, str(item_id))
 
     @abstractmethod
     async def _on_click(
@@ -170,7 +173,7 @@ class StatefulSelect(Select, ABC):
         raise NotImplementedError
 
 
-class Radio(StatefulSelect):
+class Radio(StatefulSelect[T], Generic[T]):
     def get_checked(self, manager: DialogManager) -> Optional[str]:
         return self.get_widget_data(manager, None)
 
@@ -229,7 +232,7 @@ class ManagedRadioAdapter(ManagedWidget[Radio]):
         return self.widget.is_checked(item_id, self.manager)
 
 
-class Multiselect(StatefulSelect):
+class Multiselect(StatefulSelect[T], Generic[T]):
     def __init__(
             self,
             checked_text: Text,
@@ -239,9 +242,10 @@ class Multiselect(StatefulSelect):
             items: Union[str, Sequence],
             min_selected: int = 0,
             max_selected: int = 0,
-            on_click: Union[OnItemClick, WidgetEventProcessor, None] = None,
+            type_factory: TypeFactory[T] = str,
+            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
-                OnItemStateChanged, WidgetEventProcessor, None,
+                OnItemStateChanged[T], WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
@@ -252,7 +256,7 @@ class Multiselect(StatefulSelect):
             items=items,
             on_click=on_click,
             on_state_changed=on_state_changed,
-            id=id, when=when,
+            id=id, when=when, type_factory=type_factory,
         )
         self.min_selected = min_selected
         self.max_selected = max_selected
