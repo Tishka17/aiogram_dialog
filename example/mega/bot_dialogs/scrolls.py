@@ -6,10 +6,10 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
-)
+    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo, )
 from aiogram_dialog.widgets.text import Const, Format, ScrollingText
 from . import states
+from .common import MAIN_MENU_BUTTON
 
 VERY_LONG_TEXT = """\
 Lorem ipsum dolor sit amet. Ex dolores porro ut praesentium necessitatibus qui internos libero ut ipsa voluptatum eum blanditiis consequatur. Aut facere internos et nisi Quis eos omnis cumque. Et deleniti reprehenderit est aspernatur nulla ut impedit praesentium quo amet animi?
@@ -57,8 +57,8 @@ async def paging_getter(dialog_manager: DialogManager, **_kwargs):
     }
 
 
-MAIN_MENU_BTN = SwitchTo(
-    text=Const("Main menu"), id="main", state=states.Scrolls.MAIN,
+SCROLLS_MAIN_MENU_BUTTON = SwitchTo(
+    text=Const("Back"), id="back", state=states.Scrolls.MAIN,
 )
 
 ID_SCROLL_WITH_PAGER = "scroll_with_pager"
@@ -88,6 +88,7 @@ navigation_window = Window(
         id="stub",
         state=states.Scrolls.STUB,
     ),
+    MAIN_MENU_BUTTON,
     state=states.Scrolls.MAIN,
 )
 
@@ -105,7 +106,7 @@ default_scroll_window = Window(
         height=5,
         id=ID_SCROLL_WITH_PAGER,
     ),
-    MAIN_MENU_BTN,
+    SCROLLS_MAIN_MENU_BUTTON,
     getter=product_getter,
     state=states.Scrolls.DEFAULT_PAGER,
 )
@@ -154,7 +155,7 @@ custom_pager_window = Window(
     Row(
         PrevPage(scroll=ID_SCROLL_NO_PAGER),
         NextPage(scroll=ID_SCROLL_NO_PAGER),
-        MAIN_MENU_BTN,
+        SCROLLS_MAIN_MENU_BUTTON,
     ),
     getter=product_getter,
     state=states.Scrolls.PAGERS,
@@ -169,7 +170,7 @@ text_scroll_window = Window(
     NumberedPager(
         scroll=ID_TEXT_SCROLL,
     ),
-    MAIN_MENU_BTN,
+    SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.TEXT,
 )
 
@@ -181,7 +182,7 @@ stub_scroll_window = Window(
     NumberedPager(
         scroll=ID_STUB_SCROLL,
     ),
-    MAIN_MENU_BTN,
+    SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.STUB,
     getter=paging_getter,
 )

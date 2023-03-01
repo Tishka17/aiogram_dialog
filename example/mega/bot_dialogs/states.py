@@ -7,3 +7,7 @@ class Scrolls(StatesGroup):
     PAGERS = State()
     TEXT = State()
     STUB = State()
+
+
+class Main(StatesGroup):
+    MAIN = State()
