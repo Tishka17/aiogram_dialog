@@ -20,5 +20,12 @@ class Layouts(StatesGroup):
     GROUP = State()
 
 
+class Selects(StatesGroup):
+    MAIN = State()
+    SELECT = State()
+    RADIO = State()
+    MULTI = State()
+
+
 class Calendar(StatesGroup):
     MAIN = State()

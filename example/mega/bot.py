@@ -12,6 +12,7 @@ from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.layouts import layouts_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.scrolls import scroll_dialog
+from bot_dialogs.select import selects_dialog
 
 
 async def start(message: Message, dialog_manager: DialogManager):
@@ -25,6 +26,7 @@ def get_registry():
     registry.register(scroll_dialog)
     registry.register(main_dialog)
     registry.register(calendar_dialog)
+    registry.register(selects_dialog)
     return registry
 
 

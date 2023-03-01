@@ -22,6 +22,11 @@ main_dialog = Dialog(
             state=states.Scrolls.MAIN,
         ),
         Start(
+            text=Const("☑️ Selection widgets"),
+            id="selects",
+            state=states.Selects.MAIN,
+        ),
+        Start(
             text=Const("📅 Calendar"),
             id="cal",
             state=states.Calendar.MAIN,
