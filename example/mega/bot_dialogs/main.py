@@ -12,6 +12,11 @@ main_dialog = Dialog(
         Const("This is aiogram-dialog demo application"),
         Const("Use buttons below to see some options."),
         Start(
+            text=Const("📐 Layout widgets"),
+            id="scrolls",
+            state=states.Layouts.MAIN,
+        ),
+        Start(
             text=Const("📜 Scrolling widgets"),
             id="scrolls",
             state=states.Scrolls.MAIN,

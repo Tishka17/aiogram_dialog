@@ -12,5 +12,13 @@ class Scrolls(StatesGroup):
 class Main(StatesGroup):
     MAIN = State()
 
+
+class Layouts(StatesGroup):
+    MAIN = State()
+    ROW = State()
+    COLUMN = State()
+    GROUP = State()
+
+
 class Calendar(StatesGroup):
     MAIN = State()

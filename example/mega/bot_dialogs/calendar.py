@@ -3,7 +3,7 @@ from datetime import date
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog import (
-    Dialog, Window, LaunchMode, DialogManager,
+    Dialog, Window, DialogManager,
 )
 from aiogram_dialog.widgets.kbd import (
     Calendar, ManagedCalendarAdapter,
@@ -31,5 +31,4 @@ calendar_dialog = Dialog(
         MAIN_MENU_BUTTON,
         state=states.Calendar.MAIN,
     ),
-    launch_mode=LaunchMode.ROOT,
 )
