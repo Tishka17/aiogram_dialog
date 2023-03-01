@@ -69,22 +69,22 @@ ID_STUB_SCROLL = "stub_scroll"
 navigation_window = Window(
     Const("Scrolling variant demo. Please, select an option:"),
     SwitchTo(
-        text=Const("Default Pager"),
+        text=Const("📜 Default Pager"),
         id="default",
         state=states.Scrolls.DEFAULT_PAGER,
     ),
     SwitchTo(
-        text=Const("Pager options"),
+        text=Const("📑 Customised pager"),
         id="pagers",
         state=states.Scrolls.PAGERS,
     ),
     SwitchTo(
-        text=Const("Text scroll"),
+        text=Const("📄 Text scroll"),
         id="text",
         state=states.Scrolls.TEXT,
     ),
     SwitchTo(
-        text=Const("Stub: getter-based"),
+        text=Const("📟 StubScroll (getter-based)"),
         id="stub",
         state=states.Scrolls.STUB,
     ),

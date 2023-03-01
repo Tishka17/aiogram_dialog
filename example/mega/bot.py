@@ -8,6 +8,7 @@ from aiogram.types import Message
 
 from aiogram_dialog import DialogManager, DialogRegistry, StartMode
 from bot_dialogs import states
+from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.scrolls import scroll_dialog
 
@@ -21,6 +22,7 @@ def get_registry():
     registry = DialogRegistry()
     registry.register(scroll_dialog)
     registry.register(main_dialog)
+    registry.register(calendar_dialog)
     return registry
 
 

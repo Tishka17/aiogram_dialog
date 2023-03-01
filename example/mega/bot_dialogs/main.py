@@ -16,6 +16,11 @@ main_dialog = Dialog(
             id="scrolls",
             state=states.Scrolls.MAIN,
         ),
+        Start(
+            text=Const("📅 Calendar"),
+            id="cal",
+            state=states.Calendar.MAIN,
+        ),
         state=states.Main.MAIN,
     ),
     launch_mode=LaunchMode.ROOT,

@@ -11,3 +11,6 @@ class Scrolls(StatesGroup):
 
 class Main(StatesGroup):
     MAIN = State()
+
+class Calendar(StatesGroup):
+    MAIN = State()
