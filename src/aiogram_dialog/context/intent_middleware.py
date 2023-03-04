@@ -11,7 +11,7 @@ from aiogram_dialog.api.entities import (
     ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
 )
 from aiogram_dialog.api.exceptions import (
-    InvalidStackIdError, OutdatedIntent, UnknownState,
+    InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
 )
 from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
@@ -205,7 +205,7 @@ class IntentErrorMiddleware(BaseMiddleware):
     ) -> Optional[Context]:
         try:
             return await storage.load_context(stack.last_intent_id())
-        except OutdatedIntent:
+        except (UnknownIntent, OutdatedIntent):
             logger.warning(
                 "Stack is broken for user %s, chat %s, resetting",
                 user.id, chat.id,
