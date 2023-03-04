@@ -13,7 +13,7 @@ main_dialog = Dialog(
         Const("Use buttons below to see some options."),
         Start(
             text=Const("📐 Layout widgets"),
-            id="scrolls",
+            id="layout",
             state=states.Layouts.MAIN,
         ),
         Start(
@@ -30,6 +30,11 @@ main_dialog = Dialog(
             text=Const("📅 Calendar"),
             id="cal",
             state=states.Calendar.MAIN,
+        ),
+        Start(
+            text=Const("💯 Counter and Progress"),
+            id="counter",
+            state=states.Counter.MAIN,
         ),
         state=states.Main.MAIN,
     ),
