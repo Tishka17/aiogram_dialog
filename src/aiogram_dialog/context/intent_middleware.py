@@ -11,7 +11,7 @@ from aiogram_dialog.api.entities import (
     ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
 )
 from aiogram_dialog.api.exceptions import (
-    InvalidStackIdError, OutdatedIntent, UnknownState,
+    InvalidStackIdError, OutdatedIntent, UnknownState, UnknownIntent,
 )
 from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
