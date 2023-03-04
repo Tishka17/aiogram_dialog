@@ -23,7 +23,7 @@ async def on_date_selected(
 
 calendar_dialog = Dialog(
     Window(
-        Const("Calendar windget"),
+        Const("Calendar widget"),
         Calendar(
             id="cal",
             on_click=on_date_selected,
