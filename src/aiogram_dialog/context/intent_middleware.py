@@ -205,7 +205,7 @@ class IntentErrorMiddleware(BaseMiddleware):
     ) -> Optional[Context]:
         try:
             return await storage.load_context(stack.last_intent_id())
-        except OutdatedIntent:
+        except (UnknownIntent, OutdatedIntent):
             logger.warning(
                 "Stack is broken for user %s, chat %s, resetting",
                 user.id, chat.id,
