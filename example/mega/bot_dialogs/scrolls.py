@@ -6,7 +6,8 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo, )
+    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
+)
 from aiogram_dialog.widgets.text import Const, Format, ScrollingText
 from . import states
 from .common import MAIN_MENU_BUTTON
