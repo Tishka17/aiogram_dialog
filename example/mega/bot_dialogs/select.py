@@ -1,5 +1,9 @@
-from aiogram_dialog import (
-    Dialog, Window, )
+from dataclasses import dataclass
+from typing import Any
+
+from aiogram.types import CallbackQuery
+
+from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
     SwitchTo, Select, Column, Radio, Multiselect,
 )
@@ -14,14 +18,34 @@ Selects_MAIN_MENU_BUTTON = SwitchTo(
 FRUITS_KEY = "fruits"
 
 
+@dataclass
+class Fruit:
+    id: str
+    name: str
+
+
 async def getter(**_kwargs):
     return {
-        FRUITS_KEY: ["Apple", "Banana", "Orange", "Pear"],
+        FRUITS_KEY: [
+            Fruit("apple_a", "Apple"),
+            Fruit("banana_b", "Banana"),
+            Fruit("orange_o", "Orange"),
+            Fruit("pear_p", "Pear"),
+        ],
     }
 
 
-def fruit_id_getter(fruit):
-    return fruit
+def fruit_id_getter(fruit: Fruit) -> str:
+    return fruit.id
+
+
+async def on_item_selected(
+        callback: CallbackQuery,
+        widget: Any,
+        manager: DialogManager,
+        selected_item: str,
+):
+    await callback.answer(selected_item)
 
 
 menu_window = Window(
@@ -48,10 +72,11 @@ select_window = Window(
     Const("Select widget"),
     Column(
         Select(
-            text=Format("{item}"),
+            text=Format("{item.name} ({item.id})"),
             id="sel",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
+            on_click=on_item_selected,
         )
     ),
     Selects_MAIN_MENU_BUTTON,
@@ -60,11 +85,10 @@ select_window = Window(
 )
 radio_window = Window(
     Const("Radio widget"),
-
     Column(
         Radio(
-            checked_text=Format("🔘 {item}"),
-            unchecked_text=Format("⚪️ {item}"),
+            checked_text=Format("🔘 {item.name}"),
+            unchecked_text=Format("⚪️ {item.name}"),
             id="radio",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
@@ -79,8 +103,8 @@ multiselect_window = Window(
 
     Column(
         Multiselect(
-            checked_text=Format("✓ {item}"),
-            unchecked_text=Format("{item}"),
+            checked_text=Format("✓ {item.name}"),
+            unchecked_text=Format("{item.name}"),
             id="multi",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
