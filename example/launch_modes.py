@@ -85,7 +85,7 @@ async def main():
     registry.register(main_menu)
 
     registry.register_start_handler(state=MainSG.default, router=dp)
-    registry.setup_dp(dp)
+    registry.setup(dp)
     await dp.start_polling(bot)
 
 

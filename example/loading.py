@@ -88,7 +88,7 @@ async def main():
     registry.register(main_menu)
 
     dp.message.register(start, F.text == "/start")
-    registry.setup_dp(dp)
+    registry.setup(dp)
     await dp.start_polling(bot)
 
 

@@ -97,7 +97,7 @@ async def main():
 
     # register handler which resets stack and start dialogs on /start command
     dp.message.register(start, Command(commands=('start',)))
-    registry.setup_dp(dp)
+    registry.setup(dp)
     await dp.start_polling(bot)
 
 

@@ -20,4 +20,4 @@ def test_register():
     registry.register(dialog)
 
     dp = Dispatcher()
-    registry.setup_dp(dp)
+    registry.setup(dp)

@@ -142,7 +142,7 @@ async def main():
     dp.errors.register(error_handler)
     registry = new_registry()
 
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     await dp.start_polling(bot)
 

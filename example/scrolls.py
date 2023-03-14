@@ -197,7 +197,7 @@ async def main():
     registry = DialogRegistry()
     registry.register(dialog)
 
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     await dp.start_polling(bot)
 

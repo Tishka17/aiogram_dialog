@@ -73,7 +73,7 @@ async def main():
     registry = DialogRegistry()
     registry.register(dialog)
     registry.register_start_handler(DialogSG.greeting, dp)
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     bot = Bot(token=os.getenv("BOT_TOKEN"))
     await dp.start_polling(bot)

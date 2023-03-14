@@ -57,7 +57,7 @@ async def test_click():
     registry.register(dialog)
 
     registry.register_start_handler(router=dp, state=MainSG.start)
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     await client.send("/start")
     first_message = message_manager.one_message()

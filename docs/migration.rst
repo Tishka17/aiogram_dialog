@@ -2,7 +2,12 @@
 Migration from previous versions
 ***********************************
 
-Miragtion 2.0b10 -> 2.0b17
+Migration 2.0b10 -> 2.0b18
+===============================
+
+* ``Registry.setup_dp`` renamed to ``setup`` and now accepts ``Router`` instead of ``Dispatcher``, not as a separate parameter
+
+Migration 2.0b10 -> 2.0b17
 ===============================
 
 * ``Registry`` is now created without dispatcher. After that you need to setup dispatchet using ``setup_dp`` method

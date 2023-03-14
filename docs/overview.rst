@@ -45,17 +45,20 @@ Create dialog with your windows:
 
 .. literalinclude:: examples/quickstart/dialog.py
 
-Let's assume that you have created your aiogram bot with dispatcher and states storage as you normally do.
-It is important you have a storage because **aiogram_dialog** uses ``FSMContext`` internally to store it state:
 
-.. literalinclude:: examples/quickstart/bot.py
-
-To start using your dialog you need to register it. Also library needs some additional registrations for its internals.
-To do it we will create **DialogRegistry** and use it to register our dialog
+To start using your dialog you need to register it.
+To do it we will create **DialogRegistry** and use it to register our dialog. When we are ready, we should setup registry with our ``Dispatcher`` or ``Router``.
 
 .. literalinclude:: examples/quickstart/register.py
 
-At this point we have configured everything. But dialog won't start itself. We will create simple command handler to deal with it.
+At this point we have configured everything. But dialog won't start itself.
+
+Let's assume that you have created your aiogram bot with dispatcher and states storage as you normally do. When we setup our ``DialogRegistry`` to use that dispatcher.
+It is important you have proper storage because **aiogram_dialog** uses ``FSMContext`` internally to store it state:
+
+.. literalinclude:: examples/quickstart/bot.py
+
+We will create simple command handler to deal with it.
 To start dialog we need **DialogManager** which is automatically injected by library. Also mind the ``reset_stack`` argument. The library can start multiple dialogs stacking one above other. Currently we do not want this feature, so we will reset stack on each start:
 
 .. literalinclude:: examples/quickstart/start.py

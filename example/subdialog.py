@@ -128,7 +128,7 @@ async def main():
     # which resets stack and start dialogs on /start command
     registry.register_start_handler(state=MainSG.main, router=dp)
     # setup dispatcher to use dialogs
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     await dp.start_polling(bot)
 

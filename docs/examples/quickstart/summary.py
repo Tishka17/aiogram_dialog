@@ -9,11 +9,6 @@ from aiogram_dialog import (
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
 
-storage = MemoryStorage()
-bot = Bot(token='BOT TOKEN HERE')
-dp = Dispatcher(storage=storage)
-registry = DialogRegistry(dp)
-
 
 class MySG(StatesGroup):
     main = State()
@@ -25,7 +20,14 @@ main_window = Window(
     state=MySG.main,
 )
 dialog = Dialog(main_window)
+
+registry = DialogRegistry()
 registry.register(dialog)
+
+storage = MemoryStorage()
+bot = Bot(token='BOT TOKEN HERE')
+dp = Dispatcher(storage=storage)
+registry.setup(dp)
 
 
 @dp.message(commands=["start"])

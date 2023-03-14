@@ -73,7 +73,7 @@ async def main():
     registry.register(dialog)
 
     registry.register_start_handler(state=DialogSG.greeting, router=dp)
-    registry.setup_dp(dp)
+    registry.setup(dp)
 
     await dp.start_polling(bot)
 
