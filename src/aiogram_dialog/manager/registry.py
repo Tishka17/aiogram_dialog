@@ -73,7 +73,7 @@ class _DialogConfig:
 
 
 class _Updater(DialogUpdaterProtocol):
-    def __init__(self, dp: Dispatcher):
+    def __init__(self, dp: Router):
         self.dp = dp
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
@@ -160,11 +160,7 @@ class DialogRegistry(DialogRegistryProtocol):
             start_dialog, Command(commands="start"), any_state,
         )
 
-    def setup_dp(
-            self,
-            dp: Dispatcher,
-            default_router: Optional[Router] = None,
-    ):
+    def setup(self, dp: Router):
         update_handler = DialogEventObserver(
             router=dp, event_name=DIALOG_EVENT_NAME,
         )
@@ -174,11 +170,11 @@ class DialogRegistry(DialogRegistryProtocol):
         )
         self._register_middleware(dp, update_handler)
 
-        if default_router is None:
-            default_router = Router(name="aiogram_dialog_router")
-        self._register_dialogs(dp, default_router)
+        default_router = Router(name="aiogram_dialog_router")
+        self._register_dialogs(default_router)
+        dp.include_router(default_router)
 
-    def _register_dialogs(self, dp: Dispatcher, default_router: Router):
+    def _register_dialogs(self, default_router: Router):
         for group, dialog_config in self.dialogs.items():
             router = dialog_config.router or default_router
             dialog_config.dialog.register(
@@ -187,7 +183,6 @@ class DialogRegistry(DialogRegistryProtocol):
                 *dialog_config.args,
                 **dialog_config.kwargs,
             )
-        dp.include_router(default_router)
 
     def _register_update_handler(
             self, callback, update_handler: DialogEventObserver,
@@ -195,7 +190,7 @@ class DialogRegistry(DialogRegistryProtocol):
         update_handler.register(callback, any_state)
 
     def _register_middleware(
-            self, dp: Dispatcher, update_handler: DialogEventObserver,
+            self, dp: Router, update_handler: DialogEventObserver,
     ):
         state_groups = self._state_groups()
         manager_middleware = ManagerMiddleware(
@@ -203,15 +198,13 @@ class DialogRegistry(DialogRegistryProtocol):
             updater=_Updater(dp),
             registry=self,
         )
-        intent_middleware = IntentMiddlewareFactory(
-            storage=dp.fsm.storage, state_groups=state_groups,
-        )
         dp.message.middleware(manager_middleware)
         dp.callback_query.middleware(manager_middleware)
         update_handler.middleware(manager_middleware)
         dp.my_chat_member.middleware(manager_middleware)
         dp.errors.middleware(manager_middleware)
 
+        intent_middleware = IntentMiddlewareFactory(state_groups=state_groups)
         dp.message.outer_middleware(intent_middleware.process_message)
         dp.callback_query.outer_middleware(
             intent_middleware.process_callback_query,
@@ -228,11 +221,7 @@ class DialogRegistry(DialogRegistryProtocol):
         update_handler.middleware(context_saver_middleware)
         dp.my_chat_member.middleware(context_saver_middleware)
 
-        dp.errors.middleware(
-            IntentErrorMiddleware(
-                storage=dp.fsm.storage, state_groups=state_groups,
-            ),
-        )
+        dp.errors.middleware(IntentErrorMiddleware(state_groups=state_groups))
 
     def bg(
             self,

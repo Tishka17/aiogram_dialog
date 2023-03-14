@@ -3,7 +3,6 @@ from typing import Any, Awaitable, Callable, Dict, Optional, Type
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.state import StatesGroup
-from aiogram.fsm.storage.base import BaseStorage
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
 
@@ -24,17 +23,16 @@ logger = getLogger(__name__)
 
 class IntentMiddlewareFactory:
     def __init__(
-            self, storage: BaseStorage,
+            self,
             state_groups: Dict[str, Type[StatesGroup]],
     ):
         super().__init__()
-        self.storage = storage
         self.state_groups = state_groups
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
             bot=data["bot"],
-            storage=self.storage,
+            storage=data["fsm_storage"],
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
             state_groups=self.state_groups,
@@ -174,11 +172,10 @@ async def context_saver_middleware(handler, event, data):
 
 class IntentErrorMiddleware(BaseMiddleware):
     def __init__(
-            self, storage: BaseStorage,
+            self,
             state_groups: Dict[str, Type[StatesGroup]],
     ):
         super().__init__()
-        self.storage = storage
         self.state_groups = state_groups
 
     def _is_error_supported(
@@ -231,7 +228,7 @@ class IntentErrorMiddleware(BaseMiddleware):
 
             proxy = StorageProxy(
                 bot=data["bot"],
-                storage=self.storage,
+                storage=data["fsm_storage"],
                 user_id=user.id,
                 chat_id=chat.id,
                 state_groups=self.state_groups,
