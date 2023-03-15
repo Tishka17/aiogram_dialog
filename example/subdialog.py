@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 from aiogram import Bot, Dispatcher, F, Router
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
@@ -125,7 +126,7 @@ async def main():
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
     dp.include_router(dialog_router)
-    dp.message.register(start, F.text == "/start")
+    dp.message.register(start, CommandStart())
 
     # render graph with current transtions
     render_transitions(dp)

@@ -3,8 +3,9 @@ import logging
 import os.path
 from typing import Any
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.event.bases import UNHANDLED
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
@@ -132,7 +133,7 @@ async def main():
 
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
-    dp.message.register(start, F.text == "/start")
+    dp.message.register(start, CommandStart())
     dp.errors.register(error_handler)
     dp.include_router(dialog)
     setup_dialogs(dp)

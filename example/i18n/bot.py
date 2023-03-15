@@ -10,11 +10,15 @@ import logging
 import os.path
 
 from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.types import Message
 from fluent.runtime import FluentResourceLoader, FluentLocalization
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
-from aiogram_dialog.widgets.kbd import Button, Row, Cancel
+from aiogram_dialog import (
+    Dialog, DialogManager, StartMode, setup_dialogs, Window,
+)
+from aiogram_dialog.widgets.kbd import Button, Cancel, Row
 from i18n_format import I18NFormat
 from i18n_middleware import I18nMiddleware
 
@@ -61,6 +65,11 @@ def make_i18n_middleware():
     return I18nMiddleware(l10ns, DEFAULT_LOCALE)
 
 
+async def start(message: Message, dialog_manager: DialogManager):
+    # it is important to reset stack because user wants to restart everything
+    await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
+
+
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
@@ -70,10 +79,9 @@ async def main():
     dp.message.middleware(i18n_middleware)
     dp.callback_query.middleware(i18n_middleware)
 
-    registry = DialogRegistry()
-    registry.register(dialog)
-    registry.register_start_handler(DialogSG.greeting, dp)
-    registry.setup(dp)
+    dp.include_router(dialog)
+    dp.message.register(start, CommandStart())
+    setup_dialogs(dp)
 
     bot = Bot(token=os.getenv("BOT_TOKEN"))
     await dp.start_polling(bot)

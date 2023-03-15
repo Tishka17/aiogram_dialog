@@ -2,7 +2,8 @@ import asyncio
 import logging
 import os
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import Message, CallbackQuery
@@ -85,7 +86,7 @@ async def main():
     dp.include_router(bg_dialog)
     dp.include_router(main_menu)
 
-    dp.message.register(start, F.text == "/start")
+    dp.message.register(start, CommandStart())
     setup_dialogs(dp)
     await dp.start_polling(bot)
 

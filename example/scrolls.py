@@ -4,7 +4,8 @@ import logging
 import os.path
 from operator import itemgetter
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
@@ -192,7 +193,7 @@ async def main():
 
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
-    dp.message.register(start, F.text == "/start")
+    dp.message.register(start, CommandStart())
     dp.include_router(dialog)
     setup_dialogs(dp)
 
