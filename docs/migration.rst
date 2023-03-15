@@ -5,7 +5,9 @@ Migration from previous versions
 Migration 2.0b10 -> 2.0b18
 ===============================
 
-* ``Registry.setup_dp`` renamed to ``setup`` and now accepts ``Router`` instead of ``Dispatcher``, not as a separate parameter
+* ``Registry`` class removed.
+* Each `Dialog`` is now a ``Router``. You should do ``dp.include_router(dialog)`` to attach it.
+* ``setup_dialogs`` is now a replacement of ``registry.setup_dp()``. Parameters are the same.
 
 Migration 2.0b10 -> 2.0b17
 ===============================
