@@ -181,6 +181,9 @@ class Dialog(Router, DialogProtocol):
             self.on_process_result, start_data, result, manager,
         )
 
+    def include_router(self, router: Router) -> Router:
+        raise TypeError("Dialog cannot include routers")
+
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)
 
