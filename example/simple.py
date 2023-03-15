@@ -13,7 +13,6 @@ from aiogram_dialog import (
     Dialog, DialogManager, ChatEvent, StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent
-from aiogram_dialog.manager.router import DialogRouter
 from aiogram_dialog.manager.setup import setup_dialogs
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
@@ -71,8 +70,7 @@ async def on_age_changed(callback: ChatEvent, select: Any,
     await manager.next()
 
 
-dialog_router = DialogRouter()
-dialog_router.register(Dialog(
+dialog = Dialog(
     Window(
         Const("Greetings! Please, introduce yourself:"),
         StaticMedia(
@@ -110,7 +108,7 @@ dialog_router.register(Dialog(
         getter=get_data,
         state=DialogSG.finish,
     )
-))
+)
 
 
 async def start(message: Message, dialog_manager: DialogManager):
@@ -136,7 +134,7 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
     dp.errors.register(error_handler)
-    dp.include_router(dialog_router)
+    dp.include_router(dialog)
     setup_dialogs(dp)
 
     await dp.start_polling(bot)

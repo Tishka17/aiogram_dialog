@@ -1,26 +1,27 @@
-from typing import Callable, Type, Dict, Optional
+from typing import Callable, Type, Dict, Optional, Union, Iterable
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
-from aiogram.fsm.state import any_state, StatesGroup
+from aiogram.fsm.state import any_state, StatesGroup, State
 
 from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
+from aiogram_dialog.api.exceptions import UnregisteredDialogError
+from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    DialogRegistryProtocol, MessageManagerProtocol, MediaIdStorageProtocol,
+    DialogRegistryProtocol, DialogProtocol,
+    MessageManagerProtocol, MediaIdStorageProtocol,
 )
 from aiogram_dialog.context.intent_middleware import (
     context_saver_middleware,
     IntentErrorMiddleware,
     IntentMiddlewareFactory,
 )
+from aiogram_dialog.context.media_storage import MediaIdStorage
 from .manager_factory import DefaultManagerFactory
 from .manager_middleware import ManagerMiddleware
 from .message_manager import MessageManager
-from .router import DialogRouter
 from .update_handler import handle_update
 from .updater import Updater
-from ..api.internal import DialogManagerFactory
-from ..context.media_storage import MediaIdStorage
 
 
 def _setup_event_observer(router: Router) -> None:
@@ -74,16 +75,6 @@ def _register_middleware(
     router.errors.middleware(IntentErrorMiddleware(state_groups=state_groups))
 
 
-def _find_dialog_router(router: Router):
-    if isinstance(router, DialogRouter):
-        return router
-    for sub_router in router.sub_routers:
-        router = _find_dialog_router(sub_router)
-        if router is not None:
-            return router
-    return None
-
-
 def _prepare_dialog_manager_factory(
         dialog_manager_factory: Optional[DialogManagerFactory],
         message_manager: Optional[MessageManagerProtocol],
@@ -101,6 +92,33 @@ def _prepare_dialog_manager_factory(
     )
 
 
+class DialogRegistry(DialogRegistryProtocol):
+    def __init__(self, dialogs: Iterable[DialogProtocol]):
+        self.dialogs = {d.states_group(): d for d in dialogs}
+
+    def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
+        try:
+            return self.dialogs[state.group]
+        except KeyError as e:
+            raise UnregisteredDialogError(
+                f"No dialog found for `{state.group}`"
+                f" (looking by state `{state}`)",
+            ) from e
+
+    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
+        return {
+            d.states_group_name(): d.states_group()
+            for d in self.dialogs.values()
+        }
+
+
+def _collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
+    if isinstance(router, DialogProtocol):
+        yield router
+    for sub_router in router.sub_routers:
+        yield from _collect_dialogs(sub_router)
+
+
 def setup_dialogs(
         router: Router,
         *,
@@ -111,16 +129,15 @@ def setup_dialogs(
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
 
-    dialog_router = _find_dialog_router(router)
-    state_groups = dialog_router.state_groups()
     dialog_manager_factory = _prepare_dialog_manager_factory(
         dialog_manager_factory=dialog_manager_factory,
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
+    registry = DialogRegistry(_collect_dialogs(router))
     _register_middleware(
         router=router,
-        state_groups=state_groups,
-        registry=dialog_router,
+        state_groups=registry.state_groups(),
+        registry=registry,
         dialog_manager_factory=dialog_manager_factory,
     )

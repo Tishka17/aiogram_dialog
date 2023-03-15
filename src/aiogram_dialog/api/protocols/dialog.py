@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Protocol, Type
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Type
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
@@ -9,6 +9,7 @@ from aiogram_dialog.api.entities import (
 from .manager import DialogManager
 
 
+@runtime_checkable
 class DialogProtocol(Protocol):
     @property
     def launch_mode(self) -> LaunchMode:
