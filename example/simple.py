@@ -10,10 +10,11 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry,
-    ChatEvent, StartMode, Window,
+    Dialog, DialogManager, ChatEvent, StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram_dialog.manager.router import DialogRouter
+from aiogram_dialog.manager.setup import setup_dialogs
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
 from aiogram_dialog.widgets.media import StaticMedia
@@ -70,7 +71,8 @@ async def on_age_changed(callback: ChatEvent, select: Any,
     await manager.next()
 
 
-dialog = Dialog(
+dialog_router = DialogRouter()
+dialog_router.register(Dialog(
     Window(
         Const("Greetings! Please, introduce yourself:"),
         StaticMedia(
@@ -108,7 +110,7 @@ dialog = Dialog(
         getter=get_data,
         state=DialogSG.finish,
     )
-)
+))
 
 
 async def start(message: Message, dialog_manager: DialogManager):
@@ -125,12 +127,6 @@ async def error_handler(event, dialog_manager: DialogManager):
         return UNHANDLED
 
 
-def new_registry():
-    registry = DialogRegistry()
-    registry.register(dialog)
-    return registry
-
-
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
@@ -140,9 +136,8 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
     dp.errors.register(error_handler)
-    registry = new_registry()
-
-    registry.setup(dp)
+    dp.include_router(dialog_router)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 
