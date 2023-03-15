@@ -10,8 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry,
-    StartMode, Window,
+    Dialog, DialogManager, StartMode, Window, setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
@@ -194,10 +193,8 @@ async def main():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
-    registry = DialogRegistry()
-    registry.register(dialog)
-
-    registry.setup(dp)
+    dp.include_router(dialog)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 
