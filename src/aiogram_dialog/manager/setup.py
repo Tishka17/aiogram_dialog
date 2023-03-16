@@ -1,15 +1,15 @@
-from typing import Callable, Type, Dict, Optional, Union, Iterable
+from typing import Callable, Dict, Iterable, Optional, Type, Union
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
-from aiogram.fsm.state import any_state, StatesGroup, State
+from aiogram.fsm.state import any_state, State, StatesGroup
 
 from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    DialogRegistryProtocol, DialogProtocol,
-    MessageManagerProtocol, MediaIdStorageProtocol,
+    DialogProtocol, DialogRegistryProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from aiogram_dialog.context.intent_middleware import (
     context_saver_middleware,

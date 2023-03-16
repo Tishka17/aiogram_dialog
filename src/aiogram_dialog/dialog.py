@@ -157,9 +157,9 @@ class Dialog(Router, DialogProtocol):
                     raise
 
     def _setup_filter(self):
-        filter = IntentFilter(aiogd_intent_state_group=self.states_group())
+        intent_filter = IntentFilter(aiogd_intent_state_group=self.states_group())
         for observer in self.observers.values():
-            observer.filter(filter)
+            observer.filter(intent_filter)
 
     def _register_handlers(self) -> None:
         self.callback_query.register(self._callback_handler)
