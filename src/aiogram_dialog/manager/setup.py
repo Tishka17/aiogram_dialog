@@ -112,11 +112,11 @@ class DialogRegistry(DialogRegistryProtocol):
         }
 
 
-def _collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
+def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
     if isinstance(router, DialogProtocol):
         yield router
     for sub_router in router.sub_routers:
-        yield from _collect_dialogs(sub_router)
+        yield from collect_dialogs(sub_router)
 
 
 def setup_dialogs(
@@ -134,7 +134,7 @@ def setup_dialogs(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
-    registry = DialogRegistry(_collect_dialogs(router))
+    registry = DialogRegistry(collect_dialogs(router))
     _register_middleware(
         router=router,
         state_groups=registry.state_groups(),

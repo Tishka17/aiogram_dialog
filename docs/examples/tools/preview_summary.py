@@ -1,10 +1,9 @@
 import asyncio
 
-from aiogram import Bot, Dispatcher
+from aiogram import Dispatcher
 from aiogram.filters.state import StatesGroup, State
-from aiogram.fsm.storage.memory import MemoryStorage
 
-from aiogram_dialog import Dialog, DialogRegistry, Window
+from aiogram_dialog import Dialog, Window
 from aiogram_dialog.tools import render_preview
 from aiogram_dialog.widgets.kbd import Cancel
 from aiogram_dialog.widgets.text import Format
@@ -23,15 +22,12 @@ dialog = Dialog(
     ),
 )
 
-storage = MemoryStorage()
-bot = Bot(token='BOT TOKEN HERE')
-dp = Dispatcher(bot, storage=storage)
-registry = DialogRegistry(dp)
-registry.register(dialog)
+dp = Dispatcher()
+dp.include_router(dialog)
 
 
 async def main():
-    await render_preview(registry, "preview.html")
+    await render_preview(dp, "preview.html")
 
 
 if __name__ == '__main__':

@@ -1,2 +1,1 @@
-
-await render_transitions(registry, "preview.html")
+await render_transitions(dp, "preview.html")

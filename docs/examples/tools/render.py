@@ -41,4 +41,4 @@ dialog = Dialog(
 )
 
 # this is diagram rendering
-render_transitions([dialog])
+render_transitions(dialog)

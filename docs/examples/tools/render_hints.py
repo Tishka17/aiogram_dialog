@@ -40,4 +40,4 @@ dialog = Dialog(
     ),
 )
 
-render_transitions([dialog])
+render_transitions(dialog)
