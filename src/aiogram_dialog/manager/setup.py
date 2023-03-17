@@ -36,17 +36,36 @@ def _register_event_handler(router: Router, callback: Callable) -> None:
     handler.register(callback, any_state)
 
 
+def _startup_callback(
+        manager_middleware: ManagerMiddleware,
+        intent_middleware: IntentMiddlewareFactory,
+) -> Callable:
+    async def _setup_dialogs(router):
+        dialogs = list(collect_dialogs(router))
+        registry = DialogRegistry(dialogs)
+        manager_middleware.registry = registry
+        intent_middleware.state_groups = {
+            d.states_group_name(): d.states_group()
+            for d in dialogs
+        }
+
+    return _setup_dialogs
+
+
 def _register_middleware(
         router: Router,
-        state_groups: Dict[str, Type[StatesGroup]],
-        registry: DialogRegistryProtocol,
         dialog_manager_factory: DialogManagerFactory,
 ):
     manager_middleware = ManagerMiddleware(
         dialog_manager_factory=dialog_manager_factory,
         updater=Updater(router),
-        registry=registry,
+        registry=DialogRegistry([]),
     )
+    intent_middleware = IntentMiddlewareFactory(state_groups={})
+    # delayed configuration of middlewares
+    router.startup.register(_startup_callback(
+        manager_middleware, intent_middleware,
+    ))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
     router.message.middleware(manager_middleware)
@@ -55,7 +74,6 @@ def _register_middleware(
     router.my_chat_member.middleware(manager_middleware)
     router.errors.middleware(manager_middleware)
 
-    intent_middleware = IntentMiddlewareFactory(state_groups=state_groups)
     router.message.outer_middleware(intent_middleware.process_message)
     router.callback_query.outer_middleware(
         intent_middleware.process_callback_query,
@@ -72,7 +90,7 @@ def _register_middleware(
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
 
-    router.errors.middleware(IntentErrorMiddleware(state_groups=state_groups))
+    router.errors.middleware(IntentErrorMiddleware(state_groups={}))
 
 
 def _prepare_dialog_manager_factory(
@@ -134,10 +152,7 @@ def setup_dialogs(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
-    registry = DialogRegistry(collect_dialogs(router))
     _register_middleware(
         router=router,
-        state_groups=registry.state_groups(),
-        registry=registry,
         dialog_manager_factory=dialog_manager_factory,
     )
