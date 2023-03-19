@@ -2,7 +2,11 @@ from logging import getLogger
 from typing import Dict, List, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message, UNSET
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+try:
+    from aiogram.types import UNSET_PARSE_MODE
+except ImportError:
+    from aiogram.types import UNSET as UNSET_PARSE_MODE
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage
 from aiogram_dialog.api.internal import Widget, WindowProtocol
@@ -25,7 +29,7 @@ class Window(WindowProtocol):
             *widgets: WidgetSrc,
             state: State,
             getter: GetterVariant = None,
-            parse_mode: Optional[str] = UNSET,
+            parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = None,
             preview_add_transitions: Optional[List[Keyboard]] = None,
             preview_data: GetterVariant = None,

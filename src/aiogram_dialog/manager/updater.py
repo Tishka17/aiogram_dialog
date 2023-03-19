@@ -10,6 +10,8 @@ from aiogram_dialog.api.protocols import DialogUpdaterProtocol
 
 class Updater(DialogUpdaterProtocol):
     def __init__(self, dp: Router):
+        while dp.parent_router:
+            dp = dp.parent_router
         self.dp = dp
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:

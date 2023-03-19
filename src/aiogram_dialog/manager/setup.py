@@ -25,10 +25,9 @@ from .updater import Updater
 
 
 def _setup_event_observer(router: Router) -> None:
-    dialog_update_handler = TelegramEventObserver(
+    router.observers[DIALOG_EVENT_NAME] = TelegramEventObserver(
         router=router, event_name=DIALOG_EVENT_NAME,
     )
-    router.observers[DIALOG_EVENT_NAME] = dialog_update_handler
 
 
 def _register_event_handler(router: Router, callback: Callable) -> None:
