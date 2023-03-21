@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
 )
+from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, ScrollingText
 from . import states
 from .common import MAIN_MENU_BUTTON
@@ -179,6 +180,7 @@ stub_scroll_window = Window(
     Const("Stub Scroll. Getter is used to paginate\n"),
     Format("You are at page {current_page} of {pages}"),
     Format("Day by number is {day}"),
+    StaticMedia(path=Format("media/{current_page}.png")),
     StubScroll(id=ID_STUB_SCROLL, pages="pages"),
     NumberedPager(
         scroll=ID_STUB_SCROLL,
