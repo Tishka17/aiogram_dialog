@@ -21,7 +21,6 @@ from .manager_factory import DefaultManagerFactory
 from .manager_middleware import ManagerMiddleware
 from .message_manager import MessageManager
 from .update_handler import handle_update
-from .updater import Updater
 
 
 def _setup_event_observer(router: Router) -> None:
@@ -57,7 +56,7 @@ def _register_middleware(
 ):
     manager_middleware = ManagerMiddleware(
         dialog_manager_factory=dialog_manager_factory,
-        updater=Updater(router),
+        router=router,
         registry=DialogRegistry([]),
     )
     intent_middleware = IntentMiddlewareFactory(state_groups={})

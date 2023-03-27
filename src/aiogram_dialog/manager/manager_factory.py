@@ -1,10 +1,12 @@
 from typing import Dict
 
+from aiogram import Router
+
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogRegistryProtocol,
-    DialogUpdaterProtocol, MediaIdStorageProtocol, MessageManagerProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from .manager import ManagerImpl
 
@@ -21,7 +23,7 @@ class DefaultManagerFactory(DialogManagerFactory):
     def __call__(
             self, event: ChatEvent, data: Dict,
             registry: DialogRegistryProtocol,
-            updater: DialogUpdaterProtocol,
+            router: Router,
     ) -> DialogManager:
         return ManagerImpl(
             event=event,
@@ -29,5 +31,5 @@ class DefaultManagerFactory(DialogManagerFactory):
             message_manager=self.message_manager,
             media_id_storage=self.media_id_storage,
             registry=registry,
-            updater=updater,
+            router=router,
         )

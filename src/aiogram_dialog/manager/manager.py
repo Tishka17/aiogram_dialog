@@ -2,6 +2,7 @@ from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, Optional
 
+from aiogram import Router
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Chat, Document, Message, User
 
@@ -18,7 +19,6 @@ from aiogram_dialog.api.internal import (
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    DialogUpdaterProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from aiogram_dialog.context.storage import StorageProxy
@@ -35,7 +35,7 @@ class ManagerImpl(DialogManager):
             message_manager: MessageManagerProtocol,
             media_id_storage: MediaIdStorageProtocol,
             registry: DialogRegistryProtocol,
-            updater: DialogUpdaterProtocol,
+            router: Router,
             data: Dict,
     ):
         self.disabled = False
@@ -45,7 +45,7 @@ class ManagerImpl(DialogManager):
         self._data = data
         self._show_mode: ShowMode = ShowMode.AUTO
         self._registry = registry
-        self._updater = updater
+        self._router = router
 
     @property
     def show_mode(self) -> ShowMode:
@@ -417,7 +417,7 @@ class ManagerImpl(DialogManager):
             user=user,
             chat=chat,
             bot=self._data["bot"],
-            updater=self._updater,
+            router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,

@@ -5,10 +5,9 @@ from aiogram import Bot, Router
 from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import DialogUpdate
-from aiogram_dialog.api.protocols import DialogUpdaterProtocol
 
 
-class Updater(DialogUpdaterProtocol):
+class Updater:
     def __init__(self, dp: Router):
         while dp.parent_router:
             dp = dp.parent_router
