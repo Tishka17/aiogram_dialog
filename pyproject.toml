@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     'aiogram>=3.0.0b5,<4.0.0',
     'jinja2',
-    'cachetools==4.*',
+    'cachetools==5.*',
     'magic_filter',
 ]
 [project.optional-dependencies]
