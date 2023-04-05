@@ -1,4 +1,4 @@
-from typing import Protocol, Union, Dict, Type
+from typing import Dict, Protocol, Type, Union
 
 from aiogram.fsm.state import State, StatesGroup
 
