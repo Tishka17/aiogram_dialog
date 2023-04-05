@@ -15,8 +15,9 @@ from aiogram_dialog.api.exceptions import (
 from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
 )
+from aiogram_dialog.api.protocols import DialogRegistryProtocol
+from aiogram_dialog.utils import remove_indent_id
 from .storage import StorageProxy
-from ..utils import remove_indent_id
 
 logger = getLogger(__name__)
 
@@ -24,10 +25,10 @@ logger = getLogger(__name__)
 class IntentMiddlewareFactory:
     def __init__(
             self,
-            state_groups: Dict[str, Type[StatesGroup]],
+            registry: DialogRegistryProtocol,
     ):
         super().__init__()
-        self.state_groups = state_groups
+        self.registry = registry
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
@@ -35,7 +36,7 @@ class IntentMiddlewareFactory:
             storage=data["fsm_storage"],
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
-            state_groups=self.state_groups,
+            state_groups=self.registry.state_groups(),
         )
         return proxy
 

@@ -34,18 +34,46 @@ def _register_event_handler(router: Router, callback: Callable) -> None:
     handler.register(callback, any_state)
 
 
+class DialogRegistry(DialogRegistryProtocol):
+    def __init__(self, router: Router):
+        self.router = router
+        self._loaded = False
+        self._dialogs = {}
+        self._state_groups = {}
+
+    def _ensure_loaded(self):
+        if not self._loaded:
+            self.refresh()
+
+    def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
+        self._ensure_loaded()
+        try:
+            return self._dialogs[state.group]
+        except KeyError as e:
+            raise UnregisteredDialogError(
+                f"No dialog found for `{state.group}`"
+                f" (looking by state `{state}`)",
+            ) from e
+
+    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
+        self._ensure_loaded()
+        return self._state_groups
+
+    def refresh(self):
+        dialogs = collect_dialogs(self.router)
+        self._dialogs = {d.states_group(): d for d in dialogs}
+        self._state_groups = {
+            d.states_group_name(): d.states_group()
+            for d in self._dialogs.values()
+        }
+        self._loaded = True
+
+
 def _startup_callback(
-        manager_middleware: ManagerMiddleware,
-        intent_middleware: IntentMiddlewareFactory,
+        registry: DialogRegistry,
 ) -> Callable:
     async def _setup_dialogs(router):
-        dialogs = list(collect_dialogs(router))
-        registry = DialogRegistry(dialogs)
-        manager_middleware.registry = registry
-        intent_middleware.state_groups = {
-            d.states_group_name(): d.states_group()
-            for d in dialogs
-        }
+        registry.refresh()
 
     return _setup_dialogs
 
@@ -54,16 +82,15 @@ def _register_middleware(
         router: Router,
         dialog_manager_factory: DialogManagerFactory,
 ):
+    registry = DialogRegistry(router)
     manager_middleware = ManagerMiddleware(
         dialog_manager_factory=dialog_manager_factory,
         router=router,
-        registry=DialogRegistry([]),
+        registry=registry,
     )
-    intent_middleware = IntentMiddlewareFactory(state_groups={})
+    intent_middleware = IntentMiddlewareFactory(registry=registry)
     # delayed configuration of middlewares
-    router.startup.register(_startup_callback(
-        manager_middleware, intent_middleware,
-    ))
+    router.startup.register(_startup_callback(registry))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
     router.message.middleware(manager_middleware)
@@ -106,26 +133,6 @@ def _prepare_dialog_manager_factory(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
-
-
-class DialogRegistry(DialogRegistryProtocol):
-    def __init__(self, dialogs: Iterable[DialogProtocol]):
-        self.dialogs = {d.states_group(): d for d in dialogs}
-
-    def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
-        try:
-            return self.dialogs[state.group]
-        except KeyError as e:
-            raise UnregisteredDialogError(
-                f"No dialog found for `{state.group}`"
-                f" (looking by state `{state}`)",
-            ) from e
-
-    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
-        return {
-            d.states_group_name(): d.states_group()
-            for d in self.dialogs.values()
-        }
 
 
 def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
