@@ -4,16 +4,16 @@ import os.path
 from typing import Any
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.event.bases import UNHANDLED
-from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, CallbackQuery, ContentType
+from aiogram.filters import CommandStart, ExceptionTypeFilter
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
+from aiogram.types import CallbackQuery, ContentType, Message
+from redis.asyncio.client import Redis
 
 from aiogram_dialog import (
-    Dialog, DialogManager, ChatEvent, StartMode, Window,
+    ChatEvent, Dialog, DialogManager, ShowMode, StartMode, Window,
 )
-from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 from aiogram_dialog.manager.setup import setup_dialogs
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
@@ -93,7 +93,7 @@ dialog = Dialog(
         ),
         state=DialogSG.age,
         getter=get_data,
-        preview_data={"name": "Tishka17"}
+        preview_data={"name": "Tishka17"},
     ),
     Window(
         Multi(
@@ -108,7 +108,7 @@ dialog = Dialog(
         ),
         getter=get_data,
         state=DialogSG.finish,
-    )
+    ),
 )
 
 
@@ -117,13 +117,20 @@ async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
 
 
-async def error_handler(event, dialog_manager: DialogManager):
-    """Example of handling UnknownIntent Error and starting new dialog"""
-    if isinstance(event.exception, UnknownIntent):
-        await dialog_manager.start(DialogSG.greeting,
-                                   mode=StartMode.RESET_STACK)
-    else:
-        return UNHANDLED
+async def on_unknown_intent(event, dialog_manager: DialogManager):
+    """Example of handling UnknownIntent Error and starting new dialog."""
+    logging.error("Restarting dialog: %s", event.exception)
+    await dialog_manager.start(
+        DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
+    )
+
+
+async def on_unknown_state(event, dialog_manager: DialogManager):
+    """Example of handling UnknownState Error and starting new dialog."""
+    logging.error("Restarting dialog: %s", event.exception)
+    await dialog_manager.start(
+        DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
+    )
 
 
 async def main():
@@ -131,10 +138,21 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     bot = Bot(token=API_TOKEN)
 
-    storage = MemoryStorage()
+    storage = RedisStorage(
+        Redis(),
+        # in case of redis you need to configure key builder
+        key_builder=DefaultKeyBuilder(with_destiny=True),
+    )
     dp = Dispatcher(storage=storage)
     dp.message.register(start, CommandStart())
-    dp.errors.register(error_handler)
+    dp.errors.register(
+        on_unknown_intent,
+        ExceptionTypeFilter(UnknownIntent),
+    )
+    dp.errors.register(
+        on_unknown_state,
+        ExceptionTypeFilter(UnknownState),
+    )
     dp.include_router(dialog)
     setup_dialogs(dp)
 
