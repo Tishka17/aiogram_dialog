@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any, Dict, Optional
 
-from aiogram import Bot
+from aiogram import Bot, Router
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
@@ -20,7 +20,7 @@ from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
 from aiogram_dialog.api.protocols import BaseDialogManager
-from aiogram_dialog.api.protocols.registry import DialogUpdaterProtocol
+from aiogram_dialog.manager.updater import Updater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)
@@ -32,7 +32,7 @@ class BgManager(BaseDialogManager):
             user: User,
             chat: Chat,
             bot: Bot,
-            updater: DialogUpdaterProtocol,
+            router: Router,
             intent_id: Optional[str],
             stack_id: Optional[str],
             load: bool = False,
@@ -40,7 +40,8 @@ class BgManager(BaseDialogManager):
         self.user = user
         self.chat = chat
         self.bot = bot
-        self._updater = updater
+        self._router = router
+        self._updater = Updater(router)
         self.intent_id = intent_id
         self.stack_id = stack_id
         self.load = load
@@ -77,7 +78,7 @@ class BgManager(BaseDialogManager):
             user=user,
             chat=chat,
             bot=self.bot,
-            updater=self._updater,
+            router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
             load=load,

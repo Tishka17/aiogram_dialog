@@ -4,15 +4,10 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, StartMode, Window,
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const
-
-storage = MemoryStorage()
-bot = Bot(token='BOT TOKEN HERE')
-dp = Dispatcher(storage=storage)
-registry = DialogRegistry(dp)
 
 
 class MySG(StatesGroup):
@@ -25,7 +20,12 @@ main_window = Window(
     state=MySG.main,
 )
 dialog = Dialog(main_window)
-registry.register(dialog)
+
+storage = MemoryStorage()
+bot = Bot(token='BOT TOKEN HERE')
+dp = Dispatcher(storage=storage)
+dp.include_router(dialog)
+setup_dialogs(dp)
 
 
 @dp.message(commands=["start"])

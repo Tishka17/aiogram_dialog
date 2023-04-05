@@ -3,13 +3,15 @@ import logging
 import os
 from typing import Any
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher, F, Router
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager, DialogProtocol, DialogRegistry, Window,
+    Data, Dialog, DialogManager, DialogProtocol, Window, StartMode,
+    setup_dialogs,
 )
 from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
@@ -107,9 +109,14 @@ main_menu = Dialog(
     on_process_result=process_result,
 )
 
-registry = DialogRegistry()
-registry.register(name_dialog)
-registry.register(main_menu)
+dialog_router = Router()
+dialog_router.include_router(name_dialog)
+dialog_router.include_router(main_menu)
+
+
+async def start(message: Message, dialog_manager: DialogManager):
+    # it is important to reset stack because user wants to restart everything
+    await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 
 async def main():
@@ -118,17 +125,16 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
+    dp.include_router(dialog_router)
+    dp.message.register(start, CommandStart())
 
     # render graph with current transtions
-    render_transitions(registry)
+    render_transitions(dp)
     # render windows preview
-    await render_preview(registry, "preview.html")
+    await render_preview(dp, "preview.html")
 
-    # register default handler,
-    # which resets stack and start dialogs on /start command
-    registry.register_start_handler(state=MainSG.main, router=dp)
     # setup dispatcher to use dialogs
-    registry.setup_dp(dp)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 

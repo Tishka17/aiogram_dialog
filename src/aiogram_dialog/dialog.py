@@ -22,6 +22,7 @@ from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
+from .context.intent_filter import IntentFilter
 from .utils import add_indent_id, remove_indent_id
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
@@ -38,7 +39,7 @@ _INVALUD_QUERY_ID_MSG = (
 )
 
 
-class Dialog(DialogProtocol):
+class Dialog(Router, DialogProtocol):
     def __init__(
             self,
             *windows: WindowProtocol,
@@ -49,6 +50,7 @@ class Dialog(DialogProtocol):
             getter: GetterVariant = None,
             preview_data: GetterVariant = None,
     ):
+        super().__init__()
         self._states_group = windows[0].get_state().group
         self._states: List[State] = []
         for w in windows:
@@ -71,6 +73,8 @@ class Dialog(DialogProtocol):
             ensure_data_getter(getter),
             ensure_data_getter(preview_data),
         )
+        self._setup_filter()
+        self._register_handlers()
 
     @property
     def launch_mode(self) -> LaunchMode:
@@ -152,15 +156,16 @@ class Dialog(DialogProtocol):
                 else:
                     raise
 
-    def register(
-            self, router: Router, *args, **filters,
-    ) -> None:
-        router.callback_query.register(
-            self._callback_handler, *args, **filters,
+    def _setup_filter(self):
+        intent_filter = IntentFilter(
+            aiogd_intent_state_group=self.states_group(),
         )
-        router.message.register(
-            self._message_handler, *args, **filters,
-        )
+        for observer in self.observers.values():
+            observer.filter(intent_filter)
+
+    def _register_handlers(self) -> None:
+        self.callback_query.register(self._callback_handler)
+        self.message.register(self._message_handler)
 
     def states_group(self) -> Type[StatesGroup]:
         return self._states_group
@@ -177,6 +182,9 @@ class Dialog(DialogProtocol):
         await self._process_callback(
             self.on_process_result, start_data, result, manager,
         )
+
+    def include_router(self, router: Router) -> Router:
+        raise TypeError("Dialog cannot include routers")
 
     async def process_close(self, result: Any, manager: DialogManager):
         await self._process_callback(self.on_close, result, manager)

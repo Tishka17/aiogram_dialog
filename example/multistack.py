@@ -5,13 +5,13 @@ import operator
 import os
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry, StartMode, Window,
+    Dialog, DialogManager, StartMode, Window, setup_dialogs,
 )
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
@@ -92,12 +92,11 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry()
-    registry.register(dialog)
+    dp.include_router(dialog)
 
     # register handler which resets stack and start dialogs on /start command
-    dp.message.register(start, Command(commands=('start',)))
-    registry.setup_dp(dp)
+    dp.message.register(start, CommandStart())
+    setup_dialogs(dp)
     await dp.start_polling(bot)
 
 

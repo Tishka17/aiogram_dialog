@@ -12,30 +12,36 @@ from aiogram_dialog.tools.preview import render_preview_content
 from aiogram_dialog.tools.transitions import render_transitions
 
 
-class Renderer:
-    def __init__(self, app_module, app_registry):
-        self.app_module = app_module
-        self.app_registry = app_registry
+def removesuffix(s, suffix):
+    if s.endswith(suffix):
+        return s[:-len(suffix)]
+    return s
 
-    async def _get_registry(self):
+
+class Renderer:
+    def __init__(self, app_module, dialogs_router):
+        self.app_module = app_module
+        self.dialogs_router = dialogs_router
+
+    async def _get_router(self):
         app_module = importlib.import_module(self.app_module)
-        raw_registry = getattr(app_module, self.app_registry)
-        if inspect.iscoroutinefunction(raw_registry):
-            registry = await raw_registry()
-        elif inspect.isfunction(raw_registry):
-            registry = raw_registry()
+        raw_router = getattr(app_module, self.dialogs_router)
+        if inspect.iscoroutinefunction(raw_router):
+            router = await raw_router()
+        elif inspect.isfunction(raw_router):
+            router = raw_router()
         else:
-            registry = raw_registry
-        return registry
+            router = raw_router
+        return router
 
     async def _load_preview(self):
-        registry = await self._get_registry()
-        return await render_preview_content(registry)
+        router = await self._get_router()
+        return await render_preview_content(router)
 
     async def _load_transitions(self, path: str):
-        registry = await self._get_registry()
-        name = path.removesuffix(".png")
-        render_transitions(registry, filename=name)
+        router = await self._get_router()
+        name = removesuffix(path, ".png")
+        render_transitions(router, filename=name)
 
     def load_preview(self):
         return asyncio.run(self._load_preview())
@@ -45,8 +51,8 @@ class Renderer:
 
 
 class Controller:
-    def __init__(self, app_module, app_registry):
-        self.renderer = Renderer(app_module, app_registry)
+    def __init__(self, app_module, dialogs_router):
+        self.renderer = Renderer(app_module, dialogs_router)
 
     async def preview(self, _request):
         loop = asyncio.get_event_loop()
@@ -97,8 +103,8 @@ def main():
         sys.path.append(path)
     else:
         sys.path.append(os.curdir)
-    app_module, app_registry = app_spec.split(":")
-    controller = Controller(app_module, app_registry)
+    app_module, dialogs_router = app_spec.split(":")
+    controller = Controller(app_module, dialogs_router)
     routes = web.RouteTableDef()
     routes.get("/transitions")(controller.transitions)
     routes.get("/")(controller.preview)

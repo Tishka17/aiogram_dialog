@@ -3,10 +3,14 @@ from unittest.mock import Mock
 
 import pytest
 from aiogram import Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
 
-from aiogram_dialog import Dialog, DialogManager, DialogRegistry, Window
+from aiogram_dialog import (
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+)
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
@@ -43,6 +47,10 @@ dialog = Dialog(
 )
 
 
+async def start(message: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
+
+
 @pytest.mark.asyncio
 async def test_click():
     usecase = Mock()
@@ -51,13 +59,12 @@ async def test_click():
         usecase=usecase, user_getter=user_getter,
         storage=MemoryStorage(),
     )
+    dp.include_router(dialog)
+    dp.message.register(start, CommandStart())
+
     client = BotClient(dp)
     message_manager = MockMessageManager()
-    registry = DialogRegistry(message_manager=message_manager)
-    registry.register(dialog)
-
-    registry.register_start_handler(router=dp, state=MainSG.start)
-    registry.setup_dp(dp)
+    setup_dialogs(dp, message_manager=message_manager)
 
     await client.send("/start")
     first_message = message_manager.one_message()

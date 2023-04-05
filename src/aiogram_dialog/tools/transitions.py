@@ -1,12 +1,14 @@
 import os.path
 from typing import Iterable, List, Sequence, Tuple
 
+from aiogram import Router
 from aiogram.fsm.state import State
 from diagrams import Cluster, Diagram, Edge
 from diagrams.custom import Custom
 
-from aiogram_dialog import Dialog, DialogRegistry
+from aiogram_dialog import Dialog
 from aiogram_dialog.api.internal import WindowProtocol
+from aiogram_dialog.manager.setup import collect_dialogs
 from aiogram_dialog.widgets.kbd import (
     Back,
     Cancel,
@@ -90,14 +92,12 @@ def render_window(
 
 
 def render_transitions(
-        registry: DialogRegistry,
+        router: Router,
         title: str = "Aiogram Dialog",
         filename: str = "aiogram_dialog",
         format: str = "png",
 ):
-    dialogs = [
-        d.dialog for d in registry.dialogs.values()
-    ]
+    dialogs = list(collect_dialogs(router))
     with Diagram(title, filename=filename, outformat=format, show=False):
         nodes = {}
         for dialog in dialogs:

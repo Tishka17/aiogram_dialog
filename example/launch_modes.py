@@ -3,11 +3,13 @@ import logging
 import os
 
 from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogRegistry, DialogManager, LaunchMode, Window,
+    Dialog, DialogManager, LaunchMode, Window, setup_dialogs, StartMode,
 )
 from aiogram_dialog.widgets.kbd import Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format
@@ -73,19 +75,23 @@ product = Dialog(
 )
 
 
+async def start(message: Message, dialog_manager: DialogManager):
+    # it is important to reset stack because user wants to restart everything
+    await dialog_manager.start(MainSG.default, mode=StartMode.RESET_STACK)
+
+
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    registry = DialogRegistry()
-    registry.register(banner)
-    registry.register(product)
-    registry.register(main_menu)
+    dp.include_router(banner)
+    dp.include_router(product)
+    dp.include_router(main_menu)
 
-    registry.register_start_handler(state=MainSG.default, router=dp)
-    registry.setup_dp(dp)
+    dp.message.register(start, CommandStart())
+    setup_dialogs(dp)
     await dp.start_polling(bot)
 
 

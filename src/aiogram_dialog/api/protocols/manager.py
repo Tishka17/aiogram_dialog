@@ -9,14 +9,7 @@ from aiogram_dialog.api.entities import (
 
 
 class BaseDialogManager(Protocol):
-    @property
-    def event(self) -> ChatEvent:
-        raise NotImplementedError
-
     async def done(self, result: Any = None) -> None:
-        raise NotImplementedError
-
-    async def mark_closed(self) -> None:
         raise NotImplementedError
 
     async def start(
@@ -45,6 +38,12 @@ class BaseDialogManager(Protocol):
 
 
 class DialogManager(BaseDialogManager, Protocol):
+    @property
+    def event(self) -> ChatEvent:
+        raise NotImplementedError
+
+    async def mark_closed(self) -> None:
+        raise NotImplementedError
 
     @property
     def middleware_data(self) -> Dict:

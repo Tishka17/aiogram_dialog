@@ -1,12 +1,13 @@
 from typing import Any, Awaitable, Callable, Dict, Union
 
+from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogRegistryProtocol, DialogUpdaterProtocol,
+    DialogManager, DialogRegistryProtocol,
 )
 
 MANAGER_KEY = "dialog_manager"
@@ -17,12 +18,12 @@ class ManagerMiddleware(BaseMiddleware):
             self,
             dialog_manager_factory: DialogManagerFactory,
             registry: DialogRegistryProtocol,
-            updater: DialogUpdaterProtocol,
+            router: Router,
     ) -> None:
         super().__init__()
         self.dialog_manager_factory = dialog_manager_factory
         self.registry = registry
-        self.updater = updater
+        self.router = router
 
     async def __call__(
             self,
@@ -37,7 +38,7 @@ class ManagerMiddleware(BaseMiddleware):
             event=event,
             data=data,
             registry=self.registry,
-            updater=self.updater,
+            router=self.router,
         )
 
         try:

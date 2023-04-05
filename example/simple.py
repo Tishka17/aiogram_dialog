@@ -3,17 +3,18 @@ import logging
 import os.path
 from typing import Any
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.event.bases import UNHANDLED
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery, ContentType
 
 from aiogram_dialog import (
-    Dialog, DialogManager, DialogRegistry,
-    ChatEvent, StartMode, Window,
+    Dialog, DialogManager, ChatEvent, StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram_dialog.manager.setup import setup_dialogs
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
 from aiogram_dialog.widgets.media import StaticMedia
@@ -125,12 +126,6 @@ async def error_handler(event, dialog_manager: DialogManager):
         return UNHANDLED
 
 
-def new_registry():
-    registry = DialogRegistry()
-    registry.register(dialog)
-    return registry
-
-
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
@@ -138,11 +133,10 @@ async def main():
 
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
-    dp.message.register(start, F.text == "/start")
+    dp.message.register(start, CommandStart())
     dp.errors.register(error_handler)
-    registry = new_registry()
-
-    registry.setup_dp(dp)
+    dp.include_router(dialog)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 

@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 from aiogram.fsm.state import State, StatesGroup
 
-from aiogram_dialog import Dialog, DialogRegistry, Window
+from aiogram_dialog import Dialog, setup_dialogs, Window
 from aiogram_dialog.widgets.text import Format
 
 
@@ -10,14 +10,13 @@ class MainSG(StatesGroup):
 
 
 def test_register():
-    registry = DialogRegistry()
     dialog = Dialog(
         Window(
             Format("stub"),
             state=MainSG.start,
         ),
     )
-    registry.register(dialog)
 
     dp = Dispatcher()
-    registry.setup_dp(dp)
+    dp.include_router(dialog)
+    setup_dialogs(dp)

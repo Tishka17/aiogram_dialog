@@ -19,7 +19,7 @@ Import rendering method:
 .. literalinclude:: examples/tools/import.py
 
 
-Call it passing your registry or list of dialogs:
+Call it passing your ``Dispatcher``, ``Router`` or ``Dialog`` instance:
 
 .. literalinclude:: examples/tools/render.py
 
@@ -57,7 +57,7 @@ Add some data to be shown on preview using ``preview_data`` parameter of window:
 
 .. literalinclude:: examples/tools/render_preview_data.py
 
-Call it passing your registry and filename somewhere inside your asyncio code:
+Call it passing your ``Dispatcher``, ``Router`` or ``Dialog`` instance and filename somewhere inside your asyncio code:
 
 .. literalinclude:: examples/tools/render_preview.py
 
@@ -68,3 +68,15 @@ Together it will be something like this:
 As a result you will see a html file in working directory, that can be opened in browser to preview how all dialogs will look like.
 
 .. image:: resources/render_preview_result.png
+
+
+Web Preview
+===============
+
+Instead of creating files with previews you can serve them using web browser.
+
+Just run ``aiogram-dialog-preview`` command passing path to ``Dispatcher``/``Router``/``Dialog`` in form ``path/to/dir/package.module:object_or_callable``
+
+.. literalinclude:: examples/tools/web_preview.sh
+
+See console output to get URL and error logs
