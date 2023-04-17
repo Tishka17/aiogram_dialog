@@ -2,11 +2,11 @@ import asyncio
 import logging
 import os.path
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher, F, Router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
-from aiogram_dialog import DialogManager, DialogRegistry, StartMode
+from aiogram_dialog import DialogManager, setup_dialogs, StartMode
 from bot_dialogs import states
 from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.counter import counter_dialog
@@ -21,15 +21,15 @@ async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(states.Main.MAIN, mode=StartMode.RESET_STACK)
 
 
-def get_registry():
-    registry = DialogRegistry()
-    registry.register(layouts_dialog)
-    registry.register(scroll_dialog)
-    registry.register(main_dialog)
-    registry.register(calendar_dialog)
-    registry.register(selects_dialog)
-    registry.register(counter_dialog)
-    return registry
+dialog_router = Router()
+dialog_router.include_routers(
+    layouts_dialog,
+    scroll_dialog,
+    main_dialog,
+    calendar_dialog,
+    selects_dialog,
+    counter_dialog,
+)
 
 
 async def main():
@@ -40,9 +40,8 @@ async def main():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
-
-    registry = get_registry()
-    registry.setup_dp(dp)
+    dp.include_router(dialog_router)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 
