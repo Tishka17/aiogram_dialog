@@ -1,9 +1,7 @@
-from typing import Protocol, Union
+from typing import Dict, Protocol, Type, Union
 
-from aiogram import Bot
-from aiogram.fsm.state import State
+from aiogram.fsm.state import State, StatesGroup
 
-from aiogram_dialog.api.entities import DialogUpdate
 from .dialog import DialogProtocol
 
 
@@ -11,7 +9,5 @@ class DialogRegistryProtocol(Protocol):
     def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
         raise NotImplementedError
 
-
-class DialogUpdaterProtocol(Protocol):
-    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
+    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
         raise NotImplementedError

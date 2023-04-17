@@ -4,13 +4,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type
 
+from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import (
-    Dialog, DialogManager, DialogProtocol, DialogRegistry,
-)
+from aiogram_dialog import Dialog, DialogManager, DialogProtocol
 from aiogram_dialog.api.entities import (
     ChatEvent,
     Context,
@@ -23,6 +22,7 @@ from aiogram_dialog.api.entities import (
     Stack,
     StartMode,
 )
+from aiogram_dialog.manager.setup import collect_dialogs
 
 
 @dataclass
@@ -51,7 +51,7 @@ class FakeManager(DialogManager):
     async def answer_callback(self) -> None:
         pass
 
-    def __init__(self, registry: DialogRegistry):
+    def __init__(self):
         self._event = DialogUpdateEvent(
             from_user=User(id=1, is_bot=False, first_name="Fake"),
             chat=Chat(id=1, type="private"),
@@ -60,7 +60,6 @@ class FakeManager(DialogManager):
             intent_id=None,
             stack_id=None,
         )
-        self._registry = registry
         self._context: Optional[Context] = None
         self._dialog: Optional[DialogProtocol] = None
         self._data = {
@@ -291,18 +290,18 @@ async def render_dialog(
 
 
 async def render_preview_content(
-        registry: DialogRegistry,
+        router: Router,
         simulate_events: bool = False,
 ) -> str:
-    fake_manager = FakeManager(registry)
+    fake_manager = FakeManager()
     dialogs = [
         await render_dialog(
             manager=fake_manager,
-            group=group,
-            dialog=dialog_config.dialog,
+            group=dialog.states_group(),
+            dialog=dialog,
             simulate_events=simulate_events,
         )
-        for group, dialog_config in registry.dialogs.items()
+        for dialog in collect_dialogs(router)
     ]
     env = Environment(
         loader=PackageLoader("aiogram_dialog.tools"),
@@ -313,10 +312,10 @@ async def render_preview_content(
 
 
 async def render_preview(
-        registry: DialogRegistry,
+        router: Router,
         file: str,
         simulate_events: bool = False,
 ):
-    res = await render_preview_content(registry, simulate_events)
+    res = await render_preview_content(router, simulate_events)
     with open(file, "w", encoding="utf-8") as f:
         f.write(res)

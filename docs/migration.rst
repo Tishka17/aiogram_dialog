@@ -2,7 +2,16 @@
 Migration from previous versions
 ***********************************
 
-Miragtion 2.0b10 -> 2.0b17
+Migration 2.0b10 -> 2.0b18
+===============================
+
+* ``Registry`` class removed.
+* Each `Dialog`` is now a ``Router``. You should do ``dp.include_router(dialog)`` to attach it.
+* ``setup_dialogs`` is now a replacement of ``registry.setup_dp()``. Parameters are the same.
+* ``render_preview`` and ``render_transitions`` methods now expect ``Dispatcher``, ``Router`` or ``Dialog`` instance instead of ``Registry``
+* ``aiogram-dialog-preview`` now expects ``Dispatcher``, ``Router`` or ``Dialog`` instance instead of ``Registry``
+
+Migration 2.0b10 -> 2.0b17
 ===============================
 
 * ``Registry`` is now created without dispatcher. After that you need to setup dispatchet using ``setup_dp`` method

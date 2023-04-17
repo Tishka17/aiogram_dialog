@@ -2,14 +2,14 @@ import asyncio
 import logging
 import os
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import (
-    BaseDialogManager, Dialog, DialogManager, DialogRegistry,
-    StartMode, Window,
+    BaseDialogManager, Dialog, DialogManager, StartMode, Window, setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
@@ -83,12 +83,11 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
-    registry = DialogRegistry()
-    registry.register(bg_dialog)
-    registry.register(main_menu)
+    dp.include_router(bg_dialog)
+    dp.include_router(main_menu)
 
-    dp.message.register(start, F.text == "/start")
-    registry.setup_dp(dp)
+    dp.message.register(start, CommandStart())
+    setup_dialogs(dp)
     await dp.start_polling(bot)
 
 

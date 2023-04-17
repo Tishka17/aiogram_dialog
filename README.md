@@ -104,12 +104,12 @@ After creating dialog you need to register it using `DialogRegistry`:
 
 ```python
 from aiogram import Dispatcher
-from aiogram_dialog import DialogRegistry
+from aiogram_dialog import setup_dialogs
 
 ...
 dp = Dispatcher(storage=storage)  # create as usual
-registry = DialogRegistry(dp)  # create registry
-registry.register(name_dialog)  # create
+dp.include_router(dialog)
+setup_dialogs(dp)
 ```
 
 Then start dialog when you are ready to use it. Dialog is started via `start` method of `DialogManager` instance. You

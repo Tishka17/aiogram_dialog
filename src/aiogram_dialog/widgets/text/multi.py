@@ -35,7 +35,7 @@ class Case(Text):
         return await self.texts[selection].render_text(data, manager)
 
     def find(self, widget_id: str) -> Optional[Text]:
-        for text in self.texts:
+        for text in self.texts.values():
             if found := text.find(widget_id):
                 return found
         return None

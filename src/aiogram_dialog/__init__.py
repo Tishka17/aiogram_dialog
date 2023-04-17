@@ -3,7 +3,7 @@ from .api.entities import (
 )
 from .api.protocols import BaseDialogManager, DialogManager, DialogProtocol
 from .dialog import Dialog
-from .manager.registry import DialogRegistry
+from .manager.setup import setup_dialogs
 from .manager.sub_manager import SubManager
 from .window import Window
 
@@ -17,7 +17,7 @@ __all__ = [
     "BaseDialogManager",
     "DialogManager",
     "DialogProtocol",
-    "DialogRegistry",
+    "setup_dialogs",
     "ShowMode",
     "SubManager",
     "Window",
