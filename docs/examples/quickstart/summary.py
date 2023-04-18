@@ -1,5 +1,6 @@
 from aiogram import Bot, Dispatcher
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters import Command
+from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
@@ -28,7 +29,7 @@ dp.include_router(dialog)
 setup_dialogs(dp)
 
 
-@dp.message(commands=["start"])
+@dp.message(Command("start"))
 async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.main, mode=StartMode.RESET_STACK)
 
