@@ -1,4 +1,4 @@
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters.state import State, StatesGroup
 
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Button
