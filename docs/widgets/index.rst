@@ -28,10 +28,11 @@ Also there are 2 general types:
   * ``hello world``, ``my:item``, ``птичка`` - invalid ids
 
 .. toctree::
-
-    hiding/index
     text/index
     keyboard/index
     input/index
     media/index
+    hiding/index
+    custom_widgets/index
+
 
