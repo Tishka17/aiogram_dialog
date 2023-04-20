@@ -1,4 +1,4 @@
-;.. _other_media_sources:
+.. _other_media_sources:
 Other media sources
 *************
 
