@@ -6,6 +6,7 @@ aiogram-dialog
 
    overview
    widgets/index
+   managers/index
    transitions
    migration
    tools
