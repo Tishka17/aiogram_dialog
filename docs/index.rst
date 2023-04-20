@@ -8,7 +8,7 @@ aiogram-dialog
    widgets/index
    managers/index
    transitions/index
-   tools
+   helper_tools/index
    migration
    faq
 
