@@ -1,8 +1,8 @@
 Overview
 *****************************
 
-* :ref:`Concept<concept>` -
-* :ref:`Quickstart<quickstart>` -
+* :ref:`Concept<concept>` - About aiogram dialogs.
+* :ref:`Quickstart<quickstart>` - Demonstration of abilities aiogram dialogs.
 
 
 .. toctree::
