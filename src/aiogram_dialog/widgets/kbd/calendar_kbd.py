@@ -44,10 +44,14 @@ class Calendar(Keyboard):
     def __init__(
             self,
             id: str,
+            min_date: date = date.min,
+            max_date: date = date.max,
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
+        self.min_date = min_date
+        self.max_date = max_date
         self.on_click = ensure_event_processor(on_click)
 
     async def _render_keyboard(
@@ -120,14 +124,23 @@ class Calendar(Keyboard):
         for n in range(offset.year - 7, offset.year + 7, 3):
             year_row = []
             for year in range(n, n + 3):
-                year_row.append(
-                    InlineKeyboardButton(
-                        text=str(year),
-                        callback_data=self._item_callback_data(
-                            f"{PREFIX_YEAR}{year}",
+                if self.min_date.year <= year <= self.max_date.year:
+                    year_row.append(
+                        InlineKeyboardButton(
+                            text=str(year),
+                            callback_data=self._item_callback_data(
+                                f"{PREFIX_YEAR}{year}",
+                            ),
                         ),
-                    ),
-                )
+                    )
+                else:
+                    year_row.append(
+                        InlineKeyboardButton(
+                            text=" ",
+                            callback_data=" ",
+                        ),
+                    )
+
             years.append(year_row)
         return years
 
@@ -137,15 +150,24 @@ class Calendar(Keyboard):
         for n in MONTHS_NUMBERS:
             season = []
             for month in n:
-                month_text = date(offset.year, month, 1).strftime("%B")
-                season.append(
-                    InlineKeyboardButton(
-                        text=month_text,
-                        callback_data=self._item_callback_data(
-                            f"{PREFIX_MONTH}{month}",
+                if self.min_date.month <= month <= self.max_date.month:
+                    month_text = date(offset.year, month, 1).strftime("%B")
+                    season.append(
+                        InlineKeyboardButton(
+                            text=month_text,
+                            callback_data=self._item_callback_data(
+                                f"{PREFIX_MONTH}{month}",
+                            ),
                         ),
-                    ),
-                )
+                    )
+                else:
+                    season.append(
+                        InlineKeyboardButton(
+                            text=" ",
+                            callback_data=" ",
+                        ),
+                    )
+
             months.append(season)
         return [
             [
@@ -167,7 +189,7 @@ class Calendar(Keyboard):
         for week in monthcalendar(offset.year, offset.month):
             week_row = []
             for day in week:
-                if day == 0:
+                if day == 0 or not self.min_date <= date(offset.year, offset.month, day) <= self.max_date:
                     week_row.append(
                         InlineKeyboardButton(
                             text=" ",
@@ -221,13 +243,17 @@ class Calendar(Keyboard):
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_offset = calendar_data.get("current_offset")
         if current_offset is None:
-            return date.today()
+            if (date.today() < self.max_date):
+                return date.today()
+            else:
+                return self.max_date
         return date.fromisoformat(current_offset)
 
     def set_offset(self, new_offset: date,
                    manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
-        data["current_offset"] = new_offset.isoformat()
+        if date(self.min_date.year, self.min_date.month, 1) <= new_offset <= date(self.max_date.year, self.max_date.month, 1):
+            data["current_offset"] = new_offset.isoformat()
 
     def set_scope(self, new_scope: str, manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
