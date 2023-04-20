@@ -7,9 +7,9 @@ aiogram-dialog
    overview/index
    widgets/index
    managers/index
-   transitions
-   migration
+   transitions/index
    tools
+   migration
    faq
 
 .. toctree::

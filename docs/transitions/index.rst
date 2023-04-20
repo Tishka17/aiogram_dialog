@@ -1,6 +1,5 @@
-****************
 Transitions
-****************
+*************
 
 Types of transitions
 ========================
@@ -12,7 +11,7 @@ Talking to user you will need to switch between different chat states. It can be
 * *Start* a dialog in new stack. In this case dialog will be shown in a new message and behave independently from current one.
 * *Close* dialog. Dialog will be removed from stack, its data erased. underlying dialog will be shown
 
-.. image:: resources/stack_transitions.png
+.. image:: /resources/stack_transitions.png
 
 Task stack
 ===============
@@ -41,11 +40,11 @@ There are several ways to do it:
 
 Let's create thee windows with buttons and these transitions:
 
-.. image:: resources/switchstate.png
+.. image:: /resources/switchstate.png
 
 The code may look like:
 
-.. literalinclude:: examples/transitions/switch.py
+.. literalinclude:: ./switch.py
 
 It is ok to use these methods in message handler or if you have additional logic. But for simple cases it looks too complex.
 To simplify it we have special types of buttons. Each one can contain custom text if needed:
@@ -57,7 +56,7 @@ To simplify it we have special types of buttons. Each one can contain custom tex
 An example from above may be rewritten using these buttons:
 
 
-.. literalinclude:: examples/transitions/buttons.py
+.. literalinclude:: ./buttons.py
 
 
 .. note::
@@ -90,7 +89,7 @@ You have no limitations which dialog to start. You are limited only by a depth o
 You can even open the same dialog multiple times and each time it will placed above and have new context.
 
 
-.. literalinclude:: examples/transitions/start.py
+.. literalinclude:: ./start.py
 
 .. _close-dialog:
 
@@ -108,4 +107,4 @@ To close a dialog you have to methods:
 Parent dialog has no access to the context of child one. But you can pass some data as a result to ``done()`` method and then process it in ``on_process_result`` callback of parent dialog.
 
 
-.. literalinclude:: examples/transitions/done.py
+.. literalinclude:: ./done.py
