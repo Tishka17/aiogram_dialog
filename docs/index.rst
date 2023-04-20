@@ -12,6 +12,7 @@ aiogram-dialog
    faq
 
 .. toctree::
+    :hidden:
     :caption: Project Links
 
     GitHub <https://github.com/Tishka17/aiogram_dialog>
