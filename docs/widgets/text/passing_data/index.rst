@@ -1,3 +1,4 @@
+.. _passing_data:
 Passing data
 ==================
 
