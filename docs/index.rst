@@ -6,16 +6,15 @@ aiogram-dialog
    :caption: Contents:
 
    overview
-   widgets
+   widgets/index
    transitions
    migration
    tools
    faq
 
+.. toctree::
+    :caption: Project Links
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    GitHub <https://github.com/Tishka17/aiogram_dialog>
+    PyPI <https://pypi.org/project/aiogram-dialog>
+    Chat <https://t.me/aiogram_dialog>
