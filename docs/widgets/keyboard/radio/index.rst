@@ -2,7 +2,7 @@
 Radio
 *************
 
-**Radio** is staeful version of select widget. It marks each clicked item as checked deselecting others.
+**Radio** is stateful version of select widget. It marks each clicked item as checked deselecting others.
 It stores which item is selected so it can be accessed later
 
 Unlike for the ``Select`` you need two texts. First one is used to render checked item, second one is for unchecked.  Passed data is the same as for ``Select``

@@ -14,7 +14,7 @@ Migration 2.0b10 -> 2.0b18
 Migration 2.0b10 -> 2.0b17
 ===============================
 
-* ``Registry`` is now created without dispatcher. After that you need to setup dispatchet using ``setup_dp`` method
+* ``Registry`` is now created without dispatcher. After that you need to setup dispatcher using ``setup_dp`` method
 * ``Registry.register_start_handler`` now requires router (or dispatcher)
 
 Migration 1.x -> 2.0b10

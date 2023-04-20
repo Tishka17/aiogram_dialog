@@ -1,8 +1,8 @@
-.. _other_media_sources:
+;.. _other_media_sources:
 Other media sources
 *************
 
-Sometimes you have some custom sources for media files: neither file in fulesystem, not URL in the interner, nor existing file in telegram.
+Sometimes you have some custom sources for media files: neither file in filesystem, not URL in the interner, nor existing file in telegram.
 It could be some internal storage like database or private s3-compatible one or even runtime generated objects.
 
 In this case recommended steps to solve a problem are:
