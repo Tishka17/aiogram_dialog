@@ -11,9 +11,9 @@ Unlike in normal buttons and window they are used to render an item, but not the
 
 Also you can provide ``on_state_changed`` callback function. It will be called when selected item is changed.
 
-.. literalinclude:: examples/widgets/radio.py
+.. literalinclude:: ./example.py
 
-.. image::  resources/radio.png
+.. image::  /resources/radio.png
 
 Useful methods:
 

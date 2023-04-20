@@ -10,11 +10,11 @@ If you do not want to set default parse mode for whole bot you can set it per-wi
 
 For example you can use environment substitution, cycles and filters:
 
-.. literalinclude:: examples/widgets/jinja.py
+.. literalinclude:: ./example.py
 
 It will be rendered to this HTML:
 
-.. literalinclude:: examples/widgets/jinja.html
+.. literalinclude:: ./example.html
 
 If you want to add custom `filters <https://jinja.palletsprojects.com/en/2.11.x/api/#custom-filters>`_
 or do some configuration of jinja Environment you can setup it using ``aiogram_dialog.widgets.text.setup_jinja`` function

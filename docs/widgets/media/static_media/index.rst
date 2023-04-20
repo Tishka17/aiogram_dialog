@@ -9,11 +9,11 @@ Also you might need to change media type (``type=ContentType.Photo``) or provide
 
 Be careful using relative paths. Mind the working directory.
 
-.. literalinclude:: examples/widgets/static_media.py
+.. literalinclude:: ./example.py
 
 It will look like:
 
-.. image::  resources/static_media.png
+.. image::  /resources/static_media.png
 
 For more complex cases you can read source code of ``StaticMedia`` and create your own widget with any logic you need.
 

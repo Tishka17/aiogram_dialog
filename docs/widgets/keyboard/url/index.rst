@@ -6,6 +6,6 @@ Url represents a button with an url. It has no callbacks because telegram does n
 
 Url itself can be any text (including ``Const`` or ``Format``)
 
-.. literalinclude:: examples/widgets/url.py
+.. literalinclude:: ./example.py
 
-.. image:: resources/url.png
+.. image:: /resources/url.png

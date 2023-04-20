@@ -6,8 +6,8 @@ Calendar
 The initial state looks like the days of the current month.
 It is possible to switch to the state for choosing the month of the current year or in the state of choosing years.
 
-.. literalinclude:: examples/widgets/calendar.py
+.. literalinclude:: ./example.py
 
-.. image::  resources/calendar1.png
-.. image::  resources/calendar2.png
-.. image::  resources/calendar3.png
+.. image::  /resources/calendar1.png
+.. image::  /resources/calendar2.png
+.. image::  /resources/calendar3.png

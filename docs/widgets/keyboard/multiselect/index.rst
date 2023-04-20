@@ -8,11 +8,11 @@ It very similar to ``Radio`` but remembers multiple selected items
 Same as for ``Radio`` you should pass two texts (for checked and unchecked items). Passed data is the same as for ``Select``
 
 
-.. literalinclude:: examples/widgets/multiselect.py
+.. literalinclude:: ./example.py
 
 After few clicks it will look like:
 
-.. image::  resources/multiselect.png
+.. image::  /resources/multiselect.png
 
 Other useful options are:
 

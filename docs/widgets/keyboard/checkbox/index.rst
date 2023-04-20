@@ -11,10 +11,10 @@ If a dialog with checkbox is visible, you can check its state by calling ``is_ch
 
 As button has ``on_click`` callback, checkbox has ``on_state_changed`` which is called each time state switched regardless the reason
 
-.. literalinclude:: examples/widgets/checkbox.py
+.. literalinclude:: ./example.py
 
-.. image:: resources/checkbox_checked.png
-.. image:: resources/checkbox_unchecked.png
+.. image:: /resources/checkbox_checked.png
+.. image:: /resources/checkbox_unchecked.png
 
 
 .. note::

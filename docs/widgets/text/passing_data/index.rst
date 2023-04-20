@@ -16,11 +16,11 @@ So let's create a function and use it to enrich our window with data.
 
     In this and later examples we will skip common bot creation and dialog registration code unless it has notable differences with quickstart
 
-.. literalinclude:: examples/widgets/getter.py
+.. literalinclude:: ./example.py
 
 It will look like:
 
-.. image:: resources/getter.png
+.. image:: /resources/getter.png
 
 Since version 1.6 you do not need getter to access some common objects:
 

@@ -9,8 +9,8 @@ Text can be any ``Text`` widget, that represents plain text. It will receive win
 Callback is normal async function. It is called when user clicks a button
 Unlike normal handlers you should not call callback.answer(), as it is done automatically.
 
-.. literalinclude:: examples/widgets/button.py
+.. literalinclude:: ./example.py
 
-.. image:: resources/button.png
+.. image:: /resources/button.png
 
 If it is unclear to you where to put button, check :ref:`quickstart`

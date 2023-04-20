@@ -20,9 +20,9 @@ If you have a static list of items you can pass it directly to a select widget i
 Next important thing is ids. Besides a widget id you need a function which can return id (string or integer type) for any item.
 
 
-.. literalinclude:: examples/widgets/select.py
+.. literalinclude:: ./example.py
 
-.. image::  resources/select.png
+.. image::  /resources/select.png
 
 
 .. note::
