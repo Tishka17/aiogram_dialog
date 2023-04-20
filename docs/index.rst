@@ -4,7 +4,7 @@ aiogram-dialog
 .. toctree::
    :caption: Contents:
 
-   overview
+   overview/index
    widgets/index
    managers/index
    transitions
