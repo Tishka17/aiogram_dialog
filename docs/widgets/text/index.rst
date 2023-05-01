@@ -1,3 +1,4 @@
+.. _text_widgets:
 Text widget types
 *****************************
 

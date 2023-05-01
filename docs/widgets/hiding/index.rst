@@ -1,3 +1,4 @@
+.. _hiding_widgets:
 Hiding widgets
 ====================
 
