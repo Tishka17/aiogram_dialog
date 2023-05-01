@@ -221,24 +221,22 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    {% if window.text_input %}
-                        <div class="keyboard-row">
-                            <a href="#{{ window.text_input.state }}"
-                               class="keyboard-button keyboard-input">
-                                ⌨️ TextInput
-                            </a>
-                        </div>
-                    {% endif %}
-                    {% if window.attachment_input %}
-                        <div class="keyboard-row">
-                            <a href="#{{ window.attachment_input.state }}"
-                               class="keyboard-button keyboard-attachment">
-                                📎 MessageInput
-                            </a>
-                        </div>
-                    {% endif %}
                 </div>
             {% endif %}
+            <div class="inputs">
+                {% if window.text_input %}
+                    <a href="#{{ window.text_input.state }}"
+                       class="keyboard-button keyboard-input">
+                        ⌨️ TextInput
+                    </a>
+                {% endif %}
+                {% if window.attachment_input %}
+                    <a href="#{{ window.attachment_input.state }}"
+                       class="keyboard-button keyboard-attachment">
+                        📎 MessageInput
+                    </a>
+                {% endif %}
+            </div>
         </div>
     {% endfor %}
 {% endfor %}
