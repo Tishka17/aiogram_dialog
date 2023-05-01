@@ -39,12 +39,14 @@
             background-image: url("data:image/svg+xml;utf8,<svg  width='44' height='44' xmlns='http://www.w3.org/2000/svg'><text x='11' y='22' fill='%2338573e' opacity='0.4' transform='rotate(15,0,10)'>☆</text></svg>");
             background-size: 66px 66px;
         }
+
         .bg2 {
             top: 33px;
             left: 33px;
             width: calc(100% - 33px);
             height: calc(100% - 33px);
         }
+
         .message {
             max-width: 480px;
             position: relative;
@@ -90,6 +92,8 @@
             background-color: #ffffff;
             min-height: 72px;
             border-radius: 8px;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
         }
 
         .body > img {
@@ -102,6 +106,11 @@
 
         .body > .text {
             padding-bottom: 8px;
+        }
+
+        .bottom:last-of-type {
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
         }
 
         .keyboard {
@@ -142,6 +151,11 @@
 
         .keyboard-button:hover, .start:hover {
             background-color: rgba(64, 96, 64, 0.3);
+        }
+
+        .keyboard-row:last-of-type .keyboard-button {
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
         }
 
         .start {
@@ -189,7 +203,7 @@
     {% for window in dialog.windows %}
         <div class="message" id="{{ window.state }}">
             <div class="avatar">@</div>
-            <div class="body">
+            <div class="body bottom">
                 <div class="author">Bot name</div>
                 <div class="time">{{ window.state }}</div>
                 {% if window.photo %}
@@ -197,29 +211,34 @@
                 {% endif %}
                 <div class="text">{{ window.message|safe }}</div>
             </div>
-            <div class="keyboard">
-                {% for row in window.keyboard %}
-                    <div class="keyboard-row">
-                        {% for button in row %}
-                            <a href="#{{ button.state }}" class="keyboard-button">{{ button.title }}</a>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-                {% if window.text_input %}
-                    <div class="keyboard-row">
-                        <a href="#{{ window.text_input.state }}" class="keyboard-button keyboard-input">
-                            ⌨️ TextInput
-                        </a>
-                    </div>
-                {% endif %}
-                {% if window.attachment_input %}
-                    <div class="keyboard-row">
-                        <a href="#{{ window.attachment_input.state }}" class="keyboard-button keyboard-attachment">
-                            📎 MessageInput
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
+            {% if window.keyboard %}
+                <div class="keyboard bottom">
+                    {% for row in window.keyboard %}
+                        <div class="keyboard-row">
+                            {% for button in row %}
+                                <a href="#{{ button.state }}"
+                                   class="keyboard-button">{{ button.title }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {% if window.text_input %}
+                        <div class="keyboard-row">
+                            <a href="#{{ window.text_input.state }}"
+                               class="keyboard-button keyboard-input">
+                                ⌨️ TextInput
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if window.attachment_input %}
+                        <div class="keyboard-row">
+                            <a href="#{{ window.attachment_input.state }}"
+                               class="keyboard-button keyboard-attachment">
+                                📎 MessageInput
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     {% endfor %}
 {% endfor %}
