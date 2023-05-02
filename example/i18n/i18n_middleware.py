@@ -27,12 +27,9 @@ class I18nMiddleware(BaseMiddleware):
             data: Dict[str, Any],
     ) -> Any:
         # some language/locale retrieving logic
+        lang = self.default_lang
         if event.from_user:
             lang = event.from_user.language_code
-        else:
-            lang = self.default_lang
-        if lang not in self.l10ns:
-            lang = self.default_lang
 
         l10n = self.l10ns[lang]
         # we use fluent.runtime here, but you can create custom functions
