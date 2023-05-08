@@ -228,6 +228,7 @@ class MessageManager(MessageManagerProtocol):
             disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            message_thread_id=new_message.message_thread_id,
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage):
@@ -247,5 +248,6 @@ class MessageManager(MessageManagerProtocol):
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            message_thread_id=new_message.message_thread_id,
             **new_message.media.kwargs,
         )

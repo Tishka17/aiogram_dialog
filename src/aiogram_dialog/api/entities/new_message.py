@@ -15,3 +15,4 @@ class NewMessage:
     show_mode: ShowMode = ShowMode.AUTO
     disable_web_page_preview: Optional[bool] = None
     media: Optional[MediaAttachment] = None
+    message_thread_id: Optional[int] = None

@@ -102,6 +102,7 @@ class Window(WindowProtocol):
             parse_mode=self.parse_mode,
             disable_web_page_preview=self.disable_web_page_preview,
             media=await self.render_media(current_data, manager),
+            message_thread_id=manager.event.message_thread_id,
         )
 
     def get_state(self) -> State:
