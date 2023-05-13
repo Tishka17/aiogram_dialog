@@ -28,5 +28,5 @@ Next important thing is ids. Besides a widget id you need a function which can r
 
 .. note::
 
-    Select places everything in single row. If it is not suitable for your case - simply wrap it with `Group`_ or `Column`_
+    Select places everything in single row. If it is not suitable for your case - simply wrap it with :ref:`group` or :ref:`column`
 

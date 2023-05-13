@@ -1,4 +1,4 @@
-.. _close_dialog:
+.. _close-dialog:
 
 Closing a dialog
 =================

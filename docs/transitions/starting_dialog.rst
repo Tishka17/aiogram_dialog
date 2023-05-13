@@ -1,4 +1,4 @@
-.. _start_dialog:
+.. _start-dialog:
 
 Starting a dialog
 =======================
