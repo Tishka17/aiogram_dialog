@@ -2,20 +2,20 @@ aiogram-dialog
 =============================================
 
 .. toctree::
-   :maxdepth: 3
    :caption: Contents:
 
-   overview
-   widgets
-   transitions
+   overview/index
+   quickstart/index
+   widgets/index
+   transitions/index
+   helper_tools/index
    migration
-   tools
    faq
 
+.. toctree::
+    :hidden:
+    :caption: Project Links
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    GitHub <https://github.com/Tishka17/aiogram_dialog>
+    PyPI <https://pypi.org/project/aiogram-dialog>
+    Chat <https://t.me/aiogram_dialog>
