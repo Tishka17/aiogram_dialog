@@ -5,8 +5,8 @@ aiogram-dialog
    :caption: Contents:
 
    overview/index
+   quickstart/index
    widgets/index
-   managers/index
    transitions/index
    helper_tools/index
    migration
