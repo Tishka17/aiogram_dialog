@@ -14,3 +14,6 @@ If you only change data setting ``"extended": True`` the window will look differ
 
 
 .. image::  /resources/whenable_extended.png
+
+.. autoclass:: aiogram_dialog.widgets.common.when.Predicate
+   :special-members: __call__

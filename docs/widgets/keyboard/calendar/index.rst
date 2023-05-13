@@ -15,6 +15,7 @@ It is possible to switch to the state for choosing the month of the current year
 
 .. autoclass:: aiogram_dialog.widgets.kbd.calendar_kbd.OnDateSelected
    :special-members: __call__
+
 .. autoclass:: aiogram_dialog.widgets.kbd.Calendar
    :members: set_scope, set_offset, get_offset, get_scope, managed
    :special-members: __init__,

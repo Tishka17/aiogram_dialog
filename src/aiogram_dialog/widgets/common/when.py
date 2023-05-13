@@ -14,6 +14,14 @@ class Predicate(Protocol):
             widget: Whenable,
             dialog_manager: DialogManager,
     ) -> bool:
+        """
+        Check if widget should be shown.
+
+        :param data: Data received from getter
+        :param widget: Widget we are working with
+        :param dialog_manager: Dialog manager to access current context
+        :return: ``True`` if widget has to be shown, ``False`` otherwise
+        """
         raise NotImplementedError
 
 
