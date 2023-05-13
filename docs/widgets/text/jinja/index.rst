@@ -1,6 +1,7 @@
 .. _jinja:
+
 Jinja HTML rendering
-*************
+***********************
 
 It is very easy to create safe HTML messages using Jinja2 templates.
 Documentation for template language is available at `official jinja web page <https://jinja.palletsprojects.com>`_

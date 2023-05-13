@@ -1,4 +1,5 @@
 .. _checkbox:
+
 Checkbox
 *************
 

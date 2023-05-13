@@ -1,4 +1,5 @@
 .. _keyboard_widgets:
+
 Keyboard widget types
 *****************************
 

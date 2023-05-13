@@ -1,4 +1,5 @@
 .. _media_widgets:
+
 Media widget types
 *****************************
 

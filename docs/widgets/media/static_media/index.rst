@@ -1,4 +1,5 @@
 .. _static_media:
+
 StaticMedia
 *************
 

@@ -1,4 +1,5 @@
 .. _state_switch:
+
 State switch
 =================
 

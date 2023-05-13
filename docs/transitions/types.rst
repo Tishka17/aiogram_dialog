@@ -1,4 +1,5 @@
 .. _types:
+
 Types of transitions
 ========================
 

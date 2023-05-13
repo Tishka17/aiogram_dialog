@@ -1,4 +1,5 @@
 .. _input_widgets:
+
 Input widget types
 *****************************
 
