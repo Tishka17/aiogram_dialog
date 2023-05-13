@@ -1,10 +1,22 @@
-from typing import Callable, Dict, Union
+from __future__ import annotations
+
+from typing import Dict, Protocol, Union
 
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.protocols import DialogManager
 
-Predicate = Callable[[Dict, "Whenable", DialogManager], bool]
+
+class Predicate(Protocol):
+    def __call__(
+            self,
+            data: Dict,
+            widget: Whenable,
+            dialog_manager: DialogManager,
+    ) -> bool:
+        raise NotImplementedError
+
+
 WhenCondition = Union[str, MagicFilter, Predicate, None]
 
 
