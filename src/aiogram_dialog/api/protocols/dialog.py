@@ -15,9 +15,6 @@ class DialogProtocol(Protocol):
     def launch_mode(self) -> LaunchMode:
         raise NotImplementedError
 
-    def register(self, router: Router, *args, **kwargs) -> None:
-        raise NotImplementedError
-
     def states_group_name(self) -> str:
         raise NotImplementedError
 
