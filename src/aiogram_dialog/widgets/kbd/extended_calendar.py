@@ -3,6 +3,7 @@ from calendar import MONDAY
 from dataclasses import dataclass
 from datetime import date, timedelta
 from enum import Enum
+from time import mktime
 from typing import Optional, Tuple, Dict, List, Protocol, TypedDict
 
 from aiogram.types import InlineKeyboardButton, CallbackQuery
@@ -23,6 +24,9 @@ CALLBACK_NEXT_YEARS_PAGE = "+YY"
 CALLBACK_PREV_YEARS_PAGE = "-YY"
 CALLBACK_SCOPE_MONTHS = "M"
 CALLBACK_SCOPE_YEARS = "Y"
+
+CALLBACK_PREFIX_MONTH = "MONTH"
+CALLBACK_PREFIX_YEAR = "YEAR"
 
 BEARING_DATE = date(2018, 1, 1)
 
@@ -111,11 +115,12 @@ class DaysView(ScopeView):
             "date": selected_date,
             "data": data,
         }
+        raw_date = int(mktime(selected_date.timetuple()))
         return InlineKeyboardButton(
             text=await self.date_text.render_text(
                 current_data, manager,
             ),
-            callback_data=self.calendar.callback_prefix(),
+            callback_data=self.calendar._item_callback_data(str(raw_date)),
         )
 
     async def _render_days(
@@ -343,7 +348,6 @@ class MonthView(ScopeView):
                 CALLBACK_SCOPE_YEARS,
             ),
         )
-        print([prev_button, zoom_button, next_button])
         return [prev_button, zoom_button, next_button]
 
     def _is_month_allowed(
@@ -375,7 +379,9 @@ class MonthView(ScopeView):
                         text=await self.month_text.render_text(
                             month_data, manager,
                         ),
-                        callback_data="",
+                        callback_data=self.calendar._item_callback_data(
+                            f"{CALLBACK_PREFIX_MONTH}{month}",
+                        ),
                     ))
                 else:
                     keyboard_row.append(EMPTY_BUTTON)
@@ -500,7 +506,9 @@ class YearsView(ScopeView):
                         text=await self.year_text.render_text(
                             month_data, manager,
                         ),
-                        callback_data="",
+                        callback_data=self.calendar._item_callback_data(
+                            f"{CALLBACK_PREFIX_YEAR}{curr_year}",
+                        )
                     ))
                 else:
                     keyboard_row.append(EMPTY_BUTTON)
@@ -621,8 +629,24 @@ class Calendar(Keyboard):
         elif data == CALLBACK_PREV_YEARS_PAGE:
             offset = offset.replace(offset.year - config.years_per_page)
             self.set_offset(offset, manager)
+        elif data.startswith(CALLBACK_PREFIX_MONTH):
+            month = int(data[len(CALLBACK_PREFIX_MONTH):])
+            offset = date(offset.year, month, 1)
+            self.set_offset(offset, manager)
+            self.set_scope(Scope.DAYS, manager)
+        elif data.startswith(CALLBACK_PREFIX_YEAR):
+            year = int(data[len(CALLBACK_PREFIX_YEAR):])
+            offset = date(year, 1, 1)
+            self.set_offset(offset, manager)
+            self.set_scope(Scope.MONTHS, manager)
         else:
-            pass  # TODO
+            raw_date = int(data)
+            await self.on_click.process_event(
+                callback,
+                self.managed(manager),
+                manager,
+                date.fromtimestamp(raw_date),
+            )
 
         return True
 
