@@ -4,16 +4,14 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from enum import Enum
 from time import mktime
-from typing import Optional, Tuple, Dict, List, Protocol, TypedDict, Callable
+from typing import Callable, Dict, List, Optional, Protocol, Tuple, TypedDict
 
-from aiogram.types import InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-EMPTY_BUTTON = InlineKeyboardButton(text=" ", callback_data="", )
-
-from aiogram_dialog import DialogManager, DialogProtocol
+from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget
 from aiogram_dialog.widgets.kbd import Keyboard
-from aiogram_dialog.widgets.text import Text, Format
+from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.widget_event import ensure_event_processor
 
 CALLBACK_NEXT_MONTH = "+"
@@ -29,6 +27,7 @@ CALLBACK_PREFIX_MONTH = "MONTH"
 CALLBACK_PREFIX_YEAR = "YEAR"
 
 BEARING_DATE = date(2018, 1, 1)
+EMPTY_BUTTON = InlineKeyboardButton(text=" ", callback_data="")
 
 
 class Scope(Enum):
@@ -524,7 +523,7 @@ class YearsView(ScopeView):
                         ),
                         callback_data=self.callback_generator(
                             f"{CALLBACK_PREFIX_YEAR}{curr_year}",
-                        )
+                        ),
                     ))
                 else:
                     keyboard_row.append(EMPTY_BUTTON)
@@ -589,9 +588,7 @@ class Calendar(Keyboard):
         offset = self.get_offset(manager)
         config = await self._get_config(data, manager)
         with different_locale(config.locale):
-            return await view.render(
-                config, offset, data, manager
-            )
+            return await view.render(config, offset, data, manager)
 
     def get_scope(self, manager: DialogManager) -> Scope:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
