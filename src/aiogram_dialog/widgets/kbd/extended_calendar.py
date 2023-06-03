@@ -5,11 +5,11 @@ from datetime import date, timedelta
 from enum import Enum
 from typing import Optional, Tuple, Dict, List, Protocol, TypedDict
 
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, CallbackQuery
 
 EMPTY_BUTTON = InlineKeyboardButton(text=" ", callback_data="", )
 
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget
 from aiogram_dialog.widgets.kbd import Keyboard
 from aiogram_dialog.widgets.text import Text, Format
@@ -31,6 +31,18 @@ class Scope(Enum):
     DAYS = "DAYS"
     MONTHS = "MONTHS"
     YEARS = "YEARS"
+
+
+def month_begin(offset: date):
+    return offset.replace(day=1)
+
+
+def next_month_begin(offset: date):
+    return month_begin(month_begin(offset) + timedelta(days=31))
+
+
+def prev_month_begin(offset: date):
+    return month_begin(month_begin(offset) - timedelta(days=1))
 
 
 class different_locale:
@@ -121,9 +133,7 @@ class DaysView(ScopeView):
         if days_since_week_start < 0:
             days_since_week_start += 7
         start_date -= timedelta(days=days_since_week_start)
-        # next month - 1 day
-        end_date = (offset + timedelta(days=31)).replace(day=1)
-        end_date -= timedelta(days=1)
+        end_date = next_month_begin(offset) - timedelta(days=1)
         # align ending
         max_date = min(config.max_date, end_date)
         days_since_week_start = end_date.weekday() - config.firstweekday
@@ -175,9 +185,8 @@ class DaysView(ScopeView):
         curr_month = offset.month
         next_month = (curr_month % 12) + 1
         prev_month = (curr_month - 2) % 12 + 1
-        curr_begin = date(offset.year, curr_month, 1)
-        prev_end = curr_begin - timedelta(1)
-        next_begin = (curr_begin + timedelta(days=31)).replace(day=1)
+        prev_end = month_begin(offset) - timedelta(1)
+        next_begin = next_month_begin(offset)
         if prev_end < config.min_date and next_begin > config.max_date:
             return []
 
@@ -340,9 +349,8 @@ class MonthView(ScopeView):
     def _is_month_allowed(
             self, config: CalendarConfig, offset: date, month: int,
     ) -> bool:
-        start = offset.replace(month=month, day=1)
-        next_start = (start + timedelta(days=31)).replace(day=1)
-        end = next_start - timedelta(days=1)
+        start = date(offset.year, month, 1)
+        end = next_month_begin(offset) - timedelta(days=1)
         return start >= config.min_date and end <= config.max_date
 
     async def _render_months(
@@ -426,9 +434,6 @@ class YearsView(ScopeView):
         next_year = curr_year + config.years_per_page
         prev_year = curr_year - config.years_per_page
 
-        if not (config.min_date.year < curr_year < config.max_date.year):
-            return []
-
         prev_year_data = {
             "year": prev_year,
             "date": BEARING_DATE.replace(year=prev_year),
@@ -439,7 +444,7 @@ class YearsView(ScopeView):
             "date": BEARING_DATE.replace(year=next_year),
             "data": data,
         }
-        if prev_year < config.min_date.year:
+        if curr_year <= config.min_date.year:
             prev_button = EMPTY_BUTTON
         else:
             prev_button = InlineKeyboardButton(
@@ -462,7 +467,14 @@ class YearsView(ScopeView):
                 ),
             )
 
+        if prev_button == next_button == EMPTY_BUTTON:
+            return []
         return [prev_button, next_button]
+
+    def _is_year_allowed(
+            self, config: CalendarConfig, offset: date, year: int,
+    ) -> bool:
+        return config.min_date.year <= year <= config.max_date.year
 
     async def _render_years(
             self,
@@ -473,7 +485,7 @@ class YearsView(ScopeView):
     ) -> List[List[InlineKeyboardButton]]:
         keyboard = []
 
-        for row in range(1, config.years_per_page, config.years_columns):
+        for row in range(0, config.years_per_page, config.years_columns):
             keyboard_row = []
             for column in range(config.years_columns):
                 curr_year = offset.year + row + column
@@ -483,12 +495,15 @@ class YearsView(ScopeView):
                     "date": BEARING_DATE.replace(year=curr_year),
                     "data": data,
                 }
-                keyboard_row.append(InlineKeyboardButton(
-                    text=await self.year_text.render_text(
-                        month_data, manager,
-                    ),
-                    callback_data="",
-                ))
+                if self._is_year_allowed(config, offset, curr_year):
+                    keyboard_row.append(InlineKeyboardButton(
+                        text=await self.year_text.render_text(
+                            month_data, manager,
+                        ),
+                        callback_data="",
+                    ))
+                else:
+                    keyboard_row.append(EMPTY_BUTTON)
             keyboard.append(keyboard_row)
         return keyboard
 
@@ -548,7 +563,7 @@ class Calendar(Keyboard):
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_scope = calendar_data.get("current_scope")
         if not current_scope:
-            return Scope.YEARS
+            return Scope.DAYS
         try:
             return Scope(current_scope)
         except ValueError:
@@ -573,6 +588,43 @@ class Calendar(Keyboard):
 
     def managed(self, manager: DialogManager):
         return ManagedCalendarAdapter(self, manager)
+
+    async def _process_item_callback(
+            self,
+            callback: CallbackQuery,
+            data: str,
+            dialog: DialogProtocol,
+            manager: DialogManager,
+    ) -> bool:
+        offset = self.get_offset(manager)
+        config = self.config
+
+        if data == CALLBACK_SCOPE_MONTHS:
+            self.set_scope(Scope.MONTHS, manager)
+        elif data == CALLBACK_SCOPE_YEARS:
+            self.set_scope(Scope.YEARS, manager)
+        elif data == CALLBACK_PREV_MONTH:
+            offset = month_begin(month_begin(offset) - timedelta(days=1))
+            self.set_offset(offset, manager)
+        elif data == CALLBACK_NEXT_MONTH:
+            offset = next_month_begin(offset)
+            self.set_offset(offset, manager)
+        elif data == CALLBACK_NEXT_YEAR:
+            offset = offset.replace(offset.year + 1)
+            self.set_offset(offset, manager)
+        elif data == CALLBACK_PREV_YEAR:
+            offset = offset.replace(offset.year - 1)
+            self.set_offset(offset, manager)
+        elif data == CALLBACK_NEXT_YEARS_PAGE:
+            offset = offset.replace(offset.year + config.years_per_page)
+            self.set_offset(offset, manager)
+        elif data == CALLBACK_PREV_YEARS_PAGE:
+            offset = offset.replace(offset.year - config.years_per_page)
+            self.set_offset(offset, manager)
+        else:
+            pass  # TODO
+
+        return True
 
 
 class ManagedCalendarAdapter(ManagedWidget[Calendar]):
