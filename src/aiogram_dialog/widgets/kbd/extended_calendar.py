@@ -243,7 +243,7 @@ class DaysView(ScopeView):
                     next_month_data, manager,
                 ),
                 callback_data=self.calendar._item_callback_data(
-                    CALLBACK_PREV_MONTH,
+                    CALLBACK_NEXT_MONTH,
                 ),
             )
 
