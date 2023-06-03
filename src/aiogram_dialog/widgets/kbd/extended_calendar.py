@@ -358,6 +358,37 @@ class MonthView(ScopeView):
         end = next_month_begin(offset) - timedelta(days=1)
         return start >= config.min_date and end <= config.max_date
 
+    async def _render_month_button(
+            self,
+            month: int,
+            this_month: int,
+            data: Dict,
+            offset: date,
+            config: CalendarConfig,
+            manager: DialogManager,
+    ) -> InlineKeyboardButton:
+        if not self._is_month_allowed(config, offset, month):
+            return EMPTY_BUTTON
+
+        month_data = {
+            "month": month,
+            "date": BEARING_DATE.replace(month=month),
+            "data": data,
+        }
+        if month == this_month:
+            text = self.this_month_text
+        else:
+            text = self.month_text
+
+        return InlineKeyboardButton(
+            text=await text.render_text(
+                month_data, manager,
+            ),
+            callback_data=self.callback_generator(
+                f"{CALLBACK_PREFIX_MONTH}{month}",
+            ),
+        )
+
     async def _render_months(
             self,
             config: CalendarConfig,
@@ -375,26 +406,9 @@ class MonthView(ScopeView):
             keyboard_row = []
             for column in range(config.month_columns):
                 month = row + column
-                if self._is_month_allowed(config, offset, month):
-                    month_data = {
-                        "month": month,
-                        "date": BEARING_DATE.replace(month=month),
-                        "data": data,
-                    }
-                    if month == this_month:
-                        text = self.this_month_text
-                    else:
-                        text = self.month_text
-                    keyboard_row.append(InlineKeyboardButton(
-                        text=await text.render_text(
-                            month_data, manager,
-                        ),
-                        callback_data=self.callback_generator(
-                            f"{CALLBACK_PREFIX_MONTH}{month}",
-                        ),
-                    ))
-                else:
-                    keyboard_row.append(EMPTY_BUTTON)
+                keyboard_row.append(await self._render_month_button(
+                    month, this_month, data, offset, config, manager,
+                ))
             keyboard.append(keyboard_row)
         return keyboard
 
@@ -488,9 +502,38 @@ class YearsView(ScopeView):
         return [prev_button, next_button]
 
     def _is_year_allowed(
-            self, config: CalendarConfig, offset: date, year: int,
+            self, config: CalendarConfig, year: int,
     ) -> bool:
         return config.min_date.year <= year <= config.max_date.year
+
+    async def _render_year_button(
+            self,
+            year: int,
+            this_year: int,
+            data: Dict,
+            config: CalendarConfig,
+            manager: DialogManager,
+    ) -> InlineKeyboardButton:
+        if not self._is_year_allowed(config, year):
+            return EMPTY_BUTTON
+        if year == this_year:
+            text = self.this_year_text
+        else:
+            text = self.year_text
+
+        year_data = {
+            "year": year,
+            "date": BEARING_DATE.replace(year=year),
+            "data": data,
+        }
+        return InlineKeyboardButton(
+            text=await text.render_text(
+                year_data, manager,
+            ),
+            callback_data=self.callback_generator(
+                f"{CALLBACK_PREFIX_YEAR}{year}",
+            ),
+        )
 
     async def _render_years(
             self,
@@ -506,27 +549,9 @@ class YearsView(ScopeView):
             keyboard_row = []
             for column in range(config.years_columns):
                 curr_year = offset.year + row + column
-
-                month_data = {
-                    "year": curr_year,
-                    "date": BEARING_DATE.replace(year=curr_year),
-                    "data": data,
-                }
-                if self._is_year_allowed(config, offset, curr_year):
-                    if curr_year == this_year:
-                        text = self.this_year_text
-                    else:
-                        text = self.year_text
-                    keyboard_row.append(InlineKeyboardButton(
-                        text=await text.render_text(
-                            month_data, manager,
-                        ),
-                        callback_data=self.callback_generator(
-                            f"{CALLBACK_PREFIX_YEAR}{curr_year}",
-                        ),
-                    ))
-                else:
-                    keyboard_row.append(EMPTY_BUTTON)
+                keyboard_row.append(await self._render_year_button(
+                    curr_year, this_year, data, config, manager,
+                ))
             keyboard.append(keyboard_row)
         return keyboard
 
