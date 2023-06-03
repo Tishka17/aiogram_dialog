@@ -375,7 +375,7 @@ class MonthView(ScopeView):
         keyboard = []
         today = date.today()
         if offset.year == today.year:
-            this_month = offset.month
+            this_month = today.month
         else:
             this_month = -1
         for row in range(1, 13, config.month_columns):
