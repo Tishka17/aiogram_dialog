@@ -94,6 +94,7 @@ class DaysView(ScopeView):
             self,
             calendar: Keyboard,
             date_text: Text = Format("{date:%d}"),
+            today_text: Text = Format("[ {date:%d} ]"),
             weekday_text: Text = Format("{date:%a}"),
             header_text: Text = Format("{date:%B %Y}"),
             zoom_out_text: Text = Format("Zoom out"),
@@ -105,6 +106,7 @@ class DaysView(ScopeView):
         self.prev_month_text = prev_month_text
         self.calendar = calendar
         self.date_text = date_text
+        self.today_text = today_text
         self.weekday_text = weekday_text
         self.header_text = header_text
 
@@ -115,9 +117,13 @@ class DaysView(ScopeView):
             "date": selected_date,
             "data": data,
         }
+        if selected_date == date.today():
+            text = self.today_text
+        else:
+            text = self.date_text
         raw_date = int(mktime(selected_date.timetuple()))
         return InlineKeyboardButton(
-            text=await self.date_text.render_text(
+            text=await text.render_text(
                 current_data, manager,
             ),
             callback_data=self.calendar._item_callback_data(str(raw_date)),
@@ -277,6 +283,7 @@ class MonthView(ScopeView):
             self,
             calendar: Keyboard,
             month_text: Text = Format("{date:%B}"),
+            this_month_text: Text = Format("[ {date:%B} ]"),
             header_text: Text = Format("{date:%Y}"),
             zoom_out_text: Text = Format("Zoom out"),
             next_year_text: Text = Format("{date:%Y} >>"),
@@ -284,6 +291,7 @@ class MonthView(ScopeView):
     ):
         self.calendar = calendar
         self.month_text = month_text
+        self.this_month_text = this_month_text
         self.header_text = header_text
         self.zoom_out_text = zoom_out_text
         self.next_year_text = next_year_text
@@ -365,6 +373,11 @@ class MonthView(ScopeView):
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         keyboard = []
+        today = date.today()
+        if offset.year == today.year:
+            this_month = offset.month
+        else:
+            this_month = -1
         for row in range(1, 13, config.month_columns):
             keyboard_row = []
             for column in range(config.month_columns):
@@ -375,8 +388,12 @@ class MonthView(ScopeView):
                         "date": BEARING_DATE.replace(month=month),
                         "data": data,
                     }
+                    if month == this_month:
+                        text = self.this_month_text
+                    else:
+                        text = self.month_text
                     keyboard_row.append(InlineKeyboardButton(
-                        text=await self.month_text.render_text(
+                        text=await text.render_text(
                             month_data, manager,
                         ),
                         callback_data=self.calendar._item_callback_data(
@@ -421,11 +438,13 @@ class YearsView(ScopeView):
             self,
             calendar: Keyboard,
             year_text: Text = Format("{date:%Y}"),
+            this_year_text: Text = Format("[ {date:%Y} ]"),
             next_page_text: Text = Format(">>"),
             prev_page_text: Text = Format("<<"),
     ):
         self.calendar = calendar
         self.year_text = year_text
+        self.this_year_text = this_year_text
         self.next_page_text = next_page_text
         self.prev_page_text = prev_page_text
 
@@ -490,6 +509,7 @@ class YearsView(ScopeView):
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         keyboard = []
+        this_year = date.today().year
 
         for row in range(0, config.years_per_page, config.years_columns):
             keyboard_row = []
@@ -502,8 +522,12 @@ class YearsView(ScopeView):
                     "data": data,
                 }
                 if self._is_year_allowed(config, offset, curr_year):
+                    if curr_year == this_year:
+                        text = self.this_year_text
+                    else:
+                        text = self.year_text
                     keyboard_row.append(InlineKeyboardButton(
-                        text=await self.year_text.render_text(
+                        text=await text.render_text(
                             month_data, manager,
                         ),
                         callback_data=self.calendar._item_callback_data(
