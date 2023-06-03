@@ -347,7 +347,10 @@ class MonthView(ScopeView):
 
         prev_year_data = {
             "year": prev_year,
-            "date": BEARING_DATE.replace(year=prev_year),
+            "date": max(
+                BEARING_DATE.replace(year=prev_year),
+                self.config.min_date,
+            ),
             "data": data,
         }
         curr_year_data = {
@@ -357,7 +360,10 @@ class MonthView(ScopeView):
         }
         next_year_data = {
             "year": next_year,
-            "date": BEARING_DATE.replace(year=next_year),
+            "date": min(
+                BEARING_DATE.replace(year=next_year),
+                self.config.max_date,
+            ),
             "data": data,
         }
         if prev_year < self.config.min_date.year:
@@ -390,10 +396,10 @@ class MonthView(ScopeView):
             self, offset: date, month: int,
     ) -> bool:
         start = date(offset.year, month, 1)
-        end = next_month_begin(offset) - timedelta(days=1)
+        end = next_month_begin(start) - timedelta(days=1)
         return (
-            start >= self.config.min_date and
-            end <= self.config.max_date
+            end >= self.config.min_date and
+            start <= self.config.max_date
         )
 
     async def _render_month_button(
@@ -506,12 +512,18 @@ class YearsView(ScopeView):
 
         prev_year_data = {
             "year": prev_year,
-            "date": BEARING_DATE.replace(year=prev_year),
+            "date": max(
+                BEARING_DATE.replace(year=prev_year),
+                self.config.min_date,
+            ),
             "data": data,
         }
         next_year_data = {
             "year": next_year,
-            "date": BEARING_DATE.replace(year=next_year),
+            "date": min(
+                BEARING_DATE.replace(year=next_year),
+                self.config.max_date,
+            ),
             "data": data,
         }
         if curr_year <= self.config.min_date.year:
