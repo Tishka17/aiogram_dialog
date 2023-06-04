@@ -5,6 +5,9 @@ __all__ = [
     "WebApp",
     "SwitchInlineQuery",
     "Calendar",
+    "CalendarConfig",
+    "CalendarScope",
+    "CalendarUserConfig",
     "ManagedCalendarAdapter",
     "Counter",
     "ManagedCounterAdapter",
@@ -38,7 +41,10 @@ __all__ = [
 
 from .base import Keyboard
 from .button import Button, SwitchInlineQuery, Url, WebApp
-from .calendar_kbd import Calendar, ManagedCalendarAdapter
+from .calendar_kbd import (
+    Calendar, CalendarConfig, CalendarScope, CalendarUserConfig,
+    ManagedCalendarAdapter,
+)
 from .checkbox import Checkbox, ManagedCheckboxAdapter
 from .counter import Counter, ManagedCounterAdapter
 from .group import Column, Group, Row
