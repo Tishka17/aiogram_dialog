@@ -1,4 +1,3 @@
-import locale
 from calendar import MONDAY
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
@@ -9,7 +8,7 @@ from typing import Callable, Dict, List, Optional, Protocol, TypedDict
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
-from aiogram_dialog.widgets.common import ManagedWidget
+from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
 from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.widget_event import ensure_event_processor
@@ -68,18 +67,6 @@ def prev_month_begin(offset: date):
 
 def get_today(tz: timezone):
     return datetime.now(tz).date()
-
-
-class different_locale:
-    def __init__(self, other_locale):
-        self.locale = other_locale
-
-    def __enter__(self):
-        self.oldlocale = locale.getlocale(locale.LC_TIME)
-        locale.setlocale(locale.LC_TIME, self.locale)
-
-    def __exit__(self, *args):
-        locale.setlocale(locale.LC_TIME, self.oldlocale)
 
 
 class CalendarData(TypedDict):
@@ -626,7 +613,7 @@ class Calendar(Keyboard):
             id: str,
             on_click=None,
             config: Optional[CalendarConfig] = None,
-            when=None,
+            when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.on_click = ensure_event_processor(on_click)
@@ -669,8 +656,7 @@ class Calendar(Keyboard):
         if offset is None:
             offset = get_today(config.timezone)
             self.set_offset(offset, manager)
-        with different_locale(config.locale):
-            return await view.render(config, offset, data, manager)
+        return await view.render(config, offset, data, manager)
 
     def get_scope(self, manager: DialogManager) -> Scope:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
