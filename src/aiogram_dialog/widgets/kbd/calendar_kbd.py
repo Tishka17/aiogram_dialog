@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from calendar import monthcalendar
 from datetime import date
 from time import mktime
-from typing import Awaitable, Callable, Dict, List, TypedDict, Union
+from typing import Any, Dict, List, Protocol, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -14,10 +16,17 @@ from aiogram_dialog.widgets.widget_event import (
 )
 from .base import Keyboard
 
-OnDateSelected = Callable[
-    [ChatEvent, "ManagedCalendarAdapter", DialogManager,
-     date], Awaitable,
-]
+
+class OnDateSelected(Protocol):
+    async def __call__(
+            self,
+            event: ChatEvent,
+            widget: ManagedCalendarAdapter,
+            dialog_manager: DialogManager,
+            date: date,
+    ) -> Any:
+        raise NotImplementedError
+
 
 # Constants for managing widget rendering scope
 SCOPE_DAYS = "SCOPE_DAYS"
@@ -41,12 +50,25 @@ class CalendarData(TypedDict):
 
 
 class Calendar(Keyboard):
+    """
+    Calendar widget.
+
+    Used to render keyboard for date selection.
+    """
+
     def __init__(
             self,
             id: str,
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
     ):
+        """
+        Init calendar widget.
+
+        :param id: ID of widget
+        :param on_click: Function to handle date selection
+        :param when: Condition when to show widget
+        """
         super().__init__(id=id, when=when)
         self.on_click = ensure_event_processor(on_click)
 
@@ -239,17 +261,27 @@ class Calendar(Keyboard):
 
 class ManagedCalendarAdapter(ManagedWidget[Calendar]):
     def get_scope(self) -> str:
+        """
+        Get current scope showing in calendar.
+
+        * ``SCOPE_DAYS`` - days of month
+        * ``SCOPE_MONTHS`` - months of year
+        * ``SCOPE_YEARS`` - years
+        """
         return self.widget.get_scope(self.manager)
 
     def get_offset(self) -> date:
+        """Get current offset from which calendar is shown."""
         return self.widget.get_offset(self.manager)
 
     def set_offset(
             self, new_offset: date,
     ) -> None:
+        """Set current offset for calendar paging."""
         return self.widget.set_offset(new_offset, self.manager)
 
     def set_scope(
             self, new_scope: str,
     ) -> None:
+        """Set current scope showing in calendar."""
         return self.widget.set_scope(new_scope, self.manager)

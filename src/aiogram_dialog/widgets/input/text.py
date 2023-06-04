@@ -1,4 +1,8 @@
-from typing import Any, Awaitable, Callable, Generic, Optional, TypeVar, Union
+from __future__ import annotations
+
+from typing import (
+    Any, Callable, Generic, Optional, Protocol, TypeVar, Union,
+)
 
 from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import ContentType, Message
@@ -13,8 +17,27 @@ from .base import BaseInput
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
-OnSuccess = Callable[[Message, "TextInput", DialogManager, T], Awaitable]
-OnError = Callable[[Message, "TextInput", DialogManager], Awaitable]
+
+
+class OnSuccess(Protocol[T]):
+    async def __call__(
+            self,
+            message: Message,
+            widget: TextInput,
+            dialog_manager: DialogManager,
+            data: T,
+    ) -> Any:
+        raise NotImplementedError
+
+
+class OnError(Protocol[T]):
+    async def __call__(
+            self,
+            message: Message,
+            widget: TextInput,
+            dialog_manager: DialogManager,
+    ) -> Any:
+        raise NotImplementedError
 
 
 class TextInput(BaseInput, Generic[T]):
@@ -66,4 +89,5 @@ class TextInput(BaseInput, Generic[T]):
 
 class ManagedTextInputAdapter(ManagedWidget[TextInput[T]], Generic[T]):
     def get_value(self) -> T:
+        """Get last input data stored by widget."""
         return self.widget.get_value(self.manager)
