@@ -694,7 +694,7 @@ class Calendar(Keyboard):
                 CalendarYearsView(self._item_callback_data, self.config),
         }
 
-    async def _get_config(
+    async def _get_user_config(
             self,
             data: Dict,
             manager: DialogManager,
@@ -718,7 +718,7 @@ class Calendar(Keyboard):
         scope = self.get_scope(manager)
         view = self.views[scope]
         offset = self.get_offset(manager)
-        config = await self._get_config(data, manager)
+        config = await self._get_user_config(data, manager)
         if offset is None:
             offset = get_today(config.timezone)
             self.set_offset(offset, manager)
