@@ -36,7 +36,7 @@ class Renderer:
 
     async def _load_preview(self):
         router = await self._get_router()
-        return await render_preview_content(router)
+        return await render_preview_content(router, simulate_events=True)
 
     async def _load_transitions(self, path: str):
         router = await self._get_router()
