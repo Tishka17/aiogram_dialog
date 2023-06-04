@@ -1,20 +1,24 @@
+from __future__ import annotations
+
 from calendar import MONDAY
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from time import mktime
-from typing import Callable, Dict, List, Optional, Protocol, TypedDict, Union
+from typing import (
+    Any, Callable, Dict, List, Optional, Protocol, TypedDict, Union,
+)
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.kbd import Keyboard
 from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor, WidgetEventProcessor,
 )
+from .base import Keyboard
 
 CALLBACK_NEXT_MONTH = "+"
 CALLBACK_PREV_MONTH = "-"
@@ -50,7 +54,7 @@ BEARING_DATE = date(2018, 1, 1)
 EMPTY_BUTTON = InlineKeyboardButton(text=" ", callback_data="")
 
 
-class Scope(Enum):
+class CalendarScope(Enum):
     DAYS = "DAYS"
     MONTHS = "MONTHS"
     YEARS = "YEARS"
@@ -78,17 +82,18 @@ class CalendarData(TypedDict):
 
 
 class OnDateSelected(Protocol):
-    def __call__(
+    async def __call__(
             self,
             event: ChatEvent,
-            widget: "ManagedCalendarAdapter",
+            widget: ManagedCalendarAdapter,
             dialog_manager: DialogManager,
-    ):
+            date: date,
+    ) -> Any:
         raise NotImplementedError
 
 
 @dataclass
-class UserConfig:
+class CalendarUserConfig:
     firstweekday: int = MONDAY
     timezone: timezone = timezone(timedelta(seconds=3600 * 6))
 
@@ -102,21 +107,34 @@ class CalendarConfig:
     years_columns = 5
 
 
-class ScopeView(Protocol):
+class CalendarScopeView(Protocol):
+    """
+    Calendar widget part.
+
+    Used to represent keyboard for one of calendar scopes.
+    """
+
     async def render(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
-        pass
+        """
+        Render keyboard for current scope
+        :param config: configuration related to current user
+        :param offset: current offset from which we show dates
+        :param data: data received from window getter
+        :param manager: dialog manager instance
+        :return: rendered keyboard
+        """
 
 
 CallbackGenerator = Callable[[str], str]
 
 
-class DaysView(ScopeView):
+class CalendarDaysView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
@@ -164,7 +182,7 @@ class DaysView(ScopeView):
 
     async def _render_days(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -201,7 +219,7 @@ class DaysView(ScopeView):
 
     async def _render_week_header(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             data: Dict,
             manager: DialogManager,
     ) -> List[InlineKeyboardButton]:
@@ -222,7 +240,7 @@ class DaysView(ScopeView):
 
     async def _render_pager(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -294,7 +312,7 @@ class DaysView(ScopeView):
 
     async def render(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -307,7 +325,7 @@ class DaysView(ScopeView):
         ]
 
 
-class MonthView(ScopeView):
+class CalendarMonthView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
@@ -330,7 +348,7 @@ class MonthView(ScopeView):
 
     async def _render_pager(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -397,8 +415,8 @@ class MonthView(ScopeView):
         start = date(offset.year, month, 1)
         end = next_month_begin(start) - timedelta(days=1)
         return (
-            end >= self.config.min_date and
-            start <= self.config.max_date
+                end >= self.config.min_date and
+                start <= self.config.max_date
         )
 
     async def _render_month_button(
@@ -407,7 +425,7 @@ class MonthView(ScopeView):
             this_month: int,
             data: Dict,
             offset: date,
-            config: UserConfig,
+            config: CalendarUserConfig,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
         if not self._is_month_allowed(offset, month):
@@ -434,7 +452,7 @@ class MonthView(ScopeView):
 
     async def _render_months(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -469,7 +487,7 @@ class MonthView(ScopeView):
 
     async def render(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -481,7 +499,7 @@ class MonthView(ScopeView):
         ]
 
 
-class YearsView(ScopeView):
+class CalendarYearsView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
@@ -500,7 +518,7 @@ class YearsView(ScopeView):
 
     async def _render_pager(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -560,7 +578,7 @@ class YearsView(ScopeView):
             year: int,
             this_year: int,
             data: Dict,
-            config: UserConfig,
+            config: CalendarUserConfig,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
         if not self._is_year_allowed(year):
@@ -586,7 +604,7 @@ class YearsView(ScopeView):
 
     async def _render_years(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -608,7 +626,7 @@ class YearsView(ScopeView):
 
     async def render(
             self,
-            config: UserConfig,
+            config: CalendarUserConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -620,6 +638,12 @@ class YearsView(ScopeView):
 
 
 class Calendar(Keyboard):
+    """
+    Calendar widget.
+
+    Used to render keyboard for date selection.
+    """
+
     def __init__(
             self,
             id: str,
@@ -627,6 +651,14 @@ class Calendar(Keyboard):
             config: Optional[CalendarConfig] = None,
             when: WhenCondition = None,
     ):
+        """
+        Init calendar widget.
+
+        :param id: ID of widget
+        :param on_click: Function to handle date selection
+        :param config: Calendar configuration
+        :param when: Condition when to show widget
+        """
         super().__init__(id=id, when=when)
         self.on_click = ensure_event_processor(on_click)
         if config is None:
@@ -644,19 +676,29 @@ class Calendar(Keyboard):
             CALLBACK_SCOPE_YEARS: self._handle_scope_years,
         }
 
-    def _init_views(self) -> Dict[Scope, ScopeView]:
+    def _init_views(self) -> Dict[CalendarScope, CalendarScopeView]:
+        """
+        Calendar scopes view initializer.
+
+        Override this method customize how calendar is rendered.
+        You can either set Text widgets for common buttons or
+        create own implementation of views
+        """
         return {
-            Scope.DAYS: DaysView(self._item_callback_data, self.config),
-            Scope.MONTHS: MonthView(self._item_callback_data, self.config),
-            Scope.YEARS: YearsView(self._item_callback_data, self.config),
+            CalendarScope.DAYS: CalendarDaysView(self._item_callback_data,
+                                                 self.config),
+            CalendarScope.MONTHS: CalendarMonthView(self._item_callback_data,
+                                                    self.config),
+            CalendarScope.YEARS: CalendarYearsView(self._item_callback_data,
+                                                   self.config),
         }
 
     async def _get_config(
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> UserConfig:
-        return UserConfig()
+    ) -> CalendarUserConfig:
+        return CalendarUserConfig()
 
     async def _render_keyboard(
             self,
@@ -672,16 +714,16 @@ class Calendar(Keyboard):
             self.set_offset(offset, manager)
         return await view.render(config, offset, data, manager)
 
-    def get_scope(self, manager: DialogManager) -> Scope:
+    def get_scope(self, manager: DialogManager) -> CalendarScope:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_scope = calendar_data.get("current_scope")
         if not current_scope:
-            return Scope.DAYS
+            return CalendarScope.DAYS
         try:
-            return Scope(current_scope)
+            return CalendarScope(current_scope)
         except ValueError:
             # LOG
-            return Scope.DAYS
+            return CalendarScope.DAYS
 
     def get_offset(self, manager: DialogManager) -> Optional[date]:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
@@ -695,7 +737,8 @@ class Calendar(Keyboard):
         data = self.get_widget_data(manager, {})
         data["current_offset"] = new_offset.isoformat()
 
-    def set_scope(self, new_scope: Scope, manager: DialogManager) -> None:
+    def set_scope(self, new_scope: CalendarScope,
+                  manager: DialogManager) -> None:
         data = self.get_widget_data(manager, {})
         data["current_scope"] = new_scope.value
 
@@ -705,12 +748,12 @@ class Calendar(Keyboard):
     async def _handle_scope_months(
             self, data: str, manager: DialogManager,
     ) -> None:
-        self.set_scope(Scope.MONTHS, manager)
+        self.set_scope(CalendarScope.MONTHS, manager)
 
     async def _handle_scope_years(
             self, data: str, manager: DialogManager,
     ) -> None:
-        self.set_scope(Scope.YEARS, manager)
+        self.set_scope(CalendarScope.YEARS, manager)
 
     async def _handle_prev_month(
             self, data: str, manager: DialogManager,
@@ -761,7 +804,7 @@ class Calendar(Keyboard):
         month = int(data[len(CALLBACK_PREFIX_MONTH):])
         offset = date(offset.year, month, 1)
         self.set_offset(offset, manager)
-        self.set_scope(Scope.DAYS, manager)
+        self.set_scope(CalendarScope.DAYS, manager)
 
     async def _handle_click_year(
             self, data: str, manager: DialogManager,
@@ -769,7 +812,7 @@ class Calendar(Keyboard):
         year = int(data[len(CALLBACK_PREFIX_YEAR):])
         offset = date(year, 1, 1)
         self.set_offset(offset, manager)
-        self.set_scope(Scope.MONTHS, manager)
+        self.set_scope(CalendarScope.MONTHS, manager)
 
     async def _handle_click_date(
             self, data: str, manager: DialogManager,
@@ -802,7 +845,7 @@ class Calendar(Keyboard):
 
 
 class ManagedCalendarAdapter(ManagedWidget[Calendar]):
-    def get_scope(self) -> Scope:
+    def get_scope(self) -> CalendarScope:
         """Get current scope showing in calendar."""
         return self.widget.get_scope(self.manager)
 
@@ -817,7 +860,7 @@ class ManagedCalendarAdapter(ManagedWidget[Calendar]):
         return self.widget.set_offset(new_offset, self.manager)
 
     def set_scope(
-            self, new_scope: Scope,
+            self, new_scope: CalendarScope,
     ) -> None:
         """Set current scope showing in calendar."""
         return self.widget.set_scope(new_scope, self.manager)
