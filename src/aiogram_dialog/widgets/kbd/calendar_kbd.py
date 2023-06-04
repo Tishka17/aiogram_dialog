@@ -100,11 +100,11 @@ class CalendarUserConfig:
 
 @dataclass(frozen=True)
 class CalendarConfig:
-    min_date = date(1900, 1, 1)
-    max_date = date(2100, 12, 31)
+    min_date: date = date(1900, 1, 1)
+    max_date: date = date(2100, 12, 31)
     month_columns: int = 3
-    years_per_page = 20
-    years_columns = 5
+    years_per_page: int = 20
+    years_columns: int = 5
 
 
 class CalendarScopeView(Protocol):
@@ -682,7 +682,7 @@ class Calendar(Keyboard):
         Calendar scopes view initializer.
 
         Override this method customize how calendar is rendered.
-        You can either set Text widgets for common buttons or
+        You can either set Text widgets for buttons in default views or
         create own implementation of views
         """
         return {
@@ -699,6 +699,15 @@ class Calendar(Keyboard):
             data: Dict,
             manager: DialogManager,
     ) -> CalendarUserConfig:
+        """
+        User related config getter.
+
+        OVerride this method to customize how user config is retrieved.
+
+        :param data: data from window getter
+        :param manager: dialog manager instance
+        :return:
+        """
         return CalendarUserConfig()
 
     async def _render_keyboard(
