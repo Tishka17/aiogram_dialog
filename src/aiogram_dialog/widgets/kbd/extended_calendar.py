@@ -3,15 +3,18 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from time import mktime
-from typing import Callable, Dict, List, Optional, Protocol, TypedDict
+from typing import Callable, Dict, List, Optional, Protocol, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
 from aiogram_dialog.widgets.text import Format, Text
-from aiogram_dialog.widgets.widget_event import ensure_event_processor
+from aiogram_dialog.widgets.widget_event import (
+    ensure_event_processor, WidgetEventProcessor,
+)
 
 CALLBACK_NEXT_MONTH = "+"
 CALLBACK_PREV_MONTH = "-"
@@ -74,11 +77,20 @@ class CalendarData(TypedDict):
     current_offset: str
 
 
+class OnDateSelected(Protocol):
+    def __call__(
+            self,
+            event: ChatEvent,
+            widget: "ManagedCalendarAdapter",
+            dialog_manager: DialogManager,
+    ):
+        raise NotImplementedError
+
+
 @dataclass
 class UserConfig:
     firstweekday: int = MONDAY
     timezone: timezone = timezone(timedelta(seconds=3600 * 6))
-    locale: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -611,7 +623,7 @@ class Calendar(Keyboard):
     def __init__(
             self,
             id: str,
-            on_click=None,
+            on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
             config: Optional[CalendarConfig] = None,
             when: WhenCondition = None,
     ):
@@ -640,7 +652,9 @@ class Calendar(Keyboard):
         }
 
     async def _get_config(
-            self, data: Dict, manager: DialogManager,
+            self,
+            data: Dict,
+            manager: DialogManager,
     ) -> UserConfig:
         return UserConfig()
 
