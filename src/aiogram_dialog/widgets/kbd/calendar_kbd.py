@@ -250,6 +250,7 @@ class CalendarDaysView(CalendarScopeView):
         next_month = (curr_month % 12) + 1
         prev_month = (curr_month - 2) % 12 + 1
         prev_end = month_begin(offset) - timedelta(1)
+        prev_begin = month_begin(prev_end)
         next_begin = next_month_begin(offset)
         if (
                 prev_end < self.config.min_date and
@@ -259,7 +260,7 @@ class CalendarDaysView(CalendarScopeView):
 
         prev_month_data = {
             "mongth": prev_month,
-            "date": BEARING_DATE.replace(month=prev_month),
+            "date": prev_begin,
             "data": data,
         }
         curr_month_data = {
@@ -269,7 +270,7 @@ class CalendarDaysView(CalendarScopeView):
         }
         next_month_data = {
             "month": next_month,
-            "date": BEARING_DATE.replace(month=next_month),
+            "date": next_begin,
             "data": data,
         }
         if prev_end < self.config.min_date:
