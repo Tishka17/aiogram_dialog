@@ -15,6 +15,7 @@ text = Case(
         "red": Const("Square"),
         "green": Const("Unicorn"),
         "blue": Const("Moon"),
+        ...: Const("Unknown creature"),
     },
     selector="color",
 )
