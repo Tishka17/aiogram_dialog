@@ -22,6 +22,7 @@ from aiogram_dialog.api.entities import (
     Stack,
     StartMode,
 )
+from aiogram_dialog.api.exceptions import NoContextError
 from aiogram_dialog.manager.setup import collect_dialogs
 
 
@@ -70,13 +71,13 @@ class FakeManager(DialogManager):
 
     async def next(self) -> None:
         states = self._dialog.states()
-        current_index = states.index(self._context.state)
+        current_index = states.index(self.current_context().state)
         new_state = states[current_index + 1]
         await self.switch_to(new_state)
 
     async def back(self) -> None:
         states = self._dialog.states()
-        current_index = states.index(self._context.state)
+        current_index = states.index(self.current_context().state)
         new_state = states[current_index - 1]
         await self.switch_to(new_state)
 
@@ -102,7 +103,7 @@ class FakeManager(DialogManager):
         self.reset_context()
 
     def set_state(self, state: State):
-        self._context.state = state
+        self.current_context().state = state
 
     def is_preview(self) -> bool:
         return True
@@ -116,7 +117,7 @@ class FakeManager(DialogManager):
 
     @property
     def dialog_data(self) -> Dict:
-        return self._context.dialog_data
+        return self.current_context().dialog_data
 
     def reset_context(self) -> None:
         self._context = Context(
@@ -147,6 +148,8 @@ class FakeManager(DialogManager):
         return Stack()
 
     def current_context(self) -> Context:
+        if not self._context:
+            raise NoContextError
         return self._context
 
     def has_context(self) -> bool:
@@ -158,15 +161,16 @@ class FakeManager(DialogManager):
 
 def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
     if not media:
-        return
+        return None
     if media.type != ContentType.PHOTO:
-        return
+        return None
     if media.url:
         return media.url
     if media.path:
         return media.path
     if media.file_id:
         return str(media.file_id)
+    return None
 
 
 async def create_button(
