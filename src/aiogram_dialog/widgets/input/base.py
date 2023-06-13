@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 from aiogram import F
@@ -21,6 +22,7 @@ MessageHandlerFunc = Callable[
 
 
 class BaseInput(Actionable, InputWidget):
+    @abstractmethod
     async def process_message(
             self, message: Message, dialog: DialogProtocol,
             manager: DialogManager,
