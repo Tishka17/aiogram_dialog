@@ -146,8 +146,11 @@ class FakeManager(DialogManager):
     def current_stack(self) -> Optional[Stack]:
         return Stack()
 
-    def current_context(self) -> Optional[Context]:
+    def current_context(self) -> Context:
         return self._context
+
+    def has_context(self) -> bool:
+        return bool(self._context)
 
     async def show_raw(self) -> NewMessage:
         return await self._dialog.render(self)

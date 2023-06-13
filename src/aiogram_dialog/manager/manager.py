@@ -10,7 +10,9 @@ from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
     ShowMode, Stack, StartMode,
 )
-from aiogram_dialog.api.exceptions import IncorrectBackgroundError
+from aiogram_dialog.api.exceptions import (
+    IncorrectBackgroundError, NoContextError,
+)
 from aiogram_dialog.api.internal import (
     CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
 )
@@ -103,9 +105,19 @@ class ManagerImpl(DialogManager):
             raise RuntimeError
         return self._registry.find_dialog(current.state)
 
-    def current_context(self) -> Optional[Context]:
+    def current_context(self) -> Context:
         self.check_disabled()
-        return self._data[CONTEXT_KEY]
+        context = self._data[CONTEXT_KEY]
+        if not context:
+            logger.warning(
+                "Trying to access current context, while no dialog is opened"
+            )
+            raise NoContextError
+        return context
+
+    def has_context(self) -> bool:
+        self.check_disabled()
+        return bool(self._data.get(CONTEXT_KEY))
 
     def current_stack(self) -> Optional[Stack]:
         self.check_disabled()

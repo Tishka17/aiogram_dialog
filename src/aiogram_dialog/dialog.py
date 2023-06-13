@@ -17,7 +17,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
-from aiogram_dialog.api.exceptions import UnregisteredWindowError
+from aiogram_dialog.api.exceptions import (
+    NoContextError, UnregisteredWindowError,
+)
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
@@ -129,10 +131,13 @@ class Dialog(Router, DialogProtocol):
     async def _message_handler(
             self, message: Message, dialog_manager: DialogManager,
     ):
-        intent = dialog_manager.current_context()
+        try:
+            old_context = dialog_manager.current_context()
+        except NoContextError:
+            old_context = None
         window = await self._current_window(dialog_manager)
         await window.process_message(message, self, dialog_manager)
-        if dialog_manager.current_context() == intent:  # no new dialog started
+        if dialog_manager.current_context() == old_context:  # same dialog
             await dialog_manager.show()
 
     async def _callback_handler(
@@ -140,12 +145,15 @@ class Dialog(Router, DialogProtocol):
             callback: CallbackQuery,
             dialog_manager: DialogManager,
     ):
-        intent = dialog_manager.current_context()
+        try:
+            old_context = dialog_manager.current_context()
+        except NoContextError:
+            old_context = None
         intent_id, callback_data = remove_indent_id(callback.data)
         cleaned_callback = callback.copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
-        if dialog_manager.current_context() == intent:  # no new dialog started
+        if dialog_manager.current_context() == old_context:  # same dialog
             await dialog_manager.show()
         if not dialog_manager.is_preview():
             try:

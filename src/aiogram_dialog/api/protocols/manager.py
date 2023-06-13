@@ -99,8 +99,17 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def current_context(self) -> Optional[Context]:
-        """Get current dialog context."""
+    def current_context(self) -> Context:
+        """
+        Get current dialog context.
+
+        :raise NoContextError if there is no open dialog
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def has_context(self) -> bool:
+        """Check if there is current context."""
         raise NotImplementedError
 
     @abstractmethod

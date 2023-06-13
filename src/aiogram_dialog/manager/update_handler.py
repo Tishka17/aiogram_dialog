@@ -23,7 +23,7 @@ async def handle_update(event: DialogUpdateEvent, dialog_manager: ManagerImpl):
         await dialog_manager.switch_to(state=event.new_state)
         await dialog_manager.show()
     elif event.action is DialogAction.UPDATE:
-        if not dialog_manager.current_context():
+        if not dialog_manager.has_context():
             logger.warning("No context found")
             return
         if event.data:
