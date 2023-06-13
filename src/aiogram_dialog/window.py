@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+
 try:
     from aiogram.types import UNSET_PARSE_MODE
 except ImportError:
@@ -77,14 +78,14 @@ class Window(WindowProtocol):
     async def process_message(
             self, message: Message, dialog: DialogProtocol,
             manager: DialogManager,
-    ):
+    ) -> None:
         if self.on_message:
             await self.on_message.process_message(message, dialog, manager)
 
     async def process_callback(
             self, callback: CallbackQuery, dialog: DialogProtocol,
             manager: DialogManager,
-    ):
+    ) -> None:
         if self.keyboard:
             await self.keyboard.process_callback(callback, dialog, manager)
 
@@ -114,5 +115,5 @@ class Window(WindowProtocol):
                     return found
         return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__qualname__}({self.state})>"

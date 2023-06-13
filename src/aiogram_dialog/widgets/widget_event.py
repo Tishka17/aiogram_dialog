@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Any, Callable, Union
 
 from aiogram_dialog.api.entities import ChatEvent
@@ -5,6 +6,7 @@ from aiogram_dialog.api.protocols import DialogManager
 
 
 class WidgetEventProcessor:
+    @abstractmethod
     async def process_event(
             self,
             event: ChatEvent,

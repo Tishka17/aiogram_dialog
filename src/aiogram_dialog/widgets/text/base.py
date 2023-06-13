@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Dict, Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
@@ -24,6 +25,7 @@ class Text(Whenable, BaseWidget, TextWidget):
             return ""
         return await self._render_text(data, manager)
 
+    @abstractmethod
     async def _render_text(self, data, manager: DialogManager) -> str:
         """
         Create text.

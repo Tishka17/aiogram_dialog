@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import Dict, Protocol, Union
 
 from magic_filter import MagicFilter
@@ -8,6 +9,7 @@ from aiogram_dialog.api.protocols import DialogManager
 
 
 class Predicate(Protocol):
+    @abstractmethod
     def __call__(
             self,
             data: Dict,

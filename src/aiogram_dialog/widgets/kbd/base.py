@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
@@ -29,6 +30,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             return []
         return await self._render_keyboard(data, manager)
 
+    @abstractmethod
     async def _render_keyboard(
             self,
             data,

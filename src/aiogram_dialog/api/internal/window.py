@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import (
     Any,
     Dict,
@@ -13,15 +14,18 @@ from .manager import DialogManager
 
 
 class WindowProtocol(Protocol):
+    @abstractmethod
     async def render_text(self, data: Dict,
                           manager: DialogManager) -> str:
         raise NotImplementedError
 
+    @abstractmethod
     async def render_kbd(
             self, data: Dict, manager: DialogManager,
     ) -> InlineKeyboardMarkup:
         raise NotImplementedError
 
+    @abstractmethod
     async def load_data(
             self,
             dialog: "DialogProtocol",
@@ -29,22 +33,25 @@ class WindowProtocol(Protocol):
     ) -> Dict:
         raise NotImplementedError
 
+    @abstractmethod
     async def process_message(
             self,
             message: Message,
             dialog: "DialogProtocol",
             manager: DialogManager,
-    ):
+    ) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     async def process_callback(
             self,
             callback: CallbackQuery,
             dialog: "DialogProtocol",
             manager: DialogManager,
-    ):
+    ) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     async def render(
             self,
             dialog: "DialogProtocol",
@@ -52,8 +59,10 @@ class WindowProtocol(Protocol):
     ) -> NewMessage:
         raise NotImplementedError
 
+    @abstractmethod
     def get_state(self) -> State:
         raise NotImplementedError
 
+    @abstractmethod
     def find(self, widget_id) -> Any:
         raise NotImplementedError

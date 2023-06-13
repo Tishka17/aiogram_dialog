@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import (
     Any, Callable, Generic, Optional, Protocol, TypeVar, Union,
 )
@@ -20,6 +21,7 @@ TypeFactory = Callable[[str], T]
 
 
 class OnSuccess(Protocol[T]):
+    @abstractmethod
     async def __call__(
             self,
             message: Message,
@@ -31,6 +33,7 @@ class OnSuccess(Protocol[T]):
 
 
 class OnError(Protocol[T]):
+    @abstractmethod
     async def __call__(
             self,
             message: Message,
@@ -63,7 +66,7 @@ class TextInput(BaseInput, Generic[T]):
             message: Message,
             dialog: DialogProtocol,
             manager: DialogManager,
-    ):
+    ) -> bool:
         if message.content_type != ContentType.TEXT:
             return False
         if self.filter and not await self.filter.call(
