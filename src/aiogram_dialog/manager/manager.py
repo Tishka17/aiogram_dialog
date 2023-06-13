@@ -119,7 +119,7 @@ class ManagerImpl(DialogManager):
         self.check_disabled()
         return bool(self._data.get(CONTEXT_KEY))
 
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         self.check_disabled()
         return self._data[STACK_KEY]
 

@@ -56,7 +56,7 @@ class SubManager(DialogManager):
     def is_preview(self) -> bool:
         return self.manager.is_preview()
 
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         return self.manager.current_stack()
 
     async def close_manager(self) -> None:

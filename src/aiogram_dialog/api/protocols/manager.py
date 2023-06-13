@@ -113,7 +113,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         """Get current dialog stack."""
         raise NotImplementedError
 

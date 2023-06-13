@@ -144,7 +144,7 @@ class FakeManager(DialogManager):
     async def done(self, result: Any = None) -> None:
         self.set_state(State("-"))
 
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         return Stack()
 
     def current_context(self) -> Context:
