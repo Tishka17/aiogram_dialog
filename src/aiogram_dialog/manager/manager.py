@@ -110,7 +110,7 @@ class ManagerImpl(DialogManager):
         context = self._current_context_unsafe()
         if not context:
             logger.warning(
-                "Trying to access current context, while no dialog is opened"
+                "Trying to access current context, while no dialog is opened",
             )
             raise NoContextError
         return context
