@@ -107,7 +107,7 @@ class ManagerImpl(DialogManager):
 
     def current_context(self) -> Context:
         self.check_disabled()
-        context = self._data[CONTEXT_KEY]
+        context = self._current_context_unsafe()
         if not context:
             logger.warning(
                 "Trying to access current context, while no dialog is opened"
@@ -115,9 +115,12 @@ class ManagerImpl(DialogManager):
             raise NoContextError
         return context
 
+    def _current_context_unsafe(self) -> Optional[Context]:
+        return self._data[CONTEXT_KEY]
+
     def has_context(self) -> bool:
         self.check_disabled()
-        return bool(self._data.get(CONTEXT_KEY))
+        return bool(self._current_context_unsafe())
 
     def current_stack(self) -> Stack:
         self.check_disabled()
@@ -155,7 +158,7 @@ class ManagerImpl(DialogManager):
         await self.dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
-        context = self.current_context()
+        context = self._current_context_unsafe()
         if not context:
             await self._process_last_dialog_result(
                 old_context.start_data,
@@ -164,7 +167,7 @@ class ManagerImpl(DialogManager):
             return
         dialog = self.dialog()
         await dialog.process_result(old_context.start_data, result, self)
-        new_context = self.current_context()
+        new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
             await self.show()
 
@@ -241,17 +244,17 @@ class ManagerImpl(DialogManager):
             if new_dialog is old_dialog:
                 await self.storage().remove_context(stack.pop())
 
-        await self.storage().save_context(self.current_context())
+        if self.has_context():
+            await self.storage().save_context(self.current_context())
         context = stack.push(state, data)
         self._data[CONTEXT_KEY] = context
         await self.dialog().process_start(self, data, state)
-        if context.id == self.current_context().id:
+        new_context = self._current_context_unsafe()
+        if new_context and context.id == new_context.id:
             await self.show()
 
     async def next(self) -> None:
         context = self.current_context()
-        if not context:
-            raise ValueError("No intent")
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index + 1]
@@ -259,8 +262,6 @@ class ManagerImpl(DialogManager):
 
     async def back(self) -> None:
         context = self.current_context()
-        if not context:
-            raise ValueError("No intent")
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index - 1]
@@ -413,14 +414,14 @@ class ManagerImpl(DialogManager):
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
             load: bool = False,
-    ) -> "BaseDialogManager":
+    ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
         if stack_id is None:
             if self.is_same_chat(user, chat):
                 stack_id = self.current_stack().id
-                if self.current_context():
+                if self.has_context():
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID
