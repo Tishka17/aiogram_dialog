@@ -1,8 +1,7 @@
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional, Type
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.fsm.state import StatesGroup
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
 
