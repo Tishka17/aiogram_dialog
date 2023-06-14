@@ -174,10 +174,10 @@ async def context_saver_middleware(handler, event, data):
 class IntentErrorMiddleware(BaseMiddleware):
     def __init__(
             self,
-            state_groups: Dict[str, Type[StatesGroup]],
+            registry: DialogRegistryProtocol,
     ):
         super().__init__()
-        self.state_groups = state_groups
+        self.registry = registry
 
     def _is_error_supported(
             self, event: ErrorEvent, data: Dict[str, Any],
@@ -232,7 +232,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                 storage=data["fsm_storage"],
                 user_id=user.id,
                 chat_id=chat.id,
-                state_groups=self.state_groups,
+                state_groups=self.registry.state_groups(),
             )
             data[STORAGE_KEY] = proxy
             if isinstance(error, OutdatedIntent):

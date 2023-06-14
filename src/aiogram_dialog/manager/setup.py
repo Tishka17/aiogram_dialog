@@ -115,7 +115,7 @@ def _register_middleware(
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
 
-    router.errors.middleware(IntentErrorMiddleware(state_groups={}))
+    router.errors.middleware(IntentErrorMiddleware(registry=registry))
 
 
 def _prepare_dialog_manager_factory(
