@@ -2,7 +2,7 @@ __all__ = [
     "Context", "Data",
     "ChatEvent",
     "LaunchMode",
-    "MediaAttachment", "MediaId",
+    "MediaAttachment", "MediaId", "MediaBufferedData",
     "ShowMode", "StartMode",
     "NewMessage",
     "DEFAULT_STACK_ID", "Stack",
@@ -13,7 +13,7 @@ __all__ = [
 from .context import Context, Data
 from .events import ChatEvent
 from .launch_mode import LaunchMode
-from .media import MediaAttachment, MediaId
+from .media import MediaAttachment, MediaId, MediaBufferedData
 from .modes import ShowMode, StartMode
 from .new_message import NewMessage
 from .stack import DEFAULT_STACK_ID, Stack

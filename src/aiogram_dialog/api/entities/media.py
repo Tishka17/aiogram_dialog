@@ -17,6 +17,12 @@ class MediaId:
         return self.file_unique_id == other.file_unique_id
 
 
+@dataclass
+class MediaBufferedData:
+    file: bytes
+    filename: str
+
+
 class MediaAttachment:
     def __init__(
             self,
@@ -24,14 +30,16 @@ class MediaAttachment:
             url: Optional[str] = None,
             path: Optional[str] = None,
             file_id: Optional[MediaId] = None,
+            data: Optional[MediaBufferedData] = None,
             use_pipe: bool = False,
             **kwargs,
     ):
-        if not (url or path or file_id):
-            raise ValueError("Neither url nor path not file_id are provided")
+        if not (url or path or file_id or data):
+            raise ValueError("Neither url nor path not file_id not data are provided")
         self.type = type
         self.url = url
         self.path = path
         self.file_id = file_id
+        self.data = data
         self.use_pipe = use_pipe
         self.kwargs = kwargs

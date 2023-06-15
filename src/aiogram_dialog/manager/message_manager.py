@@ -6,6 +6,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import (
     CallbackQuery,
     ContentType,
+    BufferedInputFile,
     FSInputFile,
     InputFile,
     InputMedia,
@@ -49,8 +50,9 @@ class MessageManager(MessageManagerProtocol):
             if media.use_pipe:
                 return URLInputFile(media.url)
             return media.url
-        else:
-            return FSInputFile(media.path)
+        if media.data:
+            return BufferedInputFile(media.data.file, media.data.filename)
+        return FSInputFile(media.path)
 
     def had_media(self, old_message: Message) -> bool:
         return old_message.content_type != ContentType.TEXT
