@@ -652,7 +652,7 @@ class Calendar(Keyboard):
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
             config: Optional[CalendarConfig] = None,
             when: WhenCondition = None,
-    ):
+    ) -> None:
         """
         Init calendar widget.
 

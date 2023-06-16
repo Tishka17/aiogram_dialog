@@ -1,5 +1,8 @@
+from aiogram.types import CallbackQuery
+
 from aiogram_dialog import (
-    Dialog, Window, DialogManager, )
+    Dialog, Window, DialogManager,
+)
 from aiogram_dialog.widgets.kbd import (
     Counter, ManagedCounterAdapter,
 )
@@ -19,6 +22,13 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
+async def on_text_click(
+        event: CallbackQuery, widget: ManagedCounterAdapter,
+        dialog_manager: DialogManager,
+) -> None:
+    await event.answer(f"Value: {widget.get_value()}")
+
+
 counter_dialog = Dialog(
     Window(
         Const("`Counter` widget is used to create +/- buttons."),
@@ -28,6 +38,7 @@ counter_dialog = Dialog(
             id=ID_COUNTER,
             default=0,
             max_value=MAX_VALUE,
+            on_text_click=on_text_click,
         ),
         MAIN_MENU_BUTTON,
         state=states.Counter.MAIN,
