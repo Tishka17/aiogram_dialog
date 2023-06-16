@@ -9,7 +9,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import Dialog, DialogManager, DialogProtocol
+from aiogram_dialog import (
+    BaseDialogManager, Dialog, DialogManager, DialogProtocol,
+)
 from aiogram_dialog.api.entities import (
     ChatEvent,
     Context,
@@ -22,6 +24,7 @@ from aiogram_dialog.api.entities import (
     Stack,
     StartMode,
 )
+from aiogram_dialog.api.exceptions import NoContextError
 from aiogram_dialog.manager.setup import collect_dialogs
 
 
@@ -48,8 +51,6 @@ class RenderDialog:
 
 
 class FakeManager(DialogManager):
-    async def answer_callback(self) -> None:
-        pass
 
     def __init__(self):
         self._event = DialogUpdateEvent(
@@ -70,13 +71,13 @@ class FakeManager(DialogManager):
 
     async def next(self) -> None:
         states = self._dialog.states()
-        current_index = states.index(self._context.state)
+        current_index = states.index(self.current_context().state)
         new_state = states[current_index + 1]
         await self.switch_to(new_state)
 
     async def back(self) -> None:
         states = self._dialog.states()
-        current_index = states.index(self._context.state)
+        current_index = states.index(self.current_context().state)
         new_state = states[current_index - 1]
         await self.switch_to(new_state)
 
@@ -102,7 +103,7 @@ class FakeManager(DialogManager):
         self.reset_context()
 
     def set_state(self, state: State):
-        self._context.state = state
+        self.current_context().state = state
 
     def is_preview(self) -> bool:
         return True
@@ -116,7 +117,7 @@ class FakeManager(DialogManager):
 
     @property
     def dialog_data(self) -> Dict:
-        return self._context.dialog_data
+        return self.current_context().dialog_data
 
     def reset_context(self) -> None:
         self._context = Context(
@@ -143,27 +144,67 @@ class FakeManager(DialogManager):
     async def done(self, result: Any = None) -> None:
         self.set_state(State("-"))
 
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         return Stack()
 
-    def current_context(self) -> Optional[Context]:
+    def current_context(self) -> Context:
+        if not self._context:
+            raise NoContextError
         return self._context
+
+    def has_context(self) -> bool:
+        return bool(self._context)
 
     async def show_raw(self) -> NewMessage:
         return await self._dialog.render(self)
 
+    async def mark_closed(self) -> None:
+        pass
+
+    @property
+    def start_data(self) -> Dict:
+        return {}
+
+    @property
+    def show_mode(self) -> ShowMode:
+        return ShowMode.AUTO
+
+    @show_mode.setter
+    def show_mode(self, show_mode: ShowMode) -> None:
+        return
+
+    async def show(self) -> Message:
+        pass
+
+    def find(self, widget_id) -> Optional[Any]:
+        return None
+
+    async def update(self, data: Dict) -> None:
+        pass
+
+    def bg(
+            self,
+            user_id: Optional[int] = None, chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None, load: bool = False,
+    ) -> BaseDialogManager:
+        return self
+
+    async def answer_callback(self) -> None:
+        pass
+
 
 def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
     if not media:
-        return
+        return None
     if media.type != ContentType.PHOTO:
-        return
+        return None
     if media.url:
         return media.url
     if media.path:
         return media.path
     if media.file_id:
         return str(media.file_id)
+    return None
 
 
 async def create_button(

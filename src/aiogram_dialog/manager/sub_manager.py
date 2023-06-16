@@ -44,16 +44,19 @@ class SubManager(DialogManager):
         """Start data for current context."""
         return self.manager.start_data
 
-    def current_context(self) -> Optional[Context]:
+    def current_context(self) -> Context:
         context = self.manager.current_context()
         data = context.widget_data.setdefault(self.widget_id, {})
         row_data = data.setdefault(self.item_id, {})
         return dataclasses.replace(context, widget_data=row_data)
 
+    def has_context(self) -> bool:
+        return self.manager.has_context()
+
     def is_preview(self) -> bool:
         return self.manager.is_preview()
 
-    def current_stack(self) -> Optional[Stack]:
+    def current_stack(self) -> Stack:
         return self.manager.current_stack()
 
     async def close_manager(self) -> None:

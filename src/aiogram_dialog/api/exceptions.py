@@ -30,6 +30,10 @@ class IncorrectBackgroundError(DialogsError):
     pass
 
 
+class NoContextError(DialogsError):
+    pass
+
+
 # navigation
 class UnregisteredDialogError(DialogsError):
     pass

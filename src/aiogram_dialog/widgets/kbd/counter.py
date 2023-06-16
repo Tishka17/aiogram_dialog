@@ -57,14 +57,12 @@ class Counter(Keyboard):
         self.on_value_changed = ensure_event_processor(on_value_changed)
 
     def get_value(self, manager: DialogManager) -> float:
-        return manager.current_context().widget_data.get(
-            self.widget_id, self.default,
-        )
+        return self.get_widget_data(manager, self.default)
 
     async def set_value(self, manager: DialogManager,
                         value: float) -> None:
         if self.min <= value <= self.max:
-            manager.current_context().widget_data[self.widget_id] = value
+            self.set_widget_data(manager, value)
             await self.on_value_changed.process_event(
                 manager.event,
                 self.managed(manager),
@@ -129,9 +127,6 @@ class Counter(Keyboard):
                 value = self.max
             await self.set_value(manager, value)
         return True
-
-    def get_page(self, manager: DialogManager) -> int:
-        return manager.current_context().widget_data.get(self.widget_id, 0)
 
     def managed(self, manager: DialogManager):
         return ManagedCounterAdapter(self, manager)
