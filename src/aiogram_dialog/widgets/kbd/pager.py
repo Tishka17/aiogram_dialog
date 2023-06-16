@@ -1,3 +1,4 @@
+from abc import ABC
 from enum import Enum
 from typing import Dict, List, TypedDict, Union
 
@@ -40,7 +41,7 @@ DEFAULT_PAGE_TEXT = Format("{target_page1}")
 DEFAULT_CURRENT_PAGE_TEXT = Format("[ {current_page1} ]")
 
 
-class BasePager(Keyboard):
+class BasePager(Keyboard, ABC):
     def __init__(
             self,
             scroll: Union[str, Scroll, None],
