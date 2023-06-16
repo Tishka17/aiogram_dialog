@@ -4,9 +4,9 @@ from typing import Optional, Union
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import (
+    BufferedInputFile,
     CallbackQuery,
     ContentType,
-    BufferedInputFile,
     FSInputFile,
     InputFile,
     InputMedia,

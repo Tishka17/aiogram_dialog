@@ -35,7 +35,8 @@ class MediaAttachment:
             **kwargs,
     ):
         if not (url or path or file_id or data):
-            raise ValueError("Neither url nor path not file_id not data are provided")
+            raise ValueError(
+                "Neither url nor path not file_id not data are provided")
         self.type = type
         self.url = url
         self.path = path
