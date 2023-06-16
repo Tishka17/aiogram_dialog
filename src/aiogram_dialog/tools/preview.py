@@ -9,7 +9,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from aiogram_dialog import Dialog, DialogManager, DialogProtocol
+from aiogram_dialog import (
+    BaseDialogManager, Dialog, DialogManager, DialogProtocol,
+)
 from aiogram_dialog.api.entities import (
     ChatEvent,
     Context,
@@ -49,8 +51,6 @@ class RenderDialog:
 
 
 class FakeManager(DialogManager):
-    async def answer_callback(self) -> None:
-        pass
 
     def __init__(self):
         self._event = DialogUpdateEvent(
@@ -157,6 +157,40 @@ class FakeManager(DialogManager):
 
     async def show_raw(self) -> NewMessage:
         return await self._dialog.render(self)
+
+    async def mark_closed(self) -> None:
+        pass
+
+    @property
+    def start_data(self) -> Dict:
+        return {}
+
+    @property
+    def show_mode(self) -> ShowMode:
+        return ShowMode.AUTO
+
+    @show_mode.setter
+    def show_mode(self, show_mode: ShowMode) -> None:
+        return
+
+    async def show(self) -> Message:
+        pass
+
+    def find(self, widget_id) -> Optional[Any]:
+        return None
+
+    async def update(self, data: Dict) -> None:
+        pass
+
+    def bg(
+            self,
+            user_id: Optional[int] = None, chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None, load: bool = False,
+    ) -> BaseDialogManager:
+        return self
+
+    async def answer_callback(self) -> None:
+        pass
 
 
 def create_photo(media: Optional[MediaAttachment]) -> Optional[str]:
