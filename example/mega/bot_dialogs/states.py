@@ -29,6 +29,8 @@ class Selects(StatesGroup):
 
 class Calendar(StatesGroup):
     MAIN = State()
+    DEFAULT = State()
+    CUSTOM = State()
 
 
 class Counter(StatesGroup):
