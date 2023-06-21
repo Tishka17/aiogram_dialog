@@ -9,14 +9,16 @@ from aiogram_dialog.api.entities import NewMessage
 
 class MessageManagerProtocol(Protocol):
     @abstractmethod
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
+    async def remove_kbd(
+            self, bot: Bot, old_message: Optional[Message],
+    ) -> Optional[Message]:
         raise NotImplementedError
 
     @abstractmethod
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
             old_message: Optional[Message],
-    ):
+    ) -> Message:
         raise NotImplementedError
 
     @abstractmethod

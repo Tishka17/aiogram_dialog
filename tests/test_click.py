@@ -27,6 +27,10 @@ async def on_click(event, button, manager: DialogManager) -> None:
     await manager.next()
 
 
+async def on_finish(event, button, manager: DialogManager) -> None:
+    await manager.done()
+
+
 async def second_getter(user_getter, **kwargs) -> Dict[str, Any]:
     return {
         "user": user_getter(),
@@ -41,6 +45,7 @@ dialog = Dialog(
     ),
     Window(
         Format("Next {user}"),
+        Button(Const("Finish"), id="hello", on_click=on_finish),
         state=MainSG.next,
         getter=second_getter,
     ),
@@ -66,18 +71,21 @@ async def test_click():
     message_manager = MockMessageManager()
     setup_dialogs(dp, message_manager=message_manager)
 
+    # start
     await client.send("/start")
     first_message = message_manager.one_message()
     assert first_message.text == "stub"
     assert first_message.reply_markup
     user_getter.assert_not_called()
 
+    # redraw
     message_manager.reset_history()
     await client.send("whatever")
 
     first_message = message_manager.one_message()
     assert first_message.text == "stub"
 
+    # click next
     message_manager.reset_history()
     callback_id = await client.click(
         first_message, InlineButtonTextLocator("Button"),
@@ -87,5 +95,5 @@ async def test_click():
     usecase.assert_called()
     second_message = message_manager.one_message()
     assert second_message.text == "Next Username"
-    assert not second_message.reply_markup.inline_keyboard
+    assert second_message.reply_markup.inline_keyboard
     user_getter.assert_called_once()

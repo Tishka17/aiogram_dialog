@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Optional, Union
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.types import (
     CallbackQuery,
     ContentType,
@@ -31,14 +31,24 @@ SEND_METHODS = {
     ContentType.VOICE: "send_voice",
 }
 
+_INVALUD_QUERY_ID_MSG = (
+    "query is too old and response timeout expired or query id is invalid"
+)
+
 
 class MessageManager(MessageManagerProtocol):
     async def answer_callback(
             self, bot: Bot, callback_query: CallbackQuery,
     ) -> None:
-        await bot.answer_callback_query(
-            callback_query_id=callback_query.id,
-        )
+        try:
+            await bot.answer_callback_query(
+                callback_query_id=callback_query.id,
+            )
+        except TelegramAPIError as e:
+            if _INVALUD_QUERY_ID_MSG in e.message.lower():
+                logger.warning("Cannot answer callback: %s", e)
+            else:
+                raise
 
     async def get_media_source(
             self, media: MediaAttachment,
@@ -82,7 +92,7 @@ class MessageManager(MessageManagerProtocol):
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
             old_message: Optional[Message],
-    ):
+    ) -> Message:
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
                 "Send new message, because: mode=%s, has old_message=%s",
@@ -103,12 +113,14 @@ class MessageManager(MessageManagerProtocol):
         return await self.edit_message_safe(bot, new_message, old_message)
 
     # Clear
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
+    async def remove_kbd(
+            self, bot: Bot, old_message: Optional[Message],
+    ) -> Optional[Message]:
         if not old_message:
             return
         logger.debug("remove_kbd in %s", old_message.chat)
         try:
-            await bot.edit_message_reply_markup(
+            return await bot.edit_message_reply_markup(
                 message_id=old_message.message_id,
                 chat_id=old_message.chat.id,
             )
@@ -122,7 +134,9 @@ class MessageManager(MessageManagerProtocol):
             else:
                 raise err
 
-    async def remove_message_safe(self, bot: Bot, old_message: Message):
+    async def remove_message_safe(
+            self, bot: Bot, old_message: Message,
+    ) -> None:
         try:
             await bot.delete_message(
                 chat_id=old_message.chat.id,
@@ -140,7 +154,7 @@ class MessageManager(MessageManagerProtocol):
     # Edit
     async def edit_message_safe(
             self, bot: Bot, new_message: NewMessage, old_message: Message,
-    ):
+    ) -> Message:
         try:
             return await self.edit_message(bot, new_message, old_message)
         except TelegramBadRequest as err:
@@ -156,7 +170,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def edit_message(
             self, bot: Bot, new_message: NewMessage, old_message: Message,
-    ):
+    ) -> Message:
         if new_message.media:
             if new_message.media.file_id == get_media_id(old_message):
                 return await self.edit_caption(bot, new_message, old_message)
@@ -166,7 +180,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def edit_caption(
             self, bot: Bot, new_message: NewMessage, old_message: Message,
-    ):
+    ) -> Message:
         logger.debug("edit_caption to %s", new_message.chat)
         return await bot.edit_message_caption(
             message_id=old_message.message_id,
@@ -178,7 +192,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def edit_text(
             self, bot: Bot, new_message: NewMessage, old_message: Message,
-    ):
+    ) -> Message:
         logger.debug("edit_text to %s", new_message.chat)
         return await bot.edit_message_text(
             message_id=old_message.message_id,
@@ -191,7 +205,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def edit_media(
             self, bot: Bot, new_message: NewMessage, old_message: Message,
-    ):
+    ) -> Message:
         logger.debug(
             "edit_media to %s, media_id: %s",
             new_message.chat,
@@ -214,13 +228,13 @@ class MessageManager(MessageManagerProtocol):
         )
 
     # Send
-    async def send_message(self, bot: Bot, new_message: NewMessage):
+    async def send_message(self, bot: Bot, new_message: NewMessage) -> Message:
         if new_message.media:
             return await self.send_media(bot, new_message)
         else:
             return await self.send_text(bot, new_message)
 
-    async def send_text(self, bot: Bot, new_message: NewMessage):
+    async def send_text(self, bot: Bot, new_message: NewMessage) -> Message:
         logger.debug("send_text to %s", new_message.chat)
         return await bot.send_message(
             new_message.chat.id,
@@ -230,7 +244,7 @@ class MessageManager(MessageManagerProtocol):
             parse_mode=new_message.parse_mode,
         )
 
-    async def send_media(self, bot: Bot, new_message: NewMessage):
+    async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:
         logger.debug(
             "send_media to %s, media_id: %s",
             new_message.chat,
