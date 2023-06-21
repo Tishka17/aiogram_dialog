@@ -45,7 +45,7 @@ class MessageManager(MessageManagerProtocol):
                 callback_query_id=callback_query.id,
             )
         except TelegramAPIError as e:
-            if _INVALUD_QUERY_ID_MSG in e.message:
+            if _INVALUD_QUERY_ID_MSG in e.message.lower():
                 logger.warning("Cannot answer callback: %s", e)
             else:
                 raise
