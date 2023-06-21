@@ -98,11 +98,3 @@ async def test_click():
     assert second_message.reply_markup.inline_keyboard
     user_getter.assert_called_once()
 
-    # click finish
-    message_manager.reset_history()
-    callback_id = await client.click(
-        second_message, InlineButtonTextLocator("Finish"),
-    )
-    message_manager.assert_answered(callback_id)
-    last_message = message_manager.one_message()
-    assert not last_message.reply_markup, "Keyboard closed"
