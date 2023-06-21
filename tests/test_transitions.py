@@ -116,6 +116,23 @@ async def test_finish_last(dp, message_manager, client):
 
 
 @pytest.mark.asyncio
+async def test_reset_stack(dp, message_manager, client):
+    for i in range(200):
+        message_manager.reset_history()
+        await client.send("/start")
+        first_message = message_manager.one_message()
+        assert first_message.text == "First"
+
+    message_manager.reset_history()
+    callback_id = await client.click(
+        first_message, InlineButtonTextLocator("Cancel"),
+    )
+    message_manager.assert_answered(callback_id)
+    last_message = message_manager.one_message()
+    assert not last_message.reply_markup, "Keyboard closed"
+
+
+@pytest.mark.asyncio
 async def test_subdialog(dp, message_manager, client):
     await client.send("/start")
     first_message = message_manager.one_message()
