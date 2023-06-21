@@ -9,7 +9,7 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
-from aiogram_dialog.widgets.kbd import Next, Back, Start, Cancel
+from aiogram_dialog.widgets.kbd import Back, Cancel, Next, Start
 from aiogram_dialog.widgets.text import Const, Format
 
 
@@ -117,7 +117,7 @@ async def test_finish_last(dp, message_manager, client):
 
 @pytest.mark.asyncio
 async def test_reset_stack(dp, message_manager, client):
-    for i in range(200):
+    for _ in range(200):
         message_manager.reset_history()
         await client.send("/start")
         first_message = message_manager.one_message()

@@ -97,4 +97,3 @@ async def test_click():
     assert second_message.text == "Next Username"
     assert second_message.reply_markup.inline_keyboard
     user_getter.assert_called_once()
-

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, List, Optional, Union, Protocol
+from typing import Dict, List, Optional, Protocol, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -55,7 +55,7 @@ class Counter(Keyboard):
             when: WhenCondition = None,
     ) -> None:
         """
-        Init counter widget
+        Init counter widget.
 
         :param id: ID of widget
         :param plus: Text to render `+`-button. Set `None` to disable
@@ -168,9 +168,9 @@ class Counter(Keyboard):
 
 class ManagedCounterAdapter(ManagedWidget[Counter]):
     def get_value(self) -> float:
-        """Get current value set in counter"""
+        """Get current value set in counter."""
         return self.widget.get_value(self.manager)
 
     async def set_value(self, value: float) -> None:
-        """Change current counter value"""
+        """Change current counter value."""
         await self.widget.set_value(self.manager, value)

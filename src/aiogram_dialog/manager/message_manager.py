@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Optional, Union
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.types import (
     CallbackQuery,
     ContentType,
