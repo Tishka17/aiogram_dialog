@@ -58,8 +58,16 @@ class MockMessageManager(MessageManagerProtocol):
         self.assert_one_message()
         return self.first_message()
 
-    async def remove_kbd(self, bot: Bot, old_message: Optional[Message]):
-        pass
+    async def remove_kbd(
+            self, bot: Bot, old_message: Optional[Message],
+    ) -> Optional[Message]:
+        if not old_message:
+            return
+        data = old_message.dict()
+        data["reply_markup"] = None
+        message = Message(**data)
+        self.sent_messages.append(message)
+        return message
 
     async def answer_callback(
             self, bot: Bot, callback_query: CallbackQuery,

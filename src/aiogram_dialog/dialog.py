@@ -12,7 +12,6 @@ from typing import (
 )
 
 from aiogram import Router
-from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
@@ -35,10 +34,6 @@ ChatEvent = Union[CallbackQuery, Message]
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Widget)
-
-_INVALUD_QUERY_ID_MSG = (
-    "query is too old and response timeout expired or query id is invalid"
-)
 
 
 class Dialog(Router, DialogProtocol):
@@ -145,24 +140,17 @@ class Dialog(Router, DialogProtocol):
             callback: CallbackQuery,
             dialog_manager: DialogManager,
     ):
-        try:
-            old_context = dialog_manager.current_context()
-        except NoContextError:
-            old_context = None
+        old_context = dialog_manager.current_context()
         intent_id, callback_data = remove_indent_id(callback.data)
         cleaned_callback = callback.copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
-        if dialog_manager.current_context() == old_context:  # same dialog
-            await dialog_manager.show()
-        if not dialog_manager.is_preview():
-            try:
-                await dialog_manager.answer_callback()
-            except TelegramAPIError as e:
-                if _INVALUD_QUERY_ID_MSG in e.message:
-                    logger.warning("Cannot answer callback: %s", e)
-                else:
-                    raise
+        try:
+            if dialog_manager.current_context() == old_context:  # same dialog
+                await dialog_manager.show()
+        except NoContextError:
+            pass
+        await dialog_manager.answer_callback()
 
     def _setup_filter(self):
         intent_filter = IntentFilter(
