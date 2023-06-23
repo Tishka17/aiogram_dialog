@@ -41,6 +41,11 @@ main_dialog = Dialog(
             id="multiwidget",
             state=states.Multiwidget.MAIN,
         ),
+        Start(
+            text=Const("🔢 Multiple steps"),
+            id="switch",
+            state=states.Switch.MAIN,
+        ),
         state=states.Main.MAIN,
     ),
     launch_mode=LaunchMode.ROOT,
