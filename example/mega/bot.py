@@ -12,6 +12,7 @@ from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.counter import counter_dialog
 from bot_dialogs.layouts import layouts_dialog
 from bot_dialogs.main import main_dialog
+from bot_dialogs.mutltiwidget import multiwidget_dialog
 from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 
@@ -29,6 +30,7 @@ dialog_router.include_routers(
     calendar_dialog,
     selects_dialog,
     counter_dialog,
+    multiwidget_dialog,
 )
 
 

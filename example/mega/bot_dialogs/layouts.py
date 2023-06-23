@@ -1,5 +1,6 @@
 from aiogram_dialog import (
-    Dialog, Window, )
+    Dialog, Window,
+)
 from aiogram_dialog.widgets.kbd import (
     SwitchTo, Select, Button, Row, Column, Group,
 )

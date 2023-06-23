@@ -36,6 +36,11 @@ main_dialog = Dialog(
             id="counter",
             state=states.Counter.MAIN,
         ),
+        Start(
+            text=Const("🎛 Combining widgets"),
+            id="multiwidget",
+            state=states.Multiwidget.MAIN,
+        ),
         state=states.Main.MAIN,
     ),
     launch_mode=LaunchMode.ROOT,

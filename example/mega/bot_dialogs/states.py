@@ -36,3 +36,6 @@ class Calendar(StatesGroup):
 class Counter(StatesGroup):
     MAIN = State()
 
+
+class Multiwidget(StatesGroup):
+    MAIN = State()
