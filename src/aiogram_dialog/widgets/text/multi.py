@@ -39,7 +39,7 @@ class Case(Text):
         if isinstance(selector, str):
             self.selector = new_case_field(selector)
         elif isinstance(selector, MagicFilter):
-            self.condition = new_magic_selector(selector)
+            self.selector = new_magic_selector(selector)
         else:
             self.selector = selector
         self._has_default = ... in self.texts
