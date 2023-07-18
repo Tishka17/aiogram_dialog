@@ -14,7 +14,7 @@ class Actionable(BaseWidget):
             raise InvalidWidgetIdError(f"Invalid widget id: {id}")
         self.widget_id = id
 
-    def find(self, widget_id):
+    def find(self, widget_id: str):
         """Find nested widget or current one by id."""
         if self.widget_id is not None and self.widget_id == widget_id:
             return self

@@ -33,7 +33,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
     @abstractmethod
     async def _render_keyboard(
             self,
-            data,
+            data: dict,
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         """
@@ -48,7 +48,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             return None
         return f"{self.widget_id}:"
 
-    def _own_callback_data(self):
+    def _own_callback_data(self) -> Union[str, None]:
         """Create callback data for only button in widget."""
         return self.widget_id
 

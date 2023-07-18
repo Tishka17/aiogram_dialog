@@ -60,7 +60,7 @@ class KeyboardWidget(Widget, Protocol):
 class MediaWidget(Widget, Protocol):
     @abstractmethod
     async def render_media(
-            self, data: Any, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         """Create media attachment."""
         raise NotImplementedError
