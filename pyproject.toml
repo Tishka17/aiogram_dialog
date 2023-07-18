@@ -25,7 +25,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'aiogram>=3.0.0b5,<4.0.0',
+    'aiogram>=3.0.0b8,<4.0.0',
     'jinja2',
     'cachetools>=4.0.0,<6.0.0',
     'magic_filter',

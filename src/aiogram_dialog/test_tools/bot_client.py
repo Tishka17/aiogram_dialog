@@ -21,6 +21,11 @@ class FakeBot(Bot):
     def __call__(self, *args, **kwargs) -> None:
         raise RuntimeError("Fake bot should not be used to call telegram")
 
+    def __hash__(self) -> int:
+        return 1
+
+    def __eq__(self, other) -> bool:
+        return self is other
 
 class BotClient:
     def __init__(
