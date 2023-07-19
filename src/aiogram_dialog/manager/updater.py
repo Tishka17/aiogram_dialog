@@ -23,9 +23,6 @@ class Updater:
 
     async def _process_update(self, bot: Bot, update: DialogUpdate) -> None:
         event = update.event
-        Bot.set_current(bot)
-        User.set_current(event.from_user)
-        Chat.set_current(event.chat)
         await self.dp.propagate_event(
             update_type="update",
             event=update,
