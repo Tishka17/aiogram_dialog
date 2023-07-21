@@ -100,7 +100,7 @@ dialog = Dialog(
 
 > **Info:** All windows in a dialog MUST have states from then same `StatesGroup`
 
-After creating dialog you need to register it using `DialogRegistry`:
+After creating a dialog you need to register it into the Dispatcher and set it up using the `setup_dialogs` function:
 
 ```python
 from aiogram import Dispatcher

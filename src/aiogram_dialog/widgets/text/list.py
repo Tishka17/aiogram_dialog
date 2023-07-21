@@ -19,7 +19,7 @@ class List(Text):
     def __init__(
             self,
             field: Text,
-            items: Union[str, Callable, Sequence],
+            items: Union[str, ItemsGetter, Sequence],
             sep: str = "\n",
             when: WhenCondition = None,
     ):

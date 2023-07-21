@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.internal import MediaWidget
@@ -11,13 +11,13 @@ class Media(BaseWidget, Whenable, MediaWidget):
         super().__init__(when=when)
 
     async def render_media(
-            self, data: Any, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if not self.is_(data, manager):
             return None
         return await self._render_media(data, manager)
 
     async def _render_media(
-            self, data: Any, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         return None

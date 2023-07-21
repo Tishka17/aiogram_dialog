@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 
 from aiogram.types import ContentType
 
@@ -17,7 +17,7 @@ class StaticMedia(Media):
             url: Union[Text, str, None] = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
-            media_params: Dict = None,
+            media_params: dict = None,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)
@@ -34,7 +34,7 @@ class StaticMedia(Media):
         self.media_params = media_params or {}
 
     async def _render_media(
-            self, data: Any, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if self.url:
             url = await self.url.render_text(data, manager)
