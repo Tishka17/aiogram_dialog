@@ -53,7 +53,7 @@ class TextInput(BaseInput, Generic[T]):
             filter: Optional[Callable[..., Any]] = None,
     ):
         super().__init__(id=id)
-        if filter:
+        if filter is not None:
             self.filter = FilterObject(filter)
         else:
             self.filter = None

@@ -18,7 +18,7 @@ class CombinedInput(BaseInput):
         super().__init__()
         self.inputs = inputs
         self.filters = []
-        if filter:
+        if filter is not None:
             self.filters.append(FilterObject(filter))
 
     async def process_message(

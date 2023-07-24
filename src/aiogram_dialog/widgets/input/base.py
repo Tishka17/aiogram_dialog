@@ -47,7 +47,7 @@ class MessageInput(BaseInput):
         else:
             if ContentType.ANY not in content_types:
                 filters.append(FilterObject(F.content_type.in_(content_types)))
-        if filter:
+        if filter is not None:
             filters.append(FilterObject(filter))
         self.filters = filters
 
