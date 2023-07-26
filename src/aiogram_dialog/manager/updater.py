@@ -2,7 +2,6 @@ import asyncio
 from contextvars import copy_context
 
 from aiogram import Bot, Router
-from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import DialogUpdate
 
@@ -23,9 +22,6 @@ class Updater:
 
     async def _process_update(self, bot: Bot, update: DialogUpdate) -> None:
         event = update.event
-        Bot.set_current(bot)
-        User.set_current(event.from_user)
-        Chat.set_current(event.chat)
         await self.dp.propagate_event(
             update_type="update",
             event=update,

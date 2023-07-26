@@ -28,7 +28,6 @@ class StorageProxy:
 
     async def load_context(self, intent_id: str) -> Context:
         data = await self.storage.get_data(
-            bot=self.bot,
             key=self._context_key(intent_id),
         )
         if not data:
@@ -40,7 +39,6 @@ class StorageProxy:
 
     async def load_stack(self, stack_id: str = DEFAULT_STACK_ID) -> Stack:
         data = await self.storage.get_data(
-            bot=self.bot,
             key=self._stack_key(stack_id),
         )
         if not data:
@@ -53,21 +51,18 @@ class StorageProxy:
         data = copy(vars(context))
         data["state"] = data["state"].state
         await self.storage.set_data(
-            bot=self.bot,
             key=self._context_key(context.id),
             data=data,
         )
 
     async def remove_context(self, intent_id: str):
         await self.storage.set_data(
-            bot=self.bot,
             key=self._context_key(intent_id),
             data={},
         )
 
     async def remove_stack(self, stack_id: str):
         await self.storage.set_data(
-            bot=self.bot,
             key=self._stack_key(stack_id),
             data={},
         )
@@ -77,14 +72,12 @@ class StorageProxy:
             return
         if stack.empty() and not stack.last_message_id:
             await self.storage.set_data(
-                bot=self.bot,
                 key=self._stack_key(stack.id),
                 data={},
             )
         else:
             data = copy(vars(stack))
             await self.storage.set_data(
-                bot=self.bot,
                 key=self._stack_key(stack.id),
                 data=data,
             )
