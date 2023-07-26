@@ -2,7 +2,6 @@ import asyncio
 from contextvars import copy_context
 
 from aiogram import Bot, Router
-from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import DialogUpdate
 
