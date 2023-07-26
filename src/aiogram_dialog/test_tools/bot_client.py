@@ -27,6 +27,7 @@ class FakeBot(Bot):
     def __eq__(self, other) -> bool:
         return self is other
 
+
 class BotClient:
     def __init__(
             self,
