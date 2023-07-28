@@ -3,6 +3,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from magic_filter import MagicFilter
+
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
@@ -22,13 +24,24 @@ def get_identity(items: Sequence) -> ItemsGetter:
     return identity
 
 
+def get_magic_getter(f: MagicFilter) -> ItemsGetter:
+    def items_magic(data: Dict) -> Sequence:
+        items = f.resolve(data)
+        if isinstance(items, Sequence):
+            return items
+        else:
+            return []
+
+    return items_magic
+
+
 class ListGroup(Keyboard):
     def __init__(
             self,
             *buttons: Keyboard,
             id: Optional[str] = None,
             item_id_getter: ItemIdGetter,
-            items: Union[str, Sequence],
+            items: Union[str, ItemsGetter, MagicFilter, Sequence],
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -36,6 +49,10 @@ class ListGroup(Keyboard):
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
+        elif isinstance(items, MagicFilter):
+            self.items_getter = get_magic_getter(items)
+        elif isinstance(items, Callable):
+            self.items_getter = items
         else:
             self.items_getter = get_identity(items)
 

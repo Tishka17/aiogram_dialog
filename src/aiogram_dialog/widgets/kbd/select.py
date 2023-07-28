@@ -15,6 +15,8 @@ from typing import (
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from magic_filter import MagicFilter
+
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
@@ -46,13 +48,24 @@ def get_identity(items: Sequence) -> ItemsGetter:
     return identity
 
 
+def get_magic_getter(f: MagicFilter) -> ItemsGetter:
+    def items_magic(data: Dict) -> Sequence:
+        items = f.resolve(data)
+        if isinstance(items, Sequence):
+            return items
+        else:
+            return []
+
+    return items_magic
+
+
 class Select(Keyboard, Generic[T]):
     def __init__(
             self,
             text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, Sequence],
+            items: Union[str, ItemsGetter, MagicFilter, Sequence],
             type_factory: TypeFactory[T] = str,
             on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
@@ -64,6 +77,10 @@ class Select(Keyboard, Generic[T]):
         self.item_id_getter = item_id_getter
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
+        elif isinstance(items, MagicFilter):
+            self.items_getter = get_magic_getter(items)
+        elif isinstance(items, Callable):
+            self.items_getter = items
         else:
             self.items_getter = get_identity(items)
 
@@ -113,7 +130,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             unchecked_text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, Sequence],
+            items: Union[str, ItemsGetter, MagicFilter, Sequence],
             type_factory: TypeFactory[T] = str,
             on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
@@ -239,7 +256,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             unchecked_text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, Sequence],
+            items: Union[str, ItemsGetter, MagicFilter, Sequence],
             min_selected: int = 0,
             max_selected: int = 0,
             type_factory: TypeFactory[T] = str,

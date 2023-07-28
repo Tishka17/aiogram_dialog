@@ -9,6 +9,8 @@ from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
+from magic_filter import F
+
 from aiogram_dialog import (
     Dialog, LaunchMode, SubManager, Window, DialogManager, StartMode,
     setup_dialogs,
@@ -34,6 +36,13 @@ def when_checked(data: Dict, widget, manager: SubManager) -> bool:
     return check.is_checked()
 
 
+async def data_getter(*args, **kwargs):
+    return {
+        "fruits": ["mango", "papaya", "kiwi"],
+        "colors": ["blue", "pink"]
+    }
+
+
 dialog = Dialog(
     Window(
         Const(
@@ -52,15 +61,21 @@ dialog = Dialog(
                     id="radio",
                     item_id_getter=str,
                     items=["black", "white"],
+                    # Alternatives:
+                        #items=F["data"]["colors"],
+                        #items=lambda d: d["data"]["colors"],
                     when=when_checked,
                 )
             ),
             id="lg",
             item_id_getter=str,
             items=["apple", "orange", "pear"],
-
+            # Alternatives:
+                #items=F["fruits"],
+                #items=lambda d: d["fruits"],
         ),
         state=DialogSG.greeting,
+        getter=data_getter
     ),
     launch_mode=LaunchMode.SINGLE_TOP
 )

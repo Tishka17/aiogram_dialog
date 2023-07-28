@@ -1,5 +1,11 @@
-/aiogram_dialog.egg-info/
+aiogram_dialog.egg-info/
 __pycache__
 /build
 .idea/
 /dist
+
+.venv
+.github
+__pycache__/
+.gitignore
+.env

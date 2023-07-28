@@ -1,6 +1,8 @@
 from operator import itemgetter
 from typing import Callable, Dict, Sequence, Union
 
+from magic_filter import MagicFilter
+
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
@@ -15,11 +17,22 @@ def get_identity(items: Sequence) -> ItemsGetter:
     return identity
 
 
+def get_magic_getter(f: MagicFilter) -> ItemsGetter:
+    def items_magic(data: Dict) -> Sequence:
+        items = f.resolve(data)
+        if isinstance(items, Sequence):
+            return items
+        else:
+            return []
+
+    return items_magic
+
+
 class List(Text):
     def __init__(
             self,
             field: Text,
-            items: Union[str, ItemsGetter, Sequence],
+            items: Union[str, ItemsGetter, MagicFilter, Sequence],
             sep: str = "\n",
             when: WhenCondition = None,
     ):
@@ -28,6 +41,8 @@ class List(Text):
         self.sep = sep
         if isinstance(items, str):
             self.items_getter = itemgetter(items)
+        elif isinstance(items, MagicFilter):
+            self.items_getter = get_magic_getter(items)
         elif isinstance(items, Callable):
             self.items_getter = items
         else:
