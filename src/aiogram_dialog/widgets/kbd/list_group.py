@@ -2,7 +2,6 @@ from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
-
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.internal import Widget

@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from aiogram.types import CallbackQuery
-
 from magic_filter import F
 
 from aiogram_dialog import Dialog, DialogManager, Window

@@ -8,7 +8,6 @@ from aiogram.filters import CommandStart
 from aiogram.filters.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
-
 from magic_filter import F
 
 from aiogram_dialog import (

@@ -14,7 +14,6 @@ from typing import (
 )
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
-
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.entities import ChatEvent
