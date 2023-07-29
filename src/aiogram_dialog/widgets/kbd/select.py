@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from operator import itemgetter
 from typing import (
     Any,
     Awaitable,
@@ -8,13 +7,11 @@ from typing import (
     Generic,
     List,
     Optional,
-    Sequence,
     TypeVar,
     Union,
 )
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
-from magic_filter import MagicFilter
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
@@ -25,11 +22,11 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
 )
 from .base import Keyboard
+from ..common.items import ItemsGetterVariant, get_items_getter
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]
 ItemIdGetter = Callable[[Any], Union[str, int]]
-ItemsGetter = Callable[[Dict], Sequence]
 OnItemStateChanged = Callable[
     [ChatEvent, ManagedWidget["Select"], DialogManager, T],
     Awaitable,
@@ -40,31 +37,13 @@ OnItemClick = Callable[
 ]
 
 
-def get_identity(items: Sequence) -> ItemsGetter:
-    def identity(data) -> Sequence:
-        return items
-
-    return identity
-
-
-def get_magic_getter(f: MagicFilter) -> ItemsGetter:
-    def items_magic(data: Dict) -> Sequence:
-        items = f.resolve(data)
-        if isinstance(items, Sequence):
-            return items
-        else:
-            return []
-
-    return items_magic
-
-
 class Select(Keyboard, Generic[T]):
     def __init__(
             self,
             text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, ItemsGetter, MagicFilter, Sequence],
+            items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
             on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             when: WhenCondition = None,
@@ -74,14 +53,7 @@ class Select(Keyboard, Generic[T]):
         self.type_factory = type_factory
         self.on_click = ensure_event_processor(on_click)
         self.item_id_getter = item_id_getter
-        if isinstance(items, str):
-            self.items_getter = itemgetter(items)
-        elif isinstance(items, MagicFilter):
-            self.items_getter = get_magic_getter(items)
-        elif isinstance(items, Callable):
-            self.items_getter = items
-        else:
-            self.items_getter = get_identity(items)
+        self.items_getter = get_items_getter(items)
 
     async def _render_keyboard(
             self,
@@ -129,7 +101,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             unchecked_text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, ItemsGetter, MagicFilter, Sequence],
+            items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
             on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
@@ -255,7 +227,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             unchecked_text: Text,
             id: str,
             item_id_getter: ItemIdGetter,
-            items: Union[str, ItemsGetter, MagicFilter, Sequence],
+            items: ItemsGetterVariant,
             min_selected: int = 0,
             max_selected: int = 0,
             type_factory: TypeFactory[T] = str,

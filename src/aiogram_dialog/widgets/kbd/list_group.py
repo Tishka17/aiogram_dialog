@@ -1,8 +1,6 @@
-from operator import itemgetter
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
-from magic_filter import MagicFilter
 
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import (
@@ -11,27 +9,9 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.manager.sub_manager import SubManager
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
+from ..common.items import ItemsGetterVariant, get_items_getter
 
-ItemsGetter = Callable[[Dict], Sequence]
 ItemIdGetter = Callable[[Any], Union[str, int]]
-
-
-def get_identity(items: Sequence) -> ItemsGetter:
-    def identity(data) -> Sequence:
-        return items
-
-    return identity
-
-
-def get_magic_getter(f: MagicFilter) -> ItemsGetter:
-    def items_magic(data: Dict) -> Sequence:
-        items = f.resolve(data)
-        if isinstance(items, Sequence):
-            return items
-        else:
-            return []
-
-    return items_magic
 
 
 class ListGroup(Keyboard):
@@ -40,20 +20,14 @@ class ListGroup(Keyboard):
             *buttons: Keyboard,
             id: Optional[str] = None,
             item_id_getter: ItemIdGetter,
-            items: Union[str, ItemsGetter, MagicFilter, Sequence],
+            items: ItemsGetterVariant,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.buttons = buttons
         self.item_id_getter = item_id_getter
-        if isinstance(items, str):
-            self.items_getter = itemgetter(items)
-        elif isinstance(items, MagicFilter):
-            self.items_getter = get_magic_getter(items)
-        elif isinstance(items, Callable):
-            self.items_getter = items
-        else:
-            self.items_getter = get_identity(items)
+        self.items_getter = get_items_getter(items)
+
 
     async def _render_keyboard(
             self, data: Dict, manager: DialogManager,
