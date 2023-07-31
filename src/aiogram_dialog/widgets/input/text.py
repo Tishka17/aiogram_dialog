@@ -39,6 +39,7 @@ class OnError(Protocol[T]):
             message: Message,
             widget: TextInput,
             dialog_manager: DialogManager,
+            error: ValueError,
     ) -> Any:
         raise NotImplementedError
 
@@ -75,8 +76,8 @@ class TextInput(BaseInput, Generic[T]):
             return False
         try:
             value = self.type_factory(message.text)
-        except ValueError:
-            await self.on_error.process_event(message, self, manager)
+        except ValueError as err:
+            await self.on_error.process_event(message, self, manager, err)
         else:
             # store original text
             self.set_widget_data(manager, message.text)
