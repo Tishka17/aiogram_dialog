@@ -8,7 +8,11 @@ from aiogram.types import (
     ContentType,
     FSInputFile,
     InputFile,
-    InputMedia,
+    InputMediaAnimation,
+    InputMediaAudio,
+    InputMediaDocument,
+    InputMediaPhoto,
+    InputMediaVideo,
     Message,
     URLInputFile,
 )
@@ -29,6 +33,14 @@ SEND_METHODS = {
     ContentType.DICE: "send_dice",
     ContentType.STICKER: "send_sticker",
     ContentType.VOICE: "send_voice",
+}
+
+INPUT_MEDIA_TYPES = {
+    ContentType.ANIMATION: InputMediaAnimation,
+    ContentType.DOCUMENT: InputMediaDocument,
+    ContentType.AUDIO: InputMediaAudio,
+    ContentType.PHOTO: InputMediaPhoto,
+    ContentType.VIDEO: InputMediaVideo,
 }
 
 _INVALUD_QUERY_ID_MSG = (
@@ -211,13 +223,12 @@ class MessageManager(MessageManagerProtocol):
             new_message.chat,
             new_message.media.file_id,
         )
-        media = InputMedia(
+        media = INPUT_MEDIA_TYPES[new_message.media.type](
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
             media=await self.get_media_source(new_message.media),
-            type=new_message.media.type,
             **new_message.media.kwargs,
         )
         return await bot.edit_message_media(
