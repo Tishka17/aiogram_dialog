@@ -22,7 +22,7 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..common.items import ItemsGetterVariant, get_items_getter
+from ..common.items import get_items_getter, ItemsGetterVariant
 
 T = TypeVar("T")
 TypeFactory = Callable[[str], T]

@@ -9,7 +9,7 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.manager.sub_manager import SubManager
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
-from ..common.items import ItemsGetterVariant, get_items_getter
+from ..common.items import get_items_getter, ItemsGetterVariant
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 
@@ -27,7 +27,6 @@ class ListGroup(Keyboard):
         self.buttons = buttons
         self.item_id_getter = item_id_getter
         self.items_getter = get_items_getter(items)
-
 
     async def _render_keyboard(
             self, data: Dict, manager: DialogManager,

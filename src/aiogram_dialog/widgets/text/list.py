@@ -3,7 +3,7 @@ from typing import Dict
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
-from ..common.items import ItemsGetterVariant, get_items_getter
+from ..common.items import get_items_getter, ItemsGetterVariant
 
 
 class List(Text):

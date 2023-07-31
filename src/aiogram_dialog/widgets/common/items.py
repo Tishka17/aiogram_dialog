@@ -1,10 +1,10 @@
-from typing import Callable, Dict, Sequence, Union, TypeAlias
 from operator import itemgetter
+from typing import Callable, Dict, Sequence, Union
 
 from magic_filter import MagicFilter
 
 ItemsGetter = Callable[[Dict], Sequence]
-ItemsGetterVariant: TypeAlias = Union[str, ItemsGetter, MagicFilter, Sequence]
+ItemsGetterVariant = Union[str, ItemsGetter, MagicFilter, Sequence]
 
 
 def _get_identity(items: Sequence) -> ItemsGetter:
