@@ -55,14 +55,14 @@ CUSTOM_URL_PREFIX = "my://"
 
 class CustomMessageManager(MessageManager):
     async def get_media_source(
-            self, media: MediaAttachment,
+            self, media: MediaAttachment, bot: Bot
     ) -> Union[InputFile, str]:
         if media.file_id:
-            return await super().get_media_source(media)
+            return await super().get_media_source(media, bot)
         if media.url and media.url.startswith(CUSTOM_URL_PREFIX):
             text = media.url[len(CUSTOM_URL_PREFIX):]
             return BufferedInputFile(draw(text), f"{text}.png")
-        return await super().get_media_source(media)
+        return await super().get_media_source(media, bot)
 
 
 dialog = Dialog(

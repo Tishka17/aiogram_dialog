@@ -63,13 +63,13 @@ class MessageManager(MessageManagerProtocol):
                 raise
 
     async def get_media_source(
-            self, media: MediaAttachment,
+            self, media: MediaAttachment, bot: Bot
     ) -> Union[InputFile, str]:
         if media.file_id:
             return media.file_id.file_id
         if media.url:
             if media.use_pipe:
-                return URLInputFile(media.url)
+                return URLInputFile(media.url, bot)
             return media.url
         else:
             return FSInputFile(media.path)
@@ -228,7 +228,7 @@ class MessageManager(MessageManagerProtocol):
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
-            media=await self.get_media_source(new_message.media),
+            media=await self.get_media_source(new_message.media, bot),
             **new_message.media.kwargs,
         )
         return await bot.edit_message_media(
@@ -268,7 +268,7 @@ class MessageManager(MessageManagerProtocol):
             )
         return await method(
             new_message.chat.id,
-            await self.get_media_source(new_message.media),
+            await self.get_media_source(new_message.media, bot),
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
