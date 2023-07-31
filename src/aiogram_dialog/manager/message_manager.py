@@ -43,7 +43,7 @@ INPUT_MEDIA_TYPES = {
     ContentType.VIDEO: InputMediaVideo,
 }
 
-_INVALUD_QUERY_ID_MSG = (
+_INVALID_QUERY_ID_MSG = (
     "query is too old and response timeout expired or query id is invalid"
 )
 
@@ -57,7 +57,7 @@ class MessageManager(MessageManagerProtocol):
                 callback_query_id=callback_query.id,
             )
         except TelegramAPIError as e:
-            if _INVALUD_QUERY_ID_MSG in e.message.lower():
+            if _INVALID_QUERY_ID_MSG in e.message.lower():
                 logger.warning("Cannot answer callback: %s", e)
             else:
                 raise
