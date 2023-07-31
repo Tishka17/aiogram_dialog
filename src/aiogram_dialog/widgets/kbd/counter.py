@@ -17,7 +17,9 @@ from aiogram_dialog.widgets.widget_event import (
 class OnCounterEvent(Protocol):
     @abstractmethod
     def __call__(
-            self, event: ChatEvent, counter: "ManagedCounterAdapter",
+            self,
+            event: ChatEvent,
+            counter: "ManagedCounterAdapter",  # noqa: F841
             dialog_manager: DialogManager,
     ):
         raise NotImplementedError
