@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from typing import Any
 
 from aiogram.types import CallbackQuery
+from magic_filter import F
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
     SwitchTo, Select, Column, Radio, Multiselect,
 )
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const, Format, List
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -16,6 +17,7 @@ Selects_MAIN_MENU_BUTTON = SwitchTo(
 )
 
 FRUITS_KEY = "fruits"
+OTHER_KEY = "others"
 
 
 @dataclass
@@ -32,6 +34,13 @@ async def getter(**_kwargs):
             Fruit("orange_o", "Orange"),
             Fruit("pear_p", "Pear"),
         ],
+        OTHER_KEY: {
+            FRUITS_KEY: [
+                Fruit("mango_m", "Mango"),
+                Fruit("papaya_p", "Papaya"),
+                Fruit("kiwi_k", "Kiwi"),
+            ],
+        }
     }
 
 
@@ -70,11 +79,21 @@ menu_window = Window(
 )
 select_window = Window(
     Const("Select widget"),
+    List(
+        field=Format("+ {item.name} - {item.id}"),
+        items=FRUITS_KEY
+        # Alternatives:
+            #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
+            #items=F[OTHER_KEY][FRUITS_KEY],
+    ),
     Column(
         Select(
             text=Format("{item.name} ({item.id})"),
             id="sel",
             items=FRUITS_KEY,
+            # Alternatives:
+                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
+                #items=F[OTHER_KEY][FRUITS_KEY],
             item_id_getter=fruit_id_getter,
             on_click=on_item_selected,
         )
@@ -91,6 +110,9 @@ radio_window = Window(
             unchecked_text=Format("⚪️ {item.name}"),
             id="radio",
             items=FRUITS_KEY,
+            # Alternatives:
+                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
+                #items=F[OTHER_KEY][FRUITS_KEY],
             item_id_getter=fruit_id_getter,
         )
     ),
@@ -107,6 +129,9 @@ multiselect_window = Window(
             unchecked_text=Format("{item.name}"),
             id="multi",
             items=FRUITS_KEY,
+            # Alternatives:
+                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
+                #items=F[OTHER_KEY][FRUITS_KEY],
             item_id_getter=fruit_id_getter,
         )
     ),
