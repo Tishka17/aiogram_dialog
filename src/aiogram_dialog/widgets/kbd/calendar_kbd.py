@@ -200,7 +200,7 @@ class CalendarDaysView(CalendarScopeView):
         # align ending
         max_date = min(self.config.max_date, end_date)
         days_since_week_start = end_date.weekday() - config.firstweekday
-        days_till_week_end = (7 - days_since_week_start) % 7
+        days_till_week_end = (6 - days_since_week_start) % 7
         end_date += timedelta(days=days_till_week_end)
         # add days
         today = get_today(config.timezone)
