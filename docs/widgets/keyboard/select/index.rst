@@ -15,8 +15,13 @@ During rendering an item text, it is passed a dictionary with:
 * ``pos0`` - position starting from 0
 
 
-So the main required thing is items. Normally it is a string with key in your window data. The value by this key must be a collection of any objects.
-If you have a static list of items you can pass it directly to a select widget instead of providing data key.
+So the main required thing is ``items``. You have 4 options to specify this parameter:
+
+* String with key in your window data (e.g. ``items="fruits"```). The value by this key must be a collection of any objects.
+* Static list of items (e.g. ``items=['apple', 'banana', 'orange']``).
+* Magic filter (e.g. ``items=F["fruits"]``). Filter has to return collection of elements.
+* Function with one parameter (``data: Dict``) that returns collection of elements (e.g. ``items=lambda d: d["fruits"]``)
+
 
 Next important thing is ids. Besides a widget id you need a function which can return id (string or integer type) for any item.
 

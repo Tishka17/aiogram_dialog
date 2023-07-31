@@ -1,5 +1,4 @@
-from operator import itemgetter
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -10,16 +9,9 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.manager.sub_manager import SubManager
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
+from ..common.items import get_items_getter, ItemsGetterVariant
 
-ItemsGetter = Callable[[Dict], Sequence]
 ItemIdGetter = Callable[[Any], Union[str, int]]
-
-
-def get_identity(items: Sequence) -> ItemsGetter:
-    def identity(data) -> Sequence:
-        return items
-
-    return identity
 
 
 class ListGroup(Keyboard):
@@ -28,16 +20,13 @@ class ListGroup(Keyboard):
             *buttons: Keyboard,
             id: Optional[str] = None,
             item_id_getter: ItemIdGetter,
-            items: Union[str, Sequence],
+            items: ItemsGetterVariant,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.buttons = buttons
         self.item_id_getter = item_id_getter
-        if isinstance(items, str):
-            self.items_getter = itemgetter(items)
-        else:
-            self.items_getter = get_identity(items)
+        self.items_getter = get_items_getter(items)
 
     async def _render_keyboard(
             self, data: Dict, manager: DialogManager,
