@@ -95,7 +95,7 @@ class DialogManager(BaseDialogManager, Protocol):
 
     @abstractmethod
     async def answer_callback(self) -> None:
-        """Show current state to the user."""
+        """Answer to a callback query."""
         raise NotImplementedError
 
     @abstractmethod
