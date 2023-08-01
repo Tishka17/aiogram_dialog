@@ -62,7 +62,10 @@ def intent_callback_data(
 ) -> Optional[str]:
     if callback_data is None:
         return None
-    return intent_id + CB_SEP + callback_data
+    prefix = intent_id + CB_SEP
+    if callback_data.startswith(prefix):
+        return callback_data
+    return prefix + callback_data
 
 
 def add_indent_id(message: NewMessage, intent_id: str):
