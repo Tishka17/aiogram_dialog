@@ -142,7 +142,7 @@ class Dialog(Router, DialogProtocol):
     ):
         old_context = dialog_manager.current_context()
         intent_id, callback_data = remove_indent_id(callback.data)
-        cleaned_callback = callback.copy(update={"data": callback_data})
+        cleaned_callback = callback.model_copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
         try:

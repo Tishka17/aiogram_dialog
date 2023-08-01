@@ -63,7 +63,7 @@ class MockMessageManager(MessageManagerProtocol):
     ) -> Optional[Message]:
         if not old_message:
             return
-        data = old_message.dict()
+        data = old_message.model_dump()
         data["reply_markup"] = None
         message = Message(**data)
         self.sent_messages.append(message)
