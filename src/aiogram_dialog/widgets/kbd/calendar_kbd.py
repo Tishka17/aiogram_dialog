@@ -95,7 +95,7 @@ class OnDateSelected(Protocol):
 @dataclass
 class CalendarUserConfig:
     firstweekday: int = MONDAY
-    timezone: timezone = timezone(timedelta(seconds=3600 * 6))
+    timezone: timezone = datetime.now().astimezone().tzinfo
 
 
 @dataclass(frozen=True)
