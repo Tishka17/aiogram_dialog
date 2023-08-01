@@ -28,8 +28,7 @@ class DialogAction(Enum):
 class DialogUpdateEvent(TelegramObject):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        use_enum_values=True,
-
+        use_enum_values=False,
     )
     from_user: User
     chat: Chat
