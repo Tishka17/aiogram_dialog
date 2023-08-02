@@ -132,8 +132,11 @@ class Dialog(Router, DialogProtocol):
             old_context = None
         window = await self._current_window(dialog_manager)
         await window.process_message(message, self, dialog_manager)
-        if dialog_manager.current_context() == old_context:  # same dialog
-            await dialog_manager.show()
+        try:
+            if dialog_manager.current_context() == old_context:  # same dialog
+                await dialog_manager.show()
+        except NoContextError:
+            pass
 
     async def _callback_handler(
             self,
