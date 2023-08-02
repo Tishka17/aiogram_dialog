@@ -51,7 +51,10 @@ NEXT_MONTH_TEXT = Format("{date:%B %Y} >>")
 DAYS_HEADER_TEXT = Format("🗓 {date:%B %Y}")
 
 BEARING_DATE = date(2018, 1, 1)
-EMPTY_BUTTON = InlineKeyboardButton(text=" ", callback_data="")
+
+
+def empty_button():
+    return InlineKeyboardButton(text=" ", callback_data="")
 
 
 class CalendarScope(Enum):
@@ -214,7 +217,7 @@ class CalendarDaysView(CalendarScopeView):
                         current_date, today, data, manager,
                     ))
                 else:
-                    row.append(EMPTY_BUTTON)
+                    row.append(empty_button())
             keyboard.append(row)
         return keyboard
 
@@ -274,7 +277,7 @@ class CalendarDaysView(CalendarScopeView):
             "data": data,
         }
         if prev_end < self.config.min_date:
-            prev_button = EMPTY_BUTTON
+            prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
                 text=await self.prev_month_text.render_text(
@@ -289,7 +292,7 @@ class CalendarDaysView(CalendarScopeView):
             callback_data=self.callback_generator(CALLBACK_SCOPE_MONTHS),
         )
         if next_begin > self.config.max_date:
-            next_button = EMPTY_BUTTON
+            next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
                 text=await self.next_month_text.render_text(
@@ -386,7 +389,7 @@ class CalendarMonthView(CalendarScopeView):
             "data": data,
         }
         if prev_year < self.config.min_date.year:
-            prev_button = EMPTY_BUTTON
+            prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
                 text=await self.prev_year_text.render_text(
@@ -395,7 +398,7 @@ class CalendarMonthView(CalendarScopeView):
                 callback_data=self.callback_generator(CALLBACK_PREV_YEAR),
             )
         if next_year > self.config.max_date.year:
-            next_button = EMPTY_BUTTON
+            next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
                 text=await self.next_year_text.render_text(
@@ -431,7 +434,7 @@ class CalendarMonthView(CalendarScopeView):
             manager: DialogManager,
     ) -> InlineKeyboardButton:
         if not self._is_month_allowed(offset, month):
-            return EMPTY_BUTTON
+            return empty_button()
 
         month_data = {
             "month": month,
@@ -546,7 +549,7 @@ class CalendarYearsView(CalendarScopeView):
             "data": data,
         }
         if curr_year <= self.config.min_date.year:
-            prev_button = EMPTY_BUTTON
+            prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
                 text=await self.prev_page_text.render_text(
@@ -557,7 +560,7 @@ class CalendarYearsView(CalendarScopeView):
                 ),
             )
         if next_year > self.config.max_date.year:
-            next_button = EMPTY_BUTTON
+            next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
                 text=await self.next_page_text.render_text(
@@ -568,7 +571,7 @@ class CalendarYearsView(CalendarScopeView):
                 ),
             )
 
-        if prev_button == next_button == EMPTY_BUTTON:
+        if prev_button == next_button == empty_button():
             return []
         return [prev_button, next_button]
 
@@ -584,7 +587,7 @@ class CalendarYearsView(CalendarScopeView):
             manager: DialogManager,
     ) -> InlineKeyboardButton:
         if not self._is_year_allowed(year):
-            return EMPTY_BUTTON
+            return empty_button()
         if year == this_year:
             text = self.this_year_text
         else:
