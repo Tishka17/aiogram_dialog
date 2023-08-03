@@ -132,7 +132,7 @@ class DialogManager(BaseDialogManager, Protocol):
         """
         Find a widget in current dialog by its id.
 
-        Returns managed adapdter for found widget,
+        Returns managed adapter for found widget,
         which does not require to pass manager and has only subset of methods.
         """
         raise NotImplementedError
