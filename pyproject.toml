@@ -10,7 +10,7 @@ where = ["src"]
 
 [project]
 name = "aiogram_dialog"
-version = "2.0.0b20"
+version = "2.0.0b21"
 readme = "README.md"
 authors = [
     { name = "Andrey Tikhonov", email = "17@itishka.org" },
@@ -25,7 +25,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'aiogram>=3.0.0b8,<4.0.0',
+    'aiogram==3.0.0b9',
     'jinja2',
     'cachetools>=4.0.0,<6.0.0',
     'magic_filter',
