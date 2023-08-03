@@ -69,7 +69,7 @@ class MessageManager(MessageManagerProtocol):
             return media.file_id.file_id
         if media.url:
             if media.use_pipe:
-                return URLInputFile(media.url, bot)
+                return URLInputFile(media.url, bot=bot)
             return media.url
         else:
             return FSInputFile(media.path)
