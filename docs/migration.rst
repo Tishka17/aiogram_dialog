@@ -2,6 +2,13 @@
 Migration from previous versions
 ***********************************
 
+Migration 2.0b18 -> 2.0b21
+==============================
+
+* ``en_error`` callback in TextInput now receives ``ValueError`` instance as 4th parameter in addition to previously used three
+* ``on_error`` and ``on_success`` in TextInput now receive ``ManagedTextInputAdapter`` instead of ``TextInput`` as a 2d parameter
+
+
 Migration 2.0b10 -> 2.0b18
 ===============================
 

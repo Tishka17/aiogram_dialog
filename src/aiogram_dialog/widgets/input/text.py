@@ -25,7 +25,7 @@ class OnSuccess(Protocol[T]):
     async def __call__(
             self,
             message: Message,
-            widget: TextInput,
+            widget: ManagedTextInputAdapter,
             dialog_manager: DialogManager,
             data: T,
     ) -> Any:
@@ -37,7 +37,7 @@ class OnError(Protocol[T]):
     async def __call__(
             self,
             message: Message,
-            widget: TextInput,
+            widget: ManagedTextInputAdapter,
             dialog_manager: DialogManager,
             error: ValueError,
     ) -> Any:
@@ -77,11 +77,15 @@ class TextInput(BaseInput, Generic[T]):
         try:
             value = self.type_factory(message.text)
         except ValueError as err:
-            await self.on_error.process_event(message, self, manager, err)
+            await self.on_error.process_event(
+                message, self.managed(manager), manager, err,
+            )
         else:
             # store original text
             self.set_widget_data(manager, message.text)
-            await self.on_success.process_event(message, self, manager, value)
+            await self.on_success.process_event(
+                message, self.managed(manager), manager, value,
+            )
         return True
 
     def get_value(self, manager: DialogManager) -> T:
