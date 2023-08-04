@@ -262,7 +262,7 @@ class CalendarDaysView(CalendarScopeView):
             return []
 
         prev_month_data = {
-            "mongth": prev_month,
+            "month": prev_month,
             "date": prev_begin,
             "data": data,
         }
@@ -706,7 +706,7 @@ class Calendar(Keyboard):
         """
         User related config getter.
 
-        OVerride this method to customize how user config is retrieved.
+        Override this method to customize how user config is retrieved.
 
         :param data: data from window getter
         :param manager: dialog manager instance

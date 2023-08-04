@@ -128,7 +128,7 @@ async def main():
     dp.include_router(dialog_router)
     dp.message.register(start, CommandStart())
 
-    # render graph with current transtions
+    # render graph with current transitions
     render_transitions(dp)
     # render windows preview
     await render_preview(dp, "preview.html")

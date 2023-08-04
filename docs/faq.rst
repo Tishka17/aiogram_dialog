@@ -22,7 +22,7 @@ This dictionary contains data stored by widgets themselves. Data structure is a 
 How can I set a default value for a ``Musltiselect`` or a ``Radio``
 =====================================================================
 
-The better way is to state insed ``on_start`` callback of dialog.
+The better way is to state inside ``on_start`` callback of dialog.
 
 How can I show ``Select`` widget in multiple rows? What about pagination?
 ===========================================================================

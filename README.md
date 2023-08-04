@@ -15,7 +15,7 @@
 It is inspired by ideas of Android SDK and other tools.
 
 Main ideas are:
-* **split data retriving, rendering and action processing** - you need nothing to do for showing same content after some actions, also you can show same data in multiple ways. 
+* **split data retrieving, rendering and action processing** - you need nothing to do for showing same content after some actions, also you can show same data in multiple ways. 
 * **reusable widgets**  - you can create calendar or multiselect at any point of your application without copy-pasting its internal logic  
 * **limited scope of context** - any dialog keeps some data until closed, multiple opened dialogs process their data separately
 
@@ -47,7 +47,7 @@ Each window consists of:
 
 * Text widgets. Render text of message.
 * Keyboard widgets. Render inline keyboard
-* Media widget. Renders media if neede
+* Media widget. Renders media if need
 * Message handler. Called when user sends a message when window is shown
 * Data getter functions (`getter=`). They load data from any source which can be used in text/keyboard
 * State. Used when switching between windows
