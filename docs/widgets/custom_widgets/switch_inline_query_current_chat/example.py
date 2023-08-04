@@ -34,7 +34,7 @@ dialog = Dialog(
     Window(
         SwitchInlineQueryCurrentChat(
             Const("Some search"),  # Button text
-            Const("query")  # additinal query. Optional
+            Const("query")  # additional query. Optional
         ),
         state=MySG.main
     )
