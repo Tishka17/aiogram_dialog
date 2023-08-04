@@ -58,7 +58,7 @@ class BasePager(Keyboard, ABC):
 
     def _find_scroll(self, manager: DialogManager) -> ManagedScroll:
         if self._scroll:
-            return self._scroll.manage(manager)
+            return self._scroll.managed(manager)
         else:
             return manager.find(self._scroll_id)
 
