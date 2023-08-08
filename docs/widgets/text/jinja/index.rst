@@ -17,5 +17,8 @@ It will be rendered to this HTML:
 
 .. literalinclude:: ./example.html
 
+In the example above the data from ``getter`` is used, but you can also access the data from ``dialog_data`` (e.g. ``{{ dialog_data['user']['weight'] }}``)
+
+
 If you want to add custom `filters <https://jinja.palletsprojects.com/en/2.11.x/api/#custom-filters>`_
 or do some configuration of jinja Environment you can setup it using ``aiogram_dialog.widgets.text.setup_jinja`` function
