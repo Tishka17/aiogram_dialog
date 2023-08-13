@@ -89,7 +89,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def show(self) -> Message:
+    async def show(self) -> None:
         """Show current state to the user."""
         raise NotImplementedError
 

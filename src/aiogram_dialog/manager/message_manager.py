@@ -18,7 +18,9 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage, ShowMode
-from aiogram_dialog.api.protocols import MessageManagerProtocol
+from aiogram_dialog.api.protocols import (
+    MessageManagerProtocol, MessageNotModified,
+)
 from aiogram_dialog.utils import get_media_id
 
 logger = getLogger(__name__)
@@ -171,7 +173,7 @@ class MessageManager(MessageManagerProtocol):
             return await self.edit_message(bot, new_message, old_message)
         except TelegramBadRequest as err:
             if "message is not modified" in err.message:
-                return old_message
+                raise MessageNotModified from err
             if (
                     "message can't be edited" in err.message or
                     "message to edit not found" in err.message

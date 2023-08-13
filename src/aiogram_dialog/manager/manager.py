@@ -21,7 +21,7 @@ from aiogram_dialog.api.internal import (
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
@@ -277,7 +277,7 @@ class ManagerImpl(DialogManager):
             )
         context.state = state
 
-    async def show(self) -> Message:
+    async def show(self) -> None:
         stack = self.current_stack()
         bot = self._data["bot"]
         old_message = self._get_last_message()
@@ -286,22 +286,26 @@ class ManagerImpl(DialogManager):
             new_message.show_mode = self._calc_show_mode()
         await self._fix_cached_media_id(new_message)
 
-        sent_message = await self.message_manager.show_message(
-            bot, new_message, old_message,
-        )
-
-        self._save_last_message(sent_message)
-        self.show_mode = ShowMode.EDIT
-        if new_message.media:
-            await self.media_id_storage.save_media_id(
-                path=new_message.media.path,
-                url=new_message.media.url,
-                type=new_message.media.type,
-                media_id=get_media_id(sent_message),
+        try:
+            sent_message = await self.message_manager.show_message(
+                bot, new_message, old_message,
             )
+        except MessageNotModified:
+            # nothing changed so nothing to save
+            # we do not have the actual version of message
+            logger.debug("MessageNotModified, not storing ids")
+        else:
+            self._save_last_message(sent_message)
+            if new_message.media:
+                await self.media_id_storage.save_media_id(
+                    path=new_message.media.path,
+                    url=new_message.media.url,
+                    type=new_message.media.type,
+                    media_id=get_media_id(sent_message),
+                )
+        self.show_mode = ShowMode.EDIT
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
-        return sent_message
 
     async def _fix_cached_media_id(self, new_message: NewMessage):
         if not new_message.media or new_message.media.file_id:

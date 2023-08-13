@@ -5,6 +5,11 @@ from aiogram import Bot
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import NewMessage
+from aiogram_dialog.api.exceptions import DialogsError
+
+
+class MessageNotModified(DialogsError):
+    pass
 
 
 class MessageManagerProtocol(Protocol):
