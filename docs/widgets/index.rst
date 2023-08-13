@@ -12,6 +12,8 @@ Currently there are 4 kinds of widgets: :ref:`texts <text_widgets>`, :ref:`keybo
 * **Media** represent media attachment to message
 * **Input** allows to process incoming messages from user. Is has no representation.
 
+Widgets can display static (e.g. ``Const``) and dynamic (e.g. ``Format``) content. To use dynamic data you have to set it. See :ref:`passing data <passing_data>`.
+
 Also there are 2 general types:
 
 * ``Whenable`` can be hidden or shown depending on data or some conditions. Currently all widgets are whenable.
@@ -28,6 +30,7 @@ Also there are 2 general types:
   * ``hello world``, ``my:item``, ``птичка`` - invalid ids
 
 .. toctree::
+    passing_data/index
     text/index
     keyboard/index
     input/index

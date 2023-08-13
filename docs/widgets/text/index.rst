@@ -17,7 +17,6 @@ Every time you need to render text use any of text widgets:
 .. toctree::
     :hidden:
 
-    passing_data/index
     const/index
     format/index
     multi/index
