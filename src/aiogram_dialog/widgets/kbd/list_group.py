@@ -80,9 +80,9 @@ class ListGroup(Keyboard):
             manager: DialogManager,
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
-        c_vars = vars(callback)
-        c_vars["data"] = callback_data
-        callback = CallbackQuery(**c_vars)
+        callback = callback.model_copy(update={
+            "data": callback_data
+        })
         sub_manager = SubManager(
             widget=self,
             manager=manager,
