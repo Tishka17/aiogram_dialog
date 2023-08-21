@@ -2,7 +2,6 @@ from abc import abstractmethod
 from typing import Any, Dict, Optional, Protocol
 
 from aiogram.fsm.state import State
-from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, ShowMode, Stack, StartMode,

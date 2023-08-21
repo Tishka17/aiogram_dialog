@@ -21,7 +21,7 @@ from aiogram_dialog.api.internal import (
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified
+    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id

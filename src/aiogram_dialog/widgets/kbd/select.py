@@ -37,7 +37,7 @@ class OnItemStateChanged(Protocol[ManagedT, T]):
             event: ChatEvent,
             select: ManagedT,  # noqa: F841
             dialog_manager: DialogManager,
-            data: T
+            data: T,
     ):
         raise NotImplementedError
 
@@ -49,7 +49,7 @@ class OnItemClick(Protocol[ManagedT, T]):
             event: CallbackQuery,
             select: ManagedT,  # noqa: F841
             dialog_manager: DialogManager,
-            data: T
+            data: T,
     ):
         raise NotImplementedError
 
@@ -122,7 +122,9 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick[ManagedT, T], WidgetEventProcessor, None] = None,
+            on_click: Union[
+                OnItemClick[ManagedT, T], WidgetEventProcessor, None,
+            ] = None,
             on_state_changed: Union[
                 OnItemStateChanged[ManagedT, T], WidgetEventProcessor, None,
             ] = None,
@@ -375,7 +377,7 @@ class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
         return self.widget.is_checked(item_id, self.manager)
 
     def get_checked(self) -> List[T]:
-        """Get a list of checked items ids"""
+        """Get a list of checked items ids."""
         return self.widget.get_checked(self.manager)
 
     async def reset_checked(self):

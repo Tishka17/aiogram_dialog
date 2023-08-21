@@ -81,7 +81,7 @@ class ListGroup(Keyboard):
     ) -> bool:
         item_id, callback_data = data.split(":", maxsplit=1)
         callback = callback.model_copy(update={
-            "data": callback_data
+            "data": callback_data,
         })
         sub_manager = SubManager(
             widget=self,
