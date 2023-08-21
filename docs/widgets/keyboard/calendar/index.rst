@@ -46,7 +46,7 @@ Classes
    :members: _get_user_config, _init_views
    :special-members: __init__,
 
-.. autoclass:: aiogram_dialog.widgets.kbd.ManagedCalendarAdapter
+.. autoclass:: aiogram_dialog.widgets.kbd.ManagedCalendar
    :members: set_scope, set_offset, get_offset, get_scope
 
 .. autoclass:: aiogram_dialog.widgets.kbd.CalendarUserConfig

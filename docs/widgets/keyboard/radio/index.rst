@@ -18,6 +18,22 @@ Also you can provide ``on_state_changed`` callback function. It will be called w
 
 Useful methods:
 
-* ``get_checked`` - returns an id of selected items
+* ``get_checked`` - returns an id of selected item
 * ``is_checked`` - returns if certain id is currently selected
 * ``set_checked`` - sets the selected item by id
+
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.select.OnItemStateChanged
+   :special-members: __call__
+
+.. autoclass:: aiogram_dialog.widgets.kbd.select.OnItemClick
+   :special-members: __call__
+
+.. autoclass:: aiogram_dialog.widgets.kbd.Radio
+   :special-members: __init__,
+
+.. autoclass:: aiogram_dialog.widgets.kbd.ManagedRadio
+   :members: is_checked, get_checked, set_checked

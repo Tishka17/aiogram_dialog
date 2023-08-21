@@ -32,3 +32,19 @@ To work with selection you can use this methods:
 
     ``Multiselect`` widgets stores state of all checked items even if they disappear from window data.
     It is very useful when you have pagination, but might be unexpected when data is really removed.
+
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.select.OnItemStateChanged
+   :special-members: __call__
+
+.. autoclass:: aiogram_dialog.widgets.kbd.select.OnItemClick
+   :special-members: __call__
+
+.. autoclass:: aiogram_dialog.widgets.kbd.Multiselect
+   :special-members: __init__,
+
+.. autoclass:: aiogram_dialog.widgets.kbd.ManagedMultiselect
+   :members: is_checked, get_checked, reset_checked, set_checked

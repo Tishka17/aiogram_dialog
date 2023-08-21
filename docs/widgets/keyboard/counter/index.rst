@@ -17,5 +17,5 @@ Classes
 .. autoclass:: aiogram_dialog.widgets.kbd.Counter
    :special-members: __init__,
 
-.. autoclass:: aiogram_dialog.widgets.kbd.ManagedCounterAdapter
+.. autoclass:: aiogram_dialog.widgets.kbd.ManagedCounter
    :members: get_value, set_value

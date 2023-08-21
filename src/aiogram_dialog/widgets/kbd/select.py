@@ -63,7 +63,7 @@ class Select(Keyboard, Generic[T]):
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
             on_click: Union[
-                OnItemClick["Select[T]"], WidgetEventProcessor, None,
+                OnItemClick["Select[T]", T], WidgetEventProcessor, None,
             ] = None,
             when: WhenCondition = None,
     ):
@@ -122,9 +122,9 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
+            on_click: Union[OnItemClick[ManagedT, T], WidgetEventProcessor, None] = None,
             on_state_changed: Union[
-                OnItemStateChanged[T], WidgetEventProcessor, None,
+                OnItemStateChanged[ManagedT, T], WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
@@ -190,11 +190,11 @@ class Radio(StatefulSelect[T], Generic[T]):
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
             on_click: Union[
-                OnItemClick["ManagedRadio[T]"],
+                OnItemClick["ManagedRadio[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
             on_state_changed: Union[
-                OnItemStateChanged["ManagedRadio[T]"],
+                OnItemStateChanged["ManagedRadio[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
@@ -257,9 +257,11 @@ class Radio(StatefulSelect[T], Generic[T]):
 
 class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
     def get_checked(self) -> Optional[T]:
+        """Get an id of selected item."""
         return self.widget.get_checked(self.manager)
 
     async def set_checked(self, item_id: T):
+        """Get set which item is selected."""
         return await self.widget.set_checked(
             self.manager.event, item_id, self.manager,
         )
@@ -267,6 +269,7 @@ class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
     def is_checked(
             self, item_id: T,
     ) -> bool:
+        """Get if specified item is checked."""
         return self.widget.is_checked(item_id, self.manager)
 
 
@@ -286,7 +289,8 @@ class Multiselect(StatefulSelect[T], Generic[T]):
                 WidgetEventProcessor, None,
             ] = None,
             on_state_changed: Union[
-                OnItemStateChanged[T], WidgetEventProcessor, None,
+                OnItemStateChanged["ManagedMultiselect[T]", T],
+                WidgetEventProcessor, None,
             ] = None,
             when: Union[str, Callable] = None,
     ):
@@ -367,17 +371,21 @@ class Multiselect(StatefulSelect[T], Generic[T]):
 
 class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
     def is_checked(self, item_id: T) -> bool:
+        """Get if an item identified by ``item_id`` is checked."""
         return self.widget.is_checked(item_id, self.manager)
 
     def get_checked(self) -> List[T]:
+        """Get a list of checked items ids"""
         return self.widget.get_checked(self.manager)
 
     async def reset_checked(self):
+        """Reset all items to their default state."""
         return await self.widget.reset_checked(
             self.manager.event, self.manager,
         )
 
     async def set_checked(self, item_id: T, checked: bool) -> None:
+        """Set an item identified by ``item_id`` as checked or unchecked."""
         return await self.widget.set_checked(
             self.manager.event, item_id, checked, self.manager,
         )

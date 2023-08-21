@@ -12,5 +12,5 @@ TextInput
 .. autoclass:: aiogram_dialog.widgets.input.text.TextInput
    :special-members: __init__
 
-.. autoclass:: aiogram_dialog.widgets.input.text.ManagedTextInputAdapter
+.. autoclass:: aiogram_dialog.widgets.input.text.ManagedTextInput
    :members: get_value
