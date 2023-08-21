@@ -73,5 +73,5 @@ class BaseScroll(Actionable, Scroll, ABC):
             manager,
         )
 
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: DialogManager) -> ManagedScroll:
         return ManagedScroll(self, manager)

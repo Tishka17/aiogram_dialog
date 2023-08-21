@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import (
     Any,
-    Awaitable,
     Callable,
     Dict,
     Generic,
     List,
     Optional,
+    Protocol,
     TypeVar,
     Union,
 )
@@ -25,16 +25,33 @@ from .base import Keyboard
 from ..common.items import get_items_getter, ItemsGetterVariant
 
 T = TypeVar("T")
+ManagedT = TypeVar("ManagedT")
 TypeFactory = Callable[[str], T]
 ItemIdGetter = Callable[[Any], Union[str, int]]
-OnItemStateChanged = Callable[
-    [ChatEvent, ManagedWidget["Select"], DialogManager, T],
-    Awaitable,
-]
-OnItemClick = Callable[
-    [CallbackQuery, ManagedWidget["Select"], DialogManager, T],
-    Awaitable,
-]
+
+
+class OnItemStateChanged(Protocol[ManagedT, T]):
+    @abstractmethod
+    async def __call__(
+            self,
+            event: ChatEvent,
+            select: ManagedT,  # noqa: F841
+            dialog_manager: DialogManager,
+            data: T
+    ):
+        raise NotImplementedError
+
+
+class OnItemClick(Protocol[ManagedT, T]):
+    @abstractmethod
+    async def __call__(
+            self,
+            event: CallbackQuery,
+            select: ManagedT,  # noqa: F841
+            dialog_manager: DialogManager,
+            data: T
+    ):
+        raise NotImplementedError
 
 
 class Select(Keyboard, Generic[T]):
@@ -45,7 +62,9 @@ class Select(Keyboard, Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
+            on_click: Union[
+                OnItemClick["Select[T]"], WidgetEventProcessor, None,
+            ] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -162,6 +181,37 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
 
 
 class Radio(StatefulSelect[T], Generic[T]):
+    def __init__(
+            self,
+            checked_text: Text,
+            unchecked_text: Text,
+            id: str,
+            item_id_getter: ItemIdGetter,
+            items: ItemsGetterVariant,
+            type_factory: TypeFactory[T] = str,
+            on_click: Union[
+                OnItemClick["ManagedRadio[T]"],
+                WidgetEventProcessor, None,
+            ] = None,
+            on_state_changed: Union[
+                OnItemStateChanged["ManagedRadio[T]"],
+                WidgetEventProcessor, None,
+            ] = None,
+            when: Union[str, Callable] = None,
+    ):
+
+        super().__init__(
+            checked_text=checked_text,
+            unchecked_text=unchecked_text,
+            id=id,
+            item_id_getter=item_id_getter,
+            items=items,
+            type_factory=type_factory,
+            on_click=on_click,
+            on_state_changed=on_state_changed,
+            when=when,
+        )
+
     def get_checked(self, manager: DialogManager) -> Optional[str]:
         return self.get_widget_data(manager, None)
 
@@ -201,21 +251,21 @@ class Radio(StatefulSelect[T], Generic[T]):
     ):
         await self.set_checked(callback, item_id, manager)
 
-    def managed(self, manager: DialogManager):
-        return ManagedRadioAdapter(self, manager)
+    def managed(self, manager: DialogManager) -> "ManagedRadio[T]":
+        return ManagedRadio(self, manager)
 
 
-class ManagedRadioAdapter(ManagedWidget[Radio]):
-    def get_checked(self) -> Optional[str]:
+class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
+    def get_checked(self) -> Optional[T]:
         return self.widget.get_checked(self.manager)
 
-    async def set_checked(self, item_id: Optional[str]):
+    async def set_checked(self, item_id: T):
         return await self.widget.set_checked(
             self.manager.event, item_id, self.manager,
         )
 
     def is_checked(
-            self, item_id: Union[str, int],
+            self, item_id: T,
     ) -> bool:
         return self.widget.is_checked(item_id, self.manager)
 
@@ -231,7 +281,10 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             min_selected: int = 0,
             max_selected: int = 0,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[OnItemClick[T], WidgetEventProcessor, None] = None,
+            on_click: Union[
+                OnItemClick["ManagedMultiselect[T]", T],
+                WidgetEventProcessor, None,
+            ] = None,
             on_state_changed: Union[
                 OnItemStateChanged[T], WidgetEventProcessor, None,
             ] = None,
@@ -308,17 +361,15 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             callback, item_id, not self.is_checked(item_id, manager), manager,
         )
 
-    def managed(self, manager: DialogManager):
-        return ManagedMultiSelectAdapter(self, manager)
+    def managed(self, manager: DialogManager) -> "ManagedMultiselect[T]":
+        return ManagedMultiselect(self, manager)
 
 
-class ManagedMultiSelectAdapter(ManagedWidget[Multiselect]):
-    def is_checked(
-            self, item_id: Union[str, int],
-    ) -> bool:
+class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
+    def is_checked(self, item_id: T) -> bool:
         return self.widget.is_checked(item_id, self.manager)
 
-    def get_checked(self) -> List[str]:
+    def get_checked(self) -> List[T]:
         return self.widget.get_checked(self.manager)
 
     async def reset_checked(self):
@@ -326,7 +377,7 @@ class ManagedMultiSelectAdapter(ManagedWidget[Multiselect]):
             self.manager.event, self.manager,
         )
 
-    async def set_checked(self, item_id: str, checked: bool) -> None:
+    async def set_checked(self, item_id: T, checked: bool) -> None:
         return await self.widget.set_checked(
             self.manager.event, item_id, checked, self.manager,
         )

@@ -15,7 +15,7 @@ from aiogram_dialog import (
     setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import (
-    Row, Checkbox, Radio, ManagedCheckboxAdapter,
+    Row, Checkbox, Radio, ManagedCheckbox,
     ListGroup,
 )
 from aiogram_dialog.widgets.text import Const, Format
@@ -31,7 +31,7 @@ def when_checked(data: Dict, widget, manager: SubManager) -> bool:
     # manager for our case is already adapted for current ListGroup row
     # so `.find` returns widget adapted for current row
     # if you need to find widgets outside the row, use `.find_in_parent`
-    check: ManagedCheckboxAdapter = manager.find("check")
+    check: ManagedCheckbox = manager.find("check")
     return check.is_checked()
 
 

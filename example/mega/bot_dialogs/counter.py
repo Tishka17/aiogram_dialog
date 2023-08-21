@@ -4,7 +4,7 @@ from aiogram_dialog import (
     Dialog, Window, DialogManager,
 )
 from aiogram_dialog.widgets.kbd import (
-    Counter, ManagedCounterAdapter,
+    Counter, ManagedCounter,
 )
 from aiogram_dialog.widgets.text import Const, Progress
 from . import states
@@ -16,14 +16,14 @@ FIELD_PROGRESS = "progress"
 
 
 async def getter(dialog_manager: DialogManager, **kwargs):
-    counter: ManagedCounterAdapter = dialog_manager.find(ID_COUNTER)
+    counter: ManagedCounter = dialog_manager.find(ID_COUNTER)
     return {
         FIELD_PROGRESS: counter.get_value() / MAX_VALUE * 100,
     }
 
 
 async def on_text_click(
-        event: CallbackQuery, widget: ManagedCounterAdapter,
+        event: CallbackQuery, widget: ManagedCounter,
         dialog_manager: DialogManager,
 ) -> None:
     await event.answer(f"Value: {widget.get_value()}")

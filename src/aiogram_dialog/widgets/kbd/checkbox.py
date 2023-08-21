@@ -14,7 +14,7 @@ from aiogram_dialog.widgets.widget_event import (
 from .base import Keyboard
 
 OnStateChanged = Callable[
-    [ChatEvent, "ManagedCheckboxAdapter", DialogManager], Awaitable,
+    [ChatEvent, "ManagedCheckbox", DialogManager], Awaitable,
 ]
 OnStateChangedVariant = Union[
     OnStateChanged, WidgetEventProcessor, None,
@@ -117,11 +117,11 @@ class Checkbox(BaseCheckbox):
             event, self.managed(manager), manager,
         )
 
-    def managed(self, manager: DialogManager):
-        return ManagedCheckboxAdapter(self, manager)
+    def managed(self, manager: DialogManager) -> "ManagedCheckbox":
+        return ManagedCheckbox(self, manager)
 
 
-class ManagedCheckboxAdapter(ManagedWidget[Checkbox]):
+class ManagedCheckbox(ManagedWidget[Checkbox]):
     def is_checked(self) -> bool:
         return self.widget.is_checked(self.manager)
 

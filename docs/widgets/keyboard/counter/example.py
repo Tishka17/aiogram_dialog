@@ -1,9 +1,9 @@
-from aiogram_dialog.widgets.kbd import ManagedCounterAdapter, Counter
+from aiogram_dialog.widgets.kbd import ManagedCounter, Counter
 
 
 async def on_text_click(
         event: CallbackQuery,
-        widget: ManagedCounterAdapter,
+        widget: ManagedCounter,
         dialog_manager: DialogManager,
 ) -> None:
     await event.answer(f"Value: {widget.get_value()}")

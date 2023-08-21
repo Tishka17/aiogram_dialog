@@ -93,11 +93,11 @@ class ListGroup(Keyboard):
             if await b.process_callback(callback, dialog, sub_manager):
                 return True
 
-    def managed(self, manager: DialogManager):
-        return ManagedListGroupAdapter(self, manager)
+    def managed(self, manager: DialogManager) -> "ManagedListGroup":
+        return ManagedListGroup(self, manager)
 
 
-class ManagedListGroupAdapter(ManagedWidget[ListGroup]):
+class ManagedListGroup(ManagedWidget[ListGroup]):
     def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
         widget = self.widget.find(widget_id)
         if widget:
