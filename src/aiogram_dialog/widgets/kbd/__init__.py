@@ -8,9 +8,9 @@ __all__ = [
     "CalendarConfig",
     "CalendarScope",
     "CalendarUserConfig",
-    "ManagedCalendarAdapter",
+    "ManagedCalendar",
     "Counter",
-    "ManagedCounterAdapter",
+    "ManagedCounter",
     "Back",
     "Cancel",
     "Next",
@@ -28,14 +28,14 @@ __all__ = [
     "SwitchPage",
     "ScrollingGroup",
     "Checkbox",
-    "ManagedCheckboxAdapter",
+    "ManagedCheckbox",
     "Select",
     "Radio",
     "Multiselect",
-    "ManagedMultiSelectAdapter",
-    "ManagedRadioAdapter",
+    "ManagedMultiselect",
+    "ManagedRadio",
     "ListGroup",
-    "ManagedListGroupAdapter",
+    "ManagedListGroup",
     "StubScroll",
 ]
 
@@ -43,12 +43,12 @@ from .base import Keyboard
 from .button import Button, SwitchInlineQuery, Url, WebApp
 from .calendar_kbd import (
     Calendar, CalendarConfig, CalendarScope, CalendarUserConfig,
-    ManagedCalendarAdapter,
+    ManagedCalendar,
 )
-from .checkbox import Checkbox, ManagedCheckboxAdapter
-from .counter import Counter, ManagedCounterAdapter
+from .checkbox import Checkbox, ManagedCheckbox
+from .counter import Counter, ManagedCounter
 from .group import Column, Group, Row
-from .list_group import ListGroup, ManagedListGroupAdapter
+from .list_group import ListGroup, ManagedListGroup
 from .pager import (
     CurrentPage,
     FirstPage,
@@ -60,8 +60,8 @@ from .pager import (
 )
 from .scrolling_group import ScrollingGroup
 from .select import (
-    ManagedMultiSelectAdapter,
-    ManagedRadioAdapter,
+    ManagedMultiselect,
+    ManagedRadio,
     Multiselect,
     Radio,
     Select,

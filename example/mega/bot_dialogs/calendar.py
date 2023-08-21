@@ -8,7 +8,7 @@ from aiogram_dialog import (
     Dialog, Window, DialogManager,
 )
 from aiogram_dialog.widgets.kbd import (
-    Calendar, CalendarScope, ManagedCalendarAdapter, SwitchTo,
+    Calendar, CalendarScope, ManagedCalendar, SwitchTo,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarDaysView, CalendarMonthView, CalendarScopeView, CalendarYearsView,
@@ -59,7 +59,7 @@ class CustomCalendar(Calendar):
 
 
 async def on_date_selected(
-        callback: CallbackQuery, widget: ManagedCalendarAdapter,
+        callback: CallbackQuery, widget: ManagedCalendar,
         manager: DialogManager,
         selected_date: date,
 ):

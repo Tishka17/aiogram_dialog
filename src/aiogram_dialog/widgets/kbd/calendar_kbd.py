@@ -88,7 +88,7 @@ class OnDateSelected(Protocol):
     async def __call__(
             self,
             event: ChatEvent,
-            widget: ManagedCalendarAdapter,
+            widget: ManagedCalendar,
             dialog_manager: DialogManager,
             date: date,
     ) -> Any:
@@ -756,8 +756,8 @@ class Calendar(Keyboard):
         data = self.get_widget_data(manager, {})
         data["current_scope"] = new_scope.value
 
-    def managed(self, manager: DialogManager):
-        return ManagedCalendarAdapter(self, manager)
+    def managed(self, manager: DialogManager) -> "ManagedCalendar":
+        return ManagedCalendar(self, manager)
 
     async def _handle_scope_months(
             self, data: str, manager: DialogManager,
@@ -858,7 +858,7 @@ class Calendar(Keyboard):
         return True
 
 
-class ManagedCalendarAdapter(ManagedWidget[Calendar]):
+class ManagedCalendar(ManagedWidget[Calendar]):
     def get_scope(self) -> CalendarScope:
         """Get current scope showing in calendar."""
         return self.widget.get_scope(self.manager)

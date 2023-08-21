@@ -2,6 +2,20 @@
 Migration from previous versions
 ***********************************
 
+Migration 2.0b21 -> 2.0b22
+==============================
+
+Simplified naming of managed widgets:
+
+* ``ManagedTextInputAdapter`` -> ``ManagedTextInput``
+* ``ManagedCalendarAdapter`` -> ``ManagedCalendar``
+* ``ManagedCounterAdapter`` -> ``ManagedCounter``
+* ``ManagedCheckboxAdapter`` -> ``ManagedCheckbox``
+* ``ManagedMultiSelectAdapter`` -> ``ManagedMultiselect``
+* ``ManagedRadioAdapter`` -> ``ManagedRadio``
+* ``ManagedListGroupAdapter`` -> ``ManagedListGroup``
+
+
 Migration 2.0b18 -> 2.0b21
 ==============================
 

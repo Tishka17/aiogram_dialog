@@ -35,3 +35,13 @@ Next important thing is ids. Besides a widget id you need a function which can r
 
     Select places everything in single row. If it is not suitable for your case - simply wrap it with :ref:`group` or :ref:`column`
 
+
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.select.OnItemClick
+   :special-members: __call__
+
+.. autoclass:: aiogram_dialog.widgets.kbd.Select
+   :special-members: __init__

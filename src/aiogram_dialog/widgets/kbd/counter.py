@@ -16,10 +16,10 @@ from aiogram_dialog.widgets.widget_event import (
 
 class OnCounterEvent(Protocol):
     @abstractmethod
-    def __call__(
+    async def __call__(
             self,
             event: ChatEvent,
-            counter: "ManagedCounterAdapter",  # noqa: F841
+            counter: "ManagedCounter",  # noqa: F841
             dialog_manager: DialogManager,
     ):
         raise NotImplementedError
@@ -165,10 +165,10 @@ class Counter(Keyboard):
         return True
 
     def managed(self, manager: DialogManager):
-        return ManagedCounterAdapter(self, manager)
+        return ManagedCounter(self, manager)
 
 
-class ManagedCounterAdapter(ManagedWidget[Counter]):
+class ManagedCounter(ManagedWidget[Counter]):
     def get_value(self) -> float:
         """Get current value set in counter."""
         return self.widget.get_value(self.manager)

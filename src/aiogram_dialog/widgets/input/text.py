@@ -25,7 +25,7 @@ class OnSuccess(Protocol[T]):
     async def __call__(
             self,
             message: Message,
-            widget: ManagedTextInputAdapter,
+            widget: ManagedTextInput[T],
             dialog_manager: DialogManager,
             data: T,
     ) -> Any:
@@ -37,7 +37,7 @@ class OnError(Protocol[T]):
     async def __call__(
             self,
             message: Message,
-            widget: ManagedTextInputAdapter,
+            widget: ManagedTextInput[T],
             dialog_manager: DialogManager,
             error: ValueError,
     ) -> Any:
@@ -92,10 +92,10 @@ class TextInput(BaseInput, Generic[T]):
         return self.type_factory(self.get_widget_data(manager, None))
 
     def managed(self, manager: DialogManager):
-        return ManagedTextInputAdapter(self, manager)
+        return ManagedTextInput(self, manager)
 
 
-class ManagedTextInputAdapter(ManagedWidget[TextInput[T]], Generic[T]):
+class ManagedTextInput(ManagedWidget[TextInput[T]], Generic[T]):
     def get_value(self) -> T:
         """Get last input data stored by widget."""
         return self.widget.get_value(self.manager)
