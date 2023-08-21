@@ -30,7 +30,7 @@ class NameSG(StatesGroup):
 
 
 async def name_handler(
-        message: Message, dialog: DialogProtocol, manager: DialogManager
+        message: Message, widget: MessageInput, manager: DialogManager
 ):
     manager.dialog_data["name"] = message.text
     await manager.next()
