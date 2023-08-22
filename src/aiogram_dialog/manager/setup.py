@@ -8,7 +8,7 @@ from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    DialogProtocol, DialogRegistryProtocol,
+    BgManagerFactory, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol,
 )
 from aiogram_dialog.context.intent_middleware import (
@@ -17,6 +17,7 @@ from aiogram_dialog.context.intent_middleware import (
     IntentMiddlewareFactory,
 )
 from aiogram_dialog.context.media_storage import MediaIdStorage
+from .bg_manager import BgManagerFactoryImpl
 from .manager_factory import DefaultManagerFactory
 from .manager_middleware import ManagerMiddleware
 from .message_manager import MessageManager
@@ -148,7 +149,7 @@ def setup_dialogs(
         dialog_manager_factory: Optional[DialogManagerFactory] = None,
         message_manager: Optional[MessageManagerProtocol] = None,
         media_id_storage: Optional[MediaIdStorageProtocol] = None,
-):
+) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
 
@@ -161,3 +162,4 @@ def setup_dialogs(
         router=router,
         dialog_manager_factory=dialog_manager_factory,
     )
+    return BgManagerFactoryImpl(router)
