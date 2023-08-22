@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import Any, Dict, Optional, Protocol
 
+from aiogram import Bot
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.entities import (
@@ -36,6 +37,19 @@ class BaseDialogManager(Protocol):
             self,
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None,
+            load: bool = False,  # load chat and user
+    ) -> "BaseDialogManager":
+        raise NotImplementedError
+
+
+class BgManagerFactory(Protocol):
+    @abstractmethod
+    def bg(
+            self,
+            bot: Bot,
+            user_id: int,
+            chat_id: int,
             stack_id: Optional[str] = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":

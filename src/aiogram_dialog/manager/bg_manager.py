@@ -19,7 +19,7 @@ from aiogram_dialog.api.entities import (
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
-from aiogram_dialog.api.protocols import BaseDialogManager
+from aiogram_dialog.api.protocols import BaseDialogManager, BgManagerFactory
 from aiogram_dialog.manager.updater import Updater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
@@ -157,4 +157,32 @@ class BgManager(BaseDialogManager):
                 action=DialogAction.UPDATE, data=data,
                 **self._base_event_params(),
             ),
+        )
+
+
+class BgManagerFactoryImpl(BgManagerFactory):
+    def __init__(self, router: Router):
+        self._router = router
+
+    def bg(
+            self,
+            bot: Bot,
+            user_id: int,
+            chat_id: int,
+            stack_id: Optional[str] = None,
+            load: bool = False,
+    ) -> "BaseDialogManager":
+        chat = FakeChat(id=chat_id, type="")
+        user = FakeUser(id=user_id, is_bot=False, first_name="")
+        if stack_id is None:
+            stack_id = DEFAULT_STACK_ID
+
+        return BgManager(
+            user=user,
+            chat=chat,
+            bot=bot,
+            router=self._router,
+            intent_id=None,
+            stack_id=stack_id,
+            load=load,
         )
