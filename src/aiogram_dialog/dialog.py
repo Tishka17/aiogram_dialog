@@ -46,8 +46,9 @@ class Dialog(Router, DialogProtocol):
             launch_mode: LaunchMode = LaunchMode.STANDARD,
             getter: GetterVariant = None,
             preview_data: GetterVariant = None,
+            name: Optional[str] = None,
     ):
-        super().__init__()
+        super().__init__(name=name or windows[0].get_state().group.__name__)
         self._states_group = windows[0].get_state().group
         self._states: List[State] = []
         for w in windows:
