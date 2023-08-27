@@ -24,7 +24,7 @@ async def metadata_getter(**_kwargs) -> dict:
 about_dialog = Dialog(
     Window(
         Jinja(
-            "<b><u>{{metadata.name}}</u></b>\n"
+            "<b><u>{{metadata.name}}</u></b> by @tishka17\n"
             "\n"
             "{{metadata.summary}}\n"
             "\n"
