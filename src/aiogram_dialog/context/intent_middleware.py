@@ -187,6 +187,8 @@ class IntentErrorMiddleware(BaseMiddleware):
             return False
         if "event_chat" not in data:
             return False
+        if "event_from_user" not in data:
+            return False
         return True
 
     async def _fix_broken_stack(

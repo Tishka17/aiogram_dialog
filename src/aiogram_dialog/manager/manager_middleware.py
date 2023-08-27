@@ -5,7 +5,7 @@ from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import TelegramObject, Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
-from aiogram_dialog.api.internal import DialogManagerFactory
+from aiogram_dialog.api.internal import DialogManagerFactory, STORAGE_KEY
 from aiogram_dialog.api.protocols import (
     BgManagerFactory, DialogManager, DialogRegistryProtocol,
 )
@@ -26,6 +26,11 @@ class ManagerMiddleware(BaseMiddleware):
         self.registry = registry
         self.router = router
 
+    def _is_event_supported(
+            self, event: TelegramObject, data: Dict[str, Any],
+    ) -> bool:
+        return STORAGE_KEY in data
+
     async def __call__(
             self,
             handler: Callable[
@@ -35,12 +40,13 @@ class ManagerMiddleware(BaseMiddleware):
             event: ChatEvent,
             data: Dict[str, Any],
     ) -> Any:
-        data[MANAGER_KEY] = self.dialog_manager_factory(
-            event=event,
-            data=data,
-            registry=self.registry,
-            router=self.router,
-        )
+        if self._is_event_supported(event, data):
+            data[MANAGER_KEY] = self.dialog_manager_factory(
+                event=event,
+                data=data,
+                registry=self.registry,
+                router=self.router,
+            )
 
         try:
             return await handler(event, data)
