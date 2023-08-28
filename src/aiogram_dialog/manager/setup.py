@@ -19,7 +19,7 @@ from aiogram_dialog.context.intent_middleware import (
 from aiogram_dialog.context.media_storage import MediaIdStorage
 from .bg_manager import BgManagerFactoryImpl
 from .manager_factory import DefaultManagerFactory
-from .manager_middleware import ManagerMiddleware
+from .manager_middleware import BgFactoryMiddleware, ManagerMiddleware
 from .message_manager import MessageManager
 from .update_handler import handle_update
 
@@ -82,6 +82,7 @@ def _startup_callback(
 def _register_middleware(
         router: Router,
         dialog_manager_factory: DialogManagerFactory,
+        bg_manager_factory: BgManagerFactory,
 ):
     registry = DialogRegistry(router)
     manager_middleware = ManagerMiddleware(
@@ -117,6 +118,10 @@ def _register_middleware(
     router.my_chat_member.middleware(context_saver_middleware)
 
     router.errors.middleware(IntentErrorMiddleware(registry=registry))
+
+    bg_factory_middleware = BgFactoryMiddleware(bg_manager_factory)
+    for observer in router.observers.values():
+        observer.outer_middleware(bg_factory_middleware)
 
 
 def _prepare_dialog_manager_factory(
@@ -158,8 +163,11 @@ def setup_dialogs(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
+    bg_manager_factory = BgManagerFactoryImpl(router)
     _register_middleware(
         router=router,
         dialog_manager_factory=dialog_manager_factory,
+        bg_manager_factory=bg_manager_factory,
+
     )
-    return BgManagerFactoryImpl(router)
+    return bg_manager_factory

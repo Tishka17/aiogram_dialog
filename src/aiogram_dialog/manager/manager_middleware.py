@@ -2,15 +2,16 @@ from typing import Any, Awaitable, Callable, Dict, Union
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import Update
+from aiogram.types import TelegramObject, Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
-from aiogram_dialog.api.internal import DialogManagerFactory
+from aiogram_dialog.api.internal import DialogManagerFactory, STORAGE_KEY
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogRegistryProtocol,
+    BgManagerFactory, DialogManager, DialogRegistryProtocol,
 )
 
 MANAGER_KEY = "dialog_manager"
+BG_FACTORY_KEY = "dialog_bg_factory"
 
 
 class ManagerMiddleware(BaseMiddleware):
@@ -25,6 +26,11 @@ class ManagerMiddleware(BaseMiddleware):
         self.registry = registry
         self.router = router
 
+    def _is_event_supported(
+            self, event: TelegramObject, data: Dict[str, Any],
+    ) -> bool:
+        return STORAGE_KEY in data
+
     async def __call__(
             self,
             handler: Callable[
@@ -34,12 +40,13 @@ class ManagerMiddleware(BaseMiddleware):
             event: ChatEvent,
             data: Dict[str, Any],
     ) -> Any:
-        data[MANAGER_KEY] = self.dialog_manager_factory(
-            event=event,
-            data=data,
-            registry=self.registry,
-            router=self.router,
-        )
+        if self._is_event_supported(event, data):
+            data[MANAGER_KEY] = self.dialog_manager_factory(
+                event=event,
+                data=data,
+                registry=self.registry,
+                router=self.router,
+            )
 
         try:
             return await handler(event, data)
@@ -47,3 +54,24 @@ class ManagerMiddleware(BaseMiddleware):
             manager: DialogManager = data.pop(MANAGER_KEY, None)
             if manager:
                 await manager.close_manager()
+
+
+class BgFactoryMiddleware(BaseMiddleware):
+    def __init__(
+            self,
+            bg_manager_factory: BgManagerFactory,
+    ) -> None:
+        super().__init__()
+        self.bg_manager_factory = bg_manager_factory
+
+    async def __call__(
+            self,
+            handler: Callable[
+                [Union[TelegramObject, DialogUpdateEvent], Dict[str, Any]],
+                Awaitable[TelegramObject],
+            ],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
+        data[BG_FACTORY_KEY] = self.bg_manager_factory
+        return await handler(event, data)
