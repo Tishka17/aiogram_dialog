@@ -37,7 +37,7 @@ tools = [
 ]
 [project.urls]
 "Homepage" = "https://github.com/tishka17/aiogram_dialog"
-"Documentation" = "https://aiogram_dialog.readthedocs.org"
+"Documentation" = "https://aiogram-dialog.readthedocs.org"
 "Bug Tracker" = "https://github.com/tishka17/aiogram_dialog/issues"
 
 [project.scripts]

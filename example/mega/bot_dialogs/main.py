@@ -1,6 +1,7 @@
 from aiogram_dialog import (
     Dialog, Window, LaunchMode,
 )
+from aiogram_dialog.about import about_aiogram_dialog_button
 from aiogram_dialog.widgets.kbd import (
     Start,
 )
@@ -46,6 +47,7 @@ main_dialog = Dialog(
             id="switch",
             state=states.Switch.MAIN,
         ),
+        about_aiogram_dialog_button(),
         state=states.Main.MAIN,
     ),
     launch_mode=LaunchMode.ROOT,

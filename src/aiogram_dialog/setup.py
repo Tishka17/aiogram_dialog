@@ -17,11 +17,14 @@ from aiogram_dialog.context.intent_middleware import (
     IntentMiddlewareFactory,
 )
 from aiogram_dialog.context.media_storage import MediaIdStorage
-from .bg_manager import BgManagerFactoryImpl
-from .manager_factory import DefaultManagerFactory
-from .manager_middleware import BgFactoryMiddleware, ManagerMiddleware
-from .message_manager import MessageManager
-from .update_handler import handle_update
+from aiogram_dialog.manager.bg_manager import BgManagerFactoryImpl
+from aiogram_dialog.manager.manager_factory import DefaultManagerFactory
+from aiogram_dialog.manager.manager_middleware import (
+    BgFactoryMiddleware, ManagerMiddleware,
+)
+from aiogram_dialog.manager.message_manager import MessageManager
+from aiogram_dialog.manager.update_handler import handle_update
+from .about import about_dialog
 
 
 def _setup_event_observer(router: Router) -> None:
@@ -95,6 +98,8 @@ def _register_middleware(
     router.startup.register(_startup_callback(registry))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
+    router.errors.middleware(IntentErrorMiddleware(registry=registry))
+
     router.message.middleware(manager_middleware)
     router.callback_query.middleware(manager_middleware)
     update_handler.middleware(manager_middleware)
@@ -116,8 +121,6 @@ def _register_middleware(
     router.callback_query.middleware(context_saver_middleware)
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
-
-    router.errors.middleware(IntentErrorMiddleware(registry=registry))
 
     bg_factory_middleware = BgFactoryMiddleware(bg_manager_factory)
     for observer in router.observers.values():
@@ -148,6 +151,10 @@ def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
         yield from collect_dialogs(sub_router)
 
 
+def _include_default_dialogs(router: Router):
+    router.include_router(about_dialog())
+
+
 def setup_dialogs(
         router: Router,
         *,
@@ -157,6 +164,7 @@ def setup_dialogs(
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
+    _include_default_dialogs(router)
 
     dialog_manager_factory = _prepare_dialog_manager_factory(
         dialog_manager_factory=dialog_manager_factory,
