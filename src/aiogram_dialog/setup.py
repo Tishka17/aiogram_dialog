@@ -122,7 +122,6 @@ def _register_middleware(
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
 
-
     bg_factory_middleware = BgFactoryMiddleware(bg_manager_factory)
     for observer in router.observers.values():
         observer.outer_middleware(bg_factory_middleware)

@@ -1,11 +1,11 @@
 import importlib.metadata
 
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 
-from .dialog import Dialog
-from .window import Window
+from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.widgets.kbd import Cancel, Keyboard, Start
 from aiogram_dialog.widgets.text import Const, Jinja, Text
+from aiogram_dialog.window import Window
 
 
 class AiogramDialogStates(StatesGroup):
@@ -17,7 +17,7 @@ async def metadata_getter(**_kwargs) -> dict:
     urls = [u.split(",", maxsplit=1) for u in metadata["project_url"]]
     return {
         "metadata": metadata,
-        "urls":urls
+        "urls": urls,
     }
 
 
@@ -49,8 +49,11 @@ def about_dialog():
 DEFAULT_ABOUT_BTN_TEXT = Const("🗨️ About aiogram-dialog")
 
 
-def about_aiogram_dialog_button(text: Text = DEFAULT_ABOUT_BTN_TEXT) -> Keyboard:
+def about_aiogram_dialog_button(
+        text: Text = DEFAULT_ABOUT_BTN_TEXT,
+) -> Keyboard:
     return Start(
-        text=text, state=AiogramDialogStates.ABOUT,
+        text=text,
+        state=AiogramDialogStates.ABOUT,
         id="__aiogd_about__",
     )
