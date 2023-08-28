@@ -153,7 +153,7 @@ def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
 
 
 def _include_default_dialogs(router: Router):
-    router.include_router(about_dialog)
+    router.include_router(about_dialog())
 
 
 def setup_dialogs(

@@ -21,28 +21,30 @@ async def metadata_getter(**_kwargs) -> dict:
     }
 
 
-about_dialog = Dialog(
-    Window(
-        Jinja(
-            "<b><u>{{metadata.name}}</u></b> by @tishka17\n"
-            "\n"
-            "{{metadata.summary}}\n"
-            "\n"
-            "<b>Version:</b> {{metadata.version}}\n"
-            "<b>Author:</b> {{metadata.author_email}}\n"
-            "\n"
-            "{% for name, url in urls%}"
-            "<b>{{name}}:</b> {{url}}\n"
-            "{% endfor %}"
-            "",
+def about_dialog():
+    return Dialog(
+        Window(
+            Jinja(
+                "<b><u>{{metadata.name}}</u></b> by @tishka17\n"
+                "\n"
+                "{{metadata.summary}}\n"
+                "\n"
+                "<b>Version:</b> {{metadata.version}}\n"
+                "<b>Author:</b> {{metadata.author_email}}\n"
+                "\n"
+                "{% for name, url in urls%}"
+                "<b>{{name}}:</b> {{url}}\n"
+                "{% endfor %}"
+                "",
+            ),
+            Cancel(Const("Ok")),
+            getter=metadata_getter,
+            state=AiogramDialogStates.ABOUT,
+            parse_mode="html",
+            disable_web_page_preview=True,
         ),
-        Cancel(Const("Ok")),
-        getter=metadata_getter,
-        state=AiogramDialogStates.ABOUT,
-        parse_mode="html",
-        disable_web_page_preview=True,
-    ),
-)
+    )
+
 
 DEFAULT_ABOUT_BTN_TEXT = Const("🗨️ About aiogram-dialog")
 
