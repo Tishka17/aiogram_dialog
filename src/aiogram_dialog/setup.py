@@ -98,6 +98,8 @@ def _register_middleware(
     router.startup.register(_startup_callback(registry))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
+    router.errors.middleware(IntentErrorMiddleware(registry=registry))
+
     router.message.middleware(manager_middleware)
     router.callback_query.middleware(manager_middleware)
     update_handler.middleware(manager_middleware)
@@ -120,7 +122,6 @@ def _register_middleware(
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
 
-    router.errors.middleware(IntentErrorMiddleware(registry=registry))
 
     bg_factory_middleware = BgFactoryMiddleware(bg_manager_factory)
     for observer in router.observers.values():
