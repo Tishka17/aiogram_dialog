@@ -44,7 +44,7 @@ about_dialog = Dialog(
     ),
 )
 
-DEFAULT_ABOUT_BTN_TEXT = Const("About aiogram-dialog")
+DEFAULT_ABOUT_BTN_TEXT = Const("🗨️ About aiogram-dialog")
 
 
 def about_aiogram_dialog_button(text: Text = DEFAULT_ABOUT_BTN_TEXT) -> Keyboard:
