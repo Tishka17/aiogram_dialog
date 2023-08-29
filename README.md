@@ -5,6 +5,9 @@
 [![downloads](https://img.shields.io/pypi/dm/aiogram_dialog.svg)](https://pypistats.org/packages/aiogram_dialog)
 [![license](https://img.shields.io/github/license/Tishka17/aiogram_dialog.svg)](https://github.com/Tishka17/aiogram_dialog/blob/master/LICENSE)
 
+#### Version status:
+* v1.x - stable release, supports aiogram v2.x, bugfix only
+* v2.x - beta, future release, supports aiogram v3.x
 
 ### About 
 `aiogram-dialog` is a framework for developing interactive messages and menus in your telegram bot like a normal GUI application.  
@@ -12,7 +15,7 @@
 It is inspired by ideas of Android SDK and other tools.
 
 Main ideas are:
-* **split data retriving, rendering and action processing** - you need nothing to do for showing same content after some actions, also you can show same data in multiple ways. 
+* **split data retrieving, rendering and action processing** - you need nothing to do for showing same content after some actions, also you can show same data in multiple ways. 
 * **reusable widgets**  - you can create calendar or multiselect at any point of your application without copy-pasting its internal logic  
 * **limited scope of context** - any dialog keeps some data until closed, multiple opened dialogs process their data separately
 
@@ -36,13 +39,15 @@ For more details see [documentation](https://aiogram-dialog.readthedocs.io) and 
 
 ### Usage
 
+Example below is suitable for aiogram_dialog v2.x and aiogram v3.x
+
 #### Declaring Window
 
 Each window consists of:
 
 * Text widgets. Render text of message.
 * Keyboard widgets. Render inline keyboard
-* Media widget. Renders media if neede
+* Media widget. Renders media if need
 * Message handler. Called when user sends a message when window is shown
 * Data getter functions (`getter=`). They load data from any source which can be used in text/keyboard
 * State. Used when switching between windows
@@ -51,7 +56,7 @@ Each window consists of:
 
 
 ```python
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters.state import StatesGroup, State
 from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import Window
@@ -78,7 +83,7 @@ Window(
 Window itself can do nothing, just prepares message. To use it you need dialog:
 
 ```python
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters.state import StatesGroup, State
 from aiogram_dialog import Dialog, Window
 
 
@@ -95,20 +100,17 @@ dialog = Dialog(
 
 > **Info:** All windows in a dialog MUST have states from then same `StatesGroup`
 
-After creating dialog you need to register it using `DialogRegistry`:
+After creating a dialog you need to register it into the Dispatcher and set it up using the `setup_dialogs` function:
 
 ```python
 from aiogram import Dispatcher
-from aiogram_dialog import DialogRegistry
+from aiogram_dialog import setup_dialogs
 
 ...
-dp = Dispatcher(bot, storage=storage)  # create as usual
-registry = DialogRegistry(dp)  # create registry
-registry.register(name_dialog)  # create
+dp = Dispatcher(storage=storage)  # create as usual
+dp.include_router(dialog)
+setup_dialogs(dp)
 ```
-
-> **Info:** aiogram_dialog uses aiograms's FSM, so you need to create Dispatcher with suitable storage. Also avoid using
-FSMContext directly
 
 Then start dialog when you are ready to use it. Dialog is started via `start` method of `DialogManager` instance. You
 should provide corresponding state to switch into (usually it is state of first window in dialog).
@@ -116,10 +118,11 @@ should provide corresponding state to switch into (usually it is state of first 
 For example in `/start` command handler:
 
 ```python
-@dp.message_handler(commands=["start"])
 async def user_start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.first, mode=StartMode.RESET_STACK)
+
+dp.message.register(user_start, F.text == "/start")
 ```
 
-> **Info:** Always set `reset_stack=True` in your top level start command. Otherwise, dialogs are stacked just as they do
+> **Info:** Always set `mode=StartMode.RESET_STACK` in your top level start command. Otherwise, dialogs are stacked just as they do
 on your mobile phone, so you can reach stackoverflow error

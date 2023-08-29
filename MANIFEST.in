@@ -1,0 +1,3 @@
+include src/aiogram_dialog/py.typed
+include src/aiogram_dialog/tools/calculator.png
+include src/aiogram_dialog/tools/templates/message.html

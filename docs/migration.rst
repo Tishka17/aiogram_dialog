@@ -2,7 +2,59 @@
 Migration from previous versions
 ***********************************
 
-Incompatible changes with 0.11:
+Migration 2.0b21 -> 2.0b22
+==============================
+
+Simplified naming of managed widgets:
+
+* ``ManagedTextInputAdapter`` -> ``ManagedTextInput``
+* ``ManagedCalendarAdapter`` -> ``ManagedCalendar``
+* ``ManagedCounterAdapter`` -> ``ManagedCounter``
+* ``ManagedCheckboxAdapter`` -> ``ManagedCheckbox``
+* ``ManagedMultiSelectAdapter`` -> ``ManagedMultiselect``
+* ``ManagedRadioAdapter`` -> ``ManagedRadio``
+* ``ManagedListGroupAdapter`` -> ``ManagedListGroup``
+
+
+Migration 2.0b18 -> 2.0b21
+==============================
+
+* ``en_error`` callback in TextInput now receives ``ValueError`` instance as 4th parameter in addition to previously used three
+* ``on_error`` and ``on_success`` in TextInput now receive ``ManagedTextInputAdapter`` instead of ``TextInput`` as a 2d parameter
+
+
+Migration 2.0b10 -> 2.0b18
+===============================
+
+* ``Registry`` class removed.
+* Each `Dialog`` is now a ``Router``. You should do ``dp.include_router(dialog)`` to attach it.
+* ``setup_dialogs`` is now a replacement of ``registry.setup_dp()``. Parameters are the same.
+* ``render_preview`` and ``render_transitions`` methods now expect ``Dispatcher``, ``Router`` or ``Dialog`` instance instead of ``Registry``
+* ``aiogram-dialog-preview`` now expects ``Dispatcher``, ``Router`` or ``Dialog`` instance instead of ``Registry``
+
+Migration 2.0b10 -> 2.0b17
+===============================
+
+* ``Registry`` is now created without dispatcher. After that you need to setup dispatcher using ``setup_dp`` method
+* ``Registry.register_start_handler`` now requires router (or dispatcher)
+
+Migration 1.x -> 2.0b10
+==========================
+
+* Main objects like ``Dialog``, ``LaunchMode`` and ``DialogManager`` should be imported directly from ``aiogram_dialog`` package.
+* ``Whenable`` is moved to ``widgets.common`` subpackage
+* When finding widget by ``id`` you will get managed version of widget. This objects no more expect ``DialogManager`` or ``ChatEvent`` arguments in their methods
+* For ``ListGroup`` items callbacks you will get ``SubManager`` which behavior slightly changed.
+* ``SubManager`` moved to ``aiogram_dialog`` package
+* ``ManagedDialog`` protocol renamed to ``DialogProtocol``
+* ``Dialog`` no more contains ``.next``, ``.back`` and ``.switch_to`` methods. They are available in ``DialogManager``
+* ``DialogManagerFactory`` protocol simplified
+* no more ``ManagedDialogAdapterProto``. You will get ``Dialog`` instance instead
+* no more ``data`` in ``Context``. Renamed to ``start_data`` many time ago
+* ``dialog_data`` and ``start_data`` added to ``DialogManager``, ``data`` is renamed to ``middleware_data``
+
+Migration 0.11 -> 1.0
+========================
 
 * ``reset_stack`` was replaced with ``StartMode``. E.g. ``reset_stack=true`` is now ``mode=StartMode.RESET_STACK``
 * dialog no more changes current aiogram state

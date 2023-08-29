@@ -1,17 +1,20 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.filters import CommandStart
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import Message, CallbackQuery
 
-from aiogram_dialog import Dialog, DialogManager, Window, DialogRegistry, BaseDialogManager, \
-    StartMode
+from aiogram_dialog import (
+    BaseDialogManager, Dialog, DialogManager, StartMode, Window, setup_dialogs,
+)
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
 
-API_TOKEN = "PLACE YOUR TOKEN HERE"
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 
 # name input dialog
@@ -22,7 +25,7 @@ class Bg(StatesGroup):
 
 async def get_bg_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "progress": dialog_manager.current_context().dialog_data.get("progress", 0)
+        "progress": dialog_manager.dialog_data.get("progress", 0)
     }
 
 
@@ -43,12 +46,13 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def start_bg(c: CallbackQuery, button: Button, manager: DialogManager):
+async def start_bg(callback: CallbackQuery, button: Button,
+                   manager: DialogManager):
     await manager.start(Bg.progress)
-    asyncio.create_task(background(c, manager.bg()))
+    asyncio.create_task(background(callback, manager.bg()))
 
 
-async def background(c: CallbackQuery, manager: BaseDialogManager):
+async def background(callback: CallbackQuery, manager: BaseDialogManager):
     count = 10
     for i in range(1, count + 1):
         await asyncio.sleep(1)
@@ -68,7 +72,7 @@ main_menu = Dialog(
 )
 
 
-async def start(m: Message, dialog_manager: DialogManager):
+async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 
@@ -78,13 +82,13 @@ async def main():
     logging.getLogger("aiogram_dialog").setLevel(logging.DEBUG)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(bot, storage=storage)
-    registry = DialogRegistry(dp)
-    registry.register(bg_dialog)
-    registry.register(main_menu)
-    dp.register_message_handler(start, text="/start", state="*")
+    dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
+    dp.include_router(bg_dialog)
+    dp.include_router(main_menu)
 
-    await dp.start_polling()
+    dp.message.register(start, CommandStart())
+    setup_dialogs(dp)
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
