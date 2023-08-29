@@ -153,7 +153,11 @@ class ManagerImpl(DialogManager):
         """Process closing last dialog in stack."""
         await self._remove_kbd()
 
-    async def done(self, result: Any = None) -> None:
+    async def done(
+            self,
+            result: Any = None,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         self.check_disabled()
         await self.dialog().process_close(result, self)
         old_context = self.current_context()
@@ -169,7 +173,7 @@ class ManagerImpl(DialogManager):
         await dialog.process_result(old_context.start_data, result, self)
         new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
-            await self.show()
+            await self.show(show_mode)
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
@@ -196,10 +200,10 @@ class ManagerImpl(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: ShowMode = ShowMode.AUTO,
+            show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
-        self.show_mode = show_mode
+        self.show_mode = show_mode or self.show_mode
         if mode is StartMode.NORMAL:
             await self._start_normal(state, data)
         elif mode is StartMode.RESET_STACK:
@@ -223,7 +227,9 @@ class ManagerImpl(DialogManager):
 
     async def _start_new_stack(self, state: State, data: Data = None) -> None:
         stack = Stack()
-        await self.bg(stack_id=stack.id).start(state, data, StartMode.NORMAL)
+        await self.bg(stack_id=stack.id).start(
+            state, data, StartMode.NORMAL, self.show_mode,
+        )
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
         stack = self.current_stack()
@@ -267,7 +273,11 @@ class ManagerImpl(DialogManager):
         new_state = states[current_index - 1]
         await self.switch_to(new_state)
 
-    async def switch_to(self, state: State) -> None:
+    async def switch_to(
+            self,
+            state: State,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         self.check_disabled()
         context = self.current_context()
         if context.state.group != state.group:
@@ -275,13 +285,15 @@ class ManagerImpl(DialogManager):
                 f"Cannot switch to another state group. "
                 f"Current state: {context.state}, asked for {state}",
             )
+        self.show_mode = show_mode or self.show_mode
         context.state = state
 
-    async def show(self) -> None:
+    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
         stack = self.current_stack()
         bot = self._data["bot"]
         old_message = self._get_last_message()
         new_message = await self.dialog().render(self)
+        new_message.show_mode = show_mode or self.show_mode
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
         await self._fix_cached_media_id(new_message)
@@ -303,7 +315,6 @@ class ManagerImpl(DialogManager):
                     type=new_message.media.type,
                     media_id=get_media_id(sent_message),
                 )
-        self.show_mode = ShowMode.EDIT
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
 
@@ -374,9 +385,13 @@ class ManagerImpl(DialogManager):
                 return ShowMode.SEND
         return ShowMode.EDIT
 
-    async def update(self, data: Dict) -> None:
+    async def update(
+            self,
+            data: Dict,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         self.current_context().dialog_data.update(data)
-        await self.show()
+        await self.show(show_mode)
 
     def find(self, widget_id) -> Optional[Any]:
         widget = self.dialog().find(widget_id)

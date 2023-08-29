@@ -62,8 +62,8 @@ class SubManager(DialogManager):
     async def close_manager(self) -> None:
         return await self.manager.close_manager()
 
-    async def show(self) -> Message:
-        return await self.manager.show()
+    async def show(self, show_mode: Optional[ShowMode] = None) -> Message:
+        return await self.manager.show(show_mode)
 
     async def answer_callback(self) -> None:
         return await self.manager.answer_callback()
@@ -97,25 +97,37 @@ class SubManager(DialogManager):
     async def back(self) -> None:
         await self.manager.back()
 
-    async def done(self, result: Any = None) -> None:
-        await self.manager.done(result=result)
+    async def done(
+            self,
+            result: Any = None,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
+        await self.manager.done(result, show_mode)
 
     async def mark_closed(self) -> None:
         await self.manager.mark_closed()
 
     async def start(self, state: State, data: Data = None,
                     mode: StartMode = StartMode.NORMAL,
-                    show_mode: ShowMode = ShowMode.AUTO) -> None:
+                    show_mode: Optional[ShowMode] = None) -> None:
         await self.manager.start(
             state=state, data=data, mode=mode, show_mode=show_mode,
         )
 
-    async def switch_to(self, state: State) -> None:
-        await self.manager.switch_to(state)
+    async def switch_to(
+            self,
+            state: State,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
+        await self.manager.switch_to(state, show_mode)
 
-    async def update(self, data: Dict) -> None:
+    async def update(
+            self,
+            data: Dict,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         self.current_context().dialog_data.update(data)
-        await self.show()
+        await self.show(show_mode)
 
     def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None,
            stack_id: Optional[str] = None,
