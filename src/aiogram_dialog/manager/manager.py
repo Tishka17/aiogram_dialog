@@ -173,7 +173,7 @@ class ManagerImpl(DialogManager):
         await dialog.process_result(old_context.start_data, result, self)
         new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
-            await self.show(show_mode or self.show_mode)
+            await self.show(show_mode)
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
@@ -257,7 +257,7 @@ class ManagerImpl(DialogManager):
         await self.dialog().process_start(self, data, state)
         new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
-            await self.show(self.show_mode)
+            await self.show()
 
     async def next(self) -> None:
         context = self.current_context()
@@ -391,7 +391,7 @@ class ManagerImpl(DialogManager):
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
-        await self.show(show_mode or self.show_mode)
+        await self.show(show_mode)
 
     def find(self, widget_id) -> Optional[Any]:
         widget = self.dialog().find(widget_id)
