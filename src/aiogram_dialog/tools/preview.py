@@ -148,7 +148,7 @@ class FakeManager(DialogManager):
     async def done(
             self,
             result: Any = None,
-            show_mode: Optional[ShowMode] = None
+            show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.set_state(State("-"))
 
