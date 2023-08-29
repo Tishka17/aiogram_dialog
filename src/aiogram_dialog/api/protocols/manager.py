@@ -11,7 +11,11 @@ from aiogram_dialog.api.entities import (
 
 class BaseDialogManager(Protocol):
     @abstractmethod
-    async def done(self, result: Any = None) -> None:
+    async def done(
+            self,
+            result: Any = None,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -20,16 +24,24 @@ class BaseDialogManager(Protocol):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: ShowMode = ShowMode.AUTO,
+            show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def switch_to(self, state: State) -> None:
+    async def switch_to(
+            self,
+            state: State,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def update(self, data: Dict) -> None:
+    async def update(
+            self,
+            data: Dict,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -102,7 +114,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def show(self) -> None:
+    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
         """Show current state to the user."""
         raise NotImplementedError
 

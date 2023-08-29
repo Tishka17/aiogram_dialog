@@ -111,11 +111,15 @@ class BgManager(BaseDialogManager):
                 )
                 self.user = chat_member.user
 
-    async def done(self, result: Any = None) -> None:
+    async def done(
+            self,
+            result: Any = None,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.DONE, data=result,
+                action=DialogAction.DONE, data=result, show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
@@ -125,7 +129,7 @@ class BgManager(BaseDialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: ShowMode = ShowMode.AUTO,
+            show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -139,22 +143,31 @@ class BgManager(BaseDialogManager):
             ),
         )
 
-    async def switch_to(self, state: State) -> None:
+    async def switch_to(
+            self,
+            state: State,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         await self._load()
         await self._notify(
             DialogSwitchEvent(
                 action=DialogAction.SWITCH,
                 data={},
                 new_state=state,
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
 
-    async def update(self, data: Dict) -> None:
+    async def update(
+            self,
+            data: Dict,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.UPDATE, data=data,
+                action=DialogAction.UPDATE, data=data, show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )

@@ -36,12 +36,12 @@ class DialogUpdateEvent(TelegramObject):
     data: Any
     intent_id: Optional[str]
     stack_id: Optional[str]
+    show_mode: Optional[ShowMode] = None
 
 
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
-    show_mode: ShowMode
 
 
 class DialogSwitchEvent(DialogUpdateEvent):

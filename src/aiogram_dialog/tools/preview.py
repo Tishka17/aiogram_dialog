@@ -129,7 +129,11 @@ class FakeManager(DialogManager):
             state=State(),
         )
 
-    async def switch_to(self, state: State) -> None:
+    async def switch_to(
+            self,
+            state: State,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         self.set_state(state)
 
     async def start(
@@ -141,7 +145,11 @@ class FakeManager(DialogManager):
     ) -> None:
         self.set_state(state)
 
-    async def done(self, result: Any = None) -> None:
+    async def done(
+            self,
+            result: Any = None,
+            show_mode: Optional[ShowMode] = None
+    ) -> None:
         self.set_state(State("-"))
 
     def current_stack(self) -> Stack:
@@ -173,13 +181,17 @@ class FakeManager(DialogManager):
     def show_mode(self, show_mode: ShowMode) -> None:
         return
 
-    async def show(self) -> Message:
+    async def show(self, show_mode: Optional[ShowMode] = None) -> Message:
         pass
 
     def find(self, widget_id) -> Optional[Any]:
         return None
 
-    async def update(self, data: Dict) -> None:
+    async def update(
+            self,
+            data: Dict,
+            show_mode: Optional[ShowMode] = None,
+    ) -> None:
         pass
 
     def bg(
