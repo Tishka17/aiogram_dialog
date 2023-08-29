@@ -17,7 +17,7 @@ from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
 from aiogram_dialog.api.exceptions import (
-    NoContextError, UnregisteredWindowError,
+    UnregisteredWindowError,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
@@ -127,17 +127,12 @@ class Dialog(Router, DialogProtocol):
     async def _message_handler(
             self, message: Message, dialog_manager: DialogManager,
     ):
-        try:
-            old_context = dialog_manager.current_context()
-        except NoContextError:
-            old_context = None
+        old_context = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
         await window.process_message(message, self, dialog_manager)
-        try:
+        if dialog_manager.has_context():
             if dialog_manager.current_context() == old_context:  # same dialog
                 await dialog_manager.show()
-        except NoContextError:
-            pass
 
     async def _callback_handler(
             self,
@@ -149,11 +144,9 @@ class Dialog(Router, DialogProtocol):
         cleaned_callback = callback.model_copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
-        try:
+        if dialog_manager.has_context():
             if dialog_manager.current_context() == old_context:  # same dialog
                 await dialog_manager.show()
-        except NoContextError:
-            pass
         await dialog_manager.answer_callback()
 
     def _setup_filter(self):
