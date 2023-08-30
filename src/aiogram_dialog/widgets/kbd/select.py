@@ -215,21 +215,28 @@ class Radio(StatefulSelect[T], Generic[T]):
         )
 
     def get_checked(self, manager: DialogManager) -> Optional[str]:
+        data = self._get_checked(manager)
+        if data is None:
+            return None
+        return self.type_factory(data)
+
+    def _get_checked(self, manager: DialogManager) -> Optional[str]:
         return self.get_widget_data(manager, None)
 
     async def set_checked(
-            self, event: ChatEvent, item_id: Optional[str],
+            self, event: ChatEvent, item_id: Optional[T],
             manager: DialogManager,
     ):
-        checked = self.get_checked(manager)
-        self.set_widget_data(manager, item_id)
-        if checked != item_id:
-            await self._process_on_state_changed(event, item_id, manager)
+        checked = self._get_checked(manager)
+        item_id_str = str(item_id)
+        self.set_widget_data(manager, item_id_str)
+        if checked != item_id_str:
+            await self._process_on_state_changed(event, item_id_str, manager)
 
     def is_checked(
-            self, item_id: Union[str, int], manager: DialogManager,
+            self, item_id: T, manager: DialogManager,
     ) -> bool:
-        return str(item_id) == self.get_checked(manager)
+        return str(item_id) == self._get_checked(manager)
 
     def _preview_checked_id(
             self, manager: DialogManager, item_id: str,
@@ -239,7 +246,7 @@ class Radio(StatefulSelect[T], Generic[T]):
     def _is_text_checked(
             self, data: Dict, case: Case, manager: DialogManager,
     ) -> bool:
-        item_id = str(self.item_id_getter(data["item"]))
+        item_id = self.item_id_getter(data["item"])
         if manager.is_preview():
             return item_id == self._preview_checked_id(manager, item_id)
         return self.is_checked(item_id, manager)
@@ -320,13 +327,16 @@ class Multiselect(StatefulSelect[T], Generic[T]):
         return self.is_checked(item_id, manager)
 
     def is_checked(
-            self, item_id: Union[str, int], manager: DialogManager,
+            self, item_id: T, manager: DialogManager,
     ) -> bool:
-        data: List = self.get_checked(manager)
+        data = self._get_checked(manager)
         return str(item_id) in data
 
-    def get_checked(self, manager: DialogManager) -> List[str]:
+    def _get_checked(self, manager: DialogManager) -> List[str]:
         return self.get_widget_data(manager, [])
+
+    def get_checked(self, manager: DialogManager) -> List[T]:
+        return [self.type_factory(item) for item in self._get_checked(manager)]
 
     async def reset_checked(
             self, event: ChatEvent, manager: DialogManager,
@@ -336,25 +346,26 @@ class Multiselect(StatefulSelect[T], Generic[T]):
     async def set_checked(
             self,
             event: ChatEvent,
-            item_id: str,
+            item_id: T,
             checked: bool,
             manager: DialogManager,
     ) -> None:
-        data: List = self.get_checked(manager)
+        item_id_str = str(item_id)
+        data: List = self._get_checked(manager)
         changed = False
-        if item_id in data:
+        if item_id_str in data:
             if not checked:
                 if len(data) > self.min_selected:
-                    data.remove(item_id)
+                    data.remove(item_id_str)
                     changed = True
         else:
             if checked:
                 if self.max_selected == 0 or self.max_selected > len(data):
-                    data.append(item_id)
+                    data.append(item_id_str)
                     changed = True
         if changed:
             self.set_widget_data(manager, data)
-            await self._process_on_state_changed(event, item_id, manager)
+            await self._process_on_state_changed(event, item_id_str, manager)
 
     async def _on_click(
             self,
