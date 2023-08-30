@@ -96,4 +96,3 @@ async def test_start(dp, message_manager, client):
     second_message = message_manager.one_message()
     assert second_message.text == "First"
     assert second_message.reply_markup
-
