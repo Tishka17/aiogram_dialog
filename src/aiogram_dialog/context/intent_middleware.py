@@ -147,9 +147,12 @@ class IntentMiddlewareFactory:
         data[STORAGE_KEY] = proxy
 
         original_data = event.data
-        intent_id, callback_data = remove_indent_id(event.data)
-        await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
-        data[CALLBACK_DATA_KEY] = original_data
+        if event.data:
+            intent_id, callback_data = remove_indent_id(event.data)
+            await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
+            data[CALLBACK_DATA_KEY] = original_data
+        else:
+            await self._load_context(event, None, DEFAULT_STACK_ID, data)
         return await handler(event, data)
 
 
