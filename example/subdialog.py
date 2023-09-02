@@ -10,7 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager, DialogProtocol, Window, StartMode,
+    Data, Dialog, DialogManager, Window, StartMode,
     setup_dialogs,
 )
 from aiogram_dialog.tools import render_transitions, render_preview
