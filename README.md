@@ -4,10 +4,11 @@
 [![Doc](https://readthedocs.org/projects/aiogram-dialog/badge/?version=latest&style=flat)](https://aiogram-dialog.readthedocs.io)
 [![downloads](https://img.shields.io/pypi/dm/aiogram_dialog.svg)](https://pypistats.org/packages/aiogram_dialog)
 [![license](https://img.shields.io/github/license/Tishka17/aiogram_dialog.svg)](https://github.com/Tishka17/aiogram_dialog/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/💬-Telegram-blue)](https://t.me/aiogram_dialog)
 
 #### Version status:
-* v1.x - stable release, supports aiogram v2.x, bugfix only
-* v2.x - beta, future release, supports aiogram v3.x
+* v2.x - actual release, supports aiogram v3.x
+* v1.x - old release, supports aiogram v2.x, critical fix only
 
 ### About 
 `aiogram-dialog` is a framework for developing interactive messages and menus in your telegram bot like a normal GUI application.  

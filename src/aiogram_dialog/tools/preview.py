@@ -25,7 +25,7 @@ from aiogram_dialog.api.entities import (
     StartMode,
 )
 from aiogram_dialog.api.exceptions import NoContextError
-from aiogram_dialog.manager.setup import collect_dialogs
+from aiogram_dialog.setup import collect_dialogs
 
 
 @dataclass

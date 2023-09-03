@@ -8,7 +8,7 @@ from diagrams.custom import Custom
 
 from aiogram_dialog import Dialog
 from aiogram_dialog.api.internal import WindowProtocol
-from aiogram_dialog.manager.setup import collect_dialogs
+from aiogram_dialog.setup import collect_dialogs
 from aiogram_dialog.widgets.kbd import (
     Back,
     Cancel,
