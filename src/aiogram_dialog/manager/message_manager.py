@@ -107,6 +107,8 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, new_message: NewMessage,
             old_message: Optional[Message],
     ) -> Message:
+        if new_message.show_mode is ShowMode.NO_UPDATE:
+            raise MessageNotModified("ShowMode is NO_UPDATE")
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
                 "Send new message, because: mode=%s, has old_message=%s",
