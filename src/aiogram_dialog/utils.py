@@ -29,7 +29,7 @@ def is_chat_loaded(chat: Chat) -> bool:
 
     For internal events it can be created with no data inside as a FakeChat
     """
-    return getattr(chat, "fake", False)
+    return not getattr(chat, "fake", False)
 
 
 def is_user_loaded(user: User) -> bool:
@@ -38,7 +38,7 @@ def is_user_loaded(user: User) -> bool:
 
     For internal events it can be created with no data inside as a FakeUser
     """
-    return getattr(user, "fake", False)
+    return not getattr(user, "fake", False)
 
 
 def get_media_id(message: Message) -> Optional[MediaId]:
