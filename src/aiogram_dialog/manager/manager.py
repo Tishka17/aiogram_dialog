@@ -292,6 +292,10 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         bot = self._data["bot"]
         old_message = self._get_last_message()
+        if self.show_mode is ShowMode.NO_UPDATE:
+            logger.debug("ShowMode is NO_UPDATE, skip rendering")
+            return
+
         new_message = await self.dialog().render(self)
         new_message.show_mode = show_mode or self.show_mode
         if new_message.show_mode is ShowMode.AUTO:
