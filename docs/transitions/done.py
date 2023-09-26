@@ -41,6 +41,6 @@ subdialog = Dialog(
         Const("Subdialog"),
         Button(Const("Close"), id="btn", on_click=close_subdialog),
         Cancel(Const("Close")),
-        state=DialogSG.first,
+        state=SubDialogSG.first,
     ),
 )
