@@ -14,6 +14,7 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.exceptions import AbortWidgetClick
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
@@ -165,11 +166,14 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             manager: DialogManager,
             item_id: str,
     ):
-        if self.on_item_click:
-            await self.on_item_click.process_event(
-                callback, select, manager, self.type_factory(item_id),
-            )
-        await self._on_click(callback, select, manager, str(item_id))
+        try:
+            if self.on_item_click:
+                await self.on_item_click.process_event(
+                    callback, select, manager, self.type_factory(item_id),
+                )
+            await self._on_click(callback, select, manager, str(item_id))
+        except AbortWidgetClick:
+            pass
 
     @abstractmethod
     async def _on_click(

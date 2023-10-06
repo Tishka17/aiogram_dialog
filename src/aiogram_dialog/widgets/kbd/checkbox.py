@@ -4,6 +4,7 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.exceptions import AbortWidgetClick
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
@@ -62,10 +63,14 @@ class BaseCheckbox(Keyboard, ABC):
     ) -> bool:
         # remove prefix and cast "0" as False, "1" as True
         checked = data != "0"
-        await self.on_click.process_event(
-            callback, self.managed(manager), manager,
-        )
-        await self.set_checked(callback, not checked, manager)
+        try:
+            await self.on_click.process_event(
+                callback, self.managed(manager), manager,
+            )
+            await self.set_checked(callback, not checked, manager)
+        except AbortWidgetClick:
+            pass
+
         return True
 
     def _is_text_checked(
