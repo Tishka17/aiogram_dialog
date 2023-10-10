@@ -185,7 +185,10 @@ class FakeManager(DialogManager):
         pass
 
     def find(self, widget_id) -> Optional[Any]:
-        return None
+        widget = self.dialog().find(widget_id)
+        if not widget:
+            return None
+        return widget.managed(self)
 
     async def update(
             self,
