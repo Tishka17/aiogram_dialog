@@ -13,8 +13,8 @@ class AiogramDialogStates(StatesGroup):
 
 
 async def metadata_getter(**_kwargs) -> dict:
-    metadata = importlib.metadata.metadata("aiogram-dialog").json
-    urls = [u.split(",", maxsplit=1) for u in metadata["project_url"]]
+    metadata = importlib.metadata.metadata("aiogram-dialog")
+    urls = [u.split(",", maxsplit=1) for u in metadata.get_all("Project-Url")]
     return {
         "metadata": metadata,
         "urls": urls,
@@ -25,12 +25,12 @@ def about_dialog():
     return Dialog(
         Window(
             Jinja(
-                "<b><u>{{metadata.name}}</u></b> by @tishka17\n"
+                "<b><u>{{metadata.Name}}</u></b> by @tishka17\n"
                 "\n"
-                "{{metadata.summary}}\n"
+                "{{metadata.Summary}}\n"
                 "\n"
-                "<b>Version:</b> {{metadata.version}}\n"
-                "<b>Author:</b> {{metadata.author_email}}\n"
+                "<b>Version:</b> {{metadata.Version}}\n"
+                "<b>Author:</b> {{metadata['Author-email']}}\n"
                 "\n"
                 "{% for name, url in urls%}"
                 "<b>{{name}}:</b> {{url}}\n"
@@ -39,6 +39,7 @@ def about_dialog():
             ),
             Cancel(Const("Ok")),
             getter=metadata_getter,
+            preview_data=metadata_getter,
             state=AiogramDialogStates.ABOUT,
             parse_mode="html",
             disable_web_page_preview=True,
