@@ -1,3 +1,4 @@
+import warnings
 from typing import (
     Any,
     Callable,
@@ -9,14 +10,14 @@ from typing import (
     Union,
 )
 
-from aiogram import Bot
+from aiogram import Bot, Dispatcher
 from jinja2 import BaseLoader, Environment
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
 
-BOT_ENV_FIELD = "DialogsJinjaEnvironment"
+JINJA_ENV_FIELD = "DialogsJinjaEnvironment"
 
 Filter = Callable[..., str]
 Filters = Union[Iterable[Tuple[str, Filter]], Mapping[str, Filter]]
@@ -30,8 +31,11 @@ class Jinja(Text):
     async def _render_text(
             self, data: Dict, manager: DialogManager,
     ) -> str:
-        bot: Bot = manager.middleware_data["bot"]
-        env: Environment = getattr(bot, BOT_ENV_FIELD, default_env)
+        if JINJA_ENV_FIELD in manager.dialog_data:
+            env = manager.dialog_data[JINJA_ENV_FIELD]
+        else:
+            bot: Bot = manager.middleware_data.get("bot")
+            env: Environment = getattr(bot, JINJA_ENV_FIELD, default_env)
         template = env.get_template(self.template_text)
 
         if env.is_async:
@@ -61,13 +65,21 @@ def _create_env(
 
 
 def setup_jinja(
-        bot: Bot,
+        dp: Union[Bot, Dispatcher],
         *args: Any,
         filters: Optional[Filters] = None,
         **kwargs: Any,
 ) -> Environment:
     env = _create_env(*args, filters=filters, **kwargs)
-    setattr(bot, BOT_ENV_FIELD, env)
+    if isinstance(dp, Bot):
+        warnings.warn(
+            "Passing `Bot` to setup_jinja is deprecated, use `Dispatcher`",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        setattr(dp, JINJA_ENV_FIELD, env)
+    else:
+        dp[JINJA_ENV_FIELD] = env
     return env
 
 

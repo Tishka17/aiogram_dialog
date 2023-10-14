@@ -104,7 +104,7 @@ def render_transitions(
             with Cluster(dialog.states_group_name()):
                 for window in dialog.windows.values():
                     nodes[window.get_state()] = Custom(
-                        icon_path=ICON_PATH, label=window.get_state().state,
+                        icon_path=ICON_PATH, label=window.get_state()._state,
                     )
 
         starts = []
