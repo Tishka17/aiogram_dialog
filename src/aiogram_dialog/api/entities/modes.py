@@ -5,6 +5,7 @@ class ShowMode(Enum):
     AUTO = "auto"
     EDIT = "edit"
     SEND = "send"
+    DELETE_AND_SEND = "delete_and_send"
     NO_UPDATE = "no_update"
 
 
