@@ -1,8 +1,8 @@
-from typing import Dict, Optional, Any, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    WhenCondition, BaseScroll, OnPageChangedVariants,
+    BaseScroll, OnPageChangedVariants, WhenCondition,
 )
 from .base import Text
 from ..common.items import get_items_getter, ItemsGetterVariant
