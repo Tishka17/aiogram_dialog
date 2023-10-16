@@ -9,7 +9,7 @@ from aiogram_dialog.widgets.kbd import (
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
 )
 from aiogram_dialog.widgets.media import StaticMedia
-from aiogram_dialog.widgets.text import Const, Format, ScrollingText
+from aiogram_dialog.widgets.text import Const, Format, ScrollingText, List
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -79,6 +79,11 @@ navigation_window = Window(
         text=Const("📑 Customised pager"),
         id="pagers",
         state=states.Scrolls.PAGERS,
+    ),
+    SwitchTo(
+        text=Const("📝 List scroll"),
+        id="list",
+        state=states.Scrolls.LIST,
     ),
     SwitchTo(
         text=Const("📄 Text scroll"),
@@ -162,6 +167,23 @@ custom_pager_window = Window(
     getter=product_getter,
     state=states.Scrolls.PAGERS,
 )
+
+list_scroll_window = Window(
+    Const("Text list scrolling:\n"),
+    List(
+        Format("{pos}. {item[0]}"),
+        items="products",
+        id="list_scroll",
+        page_size=10,
+    ),
+    NumberedPager(
+        scroll="list_scroll",
+    ),
+    SCROLLS_MAIN_MENU_BUTTON,
+    getter=product_getter,
+    state=states.Scrolls.LIST,
+)
+
 text_scroll_window = Window(
     Const("Text scrolling:\n"),
     ScrollingText(
@@ -194,6 +216,7 @@ scroll_dialog = Dialog(
     navigation_window,
     default_scroll_window,
     custom_pager_window,
+    list_scroll_window,
     text_scroll_window,
     stub_scroll_window,
 )

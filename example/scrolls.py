@@ -17,13 +17,14 @@ from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format, ScrollingText
+from aiogram_dialog.widgets.text import Const, Format, ScrollingText, List
 
 
 class DialogSG(StatesGroup):
     MAIN = State()
     DEFAULT_PAGER = State()
     PAGERS = State()
+    LIST = State()
     TEXT = State()
     STUB = State()
 
@@ -82,6 +83,7 @@ dialog = Dialog(
         SwitchTo(Const("Default Pager"), id="default",
                  state=DialogSG.DEFAULT_PAGER),
         SwitchTo(Const("Pager options"), id="pagers", state=DialogSG.PAGERS),
+        SwitchTo(Const("Text list scroll"), id="text", state=DialogSG.LIST),
         SwitchTo(Const("Text scroll"), id="text", state=DialogSG.TEXT),
         SwitchTo(Const("Stub: getter-based"), id="stub", state=DialogSG.STUB),
         state=DialogSG.MAIN,
@@ -152,6 +154,21 @@ dialog = Dialog(
         ),
         getter=product_getter,
         state=DialogSG.PAGERS,
+    ),
+    Window(
+        Const("Text list scrolling:\n"),
+        List(
+            Format("{pos}. {item[0]}"),
+            items="products",
+            id="list_scroll",
+            page_size=10,
+        ),
+        NumberedPager(
+            scroll="list_scroll",
+        ),
+        MAIN_MENU_BTN,
+        getter=product_getter,
+        state=DialogSG.LIST,
     ),
     Window(
         Const("Text scrolling:\n"),

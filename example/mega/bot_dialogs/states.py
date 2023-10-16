@@ -5,6 +5,7 @@ class Scrolls(StatesGroup):
     MAIN = State()
     DEFAULT_PAGER = State()
     PAGERS = State()
+    LIST = State()
     TEXT = State()
     STUB = State()
 
