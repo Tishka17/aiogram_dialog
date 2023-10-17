@@ -1,13 +1,15 @@
 from abc import abstractmethod
 from typing import (
     Any, Awaitable, Callable, Dict, List, Optional, Protocol,
-    runtime_checkable,
+    runtime_checkable, Union,
 )
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
+from aiogram.types import (
+    CallbackQuery, InlineKeyboardButton, Message, KeyboardButton,
+)
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import MediaAttachment
+from aiogram_dialog.api.entities import MediaAttachment, MarkupVariant
 from aiogram_dialog.api.protocols import DialogProtocol
 
 
@@ -32,12 +34,16 @@ class TextWidget(Widget, Protocol):
         raise NotImplementedError
 
 
+ButtonVariant = Union[InlineKeyboardButton, KeyboardButton]
+RawKeyboard = List[List[ButtonVariant]]
+
+
 @runtime_checkable
 class KeyboardWidget(Widget, Protocol):
     @abstractmethod
     async def render_keyboard(
             self, data: Dict, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         """Create Inline keyboard contents."""
         raise NotImplementedError
 
@@ -84,3 +90,15 @@ class InputWidget(Widget, Protocol):
 
 
 DataGetter = Callable[..., Awaitable[Dict]]
+
+
+@runtime_checkable
+class MarkupFactory(Protocol):
+    @abstractmethod
+    async def render_markup(
+            self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
+    ) -> MarkupVariant:
+        """
+        Render reply_markup using prepared keyboard
+        """
+        raise NotImplementedError

@@ -11,6 +11,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 from aiogram_dialog.api.entities import NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
 from .manager import DialogManager
+from .widgets import RawKeyboard
 
 
 class WindowProtocol(Protocol):
@@ -22,7 +23,7 @@ class WindowProtocol(Protocol):
     @abstractmethod
     async def render_kbd(
             self, data: Dict, manager: DialogManager,
-    ) -> InlineKeyboardMarkup:
+    ) -> RawKeyboard:
         raise NotImplementedError
 
     @abstractmethod
