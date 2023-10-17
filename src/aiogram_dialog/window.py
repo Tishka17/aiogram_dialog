@@ -1,17 +1,18 @@
 from logging import getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardMarkup,
     Message,
-    UNSET_PARSE_MODE,
+    UNSET_PARSE_MODE, ReplyKeyboardMarkup,
 )
 
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.protocols import DialogManager, DialogProtocol
+from .utils import transform_to_reply_keyboard
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.utils import (
@@ -63,9 +64,15 @@ class Window(WindowProtocol):
 
     async def render_kbd(
             self, data: Dict, manager: DialogManager,
-    ) -> InlineKeyboardMarkup:
+    ) -> Union[InlineKeyboardMarkup, ReplyKeyboardMarkup]:
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+        if True:
+            return ReplyKeyboardMarkup(
+                keyboard=transform_to_reply_keyboard(keyboard))
+        else:
+            return InlineKeyboardMarkup(
+                inline_keyboard=keyboard,
+            )
 
     async def load_data(
             self, dialog: "DialogProtocol",

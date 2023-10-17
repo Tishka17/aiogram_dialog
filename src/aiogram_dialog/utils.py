@@ -1,8 +1,9 @@
 from logging import getLogger
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union, List
 
 from aiogram.types import (
-    CallbackQuery, Chat, ChatMemberUpdated, Message, User,
+    CallbackQuery, Chat, ChatMemberUpdated, Message, User, KeyboardButton,
+    InlineKeyboardButton,
 )
 
 from aiogram_dialog.api.entities import (
@@ -12,6 +13,89 @@ from aiogram_dialog.api.entities import (
 logger = getLogger(__name__)
 
 CB_SEP = "\x1D"
+
+REPLY_CALLBACK_SYMBOLS: str = (
+    "\u200C"
+    "\u200D"
+    "\u2060"
+    "\u2061"
+    "\u2062"
+    "\u2063"
+    "\u2064"
+    "\u00AD"
+    "\U0001D173"
+    "\U0001D174"
+    "\U0001D175"
+    "\U0001D176"
+    "\U0001D177"
+    "\U0001D178"
+    "\U0001D179"
+    "\U0001D17A"
+)
+
+
+def _encode_reply_callback_byte(byte: int):
+    return (
+            REPLY_CALLBACK_SYMBOLS[byte % len(REPLY_CALLBACK_SYMBOLS)] +
+            REPLY_CALLBACK_SYMBOLS[byte // len(REPLY_CALLBACK_SYMBOLS)]
+    )
+
+
+def encode_reply_callback(data: str) -> str:
+    bytes_data = data.encode("utf-8")
+    return "".join(
+        _encode_reply_callback_byte(byte)
+        for byte in bytes_data
+    )
+
+
+def _decode_reply_callback_byte(little: int, big: int) -> int:
+    return (
+            REPLY_CALLBACK_SYMBOLS.index(big) * len(REPLY_CALLBACK_SYMBOLS)
+            + REPLY_CALLBACK_SYMBOLS.index(little)
+    )
+
+
+def join_reply_callback(text: str, callback_data: str) -> str:
+    return text + encode_reply_callback(callback_data)
+
+
+def split_reply_callback(data: str) -> Tuple[str, str]:
+    text = data.rstrip(REPLY_CALLBACK_SYMBOLS)
+    callback = data[len(text):]
+    return text, decode_reply_callback(callback)
+
+
+def decode_reply_callback(data: str) -> str:
+    bytes_data = bytes(
+        _decode_reply_callback_byte(little, big)
+        for little, big in zip(data[::2], data[1::2])
+    )
+    return bytes_data.decode("utf-8")
+
+
+def _transform_to_reply_button(
+        button: Union[InlineKeyboardButton, KeyboardButton]
+) -> KeyboardButton:
+    if isinstance(button, KeyboardButton):
+        return button
+    if not button.callback_data:
+        raise ValueError("Cannot convert inline button without callback_data")
+    return KeyboardButton(text=join_reply_callback(
+        text=button.text, callback_data=button.callback_data,
+    ))
+
+
+def transform_to_reply_keyboard(
+        keyboard: List[List[Union[InlineKeyboardButton, KeyboardButton]]],
+) -> List[List[KeyboardButton]]:
+    new_kdb = []
+    for row in keyboard:
+        new_row = []
+        new_kdb.append(new_row)
+        for button in row:
+            new_row.append(_transform_to_reply_button(button))
+    return new_kdb
 
 
 def get_chat(event: ChatEvent) -> Chat:
@@ -43,11 +127,11 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-        message.audio or
-        message.animation or
-        message.document or
-        (message.photo[-1] if message.photo else None) or
-        message.video
+            message.audio or
+            message.animation or
+            message.document or
+            (message.photo[-1] if message.photo else None) or
+            message.video
     )
     if not media:
         return None
