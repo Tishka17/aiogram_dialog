@@ -62,7 +62,7 @@ dialog_router.include_routers(
 
 async def main():
     # real main
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     bot = Bot(token=os.getenv("BOT_TOKEN"))
 
     storage = MemoryStorage()

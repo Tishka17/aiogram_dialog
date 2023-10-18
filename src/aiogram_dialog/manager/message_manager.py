@@ -103,7 +103,9 @@ class MessageManager(MessageManagerProtocol):
             return False
         return old_message.has_reply_keyboard
 
-    def need_reply_keyboard(self, new_message: NewMessage) -> bool:
+    def need_reply_keyboard(self, new_message: Optional[NewMessage]) -> bool:
+        if not new_message:
+            return False
         return isinstance(new_message.reply_markup, ReplyKeyboardMarkup)
 
     def _message_changed(
@@ -145,10 +147,16 @@ class MessageManager(MessageManagerProtocol):
                 "Delete and send new message, because: mode=%s",
                 new_message.show_mode,
             )
-            await self.remove_message_safe(bot, old_message)
+            # optimize order not to blink
+            if self.need_reply_keyboard(new_message):
+                sent_message = await self.send_message(bot, new_message)
+                await self.remove_message_safe(bot, old_message, new_message)
+            else:
+                await self.remove_message_safe(bot, old_message, new_message)
+                sent_message = await self.send_message(bot, new_message)
             return _combine(
                 new_message,
-                await self.send_message(bot, new_message),
+                sent_message
             )
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
@@ -167,7 +175,7 @@ class MessageManager(MessageManagerProtocol):
             return old_message
 
         if not self._can_edit(new_message, old_message):
-            await self.remove_message_safe(bot, old_message)
+            await self.remove_message_safe(bot, old_message, new_message)
             return _combine(
                 new_message,
                 await self.send_message(bot, new_message),
@@ -244,7 +252,10 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def remove_message_safe(
-            self, bot: Bot, old_message: OldMessage,
+            self,
+            bot: Bot,
+            old_message: OldMessage,
+            new_message: NewMessage,
     ) -> None:
         try:
             await bot.delete_message(
@@ -252,16 +263,12 @@ class MessageManager(MessageManagerProtocol):
                 message_id=old_message.message_id,
             )
         except TelegramBadRequest as err:
-            if not (
-                    "message to delete not found" in err.message or
-                    "message can't be deleted" in err.message
-            ):
-                raise
-
-            if self.had_reply_keyboard(old_message):
+            if "message to delete not found" in err.message:
                 pass
+            elif "message can't be deleted" in err.message:
+                await self._remove_kbd(bot, old_message, new_message)
             else:
-                await self.remove_kbd(bot, old_message)
+                raise
 
     # Edit
     async def edit_message_safe(

@@ -374,6 +374,8 @@ class ManagerImpl(DialogManager):
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
+        if self.current_stack().last_reply_keyboard:
+            return ShowMode.DELETE_AND_SEND
         if self.current_stack().id != DEFAULT_STACK_ID:
             return ShowMode.EDIT
         if isinstance(self.event, Message):
