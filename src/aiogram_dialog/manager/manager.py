@@ -4,14 +4,17 @@ from typing import Any, Dict, Optional
 
 from aiogram import Router
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Chat, Message, User
+from aiogram.types import (
+    CallbackQuery, Chat, Message, ReplyKeyboardMarkup, User,
+)
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
     ShowMode, Stack, StartMode, MediaId,
 )
+from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
-    IncorrectBackgroundError, NoContextError,
+    IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
 )
 from aiogram_dialog.api.internal import (
     CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
@@ -23,7 +26,6 @@ from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
 )
-from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
 from .bg_manager import BgManager
@@ -289,6 +291,16 @@ class ManagerImpl(DialogManager):
         self.show_mode = show_mode or self.show_mode
         context.state = state
 
+    def _ensure_stack_compatible(
+            self, stack: Stack, new_message: NewMessage,
+    ) -> None:
+        if stack.id == DEFAULT_STACK_ID:
+            return  # no limitations for default stack
+        if isinstance(new_message.reply_markup, ReplyKeyboardMarkup):
+            raise InvalidKeyboardType(
+                "Cannot use ReplyKeyboardMarkup in non default stack",
+            )
+
     async def show(self, show_mode: Optional[ShowMode] = None) -> None:
         stack = self.current_stack()
         bot = self._data["bot"]
@@ -302,6 +314,8 @@ class ManagerImpl(DialogManager):
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
         await self._fix_cached_media_id(new_message)
+
+        self._ensure_stack_compatible(stack, new_message)
 
         try:
             sent_message = await self.message_manager.show_message(
