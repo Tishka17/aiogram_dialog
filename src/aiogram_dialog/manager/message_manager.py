@@ -17,9 +17,9 @@ from aiogram.types import (
     URLInputFile, ReplyKeyboardMarkup, ReplyKeyboardRemove,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage, ShowMode, \
-    MediaId
-from aiogram_dialog.api.entities.new_message import OldMessage
+from aiogram_dialog.api.entities import (
+    MediaAttachment, MediaId, NewMessage, ShowMode, OldMessage,
+)
 from aiogram_dialog.api.protocols import (
     MessageManagerProtocol, MessageNotModified,
 )

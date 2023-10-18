@@ -23,10 +23,10 @@ from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
 )
+from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
 from .bg_manager import BgManager
-from ..api.entities.new_message import OldMessage, UnknownText
 
 logger = getLogger(__name__)
 

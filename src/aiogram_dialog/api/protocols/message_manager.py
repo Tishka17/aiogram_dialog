@@ -4,8 +4,7 @@ from typing import Optional, Protocol
 from aiogram import Bot
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import NewMessage
-from aiogram_dialog.api.entities.new_message import OldMessage
+from aiogram_dialog.api.entities import NewMessage, OldMessage
 from aiogram_dialog.api.exceptions import DialogsError
 
 
