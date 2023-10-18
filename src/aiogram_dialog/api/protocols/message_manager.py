@@ -5,6 +5,7 @@ from aiogram import Bot
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import NewMessage
+from aiogram_dialog.api.entities.new_message import OldMessage
 from aiogram_dialog.api.exceptions import DialogsError
 
 
@@ -22,8 +23,8 @@ class MessageManagerProtocol(Protocol):
     @abstractmethod
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message],
-    ) -> Message:
+            old_message: Optional[OldMessage],
+    ) -> OldMessage:
         raise NotImplementedError
 
     @abstractmethod

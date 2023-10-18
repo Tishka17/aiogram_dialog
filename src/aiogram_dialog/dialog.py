@@ -121,7 +121,7 @@ class Dialog(Router, DialogProtocol):
         logger.debug("Dialog render (%s)", self)
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
-        # add_indent_id(new_message, manager.current_context().id)
+        add_indent_id(new_message, manager.current_context().id)
         return new_message
 
     async def _message_handler(

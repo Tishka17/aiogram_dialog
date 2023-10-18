@@ -155,7 +155,10 @@ def intent_callback_data(
 def add_indent_id(message: NewMessage, intent_id: str):
     if not message.reply_markup:
         return
-    for row in message.reply_markup.inline_keyboard:
+    inline_keyboard = getattr(message.reply_markup, "inline_keyboard", None)
+    if not inline_keyboard:
+        return
+    for row in inline_keyboard:
         for button in row:
             button.callback_data = intent_callback_data(
                 intent_id, button.callback_data,

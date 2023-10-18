@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional, Union
 
+from aiogram.enums import ContentType
 from aiogram.types import (
     Chat, InlineKeyboardMarkup, ReplyKeyboardMarkup,
     ReplyKeyboardRemove, ForceReply,
@@ -11,6 +13,20 @@ from aiogram_dialog.api.entities import MediaAttachment, ShowMode
 MarkupVariant = Union[
     InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply,
 ]
+
+
+class UnknownText(Enum):
+    UNKNOWN = object()
+
+
+@dataclass
+class OldMessage:
+    chat: Chat
+    message_id: int
+    media_id: Optional[str]
+    media_uniq_id: Optional[str]
+    text: Union[str, None, UnknownText] = None
+    has_reply_keyboard: bool = False
 
 
 @dataclass
