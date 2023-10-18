@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable, Dict, List, Optional, Union
+from typing import Awaitable, Callable, Dict, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 

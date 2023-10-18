@@ -1,13 +1,11 @@
-from typing import Awaitable, Callable, Dict, Union
+from typing import Callable, Dict, Union
 
-from aiogram.types import CallbackQuery, KeyboardButton
+from aiogram.types import KeyboardButton
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text
 from .base import Keyboard
-
-OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 
 class RequestContact(Keyboard):

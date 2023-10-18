@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from typing import List, Optional, Union
+from typing import Optional, Union
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton
+from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol

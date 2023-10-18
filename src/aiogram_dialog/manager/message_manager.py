@@ -14,11 +14,13 @@ from aiogram.types import (
     InputMediaPhoto,
     InputMediaVideo,
     Message,
-    URLInputFile, ReplyKeyboardMarkup, ReplyKeyboardRemove,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    URLInputFile,
 )
 
 from aiogram_dialog.api.entities import (
-    MediaAttachment, MediaId, NewMessage, ShowMode, OldMessage,
+    MediaAttachment, MediaId, NewMessage, OldMessage, ShowMode,
 )
 from aiogram_dialog.api.protocols import (
     MessageManagerProtocol, MessageNotModified,
@@ -131,9 +133,9 @@ class MessageManager(MessageManagerProtocol):
                   old_message: OldMessage) -> bool:
         # we cannot edit message if media appeared or removed
         return (
-                self.had_media(old_message) == self.need_media(new_message)
-                and not self.had_reply_keyboard(old_message)
-                and not self.need_reply_keyboard(new_message)
+            self.had_media(old_message) == self.need_media(new_message) and
+            not self.had_reply_keyboard(old_message) and
+            not self.need_reply_keyboard(new_message)
         )
 
     async def show_message(
@@ -154,10 +156,7 @@ class MessageManager(MessageManagerProtocol):
             else:
                 await self.remove_message_safe(bot, old_message, new_message)
                 sent_message = await self.send_message(bot, new_message)
-            return _combine(
-                new_message,
-                sent_message
-            )
+            return _combine(new_message, sent_message)
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
                 "Send new message, because: mode=%s, has old_message=%s",
@@ -182,7 +181,7 @@ class MessageManager(MessageManagerProtocol):
             )
         return _combine(
             new_message,
-            await self.edit_message_safe(bot, new_message, old_message)
+            await self.edit_message_safe(bot, new_message, old_message),
         )
 
     # Clear
@@ -244,11 +243,12 @@ class MessageManager(MessageManagerProtocol):
             ):
                 return
         return await self.send_text(
-            bot=bot, new_message=NewMessage(
+            bot=bot,
+            new_message=NewMessage(
                 chat=old_message.chat,
                 text="...",
                 reply_markup=ReplyKeyboardRemove(),
-            )
+            ),
         )
 
     async def remove_message_safe(

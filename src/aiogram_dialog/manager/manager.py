@@ -9,8 +9,8 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
-    ShowMode, Stack, StartMode, MediaId,
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
+    NewMessage, ShowMode, Stack, StartMode,
 )
 from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (

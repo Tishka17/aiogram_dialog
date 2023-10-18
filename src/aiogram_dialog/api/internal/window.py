@@ -6,7 +6,7 @@ from typing import (
 )
 
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol

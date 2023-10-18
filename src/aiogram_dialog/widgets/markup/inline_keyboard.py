@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal.widgets import (
-    MarkupFactory, RawKeyboard, MarkupVariant,
+    MarkupFactory, MarkupVariant, RawKeyboard,
 )
 
 

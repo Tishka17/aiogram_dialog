@@ -1,9 +1,9 @@
 from logging import getLogger
-from typing import Optional, Tuple, Union, List
+from typing import List, Optional, Tuple, Union
 
 from aiogram.types import (
-    CallbackQuery, Chat, ChatMemberUpdated, Message, User, KeyboardButton,
-    InlineKeyboardButton,
+    CallbackQuery, Chat, ChatMemberUpdated, InlineKeyboardButton,
+    KeyboardButton, Message, User,
 )
 
 from aiogram_dialog.api.entities import (
@@ -36,8 +36,8 @@ REPLY_CALLBACK_SYMBOLS: str = (
 
 def _encode_reply_callback_byte(byte: int):
     return (
-            REPLY_CALLBACK_SYMBOLS[byte % len(REPLY_CALLBACK_SYMBOLS)] +
-            REPLY_CALLBACK_SYMBOLS[byte // len(REPLY_CALLBACK_SYMBOLS)]
+        REPLY_CALLBACK_SYMBOLS[byte % len(REPLY_CALLBACK_SYMBOLS)] +
+        REPLY_CALLBACK_SYMBOLS[byte // len(REPLY_CALLBACK_SYMBOLS)]
     )
 
 
@@ -49,10 +49,10 @@ def encode_reply_callback(data: str) -> str:
     )
 
 
-def _decode_reply_callback_byte(little: int, big: int) -> int:
+def _decode_reply_callback_byte(little: str, big: str) -> int:
     return (
-            REPLY_CALLBACK_SYMBOLS.index(big) * len(REPLY_CALLBACK_SYMBOLS)
-            + REPLY_CALLBACK_SYMBOLS.index(little)
+        REPLY_CALLBACK_SYMBOLS.index(big) * len(REPLY_CALLBACK_SYMBOLS) +
+        REPLY_CALLBACK_SYMBOLS.index(little)
     )
 
 
@@ -79,7 +79,7 @@ def decode_reply_callback(data: str) -> str:
 
 
 def _transform_to_reply_button(
-        button: Union[InlineKeyboardButton, KeyboardButton]
+        button: Union[InlineKeyboardButton, KeyboardButton],
 ) -> KeyboardButton:
     if isinstance(button, KeyboardButton):
         return button
@@ -131,11 +131,11 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(message: Message) -> Optional[MediaId]:
     media = (
-            message.audio or
-            message.animation or
-            message.document or
-            (message.photo[-1] if message.photo else None) or
-            message.video
+        message.audio or
+        message.animation or
+        message.document or
+        (message.photo[-1] if message.photo else None) or
+        message.video
     )
     if not media:
         return None

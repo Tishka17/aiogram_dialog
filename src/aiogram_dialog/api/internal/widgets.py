@@ -5,11 +5,11 @@ from typing import (
 )
 
 from aiogram.types import (
-    CallbackQuery, InlineKeyboardButton, Message, KeyboardButton,
+    CallbackQuery, InlineKeyboardButton, KeyboardButton, Message,
 )
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import MediaAttachment, MarkupVariant
+from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
 from aiogram_dialog.api.protocols import DialogProtocol
 
 
@@ -98,7 +98,5 @@ class MarkupFactory(Protocol):
     async def render_markup(
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
     ) -> MarkupVariant:
-        """
-        Render reply_markup using prepared keyboard
-        """
+        """Render reply_markup using prepared keyboard."""
         raise NotImplementedError

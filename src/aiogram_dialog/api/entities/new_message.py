@@ -2,16 +2,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Union
 
-from aiogram.enums import ContentType
 from aiogram.types import (
-    Chat, InlineKeyboardMarkup, ReplyKeyboardMarkup,
-    ReplyKeyboardRemove, ForceReply,
+    Chat, ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
 )
 
 from aiogram_dialog.api.entities import MediaAttachment, ShowMode
 
 MarkupVariant = Union[
-    InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply,
+    ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove,
 ]
 
 

@@ -1,16 +1,15 @@
 from logging import getLogger
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
-    InlineKeyboardMarkup,
     Message,
-    UNSET_PARSE_MODE, ReplyKeyboardMarkup,
+    UNSET_PARSE_MODE,
 )
 
 from aiogram_dialog.api.entities import (
-    MediaAttachment, NewMessage, MarkupVariant,
+    MarkupVariant, MediaAttachment, NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.internal.widgets import MarkupFactory
