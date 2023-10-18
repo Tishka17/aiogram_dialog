@@ -5,10 +5,11 @@ from uuid import uuid4
 
 from aiogram import Bot
 from aiogram.types import (
-    Audio, CallbackQuery, Document, Message, PhotoSize, Video,
+    Audio, CallbackQuery, Document, Message, PhotoSize, ReplyKeyboardMarkup,
+    Video,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage
+from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
 from aiogram_dialog.api.protocols import MessageManagerProtocol
 
 
@@ -78,7 +79,7 @@ class MockMessageManager(MessageManagerProtocol):
         assert callback_id in self.answered_callbacks
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]) -> Message:
+                           old_message: Optional[Message]) -> OldMessage:
         message_id = self.last_message_id + 1
         self.last_message_id = message_id
 
@@ -102,4 +103,21 @@ class MockMessageManager(MessageManagerProtocol):
             **contents,
         )
         self.sent_messages.append(message)
-        return message
+        return OldMessage(
+            message_id=message_id,
+            chat=new_message.chat,
+            text=new_message.text,
+            media_id=(
+                new_message.media.file_id.file_id
+                if new_message.media
+                else None
+            ),
+            media_uniq_id=(
+                new_message.media.file_id.file_unique_id
+                if new_message.media
+                else None
+            ),
+            has_reply_keyboard=isinstance(
+                new_message.reply_markup, ReplyKeyboardMarkup,
+            ),
+        )

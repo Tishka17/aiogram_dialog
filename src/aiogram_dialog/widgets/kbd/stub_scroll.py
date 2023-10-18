@@ -1,8 +1,8 @@
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, Union
 
-from aiogram.types import InlineKeyboardButton
 from magic_filter import MagicFilter
 
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
 from .base import Keyboard
 from ..common.scroll import BaseScroll, OnPageChangedVariants
@@ -57,7 +57,7 @@ class StubScroll(Keyboard, BaseScroll):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return [[]]
 
     async def get_page_count(self, data: Dict, manager: DialogManager) -> int:

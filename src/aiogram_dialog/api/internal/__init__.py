@@ -2,8 +2,8 @@ __all__ = [
     "FakeChat", "FakeUser",
     "DialogManagerFactory",
     "CALLBACK_DATA_KEY", "CONTEXT_KEY", "STACK_KEY", "STORAGE_KEY",
-    "DataGetter", "InputWidget", "KeyboardWidget",
-    "MediaWidget", "TextWidget", "Widget",
+    "ButtonVariant", "DataGetter", "InputWidget", "KeyboardWidget",
+    "MediaWidget", "RawKeyboard", "TextWidget", "Widget",
     "WindowProtocol",
 ]
 
@@ -15,7 +15,7 @@ from .middleware import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
 )
 from .widgets import (
-    DataGetter, InputWidget, KeyboardWidget,
-    MediaWidget, TextWidget, Widget,
+    ButtonVariant, DataGetter, InputWidget, KeyboardWidget,
+    MediaWidget, RawKeyboard, TextWidget, Widget,
 )
 from .window import WindowProtocol

@@ -3,8 +3,9 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.about import about_aiogram_dialog_button
 from aiogram_dialog.widgets.kbd import (
-    Start,
+    Start, Row, RequestContact, RequestLocation,
 )
+from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.text import Const
 from . import states
 
@@ -46,6 +47,11 @@ main_dialog = Dialog(
             text=Const("🔢 Multiple steps"),
             id="switch",
             state=states.Switch.MAIN,
+        ),
+        Start(
+            text=Const("⌨️ Reply keyboard"),
+            id="reply",
+            state=states.ReplyKeyboard.MAIN,
         ),
         about_aiogram_dialog_button(),
         state=states.Main.MAIN,

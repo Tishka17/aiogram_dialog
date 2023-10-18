@@ -14,6 +14,7 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
@@ -78,7 +79,7 @@ class Select(Keyboard, Generic[T]):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return [
             [
                 await self._render_button(pos, item, data, manager)

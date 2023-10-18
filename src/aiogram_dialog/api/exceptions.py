@@ -54,3 +54,7 @@ class InvalidWidget(DialogsError):
 
 class InvalidWidgetType(InvalidWidget):
     pass
+
+
+class InvalidKeyboardType(DialogsError):
+    pass

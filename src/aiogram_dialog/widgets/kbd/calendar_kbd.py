@@ -12,6 +12,7 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Format, Text
@@ -718,7 +719,7 @@ class Calendar(Keyboard):
             self,
             data,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         scope = self.get_scope(manager)
         view = self.views[scope]
         offset = self.get_offset(manager)

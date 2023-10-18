@@ -4,16 +4,19 @@ from typing import Dict, List, Optional
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
-    InlineKeyboardMarkup,
     Message,
     UNSET_PARSE_MODE,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage
+from aiogram_dialog.api.entities import (
+    MarkupVariant, MediaAttachment, NewMessage,
+)
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
+from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
     ensure_data_getter,
     ensure_widgets,
@@ -23,6 +26,8 @@ from .widgets.utils import (
 
 logger = getLogger(__name__)
 
+_DEFAULT_MARKUP_FACTORY = InlineKeyboardFactory()
+
 
 class Window(WindowProtocol):
     def __init__(
@@ -30,6 +35,7 @@ class Window(WindowProtocol):
             *widgets: WidgetSrc,
             state: State,
             getter: GetterVariant = None,
+            markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = None,
             preview_add_transitions: Optional[List[Keyboard]] = None,
@@ -46,6 +52,7 @@ class Window(WindowProtocol):
             ensure_data_getter(preview_data),
         )
         self.state = state
+        self.markup_factory = markup_factory
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
@@ -63,9 +70,11 @@ class Window(WindowProtocol):
 
     async def render_kbd(
             self, data: Dict, manager: DialogManager,
-    ) -> InlineKeyboardMarkup:
+    ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+        return await self.markup_factory.render_markup(
+            data, manager, keyboard,
+        )
 
     async def load_data(
             self, dialog: "DialogProtocol",
