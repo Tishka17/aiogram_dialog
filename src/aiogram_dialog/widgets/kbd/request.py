@@ -1,6 +1,6 @@
 from typing import Awaitable, Callable, Dict, List, Optional, Union
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton
+from aiogram.types import CallbackQuery, InlineKeyboardButton, KeyboardButton
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text
@@ -10,30 +10,49 @@ from .base import Keyboard
 OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 
-class SwitchInlineQuery(Keyboard):
+class RequestContact(Keyboard):
     def __init__(
         self,
         text: Text,
-        switch_inline_query: Text,
-        id: Optional[str] = None,
         when: Union[str, Callable, None] = None,
     ):
-        super().__init__(id=id, when=when)
+        super().__init__(when=when)
         self.text = text
-        self.switch_inline = switch_inline_query
 
     async def _render_keyboard(
         self,
         data: Dict,
         manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> List[List[KeyboardButton]]:
         return [
             [
-                InlineKeyboardButton(
+                KeyboardButton(
                     text=await self.text.render_text(data, manager),
-                    switch_inline_query=await self.switch_inline.render_text(
-                        data, manager,
-                    ),
+                    request_contact=True,
+                ),
+            ],
+        ]
+
+
+class RequestLocation(Keyboard):
+    def __init__(
+        self,
+        text: Text,
+        when: Union[str, Callable, None] = None,
+    ):
+        super().__init__(when=when)
+        self.text = text
+
+    async def _render_keyboard(
+        self,
+        data: Dict,
+        manager: DialogManager,
+    ) -> List[List[KeyboardButton]]:
+        return [
+            [
+                KeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    request_location=True,
                 ),
             ],
         ]

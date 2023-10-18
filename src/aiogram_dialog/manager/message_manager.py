@@ -156,7 +156,7 @@ class MessageManager(MessageManagerProtocol):
                 new_message.show_mode,
                 bool(old_message),
             )
-            await self.remove_kbd(bot, old_message)
+            await self._remove_kbd(bot, old_message, new_message)
             return _combine(
                 new_message,
                 await self.send_message(bot, new_message),
@@ -179,10 +179,21 @@ class MessageManager(MessageManagerProtocol):
 
     # Clear
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[OldMessage],
+            self,
+            bot: Bot,
+            old_message: Optional[OldMessage],
+    ) -> Optional[Message]:
+        return await self._remove_kbd(bot, old_message, None)
+
+    async def _remove_kbd(
+            self,
+            bot: Bot,
+            old_message: Optional[OldMessage],
+            new_message: Optional[NewMessage],
     ) -> Optional[Message]:
         if self.had_reply_keyboard(old_message):
-            return await self.remove_reply_kbd(bot, old_message)
+            if not self.need_reply_keyboard(new_message):
+                return await self.remove_reply_kbd(bot, old_message)
         else:
             return await self.remove_inline_kbd(bot, old_message)
 

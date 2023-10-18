@@ -60,7 +60,11 @@ def join_reply_callback(text: str, callback_data: str) -> str:
     return text + encode_reply_callback(callback_data)
 
 
-def split_reply_callback(data: str) -> Tuple[str, str]:
+def split_reply_callback(
+        data: Optional[str],
+) -> Tuple[Optional[str], Optional[str]]:
+    if not data:
+        return None, None
     text = data.rstrip(REPLY_CALLBACK_SYMBOLS)
     callback = data[len(text):]
     return text, decode_reply_callback(callback)

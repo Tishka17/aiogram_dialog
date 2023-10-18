@@ -41,6 +41,9 @@ class Counter(StatesGroup):
 class Multiwidget(StatesGroup):
     MAIN = State()
 
+class ReplyKeyboard(StatesGroup):
+    MAIN = State()
+
 
 class Switch(StatesGroup):
     MAIN = State()
