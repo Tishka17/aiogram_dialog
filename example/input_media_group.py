@@ -16,6 +16,7 @@ from aiogram_dialog.api.entities import MediaAttachment, MediaId
 from aiogram_dialog.widgets.common import ManagedScroll
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import StubScroll, NumberedPager, Group, Button
+from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.widgets.text import Const, Format
 

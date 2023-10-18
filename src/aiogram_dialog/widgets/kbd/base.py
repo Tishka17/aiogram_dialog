@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.api.internal import KeyboardWidget
+from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
     Actionable, Whenable, WhenCondition,
@@ -19,7 +19,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             self,
             data,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         """
         Create inline keyboard contents.
 
@@ -35,7 +35,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             self,
             data: dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         """
         Create inline keyboard contents.
 

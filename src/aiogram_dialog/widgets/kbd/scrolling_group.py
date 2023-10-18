@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
     BaseScroll, OnPageChangedVariants, WhenCondition,
@@ -30,7 +31,7 @@ class ScrollingGroup(Group, BaseScroll):
 
     def _get_page_count(
             self,
-            keyboard: List[List[InlineKeyboardButton]],
+            keyboard: RawKeyboard,
     ) -> int:
         return len(keyboard) // self.height + bool(len(keyboard) % self.height)
 
@@ -38,14 +39,14 @@ class ScrollingGroup(Group, BaseScroll):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return await super()._render_keyboard(data, manager)
 
     async def _render_pager(
             self,
             pages: int,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         if self.hide_pager:
             return []
         if pages == 0 or (pages == 1 and self.hide_on_single_page):
@@ -96,7 +97,7 @@ class ScrollingGroup(Group, BaseScroll):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         keyboard = await self._render_contents(data, manager)
         pages = self._get_page_count(keyboard)
 

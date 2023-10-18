@@ -3,6 +3,7 @@ from typing import Dict, Iterable, List, Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.internal import ButtonVariant, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
 from .base import Keyboard
@@ -34,8 +35,8 @@ class Group(Keyboard):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
-        kbd: List[List[InlineKeyboardButton]] = []
+    ) -> RawKeyboard:
+        kbd: RawKeyboard = []
         for b in self.buttons:
             b_kbd = await b.render_keyboard(data, manager)
             if self.width is None:
@@ -51,9 +52,9 @@ class Group(Keyboard):
     def _wrap_kbd(
             self,
             kbd: Iterable[InlineKeyboardButton],
-    ) -> List[List[InlineKeyboardButton]]:
-        res: List[List[InlineKeyboardButton]] = []
-        row: List[InlineKeyboardButton] = []
+    ) -> RawKeyboard:
+        res: RawKeyboard = []
+        row: List[ButtonVariant] = []
         for b in kbd:
             row.append(b)
             if len(row) >= self.width:
