@@ -55,5 +55,6 @@ class InvalidWidget(DialogsError):
 class InvalidWidgetType(InvalidWidget):
     pass
 
+
 class AbortWidgetClick(DialogsError):
     pass
