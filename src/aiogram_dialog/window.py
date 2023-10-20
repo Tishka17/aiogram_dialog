@@ -104,15 +104,23 @@ class Window(WindowProtocol):
     ) -> NewMessage:
         logger.debug("Show window: %s", self)
         chat = manager.middleware_data["event_chat"]
-        current_data = await self.load_data(dialog, manager)
-        return NewMessage(
-            chat=chat,
-            text=await self.render_text(current_data, manager),
-            reply_markup=await self.render_kbd(current_data, manager),
-            parse_mode=self.parse_mode,
-            disable_web_page_preview=self.disable_web_page_preview,
-            media=await self.render_media(current_data, manager),
-        )
+        try:
+            current_data = await self.load_data(dialog, manager)
+        except Exception:  # noqa: B902
+            logger.error("Cannot get window data for state %s", self.state)
+            raise
+        try:
+            return NewMessage(
+                chat=chat,
+                text=await self.render_text(current_data, manager),
+                reply_markup=await self.render_kbd(current_data, manager),
+                parse_mode=self.parse_mode,
+                disable_web_page_preview=self.disable_web_page_preview,
+                media=await self.render_media(current_data, manager),
+            )
+        except Exception:  # noqa: B902
+            logger.error("Cannot render window for state %s", self.state)
+            raise
 
     def get_state(self) -> State:
         return self.state

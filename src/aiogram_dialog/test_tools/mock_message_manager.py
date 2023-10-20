@@ -60,13 +60,18 @@ class MockMessageManager(MessageManagerProtocol):
         return self.first_message()
 
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[Message],
+            self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
             return
-        data = old_message.model_dump()
-        data["reply_markup"] = None
-        message = Message(**data)
+        assert isinstance(old_message, OldMessage)
+
+        message = Message(
+            message_id=old_message.message_id,
+            date=datetime.now(),
+            chat=old_message.chat,
+            reply_markup=None,
+        )
         self.sent_messages.append(message)
         return message
 
@@ -79,7 +84,10 @@ class MockMessageManager(MessageManagerProtocol):
         assert callback_id in self.answered_callbacks
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]) -> OldMessage:
+                           old_message: Optional[OldMessage]) -> OldMessage:
+        assert isinstance(new_message, NewMessage)
+        assert isinstance(old_message, (OldMessage, type(None)))
+
         message_id = self.last_message_id + 1
         self.last_message_id = message_id
 

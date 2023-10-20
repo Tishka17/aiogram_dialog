@@ -1,4 +1,3 @@
-from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, Optional
 
@@ -135,16 +134,9 @@ class ManagerImpl(DialogManager):
     async def _remove_kbd(self) -> None:
         if self.current_stack().last_message_id is None:
             return
-        chat = self._data["event_chat"]
-        bot = self._data["bot"]
-        message = Message(
-            chat=chat,
-            message_id=self.current_stack().last_message_id,
-            date=datetime.now(),
-        )
         await self.message_manager.remove_kbd(
-            bot,
-            message,
+            self._data["bot"],
+            self._get_last_message(),
         )
         self.current_stack().last_message_id = None
 

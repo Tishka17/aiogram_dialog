@@ -59,12 +59,7 @@ dialog_router.include_routers(
     reply_kbd_dialog,
 )
 
-
-async def main():
-    # real main
-    logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=os.getenv("BOT_TOKEN"))
-
+def setup_dp():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
@@ -74,7 +69,14 @@ async def main():
     )
     dp.include_router(dialog_router)
     setup_dialogs(dp)
+    return dp
 
+
+async def main():
+    # real main
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(token=os.getenv("BOT_TOKEN"))
+    dp = setup_dp()
     await dp.start_polling(bot)
 
 
