@@ -115,6 +115,7 @@ default_scroll_window = Window(
     ),
     SCROLLS_MAIN_MENU_BUTTON,
     getter=product_getter,
+    preview_data=product_getter,
     state=states.Scrolls.DEFAULT_PAGER,
 )
 
@@ -165,6 +166,7 @@ custom_pager_window = Window(
         SCROLLS_MAIN_MENU_BUTTON,
     ),
     getter=product_getter,
+    preview_data=product_getter,
     state=states.Scrolls.PAGERS,
 )
 
@@ -181,6 +183,7 @@ list_scroll_window = Window(
     ),
     SCROLLS_MAIN_MENU_BUTTON,
     getter=product_getter,
+    preview_data=product_getter,
     state=states.Scrolls.LIST,
 )
 
@@ -210,6 +213,7 @@ stub_scroll_window = Window(
     SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.STUB,
     getter=paging_getter,
+    preview_data=paging_getter,
 )
 
 scroll_dialog = Dialog(

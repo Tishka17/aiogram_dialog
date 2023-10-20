@@ -46,8 +46,11 @@ class Case(Text):
 
     async def _render_text(self, data, manager: DialogManager) -> str:
         selection = self.selector(data, self, manager)
-        if selection not in self.texts and self._has_default:
-            selection = ...
+        if selection not in self.texts:
+            if self._has_default:
+                selection = ...
+            elif manager.is_preview():
+                selection = next(iter(self.texts))
         return await self.texts[selection].render_text(data, manager)
 
     def find(self, widget_id: str) -> Optional[Text]:

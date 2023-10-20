@@ -101,6 +101,7 @@ select_window = Window(
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.SELECT,
     getter=getter,
+    preview_data=getter,
 )
 radio_window = Window(
     Const("Radio widget"),
@@ -119,6 +120,7 @@ radio_window = Window(
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.RADIO,
     getter=getter,
+    preview_data=getter,
 )
 multiselect_window = Window(
     Const("Multiselect widget"),
@@ -138,6 +140,7 @@ multiselect_window = Window(
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.MULTI,
     getter=getter,
+    preview_data=getter,
 )
 selects_dialog = Dialog(
     menu_window,

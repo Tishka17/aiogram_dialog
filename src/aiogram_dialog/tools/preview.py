@@ -6,7 +6,10 @@ from typing import Any, Dict, List, Optional, Type
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Chat, ContentType, Message, User
+from aiogram.types import (
+    CallbackQuery, Chat, ContentType, InlineKeyboardMarkup, Message,
+    ReplyKeyboardMarkup, User,
+)
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import (
@@ -54,7 +57,10 @@ class FakeManager(DialogManager):
 
     def __init__(self):
         self._event = DialogUpdateEvent(
-            from_user=User(id=1, is_bot=False, first_name="Fake"),
+            from_user=User(
+                id=1, is_bot=False, first_name="Fake",
+                language_code="en",
+            ),
             chat=Chat(id=1, type="private"),
             action=DialogAction.UPDATE,
             data={},
@@ -181,11 +187,11 @@ class FakeManager(DialogManager):
     def show_mode(self, show_mode: ShowMode) -> None:
         return
 
-    async def show(self, show_mode: Optional[ShowMode] = None) -> Message:
+    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
         pass
 
     def find(self, widget_id) -> Optional[Any]:
-        widget = self.dialog().find(widget_id)
+        widget = self._dialog.find(widget_id)
         if not widget:
             return None
         return widget.managed(self)
@@ -284,19 +290,15 @@ async def render_input(
     )
 
 
-async def create_window(
+async def render_inline_keyboard(
         state: State,
-        message: NewMessage,
+        reply_markup: InlineKeyboardMarkup,
         manager: FakeManager,
         dialog: Dialog,
         simulate_events: bool,
-) -> RenderWindow:
-    if message.parse_mode is None or message.parse_mode == "None":
-        text = html.escape(message.text)
-    else:
-        text = message.text
+):
     keyboard = []
-    for row in message.reply_markup.inline_keyboard:
+    for row in reply_markup.inline_keyboard:
         keyboard_row = []
         for button in row:
             keyboard_row.append(
@@ -310,6 +312,57 @@ async def create_window(
                 ),
             )
         keyboard.append(keyboard_row)
+    return keyboard
+
+
+async def render_reply_keyboard(
+        state: State,
+        reply_markup: ReplyKeyboardMarkup,
+        manager: FakeManager,
+        dialog: Dialog,
+        simulate_events: bool,
+):
+    # TODO simulate events using keyboard
+    keyboard = []
+    for row in reply_markup.keyboard:
+        keyboard_row = []
+        for button in row:
+            keyboard_row.append(
+                await create_button(
+                    title=button.text,
+                    callback="",
+                    manager=manager,
+                    dialog=dialog,
+                    state=state,
+                    simulate_events=False,
+                ),
+            )
+        keyboard.append(keyboard_row)
+    return keyboard
+
+
+async def create_window(
+        state: State,
+        message: NewMessage,
+        manager: FakeManager,
+        dialog: Dialog,
+        simulate_events: bool,
+) -> RenderWindow:
+    if message.parse_mode is None or message.parse_mode == "None":
+        text = html.escape(message.text)
+    else:
+        text = message.text
+
+    if isinstance(message.reply_markup, InlineKeyboardMarkup):
+        keyboard = await render_inline_keyboard(
+            state, message.reply_markup, manager, dialog, simulate_events,
+        )
+    elif isinstance(message.reply_markup, ReplyKeyboardMarkup):
+        keyboard = await render_reply_keyboard(
+            state, message.reply_markup, manager, dialog, simulate_events,
+        )
+    else:
+        keyboard = []
 
     return RenderWindow(
         message=text.replace("\n", "<br>"),
