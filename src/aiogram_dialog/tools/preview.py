@@ -29,6 +29,7 @@ from aiogram_dialog.api.entities import (
 )
 from aiogram_dialog.api.exceptions import NoContextError
 from aiogram_dialog.setup import collect_dialogs
+from aiogram_dialog.utils import split_reply_callback
 
 
 @dataclass
@@ -329,14 +330,15 @@ async def render_reply_keyboard(
     for row in reply_markup.keyboard:
         keyboard_row = []
         for button in row:
+            text, data = split_reply_callback(button.text)
             keyboard_row.append(
                 await create_button(
-                    title=button.text,
-                    callback="",
+                    title=text,
+                    callback=data,
                     manager=manager,
                     dialog=dialog,
                     state=state,
-                    simulate_events=False,
+                    simulate_events=simulate_events,
                 ),
             )
         keyboard.append(keyboard_row)
