@@ -43,6 +43,7 @@ class RenderWindow:
     state: str
     state_name: str
     keyboard: List[List[RenderButton]]
+    reply_keyboard: List[List[RenderButton]]
     photo: Optional[str]
     text_input: Optional[RenderButton]
     attachment_input: Optional[RenderButton]
@@ -358,12 +359,15 @@ async def create_window(
         keyboard = await render_inline_keyboard(
             state, message.reply_markup, manager, dialog, simulate_events,
         )
+        reply_keyboard = []
     elif isinstance(message.reply_markup, ReplyKeyboardMarkup):
-        keyboard = await render_reply_keyboard(
+        keyboard = []
+        reply_keyboard = await render_reply_keyboard(
             state, message.reply_markup, manager, dialog, simulate_events,
         )
     else:
         keyboard = []
+        reply_keyboard = []
 
     return RenderWindow(
         message=text.replace("\n", "<br>"),
@@ -371,6 +375,7 @@ async def create_window(
         state_name=state._state,
         photo=create_photo(media=message.media),
         keyboard=keyboard,
+        reply_keyboard=reply_keyboard,
         text_input=await render_input(
             manager=manager,
             state=state,

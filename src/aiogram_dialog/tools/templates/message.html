@@ -114,6 +114,21 @@
 
         .keyboard {
         }
+        .reply-keyboard {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 4px;
+            margin-top: 8px;
+            border-radius: 16px;
+        }
+        .reply-keyboard .title {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 8px;
+            text-align: center;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
 
         .keyboard-row {
             margin-top: 4px;
@@ -230,6 +245,19 @@
             {% if window.keyboard %}
                 <div class="keyboard bottom">
                     {% for row in window.keyboard %}
+                        <div class="keyboard-row">
+                            {% for button in row %}
+                                <a href="#{{ button.state }}"
+                                   class="keyboard-button">{{ button.title }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if window.reply_keyboard %}
+                <div class="reply-keyboard bottom">
+                    <div class="title">Reply keyboard</div>
+                    {% for row in window.reply_keyboard %}
                         <div class="keyboard-row">
                             {% for button in row %}
                                 <a href="#{{ button.state }}"
