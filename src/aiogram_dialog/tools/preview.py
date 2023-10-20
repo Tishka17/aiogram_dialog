@@ -41,6 +41,7 @@ class RenderButton:
 class RenderWindow:
     message: str
     state: str
+    state_name: str
     keyboard: List[List[RenderButton]]
     photo: Optional[str]
     text_input: Optional[RenderButton]
@@ -367,6 +368,7 @@ async def create_window(
     return RenderWindow(
         message=text.replace("\n", "<br>"),
         state=state.state,
+        state_name=state._state,
         photo=create_photo(media=message.media),
         keyboard=keyboard,
         text_input=await render_input(
@@ -407,7 +409,7 @@ async def render_dialog(
             ),
         )
 
-    return RenderDialog(state_group=str(group), windows=windows)
+    return RenderDialog(state_group=str(group.__qualname__), windows=windows)
 
 
 async def render_preview_content(
