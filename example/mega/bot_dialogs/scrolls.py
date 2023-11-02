@@ -4,6 +4,7 @@ from operator import itemgetter
 from aiogram_dialog import (
     Dialog, DialogManager, Window,
 )
+from aiogram_dialog.utils import sync_scroll
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
@@ -67,6 +68,8 @@ ID_SCROLL_WITH_PAGER = "scroll_with_pager"
 ID_SCROLL_NO_PAGER = "scroll_no_pager"
 ID_TEXT_SCROLL = "text_scroll"
 ID_STUB_SCROLL = "stub_scroll"
+ID_SYNC_SCROLL = "sync_scroll"
+ID_LIST_SCROLL = "list_scroll"
 
 navigation_window = Window(
     Const("Scrolling variant demo. Please, select an option:"),
@@ -94,6 +97,11 @@ navigation_window = Window(
         text=Const("📟 StubScroll (getter-based)"),
         id="stub",
         state=states.Scrolls.STUB,
+    ),
+    SwitchTo(
+        text=Const("📜 & 📝 Sync scroll"),
+        id="sync",
+        state=states.Scrolls.SYNC,
     ),
     MAIN_MENU_BUTTON,
     state=states.Scrolls.MAIN,
@@ -216,6 +224,34 @@ stub_scroll_window = Window(
     preview_data=paging_getter,
 )
 
+sync_scroll_window = Window(
+    Const("Sync Scroll. One pager for two scrollable objects"),
+    List(
+        Format("{pos}. {item[0]}"),
+        items="products",
+        id=ID_LIST_SCROLL,
+        page_size=10,
+    ),
+    ScrollingGroup(
+        Multiselect(
+            Format("✓ {item[0]}"),
+            Format("{item[0]}"),
+            id="ms",
+            items="products",
+            item_id_getter=itemgetter(1),
+        ),
+        width=1,
+        height=10,
+        id=ID_SYNC_SCROLL,
+        on_page_changed=sync_scroll(ID_LIST_SCROLL)
+    ), 
+    SCROLLS_MAIN_MENU_BUTTON,
+    state=states.Scrolls.SYNC,
+    getter=product_getter,
+    preview_data=product_getter,
+)
+
+
 scroll_dialog = Dialog(
     navigation_window,
     default_scroll_window,
@@ -223,4 +259,5 @@ scroll_dialog = Dialog(
     list_scroll_window,
     text_scroll_window,
     stub_scroll_window,
+    sync_scroll_window,
 )

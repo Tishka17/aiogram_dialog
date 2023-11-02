@@ -8,6 +8,7 @@ class Scrolls(StatesGroup):
     LIST = State()
     TEXT = State()
     STUB = State()
+    SYNC = State()
 
 
 class Main(StatesGroup):
