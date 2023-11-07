@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Awaitable, Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from aiogram.types import (
     CallbackQuery, Chat, ChatMemberUpdated, InlineKeyboardButton,
@@ -9,8 +9,6 @@ from aiogram.types import (
 from aiogram_dialog.api.entities import (
     ChatEvent, DialogUpdateEvent, MediaId, NewMessage,
 )
-from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.common.scroll import ManagedScroll
 
 logger = getLogger(__name__)
 
@@ -176,18 +174,3 @@ def remove_indent_id(callback_data: str) -> Tuple[Optional[str], str]:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data
     return None, callback_data
-
-
-def sync_scroll(scroll_id: str) -> Callable[
-    [ChatEvent, ManagedScroll, DialogManager],
-    Awaitable[None],
-]:
-    async def on_page_changed(
-        event: ChatEvent,
-        widget: ManagedScroll,
-        dialog_manager: DialogManager,
-    ) -> None:
-        page = await widget.get_page()
-        other_scroll: ManagedScroll = dialog_manager.find(scroll_id)
-        await other_scroll.set_page(page=page)
-    return on_page_changed

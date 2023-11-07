@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable, Dict, Protocol, Union
+from typing import Awaitable, Callable, Dict, Protocol, Sequence, Union
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
@@ -75,3 +75,24 @@ class BaseScroll(Actionable, Scroll, ABC):
 
     def managed(self, manager: DialogManager) -> ManagedScroll:
         return ManagedScroll(self, manager)
+
+
+def sync_scroll(
+    scroll_id: Union[str, Sequence[str]],
+    on_page_chaged: Union[OnPageChanged, None] = None,
+) -> OnPageChanged:
+    async def sync_scroll_on_page_changed(
+        event: ChatEvent,
+        widget: ManagedScroll,
+        dialog_manager: DialogManager,
+    ) -> None:
+        if on_page_chaged is not None:
+            await on_page_chaged(event, widget, dialog_manager)
+        page = await widget.get_page()
+        scroll_ids = scroll_id
+        if isinstance(scroll_id, str):
+            scroll_ids = (scroll_id, )
+        for id_ in scroll_ids:
+            other_scroll: ManagedScroll = dialog_manager.find(id_)
+            await other_scroll.set_page(page=page)
+    return sync_scroll_on_page_changed
