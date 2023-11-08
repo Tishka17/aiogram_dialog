@@ -3,7 +3,7 @@ __all__ = [
     "BaseWidget",
     "ManagedWidget",
     "BaseScroll", "ManagedScroll",
-    "OnPageChanged", "OnPageChangedVariants", "Scroll",
+    "OnPageChanged", "OnPageChangedVariants", "Scroll", "sync_scroll",
     "true_condition", "Whenable", "WhenCondition",
 ]
 
@@ -12,5 +12,6 @@ from .base import BaseWidget
 from .managed import ManagedWidget
 from .scroll import (
     BaseScroll, ManagedScroll, OnPageChanged, OnPageChangedVariants, Scroll,
+    sync_scroll,
 )
 from .when import true_condition, Whenable, WhenCondition
