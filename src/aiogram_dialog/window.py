@@ -38,7 +38,7 @@ class Window(WindowProtocol):
             getter: GetterVariant = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,
+            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
             preview_add_transitions: Optional[List[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
