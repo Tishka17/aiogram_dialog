@@ -28,6 +28,7 @@ class OnSuccess(Protocol[T]):
             widget: ManagedTextInput[T],
             dialog_manager: DialogManager,
             data: T,
+            /
     ) -> Any:
         raise NotImplementedError
 
@@ -40,6 +41,7 @@ class OnError(Protocol[T]):
             widget: ManagedTextInput[T],
             dialog_manager: DialogManager,
             error: ValueError,
+            /
     ) -> Any:
         raise NotImplementedError
 
