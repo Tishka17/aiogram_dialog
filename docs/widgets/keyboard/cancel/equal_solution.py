@@ -1,4 +1,4 @@
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Cancel
 
 async def on_click(
         cq: CallbackQuery,
@@ -6,6 +6,5 @@ async def on_click(
         dialog_manager: DialogManager
 ):
     ...  # your actions
-    await dialog_manager.done()
 
-button = Button(..., on_click=on_click)
+button = Cancel(..., on_click=on_click)
