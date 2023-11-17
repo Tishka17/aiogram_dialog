@@ -1,4 +1,4 @@
-from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.kbd import Button, Next  # or Back
 
 async def on_click(
         cq: CallbackQuery,
@@ -6,6 +6,5 @@ async def on_click(
         dialog_manager: DialogManager
 ):
     ...  # your actions
-    await dialog_manager.next()
 
-button = Button(..., on_click=on_click)
+button = Next(..., on_click=on_click)  # or Back
