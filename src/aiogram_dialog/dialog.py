@@ -136,7 +136,8 @@ class Dialog(Router, DialogProtocol):
                 message=message,
                 data=data,
                 from_user=message.from_user,
-                chat_instance=str(message.chat.id),  # we cannot know real chat instance
+                # we cannot know real chat instance
+                chat_instance=str(message.chat.id),
             )
             await window.process_callback(query, self, dialog_manager)
         else:
