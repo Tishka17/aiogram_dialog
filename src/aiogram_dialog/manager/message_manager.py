@@ -117,7 +117,7 @@ class MessageManager(MessageManagerProtocol):
             return True
         # we cannot actually compare reply keyboards
         if new_message.reply_markup or old_message.has_reply_keyboard:
-            return False
+            return True
 
         if self.had_media(old_message) != self.need_media(new_message):
             return True
@@ -143,6 +143,7 @@ class MessageManager(MessageManagerProtocol):
             old_message: Optional[OldMessage],
     ) -> OldMessage:
         if new_message.show_mode is ShowMode.NO_UPDATE:
+            logger.debug("ShowMode is NO_UPDATE, skipping show")
             raise MessageNotModified("ShowMode is NO_UPDATE")
         if old_message and new_message.show_mode is ShowMode.DELETE_AND_SEND:
             logger.debug(
@@ -170,6 +171,7 @@ class MessageManager(MessageManagerProtocol):
             )
 
         if not self._message_changed(new_message, old_message):
+            logger.debug("Message dit not change")
             # nothing changed: text, keyboard or media
             return old_message
 

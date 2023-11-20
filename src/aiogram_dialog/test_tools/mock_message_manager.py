@@ -9,8 +9,11 @@ from aiogram.types import (
     Video,
 )
 
+from aiogram_dialog import ShowMode
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
-from aiogram_dialog.api.protocols import MessageManagerProtocol
+from aiogram_dialog.api.protocols import (
+    MessageManagerProtocol, MessageNotModified,
+)
 
 
 def file_id(media: MediaAttachment) -> str:
@@ -60,9 +63,14 @@ class MockMessageManager(MessageManagerProtocol):
         return self.first_message()
 
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[OldMessage],
+            self,
+            bot: Bot,
+            show_mode: ShowMode,
+            old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
+            return
+        if show_mode in (ShowMode.DELETE_AND_SEND, ShowMode.NO_UPDATE):
             return
         assert isinstance(old_message, OldMessage)
 
@@ -87,6 +95,8 @@ class MockMessageManager(MessageManagerProtocol):
                            old_message: Optional[OldMessage]) -> OldMessage:
         assert isinstance(new_message, NewMessage)
         assert isinstance(old_message, (OldMessage, type(None)))
+        if new_message.show_mode is ShowMode.NO_UPDATE:
+            raise MessageNotModified
 
         message_id = self.last_message_id + 1
         self.last_message_id = message_id
