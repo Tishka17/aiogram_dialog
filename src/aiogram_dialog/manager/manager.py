@@ -135,8 +135,9 @@ class ManagerImpl(DialogManager):
         if self.current_stack().last_message_id is None:
             return
         await self.message_manager.remove_kbd(
-            self._data["bot"],
-            self._get_last_message(),
+            bot=self._data["bot"],
+            old_message=self._get_last_message(),
+            show_mode=self._calc_show_mode(),
         )
         self.current_stack().last_message_id = None
 

@@ -188,8 +188,13 @@ class MessageManager(MessageManagerProtocol):
     async def remove_kbd(
             self,
             bot: Bot,
+            show_mode: ShowMode,
             old_message: Optional[OldMessage],
     ) -> Optional[Message]:
+        if show_mode is ShowMode.NO_UPDATE:
+            return
+        if show_mode is ShowMode.DELETE_AND_SEND and old_message:
+            return await self.remove_message_safe(bot, old_message, None)
         return await self._remove_kbd(bot, old_message, None)
 
     async def _remove_kbd(
@@ -244,7 +249,7 @@ class MessageManager(MessageManagerProtocol):
             self,
             bot: Bot,
             old_message: OldMessage,
-            new_message: NewMessage,
+            new_message: Optional[NewMessage],
     ) -> None:
         try:
             await bot.delete_message(
