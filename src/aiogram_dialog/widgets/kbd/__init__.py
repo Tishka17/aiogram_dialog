@@ -33,9 +33,11 @@ __all__ = [
     "ManagedCheckbox",
     "Select",
     "Radio",
+    "Toggle",
     "Multiselect",
     "ManagedMultiselect",
     "ManagedRadio",
+    "ManagedToggle",
     "ListGroup",
     "ManagedListGroup",
     "StubScroll",
@@ -65,9 +67,11 @@ from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiselect,
     ManagedRadio,
+    ManagedToggle,
     Multiselect,
     Radio,
     Select,
+    Toggle,
 )
 from .state import Back, Cancel, Next, Start, SwitchTo
 from .stub_scroll import StubScroll

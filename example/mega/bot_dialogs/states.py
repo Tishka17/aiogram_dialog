@@ -27,6 +27,7 @@ class Selects(StatesGroup):
     SELECT = State()
     RADIO = State()
     MULTI = State()
+    TOGGLE = State()
 
 
 class Calendar(StatesGroup):

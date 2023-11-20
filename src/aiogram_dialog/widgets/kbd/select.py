@@ -82,17 +82,27 @@ class Select(Keyboard, Generic[T]):
     ) -> RawKeyboard:
         return [
             [
-                await self._render_button(pos, item, data, manager)
+                await self._render_button(pos, item, item, data, manager)
                 for pos, item in enumerate(self.items_getter(data))
             ],
         ]
 
     async def _render_button(
-            self, pos: int, item: Any, data: Dict,
+            self, pos: int, item: Any, target_item: Any, data: Dict,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
-        data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
-        item_id = self.item_id_getter(item)
+        """
+        Render one of the buttons in keyboard.
+
+        :param pos position of the item among all of them
+        :param item what to show
+        :param target_item what to use for callback
+        """
+        data = {
+            "data": data, "item": item, "target_item": target_item,
+            "pos": pos + 1, "pos0": pos,
+        }
+        item_id = self.item_id_getter(target_item)
         return InlineKeyboardButton(
             text=await self.text.render_text(data, manager),
             callback_data=self._item_callback_data(item_id),
@@ -403,3 +413,65 @@ class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
         return await self.widget.set_checked(
             self.manager.event, item_id, checked, self.manager,
         )
+
+
+class Toggle(Radio[T], Generic[T]):
+    def __init__(
+            self,
+            text: Text,
+            id: str,
+            item_id_getter: ItemIdGetter,
+            items: ItemsGetterVariant,
+            type_factory: TypeFactory[T] = str,
+            on_click: Union[
+                OnItemClick["ManagedToggle[T]", T],
+                WidgetEventProcessor, None,
+            ] = None,
+            on_state_changed: Union[
+                OnItemStateChanged["ManagedToggle[T]", T],
+                WidgetEventProcessor, None,
+            ] = None,
+            when: Union[str, Callable] = None,
+    ):
+        super().__init__(
+            text, text, id, item_id_getter,
+            items, type_factory, on_click,
+            on_state_changed, when
+        )
+
+    async def _render_keyboard(
+            self,
+            data: Dict,
+            manager: DialogManager,
+    ) -> RawKeyboard:
+        items_it = iter(self.items_getter(data))
+        first_item = next(items_it, None)
+        if first_item is None:
+            return [[]]
+
+        selected = self.get_checked(manager)
+        # by default first one is shown
+        if selected is None:
+            pos = 0
+            item = first_item
+        elif self.item_id_getter(first_item) == selected:
+            pos = 0
+            item = first_item
+        else:
+            pos, item = next(
+                (
+                    (n, i)
+                    for n, i in enumerate(items_it, 1)
+                    if self.item_id_getter(i) == selected
+                ),
+                (0, first_item),
+            )
+        # click leads to the next item
+        next_item = next(items_it, first_item)
+        return [[
+            await self._render_button(pos, item, next_item, data, manager),
+        ]]
+
+
+class ManagedToggle(ManagedRadio[Radio[T]], Generic[T]):
+    pass
