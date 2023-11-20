@@ -130,14 +130,13 @@ class Dialog(Router, DialogProtocol):
         text, data = split_reply_callback(message.text)
         old_context = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
-
         if data:
             query = CallbackQuery(
                 id="0",
                 message=message,
                 data=data,
                 from_user=message.from_user,
-                chat_instance=message.chat.username,
+                chat_instance=str(message.chat.id),  # we cannot know real chat instance
             )
             await window.process_callback(query, self, dialog_manager)
         else:

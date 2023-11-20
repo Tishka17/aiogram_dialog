@@ -115,9 +115,9 @@ class MessageManager(MessageManagerProtocol):
     ) -> bool:
         if new_message.text != old_message.text:
             return True
-        # FIXME ????
-        if new_message.reply_markup != old_message.has_reply_keyboard:
-            return True
+        # we cannot actually compare reply keyboards
+        if new_message.reply_markup or old_message.has_reply_keyboard:
+            return False
 
         if self.had_media(old_message) != self.need_media(new_message):
             return True
@@ -231,17 +231,6 @@ class MessageManager(MessageManagerProtocol):
         if not old_message:
             return
         logger.debug("remove_reply_kbd in %s", old_message.chat)
-        try:
-            await bot.delete_message(
-                chat_id=old_message.chat.id,
-                message_id=old_message.message_id,
-            )
-        except TelegramBadRequest as err:
-            if (
-                    "message to delete not found" in err.message or
-                    "message can't be deleted" in err.message
-            ):
-                return
         return await self.send_text(
             bot=bot,
             new_message=NewMessage(
