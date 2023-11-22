@@ -434,9 +434,10 @@ class Toggle(Radio[T], Generic[T]):
             when: Union[str, Callable] = None,
     ):
         super().__init__(
-            text, text, id, item_id_getter,
-            items, type_factory, on_click,
-            on_state_changed, when
+            checked_text=text, unchecked_text=text,
+            id=id, item_id_getter=item_id_getter,
+            items=items, type_factory=type_factory, on_click=on_click,
+            on_state_changed=on_state_changed, when=when,
         )
 
     async def _render_keyboard(
