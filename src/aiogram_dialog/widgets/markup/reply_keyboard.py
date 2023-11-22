@@ -6,7 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal.widgets import (
     MarkupFactory, MarkupVariant, RawKeyboard,
 )
-from aiogram_dialog.utils import transform_to_reply_keyboard
+from aiogram_dialog.utils import add_indent_id, transform_to_reply_keyboard
 from aiogram_dialog.widgets.text import Text
 
 
@@ -32,6 +32,7 @@ class ReplyKeyboardFactory(MarkupFactory):
             )
         else:
             placeholder = None
+        add_indent_id(keyboard, manager.current_context().id)
         return ReplyKeyboardMarkup(
             keyboard=transform_to_reply_keyboard(keyboard),
             resize_keyboard=self.resize_keyboard,

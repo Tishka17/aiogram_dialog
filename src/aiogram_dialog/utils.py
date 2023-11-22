@@ -7,8 +7,9 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, DialogUpdateEvent, MediaId, NewMessage,
+    ChatEvent, DialogUpdateEvent, MediaId,
 )
+from aiogram_dialog.api.internal import RawKeyboard
 
 logger = getLogger(__name__)
 
@@ -156,17 +157,13 @@ def intent_callback_data(
     return prefix + callback_data
 
 
-def add_indent_id(message: NewMessage, intent_id: str):
-    if not message.reply_markup:
-        return
-    inline_keyboard = getattr(message.reply_markup, "inline_keyboard", None)
-    if not inline_keyboard:
-        return
-    for row in inline_keyboard:
+def add_indent_id(keyboard: RawKeyboard, intent_id: str):
+    for row in keyboard:
         for button in row:
-            button.callback_data = intent_callback_data(
-                intent_id, button.callback_data,
-            )
+            if isinstance(button, InlineKeyboardButton):
+                button.callback_data = intent_callback_data(
+                    intent_id, button.callback_data,
+                )
 
 
 def remove_indent_id(callback_data: str) -> Tuple[Optional[str], str]:
