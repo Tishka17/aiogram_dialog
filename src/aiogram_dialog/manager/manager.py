@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from aiogram import Router
 from aiogram.fsm.state import State
 from aiogram.types import (
-    CallbackQuery, Chat, Message, ReplyKeyboardMarkup, User,
+    CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
 )
 
 from aiogram_dialog.api.entities import (
@@ -16,10 +16,8 @@ from aiogram_dialog.api.exceptions import (
     IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
 )
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
-)
-from aiogram_dialog.api.internal import (
-    FakeChat, FakeUser,
+    CONTEXT_KEY, EVENT_SIMULATED, FakeChat, FakeUser,
+    STACK_KEY, STORAGE_KEY,
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
@@ -173,6 +171,8 @@ class ManagerImpl(DialogManager):
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
+            return
+        if self.is_event_simulated():
             return
         return await self.message_manager.answer_callback(
             bot=self._data["bot"],
@@ -342,24 +342,47 @@ class ManagerImpl(DialogManager):
             type=new_message.media.type,
         )
 
-    def _get_last_message(self) -> Optional[OldMessage]:
+    def is_event_simulated(self):
+        return bool(self.middleware_data.get(EVENT_SIMULATED))
+
+    def _get_message_from_callback(
+            self, event: CallbackQuery,
+    ) -> Optional[OldMessage]:
+        current_message = event.message
         stack = self.current_stack()
-        chat = self._data["event_chat"]
-        if (
-                isinstance(self.event, CallbackQuery) and
-                self.event.message and
-                stack.last_message_id == self.event.message.message_id
-        ):
-            current_message = self.event.message
+        chat = self.middleware_data["event_chat"]
+        if current_message:
             media_id = get_media_id(current_message)
             return OldMessage(
                 media_id=(media_id.file_id if media_id else None),
                 media_uniq_id=(media_id.file_unique_id if media_id else None),
                 text=current_message.text,
-                has_reply_keyboard=False,
+                has_reply_keyboard=self.is_event_simulated(),
                 chat=chat,
                 message_id=current_message.message_id,
             )
+        elif not stack or not stack.last_message_id:
+            return None
+        else:
+            return OldMessage(
+                media_id=None,
+                media_uniq_id=None,
+                text=UnknownText.UNKNOWN,
+                has_reply_keyboard=self.is_event_simulated(),
+                chat=chat,
+                message_id=stack.last_message_id,
+            )
+
+    def _get_last_message(self) -> Optional[OldMessage]:
+        if isinstance(self.event, ErrorEvent):
+            event = self.event.update.event
+        else:
+            event = self.event
+        if isinstance(event, CallbackQuery):
+            return self._get_message_from_callback(event)
+
+        stack = self.current_stack()
+        chat = self.middleware_data["event_chat"]
         if not stack or not stack.last_message_id:
             return None
         return OldMessage(

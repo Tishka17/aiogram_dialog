@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, ErrorEvent
+from aiogram.types import Message, ErrorEvent, ReplyKeyboardRemove
 
 from aiogram_dialog import DialogManager, setup_dialogs, StartMode, ShowMode
 from aiogram_dialog.api.exceptions import UnknownIntent
@@ -35,10 +35,17 @@ async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
             "Bot process was restarted due to maintenance.\n"
             "Redirecting to main menu.",
         )
-        try:
-            await event.update.callback_query.message.delete()
-        except TelegramBadRequest:
-            pass  # whatever
+        if event.update.callback_query.message:
+            try:
+                await event.update.callback_query.message.delete()
+            except TelegramBadRequest:
+                pass  # whatever
+    elif event.update.message:
+        await event.update.message.answer(
+            "Bot process was restarted due to maintenance.\n"
+            "Redirecting to main menu.",
+            reply_markup=ReplyKeyboardRemove(),
+        )
     await dialog_manager.start(
         states.Main.MAIN,
         mode=StartMode.RESET_STACK,
