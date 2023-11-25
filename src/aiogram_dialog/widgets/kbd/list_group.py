@@ -18,7 +18,7 @@ class ListGroup(Keyboard):
     def __init__(
             self,
             *buttons: Keyboard,
-            id: Optional[str] = None,
+            id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             when: WhenCondition = None,
@@ -99,6 +99,7 @@ class ListGroup(Keyboard):
 
 class ManagedListGroup(ManagedWidget[ListGroup]):
     def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
+        """Find widget for specific item_id."""
         widget = self.widget.find(widget_id)
         if widget:
             return widget.managed(

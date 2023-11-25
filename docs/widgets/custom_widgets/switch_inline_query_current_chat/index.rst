@@ -1,7 +1,7 @@
 .. _switch_inline_query_current_chat:
 
 SwitchInlineQueryCurrentChat
-*******************
+*********************************
 
 SwitchInlineQueryCurrentChat is the same as SwitchInlineQuery, but the inline query is sent from the current chat. May be empty, in which case only the bot's username will be inserted.
 
