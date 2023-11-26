@@ -267,6 +267,8 @@ class IntentErrorMiddleware(BaseMiddleware):
                 storage=data["fsm_storage"],
                 user_id=user.id,
                 chat_id=chat.id,
+                chat_type=chat.type,
+                thread_id=data.get("event_thread_id"),
                 state_groups=self.registry.state_groups(),
             )
             data[STORAGE_KEY] = proxy
