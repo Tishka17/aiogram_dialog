@@ -2,8 +2,9 @@ import random
 import string
 import time
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
+from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
@@ -33,6 +34,13 @@ def new_id():
     return id_to_str(new_int_id())
 
 
+@dataclass
+class AccessSettings:
+    user_ids: List[int]
+    member_status: Optional[ChatMemberStatus]
+    custom: Any = None
+
+
 @dataclass(unsafe_hash=True)
 class Stack:
     _id: str = field(compare=True, default_factory=new_id)
@@ -44,6 +52,7 @@ class Stack:
     last_income_media_group_id: Optional[str] = field(
         compare=False, default=None,
     )
+    access_settings: Optional[AccessSettings] = None
 
     @property
     def id(self):

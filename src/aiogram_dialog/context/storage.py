@@ -2,11 +2,12 @@ from copy import copy
 from typing import Dict, Optional, Type
 
 from aiogram import Bot
+from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
 from aiogram_dialog.api.entities import (
-    Context, DEFAULT_STACK_ID, Stack,
+    AccessSettings, Context, DEFAULT_STACK_ID, Stack,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
@@ -47,7 +48,11 @@ class StorageProxy:
         )
         if not data:
             return Stack(_id=stack_id)
-        return Stack(**data)
+
+        access_settings = self._parse_access_settings(
+            data.pop("access_settings"),
+        )
+        return Stack(access_settings=access_settings, **data)
 
     async def save_context(self, context: Optional[Context]) -> None:
         if not context:
@@ -81,6 +86,7 @@ class StorageProxy:
             )
         else:
             data = copy(vars(stack))
+            data["access_settings"] = self._dump_access_settings(stack.access_settings)
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
                 data=data,
@@ -100,6 +106,7 @@ class StorageProxy:
             bot_id=self.bot.id,
             chat_id=self.chat_id,
             user_id=self.user_id,
+            thread_id=self.thread_id,
             destiny=f"aiogd:stack:{stack_id}",
         )
 
@@ -112,3 +119,29 @@ class StorageProxy:
         except KeyError:
             raise UnknownState(f"Unknown state group {group}")
         raise UnknownState(f"Unknown state {state}")
+
+    def _parse_access_settings(
+            self, raw: Optional[Dict],
+    ) -> Optional[AccessSettings]:
+        if not raw:
+            return None
+        if raw_member_status := raw.get("member_status"):
+            member_status = ChatMemberStatus(raw_member_status)
+        else:
+            member_status = None
+        return AccessSettings(
+            user_ids=raw.get("user_ids") or [],
+            member_status=member_status,
+            custom=raw.get("custom")
+        )
+
+    def _dump_access_settings(
+            self, access_settings: Optional[AccessSettings],
+    ) -> Optional[Dict]:
+        if not access_settings:
+            return None
+        return {
+            "user_ids": access_settings.user_ids,
+            "member_status": access_settings.member_status,
+            "custom": access_settings.custom,
+        }
