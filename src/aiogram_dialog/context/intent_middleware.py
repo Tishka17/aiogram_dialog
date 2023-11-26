@@ -37,6 +37,8 @@ class IntentMiddlewareFactory:
             storage=data["fsm_storage"],
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
+            chat_type=data["event_chat"].type,
+            thread_id=data.get("event_thread_id"),
             state_groups=self.registry.state_groups(),
         )
         return proxy

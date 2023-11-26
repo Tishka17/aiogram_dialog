@@ -17,6 +17,8 @@ class StorageProxy:
             storage: BaseStorage,
             user_id: int,
             chat_id: int,
+            chat_type: str,
+            thread_id: Optional[int],
             bot: Bot,
             state_groups: Dict[str, Type[StatesGroup]],
     ):
@@ -24,6 +26,8 @@ class StorageProxy:
         self.state_groups = state_groups
         self.user_id = user_id
         self.chat_id = chat_id
+        self.thread_id = thread_id
+        self.chat_type = chat_type
         self.bot = bot
 
     async def load_context(self, intent_id: str) -> Context:
@@ -87,6 +91,7 @@ class StorageProxy:
             bot_id=self.bot.id,
             chat_id=self.chat_id,
             user_id=self.user_id,
+            thread_id=self.thread_id,
             destiny=f"aiogd:context:{intent_id}",
         )
 
