@@ -7,6 +7,7 @@ from aiogram.types import (
     Message,
     UNSET_PARSE_MODE,
 )
+from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
 from aiogram_dialog.api.entities import (
     MarkupVariant, MediaAttachment, NewMessage,
@@ -37,7 +38,7 @@ class Window(WindowProtocol):
             getter: GetterVariant = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = None,
+            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
             preview_add_transitions: Optional[List[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
