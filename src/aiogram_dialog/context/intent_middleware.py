@@ -3,6 +3,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
+from aiogram.enums import ChatType
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
 
@@ -23,6 +24,20 @@ from .storage import StorageProxy
 logger = getLogger(__name__)
 
 
+class AccessValidator:
+    def is_allowed(
+            self, stack: Stack, user: User, chat: Chat,
+    ) -> bool:
+        if not stack.access_settings:
+            return True
+        if chat.type is ChatType.PRIVATE:
+            return True
+        if stack.access_settings.user_ids:
+            if user.id not in stack.access_settings.user_ids:
+                return False
+        return True
+
+
 class IntentMiddlewareFactory:
     def __init__(
             self,
@@ -30,6 +45,7 @@ class IntentMiddlewareFactory:
     ):
         super().__init__()
         self.registry = registry
+        self.access_validator = AccessValidator()  # TODO: inject
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
@@ -88,6 +104,11 @@ class IntentMiddlewareFactory:
             raise InvalidStackIdError(
                 f"Both stack id and intent id are None: {event}",
             )
+
+        if not self.access_validator.is_allowed(
+            stack, event.from_user, data["event_chat"],
+        ):
+            return
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
