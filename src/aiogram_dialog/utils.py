@@ -2,8 +2,9 @@ from logging import getLogger
 from typing import List, Optional, Tuple, Union
 
 from aiogram.types import (
-    CallbackQuery, Chat, ChatMemberUpdated, InlineKeyboardButton,
-    KeyboardButton, Message, User,
+    CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated,
+    InlineKeyboardButton, KeyboardButton, Message, User,
+
 )
 
 from aiogram_dialog.api.entities import (
@@ -104,7 +105,10 @@ def transform_to_reply_keyboard(
 
 
 def get_chat(event: ChatEvent) -> Chat:
-    if isinstance(event, (Message, DialogUpdateEvent, ChatMemberUpdated)):
+    if isinstance(
+            event,
+            (Message, DialogUpdateEvent, ChatMemberUpdated, ChatJoinRequest),
+    ):
         return event.chat
     elif isinstance(event, CallbackQuery):
         if not event.message:

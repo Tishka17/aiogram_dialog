@@ -146,6 +146,15 @@ class IntentMiddlewareFactory:
         await self._load_context(event, None, DEFAULT_STACK_ID, data)
         return await handler(event, data)
 
+    async def process_chat_join_request(
+            self,
+            handler: Callable,
+            event: Message,
+            data: dict,
+    ) -> None:
+        await self._load_context(event, None, DEFAULT_STACK_ID, data)
+        return await handler(event, data)
+
     async def process_aiogd_update(
             self,
             handler: Callable,
