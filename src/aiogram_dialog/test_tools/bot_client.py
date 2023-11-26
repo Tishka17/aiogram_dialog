@@ -1,10 +1,13 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import (
-    CallbackQuery, Chat, InlineKeyboardButton, Message, Update, User,
+    CallbackQuery, Chat, ChatJoinRequest,
+    ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft,
+    ChatMemberMember, ChatMemberOwner, ChatMemberRestricted, ChatMemberUpdated,
+    InlineKeyboardButton, Message, Update, User,
 )
 
 from .keyboard import InlineButtonLocator
@@ -26,6 +29,16 @@ class FakeBot(Bot):
 
     def __eq__(self, other) -> bool:
         return self is other
+
+
+ChatMember = Union[
+    ChatMemberOwner,
+    ChatMemberAdministrator,
+    ChatMemberMember,
+    ChatMemberRestricted,
+    ChatMemberLeft,
+    ChatMemberBanned,
+]
 
 
 class BotClient:
@@ -102,3 +115,28 @@ class BotClient:
             callback_query=callback,
         ))
         return callback.id
+
+    async def request_chat_join(self):
+        return await self.dp.feed_update(self.bot, Update(
+            update_id=self._new_update_id(),
+            chat_join_request=ChatJoinRequest(
+                chat=self.chat,
+                from_user=self.user,
+                date=datetime.fromtimestamp(1234567890),
+                user_chat_id=self.user.id,
+            ),
+        ))
+
+    async def my_chat_member_update(
+            self, old_chat_member: ChatMember, new_chat_member: ChatMember,
+    ):
+        return await self.dp.feed_update(self.bot, Update(
+            update_id=self._new_update_id(),
+            my_chat_member=ChatMemberUpdated(
+                chat=self.chat,
+                from_user=self.user,
+                date=datetime.fromtimestamp(1234567890),
+                old_chat_member=old_chat_member,
+                new_chat_member=new_chat_member,
+            ),
+        ))
