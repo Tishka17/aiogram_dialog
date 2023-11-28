@@ -16,9 +16,8 @@ class StorageProxy:
     def __init__(
             self,
             storage: BaseStorage,
-            user_id: int,
+            user_id: Optional[int],
             chat_id: int,
-            chat_type: str,
             thread_id: Optional[int],
             bot: Bot,
             state_groups: Dict[str, Type[StatesGroup]],
@@ -28,7 +27,6 @@ class StorageProxy:
         self.user_id = user_id
         self.chat_id = chat_id
         self.thread_id = thread_id
-        self.chat_type = chat_type
         self.bot = bot
 
     async def load_context(self, intent_id: str) -> Context:
@@ -86,7 +84,9 @@ class StorageProxy:
             )
         else:
             data = copy(vars(stack))
-            data["access_settings"] = self._dump_access_settings(stack.access_settings)
+            data["access_settings"] = self._dump_access_settings(
+                stack.access_settings,
+            )
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
                 data=data,
@@ -132,7 +132,7 @@ class StorageProxy:
         return AccessSettings(
             user_ids=raw.get("user_ids") or [],
             member_status=member_status,
-            custom=raw.get("custom")
+            custom=raw.get("custom"),
         )
 
     def _dump_access_settings(

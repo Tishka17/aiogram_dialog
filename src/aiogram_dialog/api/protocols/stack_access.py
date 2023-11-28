@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from aiogram.types import User, Chat
+from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import Stack
 
@@ -12,6 +12,3 @@ class StackAccessValidator(Protocol):
             self, stack: Stack, user: User, chat: Chat,
     ) -> bool:
         raise NotImplementedError
-
-    @abstractmethod
-    async def
