@@ -17,7 +17,7 @@ from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, EVENT_SIMULATED,
     STACK_KEY, STORAGE_KEY,
 )
-from aiogram_dialog.api.protocols import DialogRegistryProtocol
+from aiogram_dialog.api.protocols import DialogRegistryProtocol, StackAccessValidator
 from aiogram_dialog.utils import remove_indent_id, split_reply_callback
 from .storage import StorageProxy
 
@@ -25,7 +25,7 @@ logger = getLogger(__name__)
 
 
 class AccessValidator:
-    def is_allowed(
+    async def is_allowed(
             self, stack: Stack, user: User, chat: Chat,
     ) -> bool:
         if not stack.access_settings:
@@ -45,7 +45,7 @@ class IntentMiddlewareFactory:
     ):
         super().__init__()
         self.registry = registry
-        self.access_validator = AccessValidator()  # TODO: inject
+        self.access_validator: StackAccessValidator = AccessValidator()  # TODO: inject
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
@@ -82,6 +82,7 @@ class IntentMiddlewareFactory:
             data: dict,
     ) -> None:
         proxy = self.storage_proxy(data)
+        chat = data["event_chat"]
         logger.debug(
             "Loading context for intent: `%s`, "
             "stack: `%s`, user: `%s`, chat: `%s`",
@@ -106,7 +107,7 @@ class IntentMiddlewareFactory:
             )
 
         if not self.access_validator.is_allowed(
-            stack, event.from_user, data["event_chat"],
+            stack, event.from_user, chat,
         ):
             return
         data[STORAGE_KEY] = proxy
