@@ -144,6 +144,7 @@ class Start(EventProcessorButton):
             data: Data = None,
             on_click: Optional[OnClick] = None,
             mode: StartMode = StartMode.NORMAL,
+            show_mode: ShowMode | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -155,6 +156,7 @@ class Start(EventProcessorButton):
         self.user_on_click = on_click
         self.state = state
         self.mode = mode
+        self.show_mode = show_mode
 
     async def _on_click(
             self, callback: CallbackQuery, button: Button,
@@ -162,4 +164,4 @@ class Start(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.start(self.state, self.start_data, self.mode)
+        await manager.start(self.state, self.start_data, self.mode, self.show_mode)
