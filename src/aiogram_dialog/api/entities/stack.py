@@ -37,7 +37,7 @@ def new_id():
 @dataclass
 class AccessSettings:
     user_ids: List[int]
-    member_status: Optional[ChatMemberStatus]
+    member_status: Optional[ChatMemberStatus] = None
     custom: Any = None
 
 

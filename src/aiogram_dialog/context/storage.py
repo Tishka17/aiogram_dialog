@@ -41,11 +41,16 @@ class StorageProxy:
         return Context(**data)
 
     async def load_stack(self, stack_id: str = DEFAULT_STACK_ID) -> Stack:
+        stack_id = self._fixed_stack_id(stack_id)
         data = await self.storage.get_data(
             key=self._stack_key(stack_id),
         )
         if not data:
-            return Stack(_id=stack_id)
+            if self.user_id:
+                default_access = AccessSettings(user_ids=[self.user_id])
+            else:
+                default_access = AccessSettings(user_ids=[])
+            return Stack(_id=stack_id, access_settings=default_access)
 
         access_settings = self._parse_access_settings(
             data.pop("access_settings"),
@@ -96,16 +101,24 @@ class StorageProxy:
         return StorageKey(
             bot_id=self.bot.id,
             chat_id=self.chat_id,
-            user_id=self.user_id,
+            user_id=self.chat_id,
             thread_id=self.thread_id,
             destiny=f"aiogd:context:{intent_id}",
         )
 
+    def _fixed_stack_id(self, stack_id: str) -> str:
+        if stack_id != DEFAULT_STACK_ID:
+            return stack_id
+        if self.user_id in (None, self.chat_id):
+            return stack_id
+        return f"<{self.user_id}>"
+
     def _stack_key(self, stack_id: str) -> StorageKey:
+        stack_id = self._fixed_stack_id(stack_id)
         return StorageKey(
             bot_id=self.bot.id,
             chat_id=self.chat_id,
-            user_id=self.user_id,
+            user_id=self.chat_id,
             thread_id=self.thread_id,
             destiny=f"aiogd:stack:{stack_id}",
         )

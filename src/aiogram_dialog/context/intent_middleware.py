@@ -57,10 +57,10 @@ class IntentMiddlewareFactory:
         proxy = StorageProxy(
             bot=data["bot"],
             storage=data["fsm_storage"],
+            state_groups=self.registry.state_groups(),
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
             thread_id=data.get("event_thread_id"),
-            state_groups=self.registry.state_groups(),
         )
         return proxy
 
@@ -90,6 +90,10 @@ class IntentMiddlewareFactory:
             raise InvalidStackIdError("Both stack id and intent id are None")
         stack = await proxy.load_stack(stack_id)
         if not await self.access_validator.is_allowed(stack, user, chat):
+            logger.debug(
+                "Stack %s is not allowed for user %s",
+                stack.id, user.id,
+            )
             return
         return stack
 
@@ -141,9 +145,10 @@ class IntentMiddlewareFactory:
     async def _load_default_context(
             self, event: ChatEvent, data: dict,
     ) -> None:
-        proxy = self.storage_proxy(data)
         return await self._load_context_by_stack(
-            proxy=proxy, stack_id=DEFAULT_STACK_ID, data=data,
+            proxy=self.storage_proxy(data),
+            stack_id=DEFAULT_STACK_ID,
+            data=data,
         )
 
     def _intent_id_from_reply(
@@ -243,9 +248,6 @@ class IntentMiddlewareFactory:
     ):
         if "event_chat" not in data:
             return await handler(event, data)
-        proxy = self.storage_proxy(data)
-        data[STORAGE_KEY] = proxy
-
         original_data = event.data
         if event.data:
             intent_id, callback_data = remove_indent_id(event.data)
@@ -343,7 +345,6 @@ class IntentErrorMiddleware(BaseMiddleware):
                 storage=data["fsm_storage"],
                 user_id=user.id,
                 chat_id=chat.id,
-                chat_type=chat.type,
                 thread_id=data.get("event_thread_id"),
                 state_groups=self.registry.state_groups(),
             )
