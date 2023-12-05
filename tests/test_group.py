@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import pytest
@@ -8,6 +9,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram_dialog import (
     Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
+from aiogram_dialog.api.entities import GROUP_STACK_ID
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
@@ -26,6 +28,11 @@ window = Window(
 
 
 async def start(event: Any, dialog_manager: DialogManager):
+    await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
+
+
+async def start_shared(event: Any, dialog_manager: DialogManager):
+    dialog_manager = dialog_manager.bg(stack_id=GROUP_STACK_ID)
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
 
 
@@ -66,6 +73,7 @@ async def test_second_user(dp, client, second_client, message_manager):
     )
     assert not message_manager.sent_messages
 
+
 @pytest.mark.asyncio
 async def test_same_user(dp, client, message_manager):
     dp.message.register(start, CommandStart())
@@ -74,9 +82,28 @@ async def test_same_user(dp, client, message_manager):
     assert first_message.text == "stub"
     message_manager.reset_history()
     await client.send("test")
+    first_message = message_manager.one_message()
     assert first_message.text == "stub"
     message_manager.reset_history()
     await client.click(
         first_message, InlineButtonTextLocator("Button"),
     )
+    first_message = message_manager.one_message()
     assert first_message.text == "stub"
+
+
+@pytest.mark.asyncio
+async def test_shared_stack(dp, client, second_client, message_manager):
+    dp.message.register(start_shared, CommandStart())
+    await client.send("/start")
+    await asyncio.sleep(0.01)  # synchronization workaround, fixme
+    first_message = message_manager.one_message()
+    assert first_message.text == "stub"
+    message_manager.reset_history()
+    await second_client.send("test")
+    assert not message_manager.sent_messages
+    await second_client.click(
+        first_message, InlineButtonTextLocator("Button"),
+    )
+    second_message = message_manager.one_message()
+    assert second_message.text == "stub"

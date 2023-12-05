@@ -40,17 +40,18 @@ class StorageProxy:
         data["state"] = self._state(data["state"])
         return Context(**data)
 
+    def _default_access_settings(self, stack_id: str) -> AccessSettings:
+        if stack_id == DEFAULT_STACK_ID:
+            return AccessSettings(user_ids=[self.user_id])
+        else:
+            return AccessSettings(user_ids=[])
+
     async def load_stack(self, stack_id: str = DEFAULT_STACK_ID) -> Stack:
-        stack_id = self._fixed_stack_id(stack_id)
-        data = await self.storage.get_data(
-            key=self._stack_key(stack_id),
-        )
+        fixed_stack_id = self._fixed_stack_id(stack_id)
+        data = await self.storage.get_data(self._stack_key(fixed_stack_id))
         if not data:
-            if self.user_id:
-                default_access = AccessSettings(user_ids=[self.user_id])
-            else:
-                default_access = AccessSettings(user_ids=[])
-            return Stack(_id=stack_id, access_settings=default_access)
+            access_settings = self._default_access_settings(stack_id)
+            return Stack(_id=fixed_stack_id, access_settings=access_settings)
 
         access_settings = self._parse_access_settings(
             data.pop("access_settings"),

@@ -13,6 +13,7 @@ from aiogram_dialog import (
     Data, Dialog, DialogManager, Window, StartMode,
     setup_dialogs,
 )
+from aiogram_dialog.api.entities import GROUP_STACK_ID
 from aiogram_dialog.tools import render_transitions, render_preview
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (

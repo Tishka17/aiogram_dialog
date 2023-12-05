@@ -11,6 +11,7 @@ from aiogram_dialog.api.exceptions import DialogStackOverflow
 from .context import Context, Data
 
 DEFAULT_STACK_ID = ""
+GROUP_STACK_ID = "<->"
 _STACK_LIMIT = 100
 _ID_SYMS = string.digits + string.ascii_letters
 
