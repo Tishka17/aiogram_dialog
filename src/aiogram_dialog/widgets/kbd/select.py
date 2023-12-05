@@ -51,6 +51,7 @@ class OnItemClick(Protocol[ManagedT, T]):
             select: ManagedT,  # noqa: F841
             dialog_manager: DialogManager,
             data: T,
+            /,
     ):
         raise NotImplementedError
 
