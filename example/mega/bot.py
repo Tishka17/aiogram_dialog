@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, ErrorEvent
+from aiogram.types import Message, ErrorEvent, ReplyKeyboardRemove
 
 from aiogram_dialog import DialogManager, setup_dialogs, StartMode, ShowMode
 from aiogram_dialog.api.exceptions import UnknownIntent
@@ -19,6 +19,7 @@ from bot_dialogs.mutltiwidget import multiwidget_dialog
 from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
+from bot_dialogs.reply_buttons import reply_kbd_dialog
 
 
 async def start(message: Message, dialog_manager: DialogManager):
@@ -34,10 +35,17 @@ async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
             "Bot process was restarted due to maintenance.\n"
             "Redirecting to main menu.",
         )
-        try:
-            await event.update.callback_query.message.delete()
-        except TelegramBadRequest:
-            pass  # whatever
+        if event.update.callback_query.message:
+            try:
+                await event.update.callback_query.message.delete()
+            except TelegramBadRequest:
+                pass  # whatever
+    elif event.update.message:
+        await event.update.message.answer(
+            "Bot process was restarted due to maintenance.\n"
+            "Redirecting to main menu.",
+            reply_markup=ReplyKeyboardRemove(),
+        )
     await dialog_manager.start(
         states.Main.MAIN,
         mode=StartMode.RESET_STACK,
@@ -55,14 +63,10 @@ dialog_router.include_routers(
     counter_dialog,
     multiwidget_dialog,
     switch_dialog,
+    reply_kbd_dialog,
 )
 
-
-async def main():
-    # real main
-    logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=os.getenv("BOT_TOKEN"))
-
+def setup_dp():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
@@ -72,7 +76,14 @@ async def main():
     )
     dp.include_router(dialog_router)
     setup_dialogs(dp)
+    return dp
 
+
+async def main():
+    # real main
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(token=os.getenv("BOT_TOKEN"))
+    dp = setup_dp()
     await dp.start_polling(bot)
 
 

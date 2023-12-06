@@ -1,23 +1,23 @@
-from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, Optional
 
 from aiogram import Router
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Chat, Document, Message, User
+from aiogram.types import (
+    CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
+)
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, NewMessage,
-    ShowMode, Stack, StartMode,
+    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
+    NewMessage, ShowMode, Stack, StartMode,
 )
+from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
-    IncorrectBackgroundError, NoContextError,
+    IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
 )
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
-)
-from aiogram_dialog.api.internal import (
-    FakeChat, FakeUser,
+    CONTEXT_KEY, EVENT_SIMULATED, FakeChat, FakeUser,
+    STACK_KEY, STORAGE_KEY,
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
@@ -132,16 +132,10 @@ class ManagerImpl(DialogManager):
     async def _remove_kbd(self) -> None:
         if self.current_stack().last_message_id is None:
             return
-        chat = self._data["event_chat"]
-        bot = self._data["bot"]
-        message = Message(
-            chat=chat,
-            message_id=self.current_stack().last_message_id,
-            date=datetime.now(),
-        )
         await self.message_manager.remove_kbd(
-            bot,
-            message,
+            bot=self._data["bot"],
+            old_message=self._get_last_message(),
+            show_mode=self._calc_show_mode(),
         )
         self.current_stack().last_message_id = None
 
@@ -177,6 +171,8 @@ class ManagerImpl(DialogManager):
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
+            return
+        if self.is_event_simulated():
             return
         return await self.message_manager.answer_callback(
             bot=self._data["bot"],
@@ -288,15 +284,31 @@ class ManagerImpl(DialogManager):
         self.show_mode = show_mode or self.show_mode
         context.state = state
 
+    def _ensure_stack_compatible(
+            self, stack: Stack, new_message: NewMessage,
+    ) -> None:
+        if stack.id == DEFAULT_STACK_ID:
+            return  # no limitations for default stack
+        if isinstance(new_message.reply_markup, ReplyKeyboardMarkup):
+            raise InvalidKeyboardType(
+                "Cannot use ReplyKeyboardMarkup in non default stack",
+            )
+
     async def show(self, show_mode: Optional[ShowMode] = None) -> None:
         stack = self.current_stack()
         bot = self._data["bot"]
         old_message = self._get_last_message()
+        if self.show_mode is ShowMode.NO_UPDATE:
+            logger.debug("ShowMode is NO_UPDATE, skip rendering")
+            return
+
         new_message = await self.dialog().render(self)
         new_message.show_mode = show_mode or self.show_mode
         if new_message.show_mode is ShowMode.AUTO:
             new_message.show_mode = self._calc_show_mode()
         await self._fix_cached_media_id(new_message)
+
+        self._ensure_stack_compatible(stack, new_message)
 
         try:
             sent_message = await self.message_manager.show_message(
@@ -313,7 +325,10 @@ class ManagerImpl(DialogManager):
                     path=new_message.media.path,
                     url=new_message.media.url,
                     type=new_message.media.type,
-                    media_id=get_media_id(sent_message),
+                    media_id=MediaId(
+                        sent_message.media_id,
+                        sent_message.media_uniq_id,
+                    ),
                 )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
@@ -327,52 +342,70 @@ class ManagerImpl(DialogManager):
             type=new_message.media.type,
         )
 
-    def _get_last_message(self) -> Optional[Message]:
+    def is_event_simulated(self):
+        return bool(self.middleware_data.get(EVENT_SIMULATED))
+
+    def _get_message_from_callback(
+            self, event: CallbackQuery,
+    ) -> Optional[OldMessage]:
+        current_message = event.message
         stack = self.current_stack()
-        chat = self._data["event_chat"]
-        if (
-                isinstance(self.event, CallbackQuery) and
-                self.event.message and
-                stack.last_message_id == self.event.message.message_id
-        ):
-            return self.event.message
+        chat = self.middleware_data["event_chat"]
+        if current_message:
+            media_id = get_media_id(current_message)
+            return OldMessage(
+                media_id=(media_id.file_id if media_id else None),
+                media_uniq_id=(media_id.file_unique_id if media_id else None),
+                text=current_message.text,
+                has_reply_keyboard=self.is_event_simulated(),
+                chat=chat,
+                message_id=current_message.message_id,
+            )
+        elif not stack or not stack.last_message_id:
+            return None
+        else:
+            return OldMessage(
+                media_id=None,
+                media_uniq_id=None,
+                text=UnknownText.UNKNOWN,
+                has_reply_keyboard=self.is_event_simulated(),
+                chat=chat,
+                message_id=stack.last_message_id,
+            )
+
+    def _get_last_message(self) -> Optional[OldMessage]:
+        if isinstance(self.event, ErrorEvent):
+            event = self.event.update.event
+        else:
+            event = self.event
+        if isinstance(event, CallbackQuery):
+            return self._get_message_from_callback(event)
+
+        stack = self.current_stack()
+        chat = self.middleware_data["event_chat"]
         if not stack or not stack.last_message_id:
             return None
-        if stack.last_media_id:
-            # we create document because
-            # * there is no method to set content type explicitly
-            # * we don't really care fo exact content type
-            document = Document(
-                file_id=stack.last_media_id,
-                file_unique_id=stack.last_media_unique_id,
-            )
-            text = None
-        else:
-            document = None
-            # we set some non empty-text which is not equal to anything
-            text = "𝔞𝔦𝔬𝔤𝔯𝔞𝔪 𝔡𝔦𝔞𝔩𝔬𝔤 𝔲𝔫𝔦𝔮𝔲𝔢 𝔱𝔢𝔵𝔱"
-        return Message(
-            message_id=stack.last_message_id,
-            document=document,
-            text=text,
+        return OldMessage(
+            media_id=stack.last_media_id,
+            media_uniq_id=stack.last_media_unique_id,
+            text=UnknownText.UNKNOWN,
+            has_reply_keyboard=stack.last_reply_keyboard,
             chat=chat,
-            date=datetime.now(),
+            message_id=stack.last_message_id,
         )
 
-    def _save_last_message(self, message: Message):
+    def _save_last_message(self, message: OldMessage):
         stack = self.current_stack()
         stack.last_message_id = message.message_id
-        media_id = get_media_id(message)
-        if media_id:
-            stack.last_media_id = media_id.file_id
-            stack.last_media_unique_id = media_id.file_unique_id
-        else:
-            stack.last_media_id = None
-            stack.last_media_unique_id = None
+        stack.last_media_id = message.media_id
+        stack.last_media_unique_id = message.media_uniq_id
+        stack.last_reply_keyboard = message.has_reply_keyboard
 
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
+        if self.current_stack().last_reply_keyboard:
+            return ShowMode.DELETE_AND_SEND
         if self.current_stack().id != DEFAULT_STACK_ID:
             return ShowMode.EDIT
         if isinstance(self.event, Message):

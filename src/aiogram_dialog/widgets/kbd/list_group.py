@@ -1,8 +1,8 @@
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton
+from aiogram.types import CallbackQuery
 
-from aiogram_dialog.api.internal import Widget
+from aiogram_dialog.api.internal import RawKeyboard, Widget
 from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
@@ -18,7 +18,7 @@ class ListGroup(Keyboard):
     def __init__(
             self,
             *buttons: Keyboard,
-            id: Optional[str] = None,
+            id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             when: WhenCondition = None,
@@ -30,8 +30,8 @@ class ListGroup(Keyboard):
 
     async def _render_keyboard(
             self, data: Dict, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
-        kbd: List[List[InlineKeyboardButton]] = []
+    ) -> RawKeyboard:
+        kbd: RawKeyboard = []
         for pos, item in enumerate(self.items_getter(data)):
             kbd.extend(await self._render_item(pos, item, data, manager))
         return kbd
@@ -42,8 +42,8 @@ class ListGroup(Keyboard):
             item: Any,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
-        kbd: List[List[InlineKeyboardButton]] = []
+    ) -> RawKeyboard:
+        kbd: RawKeyboard = []
         data = {"data": data, "item": item, "pos": pos + 1, "pos0": pos}
         item_id = str(self.item_id_getter(item))
         sub_manager = SubManager(
@@ -99,6 +99,7 @@ class ListGroup(Keyboard):
 
 class ManagedListGroup(ManagedWidget[ListGroup]):
     def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
+        """Find widget for specific item_id."""
         widget = self.widget.find(widget_id)
         if widget:
             return widget.managed(

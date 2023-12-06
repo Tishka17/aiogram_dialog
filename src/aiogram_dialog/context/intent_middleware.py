@@ -1,6 +1,7 @@
 from logging import getLogger
 from typing import Any, Awaitable, Callable, Dict, Optional
 
+from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
@@ -12,10 +13,11 @@ from aiogram_dialog.api.exceptions import (
     InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
 )
 from aiogram_dialog.api.internal import (
-    CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY, STORAGE_KEY,
+    CALLBACK_DATA_KEY, CONTEXT_KEY, EVENT_SIMULATED,
+    ReplyCallbackQuery, STACK_KEY, STORAGE_KEY,
 )
 from aiogram_dialog.api.protocols import DialogRegistryProtocol
-from aiogram_dialog.utils import remove_indent_id
+from aiogram_dialog.utils import remove_indent_id, split_reply_callback
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
@@ -111,6 +113,25 @@ class IntentMiddlewareFactory:
             event: Message,
             data: dict,
     ):
+        text, callback_data = split_reply_callback(event.text)
+        if callback_data:
+            query = ReplyCallbackQuery(
+                id="",
+                message=None,
+                original_message=event,
+                data=callback_data,
+                from_user=event.from_user,
+                # we cannot know real chat instance
+                chat_instance=str(event.chat.id),
+            ).as_(data["bot"])
+            router: Router = data["event_router"]
+            return await router.propagate_event(
+                "callback_query",
+                query,
+                **{EVENT_SIMULATED: True},
+                **data,
+            )
+
         if intent_id := self._intent_id_from_reply(event, data):
             await self._load_context(event, intent_id, DEFAULT_STACK_ID, data)
         else:
@@ -118,6 +139,15 @@ class IntentMiddlewareFactory:
         return await handler(event, data)
 
     async def process_my_chat_member(
+            self,
+            handler: Callable,
+            event: Message,
+            data: dict,
+    ) -> None:
+        await self._load_context(event, None, DEFAULT_STACK_ID, data)
+        return await handler(event, data)
+
+    async def process_chat_join_request(
             self,
             handler: Callable,
             event: Message,

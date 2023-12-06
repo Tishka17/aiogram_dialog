@@ -5,11 +5,15 @@ from uuid import uuid4
 
 from aiogram import Bot
 from aiogram.types import (
-    Audio, CallbackQuery, Document, Message, PhotoSize, Video,
+    Audio, CallbackQuery, Document, Message, PhotoSize, ReplyKeyboardMarkup,
+    Video,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage
-from aiogram_dialog.api.protocols import MessageManagerProtocol
+from aiogram_dialog import ShowMode
+from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
+from aiogram_dialog.api.protocols import (
+    MessageManagerProtocol, MessageNotModified,
+)
 
 
 def file_id(media: MediaAttachment) -> str:
@@ -59,13 +63,23 @@ class MockMessageManager(MessageManagerProtocol):
         return self.first_message()
 
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[Message],
+            self,
+            bot: Bot,
+            show_mode: ShowMode,
+            old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
             return
-        data = old_message.model_dump()
-        data["reply_markup"] = None
-        message = Message(**data)
+        if show_mode in (ShowMode.DELETE_AND_SEND, ShowMode.NO_UPDATE):
+            return
+        assert isinstance(old_message, OldMessage)
+
+        message = Message(
+            message_id=old_message.message_id,
+            date=datetime.now(),
+            chat=old_message.chat,
+            reply_markup=None,
+        )
         self.sent_messages.append(message)
         return message
 
@@ -78,7 +92,12 @@ class MockMessageManager(MessageManagerProtocol):
         assert callback_id in self.answered_callbacks
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[Message]) -> Message:
+                           old_message: Optional[OldMessage]) -> OldMessage:
+        assert isinstance(new_message, NewMessage)
+        assert isinstance(old_message, (OldMessage, type(None)))
+        if new_message.show_mode is ShowMode.NO_UPDATE:
+            raise MessageNotModified
+
         message_id = self.last_message_id + 1
         self.last_message_id = message_id
 
@@ -102,4 +121,21 @@ class MockMessageManager(MessageManagerProtocol):
             **contents,
         )
         self.sent_messages.append(message)
-        return message
+        return OldMessage(
+            message_id=message_id,
+            chat=new_message.chat,
+            text=new_message.text,
+            media_id=(
+                new_message.media.file_id.file_id
+                if new_message.media
+                else None
+            ),
+            media_uniq_id=(
+                new_message.media.file_id.file_unique_id
+                if new_message.media
+                else None
+            ),
+            has_reply_keyboard=isinstance(
+                new_message.reply_markup, ReplyKeyboardMarkup,
+            ),
+        )

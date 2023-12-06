@@ -1,9 +1,10 @@
 from abc import abstractmethod
-from typing import Dict, List, Optional, Protocol, Union
+from typing import Dict, Optional, Protocol, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd.base import Keyboard
@@ -105,7 +106,7 @@ class Counter(Keyboard):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         row = []
         if self.minus:
             minus = await self.minus.render_text(data, manager)

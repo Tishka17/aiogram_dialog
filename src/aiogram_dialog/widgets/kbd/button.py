@@ -2,6 +2,7 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Text
@@ -39,7 +40,7 @@ class Button(Keyboard):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return [
             [
                 InlineKeyboardButton(
@@ -56,7 +57,7 @@ class Url(Keyboard):
             text: Text,
             url: Text,
             id: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -66,7 +67,7 @@ class Url(Keyboard):
             self,
             data: Dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return [
             [
                 InlineKeyboardButton(
@@ -91,20 +92,20 @@ class WebApp(Url):
 
 class SwitchInlineQuery(Keyboard):
     def __init__(
-        self,
-        text: Text,
-        switch_inline_query: Text,
-        id: Optional[str] = None,
-        when: Union[str, Callable, None] = None,
+            self,
+            text: Text,
+            switch_inline_query: Text,
+            id: Optional[str] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.switch_inline = switch_inline_query
 
     async def _render_keyboard(
-        self,
-        data: Dict,
-        manager: DialogManager,
+            self,
+            data: Dict,
+            manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         return [
             [

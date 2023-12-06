@@ -4,12 +4,13 @@ from operator import itemgetter
 from aiogram_dialog import (
     Dialog, DialogManager, Window,
 )
+from aiogram_dialog.widgets.common import sync_scroll
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
 )
 from aiogram_dialog.widgets.media import StaticMedia
-from aiogram_dialog.widgets.text import Const, Format, ScrollingText
+from aiogram_dialog.widgets.text import Const, Format, ScrollingText, List
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -67,6 +68,8 @@ ID_SCROLL_WITH_PAGER = "scroll_with_pager"
 ID_SCROLL_NO_PAGER = "scroll_no_pager"
 ID_TEXT_SCROLL = "text_scroll"
 ID_STUB_SCROLL = "stub_scroll"
+ID_SYNC_SCROLL = "sync_scroll"
+ID_LIST_SCROLL = "list_scroll"
 
 navigation_window = Window(
     Const("Scrolling variant demo. Please, select an option:"),
@@ -81,6 +84,11 @@ navigation_window = Window(
         state=states.Scrolls.PAGERS,
     ),
     SwitchTo(
+        text=Const("📝 List scroll"),
+        id="list",
+        state=states.Scrolls.LIST,
+    ),
+    SwitchTo(
         text=Const("📄 Text scroll"),
         id="text",
         state=states.Scrolls.TEXT,
@@ -89,6 +97,11 @@ navigation_window = Window(
         text=Const("📟 StubScroll (getter-based)"),
         id="stub",
         state=states.Scrolls.STUB,
+    ),
+    SwitchTo(
+        text=Const("📜 & 📝 Sync scroll"),
+        id="sync",
+        state=states.Scrolls.SYNC,
     ),
     MAIN_MENU_BUTTON,
     state=states.Scrolls.MAIN,
@@ -110,6 +123,7 @@ default_scroll_window = Window(
     ),
     SCROLLS_MAIN_MENU_BUTTON,
     getter=product_getter,
+    preview_data=product_getter,
     state=states.Scrolls.DEFAULT_PAGER,
 )
 
@@ -160,8 +174,27 @@ custom_pager_window = Window(
         SCROLLS_MAIN_MENU_BUTTON,
     ),
     getter=product_getter,
+    preview_data=product_getter,
     state=states.Scrolls.PAGERS,
 )
+
+list_scroll_window = Window(
+    Const("Text list scrolling:\n"),
+    List(
+        Format("{pos}. {item[0]}"),
+        items="products",
+        id="list_scroll",
+        page_size=10,
+    ),
+    NumberedPager(
+        scroll="list_scroll",
+    ),
+    SCROLLS_MAIN_MENU_BUTTON,
+    getter=product_getter,
+    preview_data=product_getter,
+    state=states.Scrolls.LIST,
+)
+
 text_scroll_window = Window(
     Const("Text scrolling:\n"),
     ScrollingText(
@@ -188,12 +221,43 @@ stub_scroll_window = Window(
     SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.STUB,
     getter=paging_getter,
+    preview_data=paging_getter,
 )
+
+sync_scroll_window = Window(
+    Const("Sync Scroll. One pager for two scrollable objects"),
+    List(
+        Format("{pos}. {item[0]}"),
+        items="products",
+        id=ID_LIST_SCROLL,
+        page_size=10,
+    ),
+    ScrollingGroup(
+        Multiselect(
+            Format("✓ {item[0]}"),
+            Format("{item[0]}"),
+            id="ms",
+            items="products",
+            item_id_getter=itemgetter(1),
+        ),
+        width=1,
+        height=10,
+        id=ID_SYNC_SCROLL,
+        on_page_changed=sync_scroll(ID_LIST_SCROLL)
+    ), 
+    SCROLLS_MAIN_MENU_BUTTON,
+    state=states.Scrolls.SYNC,
+    getter=product_getter,
+    preview_data=product_getter,
+)
+
 
 scroll_dialog = Dialog(
     navigation_window,
     default_scroll_window,
     custom_pager_window,
+    list_scroll_window,
     text_scroll_window,
     stub_scroll_window,
+    sync_scroll_window,
 )

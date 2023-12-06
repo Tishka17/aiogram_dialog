@@ -27,13 +27,17 @@ __all__ = [
     "PrevPage",
     "SwitchPage",
     "ScrollingGroup",
+    "RequestContact",
+    "RequestLocation",
     "Checkbox",
     "ManagedCheckbox",
     "Select",
     "Radio",
+    "Toggle",
     "Multiselect",
     "ManagedMultiselect",
     "ManagedRadio",
+    "ManagedToggle",
     "ListGroup",
     "ManagedListGroup",
     "StubScroll",
@@ -58,13 +62,16 @@ from .pager import (
     PrevPage,
     SwitchPage,
 )
+from .request import RequestContact, RequestLocation
 from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiselect,
     ManagedRadio,
+    ManagedToggle,
     Multiselect,
     Radio,
     Select,
+    Toggle,
 )
 from .state import Back, Cancel, Next, Start, SwitchTo
 from .stub_scroll import StubScroll

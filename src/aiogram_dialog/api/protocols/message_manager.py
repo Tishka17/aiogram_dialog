@@ -4,7 +4,8 @@ from typing import Optional, Protocol
 from aiogram import Bot
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import NewMessage
+from aiogram_dialog import ShowMode
+from aiogram_dialog.api.entities import NewMessage, OldMessage
 from aiogram_dialog.api.exceptions import DialogsError
 
 
@@ -15,15 +16,18 @@ class MessageNotModified(DialogsError):
 class MessageManagerProtocol(Protocol):
     @abstractmethod
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[Message],
+            self,
+            bot: Bot,
+            show_mode: ShowMode,
+            old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         raise NotImplementedError
 
     @abstractmethod
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message],
-    ) -> Message:
+            old_message: Optional[OldMessage],
+    ) -> OldMessage:
         raise NotImplementedError
 
     @abstractmethod

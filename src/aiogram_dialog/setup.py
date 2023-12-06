@@ -104,6 +104,7 @@ def _register_middleware(
     router.callback_query.middleware(manager_middleware)
     update_handler.middleware(manager_middleware)
     router.my_chat_member.middleware(manager_middleware)
+    router.chat_join_request.middleware(manager_middleware)
     router.errors.middleware(manager_middleware)
 
     router.message.outer_middleware(intent_middleware.process_message)
@@ -116,11 +117,15 @@ def _register_middleware(
     router.my_chat_member.outer_middleware(
         intent_middleware.process_my_chat_member,
     )
+    router.chat_join_request.outer_middleware(
+        intent_middleware.process_chat_join_request,
+    )
 
     router.message.middleware(context_saver_middleware)
     router.callback_query.middleware(context_saver_middleware)
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
+    router.chat_join_request.middleware(context_saver_middleware)
 
     bg_factory_middleware = BgFactoryMiddleware(bg_manager_factory)
     for observer in router.observers.values():

@@ -1,9 +1,10 @@
 from abc import ABC
 from enum import Enum
-from typing import Dict, List, TypedDict, Union
+from typing import Dict, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedScroll, Scroll, WhenCondition
 from aiogram_dialog.widgets.text import Const, Format, Text
@@ -122,7 +123,7 @@ class SwitchPage(BasePager):
 
     async def render_keyboard(
             self, data: Dict, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         scroll = self._find_scroll(manager)
         pages = await scroll.get_page_count(data)
         current_page = await scroll.get_page()
@@ -135,7 +136,7 @@ class SwitchPage(BasePager):
 
     async def _render_keyboard(
             self, data: PagerPageData, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         return [[
             InlineKeyboardButton(
                 text=await self.text.render_text(data, manager),
@@ -248,7 +249,7 @@ class NumberedPager(BasePager):
 
     async def render_keyboard(
             self, data: Dict, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         scroll = self._find_scroll(manager)
         pages = await scroll.get_page_count(data)
         current_page = await scroll.get_page()
@@ -261,7 +262,7 @@ class NumberedPager(BasePager):
 
     async def _render_keyboard(
             self, data: PagerData, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         buttons = []
         pages = data["pages"]
         current_page = data["current_page"]

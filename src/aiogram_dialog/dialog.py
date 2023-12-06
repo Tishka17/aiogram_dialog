@@ -24,7 +24,7 @@ from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
 from .context.intent_filter import IntentFilter
-from .utils import add_indent_id, remove_indent_id
+from .utils import remove_indent_id
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
 
@@ -121,7 +121,6 @@ class Dialog(Router, DialogProtocol):
         logger.debug("Dialog render (%s)", self)
         window = await self._current_window(manager)
         new_message = await window.render(self, manager)
-        add_indent_id(new_message, manager.current_context().id)
         return new_message
 
     async def _message_handler(

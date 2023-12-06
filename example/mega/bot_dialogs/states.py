@@ -5,8 +5,10 @@ class Scrolls(StatesGroup):
     MAIN = State()
     DEFAULT_PAGER = State()
     PAGERS = State()
+    LIST = State()
     TEXT = State()
     STUB = State()
+    SYNC = State()
 
 
 class Main(StatesGroup):
@@ -25,6 +27,7 @@ class Selects(StatesGroup):
     SELECT = State()
     RADIO = State()
     MULTI = State()
+    TOGGLE = State()
 
 
 class Calendar(StatesGroup):
@@ -38,6 +41,9 @@ class Counter(StatesGroup):
 
 
 class Multiwidget(StatesGroup):
+    MAIN = State()
+
+class ReplyKeyboard(StatesGroup):
     MAIN = State()
 
 

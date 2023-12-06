@@ -14,10 +14,14 @@ from aiogram.types import (
     InputMediaPhoto,
     InputMediaVideo,
     Message,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
     URLInputFile,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage, ShowMode
+from aiogram_dialog.api.entities import (
+    MediaAttachment, MediaId, NewMessage, OldMessage, ShowMode,
+)
 from aiogram_dialog.api.protocols import (
     MessageManagerProtocol, MessageNotModified,
 )
@@ -50,6 +54,20 @@ _INVALID_QUERY_ID_MSG = (
 )
 
 
+def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
+    media_id = get_media_id(message_result)
+    return OldMessage(
+        message_id=message_result.message_id,
+        chat=message_result.chat,
+        has_reply_keyboard=isinstance(
+            sent_message.reply_markup, ReplyKeyboardMarkup,
+        ),
+        text=message_result.text,
+        media_uniq_id=(media_id.file_unique_id if media_id else None),
+        media_id=(media_id.file_id if media_id else None),
+    )
+
+
 class MessageManager(MessageManagerProtocol):
     async def answer_callback(
             self, bot: Bot, callback_query: CallbackQuery,
@@ -76,63 +94,129 @@ class MessageManager(MessageManagerProtocol):
         else:
             return FSInputFile(media.path)
 
-    def had_media(self, old_message: Message) -> bool:
-        return old_message.content_type != ContentType.TEXT
+    def had_media(self, old_message: OldMessage) -> bool:
+        return old_message.media_id is not None
 
     def need_media(self, new_message: NewMessage) -> bool:
         return bool(new_message.media)
 
+    def had_reply_keyboard(self, old_message: Optional[OldMessage]) -> bool:
+        if not old_message:
+            return False
+        return old_message.has_reply_keyboard
+
+    def need_reply_keyboard(self, new_message: Optional[NewMessage]) -> bool:
+        if not new_message:
+            return False
+        return isinstance(new_message.reply_markup, ReplyKeyboardMarkup)
+
     def _message_changed(
-            self, new_message: NewMessage, old_message: Message,
+            self, new_message: NewMessage, old_message: OldMessage,
     ) -> bool:
         if new_message.text != old_message.text:
             return True
-        if new_message.reply_markup != old_message.reply_markup:
+        # we cannot actually compare reply keyboards
+        if new_message.reply_markup or old_message.has_reply_keyboard:
             return True
 
         if self.had_media(old_message) != self.need_media(new_message):
             return True
         if not self.need_media(new_message):
             return False
-        if new_message.media.file_id != get_media_id(old_message):
+        old_media_id = MediaId(old_message.media_id, old_message.media_uniq_id)
+        if new_message.media.file_id != old_media_id:
             return True
 
         return False
 
-    def _can_edit(self, new_message: NewMessage, old_message: Message) -> bool:
+    def _can_edit(self, new_message: NewMessage,
+                  old_message: OldMessage) -> bool:
         # we cannot edit message if media appeared or removed
-        return self.had_media(old_message) == self.need_media(new_message)
+        return (
+            self.had_media(old_message) == self.need_media(new_message) and
+            not self.had_reply_keyboard(old_message) and
+            not self.need_reply_keyboard(new_message)
+        )
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[Message],
-    ) -> Message:
+            old_message: Optional[OldMessage],
+    ) -> OldMessage:
+        if new_message.show_mode is ShowMode.NO_UPDATE:
+            logger.debug("ShowMode is NO_UPDATE, skipping show")
+            raise MessageNotModified("ShowMode is NO_UPDATE")
+        if old_message and new_message.show_mode is ShowMode.DELETE_AND_SEND:
+            logger.debug(
+                "Delete and send new message, because: mode=%s",
+                new_message.show_mode,
+            )
+            # optimize order not to blink
+            if self.need_reply_keyboard(new_message):
+                sent_message = await self.send_message(bot, new_message)
+                await self.remove_message_safe(bot, old_message, new_message)
+            else:
+                await self.remove_message_safe(bot, old_message, new_message)
+                sent_message = await self.send_message(bot, new_message)
+            return _combine(new_message, sent_message)
         if not old_message or new_message.show_mode is ShowMode.SEND:
             logger.debug(
                 "Send new message, because: mode=%s, has old_message=%s",
                 new_message.show_mode,
                 bool(old_message),
             )
-            await self.remove_kbd(bot, old_message)
-            return await self.send_message(bot, new_message)
+            await self._remove_kbd(bot, old_message, new_message)
+            return _combine(
+                new_message,
+                await self.send_message(bot, new_message),
+            )
 
         if not self._message_changed(new_message, old_message):
+            logger.debug("Message dit not change")
             # nothing changed: text, keyboard or media
             return old_message
 
         if not self._can_edit(new_message, old_message):
-            await self.remove_message_safe(bot, old_message)
-            return await self.send_message(bot, new_message)
-
-        return await self.edit_message_safe(bot, new_message, old_message)
+            await self.remove_message_safe(bot, old_message, new_message)
+            return _combine(
+                new_message,
+                await self.send_message(bot, new_message),
+            )
+        return _combine(
+            new_message,
+            await self.edit_message_safe(bot, new_message, old_message),
+        )
 
     # Clear
     async def remove_kbd(
-            self, bot: Bot, old_message: Optional[Message],
+            self,
+            bot: Bot,
+            show_mode: ShowMode,
+            old_message: Optional[OldMessage],
+    ) -> Optional[Message]:
+        if show_mode is ShowMode.NO_UPDATE:
+            return
+        if show_mode is ShowMode.DELETE_AND_SEND and old_message:
+            return await self.remove_message_safe(bot, old_message, None)
+        return await self._remove_kbd(bot, old_message, None)
+
+    async def _remove_kbd(
+            self,
+            bot: Bot,
+            old_message: Optional[OldMessage],
+            new_message: Optional[NewMessage],
+    ) -> Optional[Message]:
+        if self.had_reply_keyboard(old_message):
+            if not self.need_reply_keyboard(new_message):
+                return await self.remove_reply_kbd(bot, old_message)
+        else:
+            return await self.remove_inline_kbd(bot, old_message)
+
+    async def remove_inline_kbd(
+            self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
             return
-        logger.debug("remove_kbd in %s", old_message.chat)
+        logger.debug("remove_inline_kbd in %s", old_message.chat)
         try:
             return await bot.edit_message_reply_markup(
                 message_id=old_message.message_id,
@@ -148,8 +232,26 @@ class MessageManager(MessageManagerProtocol):
             else:
                 raise err
 
+    async def remove_reply_kbd(
+            self, bot: Bot, old_message: Optional[OldMessage],
+    ) -> Optional[Message]:
+        if not old_message:
+            return
+        logger.debug("remove_reply_kbd in %s", old_message.chat)
+        return await self.send_text(
+            bot=bot,
+            new_message=NewMessage(
+                chat=old_message.chat,
+                text="...",
+                reply_markup=ReplyKeyboardRemove(),
+            ),
+        )
+
     async def remove_message_safe(
-            self, bot: Bot, old_message: Message,
+            self,
+            bot: Bot,
+            old_message: OldMessage,
+            new_message: Optional[NewMessage],
     ) -> None:
         try:
             await bot.delete_message(
@@ -157,17 +259,16 @@ class MessageManager(MessageManagerProtocol):
                 message_id=old_message.message_id,
             )
         except TelegramBadRequest as err:
-            if (
-                    "message to delete not found" in err.message or
-                    "message can't be deleted" in err.message
-            ):
-                await self.remove_kbd(bot, old_message)
+            if "message to delete not found" in err.message:
+                pass
+            elif "message can't be deleted" in err.message:
+                await self._remove_kbd(bot, old_message, new_message)
             else:
                 raise
 
     # Edit
     async def edit_message_safe(
-            self, bot: Bot, new_message: NewMessage, old_message: Message,
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         try:
             return await self.edit_message(bot, new_message, old_message)
@@ -183,17 +284,17 @@ class MessageManager(MessageManagerProtocol):
                 raise
 
     async def edit_message(
-            self, bot: Bot, new_message: NewMessage, old_message: Message,
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         if new_message.media:
-            if new_message.media.file_id == get_media_id(old_message):
+            if new_message.media.file_id == old_message.media_id:
                 return await self.edit_caption(bot, new_message, old_message)
             return await self.edit_media(bot, new_message, old_message)
         else:
             return await self.edit_text(bot, new_message, old_message)
 
     async def edit_caption(
-            self, bot: Bot, new_message: NewMessage, old_message: Message,
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         logger.debug("edit_caption to %s", new_message.chat)
         return await bot.edit_message_caption(
@@ -205,7 +306,7 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def edit_text(
-            self, bot: Bot, new_message: NewMessage, old_message: Message,
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         logger.debug("edit_text to %s", new_message.chat)
         return await bot.edit_message_text(
@@ -218,7 +319,7 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def edit_media(
-            self, bot: Bot, new_message: NewMessage, old_message: Message,
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         logger.debug(
             "edit_media to %s, media_id: %s",

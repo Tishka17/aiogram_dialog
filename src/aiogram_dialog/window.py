@@ -4,16 +4,20 @@ from typing import Dict, List, Optional
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
-    InlineKeyboardMarkup,
     Message,
     UNSET_PARSE_MODE,
 )
+from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage
+from aiogram_dialog.api.entities import (
+    MarkupVariant, MediaAttachment, NewMessage,
+)
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
+from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
     ensure_data_getter,
     ensure_widgets,
@@ -23,6 +27,8 @@ from .widgets.utils import (
 
 logger = getLogger(__name__)
 
+_DEFAULT_MARKUP_FACTORY = InlineKeyboardFactory()
+
 
 class Window(WindowProtocol):
     def __init__(
@@ -30,8 +36,9 @@ class Window(WindowProtocol):
             *widgets: WidgetSrc,
             state: State,
             getter: GetterVariant = None,
+            markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = None,
+            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
             preview_add_transitions: Optional[List[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
@@ -46,6 +53,7 @@ class Window(WindowProtocol):
             ensure_data_getter(preview_data),
         )
         self.state = state
+        self.markup_factory = markup_factory
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
@@ -63,9 +71,11 @@ class Window(WindowProtocol):
 
     async def render_kbd(
             self, data: Dict, manager: DialogManager,
-    ) -> InlineKeyboardMarkup:
+    ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        return InlineKeyboardMarkup(inline_keyboard=keyboard)
+        return await self.markup_factory.render_markup(
+            data, manager, keyboard,
+        )
 
     async def load_data(
             self, dialog: "DialogProtocol",
@@ -95,15 +105,23 @@ class Window(WindowProtocol):
     ) -> NewMessage:
         logger.debug("Show window: %s", self)
         chat = manager.middleware_data["event_chat"]
-        current_data = await self.load_data(dialog, manager)
-        return NewMessage(
-            chat=chat,
-            text=await self.render_text(current_data, manager),
-            reply_markup=await self.render_kbd(current_data, manager),
-            parse_mode=self.parse_mode,
-            disable_web_page_preview=self.disable_web_page_preview,
-            media=await self.render_media(current_data, manager),
-        )
+        try:
+            current_data = await self.load_data(dialog, manager)
+        except Exception:  # noqa: B902
+            logger.error("Cannot get window data for state %s", self.state)
+            raise
+        try:
+            return NewMessage(
+                chat=chat,
+                text=await self.render_text(current_data, manager),
+                reply_markup=await self.render_kbd(current_data, manager),
+                parse_mode=self.parse_mode,
+                disable_web_page_preview=self.disable_web_page_preview,
+                media=await self.render_media(current_data, manager),
+            )
+        except Exception:  # noqa: B902
+            logger.error("Cannot render window for state %s", self.state)
+            raise
 
     def get_state(self) -> State:
         return self.state

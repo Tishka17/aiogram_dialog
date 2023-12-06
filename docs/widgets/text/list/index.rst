@@ -10,3 +10,7 @@ The List widget is used when you need to display a list of items, works like the
 Result:
 
 .. image:: /resources/list.png
+
+
+Additionally, you can provide ``page_size`` and ``id`` so the ``List`` will allow you to paginate its items.
+You can combine it with ``Pager`` widgets to switch pages.
