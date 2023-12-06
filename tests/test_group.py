@@ -13,7 +13,7 @@ from aiogram_dialog.api.entities import GROUP_STACK_ID
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
-from aiogram_dialog.widgets.text import Format, Const
+from aiogram_dialog.widgets.text import Const, Format
 
 
 class MainSG(StatesGroup):
