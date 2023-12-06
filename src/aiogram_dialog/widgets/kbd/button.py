@@ -57,7 +57,7 @@ class Url(Keyboard):
             text: Text,
             url: Text,
             id: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -96,7 +96,7 @@ class SwitchInlineQuery(Keyboard):
             text: Text,
             switch_inline_query: Text,
             id: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text

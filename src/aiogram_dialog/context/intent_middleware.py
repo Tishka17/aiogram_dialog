@@ -15,7 +15,7 @@ from aiogram_dialog.api.exceptions import (
 )
 from aiogram_dialog.api.internal import (
     CALLBACK_DATA_KEY, CONTEXT_KEY, EVENT_SIMULATED,
-    STACK_KEY, STORAGE_KEY,
+    ReplyCallbackQuery, STACK_KEY, STORAGE_KEY,
 )
 from aiogram_dialog.api.protocols import (
     DialogRegistryProtocol, StackAccessValidator,
@@ -176,14 +176,15 @@ class IntentMiddlewareFactory:
     ):
         text, callback_data = split_reply_callback(event.text)
         if callback_data:
-            query = CallbackQuery(
+            query = ReplyCallbackQuery(
                 id="",
                 message=None,
+                original_message=event,
                 data=callback_data,
                 from_user=event.from_user,
                 # we cannot know real chat instance
                 chat_instance=str(event.chat.id),
-            )
+            ).as_(data["bot"])
             router: Router = data["event_router"]
             return await router.propagate_event(
                 "callback_query",

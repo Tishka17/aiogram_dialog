@@ -17,11 +17,13 @@ class ReplyKeyboardFactory(MarkupFactory):
             one_time_keyboard: Optional[bool] = None,
             input_field_placeholder: Optional[Text] = None,
             selective: Optional[bool] = None,
+            is_persistent: Optional[bool] = None,
     ):
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
         self.input_field_placeholder = input_field_placeholder
         self.selective = selective
+        self.is_persistent = is_persistent
 
     async def render_markup(
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
@@ -39,4 +41,5 @@ class ReplyKeyboardFactory(MarkupFactory):
             one_time_keyboard=self.one_time_keyboard,
             input_field_placeholder=placeholder,
             selective=self.selective,
+            is_persistent=self.is_persistent,
         )

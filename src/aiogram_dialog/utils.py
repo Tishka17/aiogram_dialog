@@ -85,8 +85,12 @@ def _transform_to_reply_button(
 ) -> KeyboardButton:
     if isinstance(button, KeyboardButton):
         return button
+    if button.web_app:
+        return KeyboardButton(text=button.text, web_app=button.web_app)
     if not button.callback_data:
-        raise ValueError("Cannot convert inline button without callback_data")
+        raise ValueError(
+            "Cannot convert inline button without callback_data or web_app",
+        )
     return KeyboardButton(text=join_reply_callback(
         text=button.text, callback_data=button.callback_data,
     ))

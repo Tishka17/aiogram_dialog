@@ -1,5 +1,5 @@
 __all__ = [
-    "FakeChat", "FakeUser",
+    "FakeChat", "FakeUser", "ReplyCallbackQuery",
     "DialogManagerFactory",
     "CALLBACK_DATA_KEY", "CONTEXT_KEY", "EVENT_SIMULATED",
     "STACK_KEY", "STORAGE_KEY",
@@ -8,7 +8,7 @@ __all__ = [
     "WindowProtocol",
 ]
 
-from .fake_data import FakeChat, FakeUser
+from .fake_data import FakeChat, FakeUser, ReplyCallbackQuery
 from .manager import (
     DialogManagerFactory,
 )
