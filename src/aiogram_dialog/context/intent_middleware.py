@@ -123,7 +123,7 @@ class IntentMiddlewareFactory:
                 from_user=event.from_user,
                 # we cannot know real chat instance
                 chat_instance=str(event.chat.id),
-            )
+            ).as_(data["bot"])
             router: Router = data["event_router"]
             return await router.propagate_event(
                 "callback_query",
