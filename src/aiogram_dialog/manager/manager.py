@@ -9,6 +9,7 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
     NewMessage, ShowMode, Stack, StartMode,
 )
@@ -198,16 +199,17 @@ class ManagerImpl(DialogManager):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
         if mode is StartMode.NORMAL:
-            await self._start_normal(state, data)
+            await self._start_normal(state, data, access_settings)
         elif mode is StartMode.RESET_STACK:
             await self.reset_stack(remove_keyboard=False)
-            await self._start_normal(state, data)
+            await self._start_normal(state, data, access_settings)
         elif mode is StartMode.NEW_STACK:
-            await self._start_new_stack(state, data)
+            await self._start_new_stack(state, data, access_settings)
         else:
             raise ValueError(f"Unknown start mode: {mode}")
 
@@ -222,14 +224,25 @@ class ManagerImpl(DialogManager):
             await self._remove_kbd()
         self._data[CONTEXT_KEY] = None
 
-    async def _start_new_stack(self, state: State, data: Data = None) -> None:
+    async def _start_new_stack(
+            self, state: State, data: Data,
+            access_settings: Optional[AccessSettings],
+    ) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(
-            state, data, StartMode.NORMAL, self.show_mode,
+            state, data,
+            mode=StartMode.NORMAL,
+            show_mode=self.show_mode,
+            access_settings=access_settings,
         )
 
-    async def _start_normal(self, state: State, data: Data = None) -> None:
+    async def _start_normal(
+            self, state: State, data: Data,
+            access_settings: Optional[AccessSettings],
+    ) -> None:
         stack = self.current_stack()
+        if access_settings is not None:
+            stack.access_settings = access_settings
         old_dialog: Optional[DialogProtocol] = None
         if not stack.empty():
             old_dialog = self.dialog()
@@ -240,13 +253,7 @@ class ManagerImpl(DialogManager):
                 )
 
         new_dialog = self._registry.find_dialog(state)
-        launch_mode = new_dialog.launch_mode
-        if launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
-            await self.reset_stack(remove_keyboard=False)
-        if launch_mode is LaunchMode.SINGLE_TOP:
-            if new_dialog is old_dialog:
-                await self.storage().remove_context(stack.pop())
-
+        await self._process_launch_mode(old_dialog, new_dialog)
         if self.has_context():
             await self.storage().save_context(self.current_context())
         context = stack.push(state, data)
@@ -255,6 +262,17 @@ class ManagerImpl(DialogManager):
         new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
             await self.show()
+
+    async def _process_launch_mode(
+        self,
+        old_dialog: Optional[DialogProtocol],
+        new_dialog: DialogProtocol,
+    ):
+        if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
+            await self.reset_stack(remove_keyboard=False)
+        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:
+            if new_dialog is old_dialog:
+                await self.storage().remove_context(self.current_stack().pop())
 
     async def next(self) -> None:
         context = self.current_context()

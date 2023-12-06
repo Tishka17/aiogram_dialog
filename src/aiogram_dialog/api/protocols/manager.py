@@ -5,6 +5,7 @@ from aiogram import Bot
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent, Context, Data, ShowMode, Stack, StartMode,
 )
 
@@ -25,6 +26,7 @@ class BaseDialogManager(Protocol):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         raise NotImplementedError
 

@@ -16,6 +16,7 @@ from aiogram_dialog import (
     BaseDialogManager, Dialog, DialogManager, DialogProtocol,
 )
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent,
     Context,
     Data,
@@ -151,6 +152,7 @@ class FakeManager(DialogManager):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: ShowMode = ShowMode.AUTO,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         self.set_state(state)
 

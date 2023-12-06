@@ -5,6 +5,7 @@ from aiogram.fsm.state import State
 from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent, Data, ShowMode, StartMode,
 )
 from aiogram_dialog.api.entities import Context, Stack
@@ -107,11 +108,18 @@ class SubManager(DialogManager):
     async def mark_closed(self) -> None:
         await self.manager.mark_closed()
 
-    async def start(self, state: State, data: Data = None,
-                    mode: StartMode = StartMode.NORMAL,
-                    show_mode: Optional[ShowMode] = None) -> None:
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+            show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
+    ) -> None:
         await self.manager.start(
-            state=state, data=data, mode=mode, show_mode=show_mode,
+            state=state, data=data,
+            mode=mode, show_mode=show_mode,
+            access_settings=access_settings,
         )
 
     async def switch_to(

@@ -6,6 +6,7 @@ from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     Data,
     DEFAULT_STACK_ID,
     DialogAction,
@@ -130,6 +131,7 @@ class BgManager(BaseDialogManager):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -139,6 +141,7 @@ class BgManager(BaseDialogManager):
                 new_state=state,
                 mode=mode,
                 show_mode=show_mode,
+                access_settings=access_settings,
                 **self._base_event_params(),
             ),
         )
