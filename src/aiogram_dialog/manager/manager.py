@@ -423,7 +423,7 @@ class ManagerImpl(DialogManager):
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
-        if self.middleware_data["event_chat"].type == ChatType.GROUP:
+        if self.middleware_data["event_chat"].type != ChatType.PRIVATE:
             return ShowMode.EDIT
         if self.current_stack().last_reply_keyboard:
             return ShowMode.DELETE_AND_SEND
