@@ -113,6 +113,7 @@ class Window(WindowProtocol):
         try:
             return NewMessage(
                 chat=chat,
+                thread_id=manager.middleware_data.get("event_thread_id"),
                 text=await self.render_text(current_data, manager),
                 reply_markup=await self.render_kbd(current_data, manager),
                 parse_mode=self.parse_mode,

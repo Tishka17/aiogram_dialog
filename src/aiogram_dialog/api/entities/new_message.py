@@ -31,6 +31,7 @@ class OldMessage:
 @dataclass
 class NewMessage:
     chat: Chat
+    thread_id: Optional[int] = None
     text: Optional[str] = None
     reply_markup: Optional[MarkupVariant] = None
     parse_mode: Optional[str] = None
