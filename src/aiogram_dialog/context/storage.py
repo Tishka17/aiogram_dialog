@@ -54,7 +54,7 @@ class StorageProxy:
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
 
         access_settings = self._parse_access_settings(
-            data.pop("access_settings"),
+            data.pop("access_settings", None),
         )
         return Stack(access_settings=access_settings, **data)
 
