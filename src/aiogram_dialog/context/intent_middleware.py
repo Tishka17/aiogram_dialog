@@ -3,6 +3,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
+from aiogram.fsm.storage.base import BaseEventIsolation
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
 
@@ -30,15 +31,18 @@ class IntentMiddlewareFactory:
             self,
             registry: DialogRegistryProtocol,
             access_validator: StackAccessValidator,
+            events_isolation: BaseEventIsolation,
     ):
         super().__init__()
         self.registry = registry
         self.access_validator = access_validator
+        self.events_isolation = events_isolation
 
     def storage_proxy(self, data: dict):
         proxy = StorageProxy(
             bot=data["bot"],
             storage=data["fsm_storage"],
+            events_isolation=self.events_isolation,
             state_groups=self.registry.state_groups(),
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
@@ -76,6 +80,7 @@ class IntentMiddlewareFactory:
                 "Stack %s is not allowed for user %s",
                 stack.id, user.id,
             )
+            await proxy.unlock()
             return
         return stack
 
@@ -257,11 +262,16 @@ SUPPORTED_ERROR_EVENTS = {
 
 
 async def context_saver_middleware(handler, event, data):
-    result = await handler(event, data)
-    proxy: StorageProxy = data.pop(STORAGE_KEY, None)
-    if proxy:
-        await proxy.save_context(data.pop(CONTEXT_KEY))
-        await proxy.save_stack(data.pop(STACK_KEY))
+    proxy: StorageProxy = data.get(STORAGE_KEY, None)
+    try:
+        result = await handler(event, data)
+        proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+        if proxy:
+            await proxy.save_context(data.pop(CONTEXT_KEY))
+            await proxy.save_stack(data.pop(STACK_KEY))
+    finally:
+        if proxy:
+            await proxy.unlock()
     return result
 
 
@@ -269,9 +279,11 @@ class IntentErrorMiddleware(BaseMiddleware):
     def __init__(
             self,
             registry: DialogRegistryProtocol,
+            events_isolation: BaseEventIsolation,
     ):
         super().__init__()
         self.registry = registry
+        self.events_isolation = events_isolation
 
     def _is_error_supported(
             self, event: ErrorEvent, data: Dict[str, Any],
@@ -326,6 +338,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             proxy = StorageProxy(
                 bot=data["bot"],
                 storage=data["fsm_storage"],
+                events_isolation=self.events_isolation,
                 user_id=user.id,
                 chat_id=chat.id,
                 thread_id=data.get("event_thread_id"),
@@ -348,6 +361,7 @@ class IntentErrorMiddleware(BaseMiddleware):
         finally:
             proxy: StorageProxy = data.pop(STORAGE_KEY, None)
             if proxy:
+                await proxy.unlock()
                 context = data.pop(CONTEXT_KEY)
                 if context is not None:
                     await proxy.save_context(context)

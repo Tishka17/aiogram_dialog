@@ -3,6 +3,8 @@ from typing import Callable, Dict, Iterable, Optional, Type, Union
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.fsm.state import any_state, State, StatesGroup
+from aiogram.fsm.storage.base import BaseEventIsolation
+from aiogram.fsm.storage.memory import SimpleEventIsolation
 
 from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
@@ -88,6 +90,7 @@ def _register_middleware(
         dialog_manager_factory: DialogManagerFactory,
         bg_manager_factory: BgManagerFactory,
         stack_access_validator: StackAccessValidator,
+        events_isolation: BaseEventIsolation,
 ):
     registry = DialogRegistry(router)
     manager_middleware = ManagerMiddleware(
@@ -96,13 +99,18 @@ def _register_middleware(
         registry=registry,
     )
     intent_middleware = IntentMiddlewareFactory(
-        registry=registry, access_validator=stack_access_validator,
+        registry=registry,
+        access_validator=stack_access_validator,
+        events_isolation=events_isolation,
     )
     # delayed configuration of middlewares
     router.startup.register(_startup_callback(registry))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
-    router.errors.middleware(IntentErrorMiddleware(registry=registry))
+    router.errors.middleware(IntentErrorMiddleware(
+        registry=registry,
+        events_isolation=events_isolation,
+    ))
 
     router.message.middleware(manager_middleware)
     router.callback_query.middleware(manager_middleware)
@@ -162,6 +170,15 @@ def _prepare_stack_access_validator(
         return DefaultAccessValidator()
 
 
+def _prepare_events_isolation(
+        events_isolation: Optional[BaseEventIsolation],
+) -> BaseEventIsolation:
+    if events_isolation:
+        return events_isolation
+    else:
+        return SimpleEventIsolation()
+
+
 def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
     if isinstance(router, DialogProtocol):
         yield router
@@ -180,6 +197,7 @@ def setup_dialogs(
         message_manager: Optional[MessageManagerProtocol] = None,
         media_id_storage: Optional[MediaIdStorageProtocol] = None,
         stack_access_validator: Optional[StackAccessValidator] = None,
+        events_isolation: Optional[BaseEventIsolation] = None,
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
@@ -193,11 +211,13 @@ def setup_dialogs(
     stack_access_validator = _prepare_stack_access_validator(
         stack_access_validator,
     )
+    events_isolation = _prepare_events_isolation(events_isolation)
     bg_manager_factory = BgManagerFactoryImpl(router)
     _register_middleware(
         router=router,
         dialog_manager_factory=dialog_manager_factory,
         bg_manager_factory=bg_manager_factory,
         stack_access_validator=stack_access_validator,
+        events_isolation=events_isolation
     )
     return bg_manager_factory

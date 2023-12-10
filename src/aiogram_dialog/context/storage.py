@@ -1,10 +1,12 @@
+from contextlib import AsyncExitStack
 from copy import copy
 from typing import Dict, Optional, Type
 
 from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.base import BaseStorage, StorageKey
+from aiogram.fsm.storage.base import BaseStorage, StorageKey, \
+    BaseEventIsolation
 
 from aiogram_dialog.api.entities import (
     AccessSettings, Context, DEFAULT_STACK_ID, Stack,
@@ -12,10 +14,12 @@ from aiogram_dialog.api.entities import (
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
 
+
 class StorageProxy:
     def __init__(
             self,
             storage: BaseStorage,
+            events_isolation: BaseEventIsolation,
             user_id: Optional[int],
             chat_id: int,
             thread_id: Optional[int],
@@ -23,11 +27,21 @@ class StorageProxy:
             state_groups: Dict[str, Type[StatesGroup]],
     ):
         self.storage = storage
+        self.events_isolation = events_isolation
         self.state_groups = state_groups
         self.user_id = user_id
         self.chat_id = chat_id
         self.thread_id = thread_id
         self.bot = bot
+        self.lock_stack = AsyncExitStack()
+
+    async def lock(self, key: StorageKey):
+        await self.lock_stack.enter_async_context(
+            self.events_isolation.lock(key),
+        )
+
+    async def unlock(self):
+        await self.lock_stack.aclose()
 
     async def load_context(self, intent_id: str) -> Context:
         data = await self.storage.get_data(
@@ -48,7 +62,9 @@ class StorageProxy:
 
     async def load_stack(self, stack_id: str = DEFAULT_STACK_ID) -> Stack:
         fixed_stack_id = self._fixed_stack_id(stack_id)
-        data = await self.storage.get_data(self._stack_key(fixed_stack_id))
+        key = self._stack_key(fixed_stack_id)
+        await self.lock(key)
+        data = await self.storage.get_data(key)
         if not data:
             access_settings = self._default_access_settings(stack_id)
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
