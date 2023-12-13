@@ -32,8 +32,6 @@ class MediaAttachment:
             raise ValueError("Neither url nor path not file_id are provided")
         self.type = type
         self.url = url
-        if isinstance(path, Path):
-            path = path
         self.path = path
         self.file_id = file_id
         self.use_pipe = use_pipe
