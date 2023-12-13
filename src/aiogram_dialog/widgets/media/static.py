@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional, Union
 
 from aiogram.types import ContentType
@@ -13,7 +14,7 @@ class StaticMedia(Media):
     def __init__(
             self,
             *,
-            path: Union[Text, str, None] = None,
+            path: Union[Text, str, Path, None] = None,
             url: Union[Text, str, None] = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
@@ -24,6 +25,8 @@ class StaticMedia(Media):
         if not (url or path):
             raise ValueError("Neither url nor path are provided")
         self.type = type
+        if isinstance(path, Path):
+            path = str(path)
         if isinstance(path, str):
             path = Const(path)
         self.path = path
