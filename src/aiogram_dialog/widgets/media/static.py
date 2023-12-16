@@ -26,8 +26,8 @@ class StaticMedia(Media):
             raise ValueError("Neither url nor path are provided")
         self.type = type
         if isinstance(path, Path):
-            path = str(path)
-        if isinstance(path, str):
+            path = Const(str(path))
+        elif isinstance(path, str):
             path = Const(path)
         self.path = path
         if isinstance(url, str):
