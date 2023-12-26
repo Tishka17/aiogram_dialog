@@ -44,6 +44,16 @@ class Text(Whenable, BaseWidget, TextWidget):
             other = Const(other)
         return Multi(other, self, sep="")
 
+    def __or__(self, other: Union["Text", str]):
+        if isinstance(other, str):
+            other = Const(other)
+        return Or(self, other)
+
+    def __ror__(self, other: Union["Text", str]):
+        if isinstance(other, str):
+            other = Const(other)
+        return Or(other, self)
+
     def find(self, widget_id: str) -> Optional["Text"]:
         # no reimplementation, just change return type
         return super().find(widget_id)
@@ -95,6 +105,45 @@ class Multi(Text):
             return Multi(other, *self.texts, sep="")
         else:
             return Multi(other, self, sep="")
+
+    def find(self, widget_id: str) -> Optional[Text]:
+        for text in self.texts:
+            if found := text.find(widget_id):
+                return found
+        return None
+
+
+class Or(Text):
+    def __init__(self, *texts: Text):
+        super().__init__()
+        self.texts = texts
+
+    async def _render_text(
+            self, data: Dict, manager: DialogManager,
+    ) -> str:
+        for text in self.texts:
+            res = await text.render_text(data, manager)
+            if res:
+                return res
+        return ""
+
+    def __ior__(self, other: Union[Text, str]) -> "Or":
+        if isinstance(other, str):
+            other = Const(other)
+        self.texts += (other,)
+        return self
+
+    def __or__(self, other: Union[Text, str]) -> "Or":
+        if isinstance(other, str):
+            other = Const(other)
+        # reduce nesting
+        return Or(*self.texts, other)
+
+    def __ror__(self, other: Union[Text, str]) -> "Or":
+        if isinstance(other, str):
+            return Const(other)
+        # reduce nesting
+        return Or(other, *self.texts)
 
     def find(self, widget_id: str) -> Optional[Text]:
         for text in self.texts:
