@@ -22,7 +22,7 @@ class DynamicMedia(Media):
             selector: Union[str, MediaSelector],
             when: WhenCondition = None,
     ):
-        super().__init__(when)
+        super().__init__(when=when)
         if isinstance(selector, str):
             self.selector: MediaSelector = itemgetter(selector)
         else:

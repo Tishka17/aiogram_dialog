@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
 from aiogram.types import ContentType
 
@@ -22,7 +23,7 @@ class MediaAttachment:
             self,
             type: ContentType,
             url: Optional[str] = None,
-            path: Optional[str] = None,
+            path: Union[str, Path, None] = None,
             file_id: Optional[MediaId] = None,
             use_pipe: bool = False,
             **kwargs,
