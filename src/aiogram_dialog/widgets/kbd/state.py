@@ -43,7 +43,7 @@ class SwitchTo(EventProcessorButton):
             state: State,
             on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
-            show_mode: ShowMode = None,
+            show_mode: ShowMode = ShowMode.AUTO,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -121,7 +121,7 @@ class Cancel(EventProcessorButton):
             result: Any = None,
             on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
-            show_mode: ShowMode = None,
+            show_mode: ShowMode = ShowMode.AUTO,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
