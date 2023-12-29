@@ -145,7 +145,7 @@ class Or(Text):
 
     def __ror__(self, other: Union[Text, str]) -> "Or":
         if isinstance(other, str):
-            return Const(other)
+            other = Const(other)
         # reduce nesting
         return Or(other, *self.texts)
 
