@@ -8,6 +8,8 @@ from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
+from aiogram_dialog import ShowMode
+
 from .button import Button, OnClick
 
 BACK_TEXT = Const("Back")
@@ -41,6 +43,7 @@ class SwitchTo(EventProcessorButton):
             state: State,
             on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
+            show_mode: ShowMode = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -49,6 +52,7 @@ class SwitchTo(EventProcessorButton):
         self.text = text
         self.user_on_click = on_click
         self.state = state
+        self.show_mode = show_mode
 
     async def _on_click(
             self, callback: CallbackQuery, button: Button,
@@ -56,7 +60,7 @@ class SwitchTo(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.switch_to(self.state)
+        await manager.switch_to(self.state, show_mode=self.show_mode)
 
 
 class Next(EventProcessorButton):
@@ -117,6 +121,7 @@ class Cancel(EventProcessorButton):
             result: Any = None,
             on_click: Optional[OnClick] = None,
             when: WhenCondition = None,
+            show_mode: ShowMode = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -125,6 +130,7 @@ class Cancel(EventProcessorButton):
         self.text = text
         self.result = result
         self.user_on_click = on_click
+        self.show_mode = show_mode
 
     async def _on_click(
             self, callback: CallbackQuery, button: Button,
@@ -132,7 +138,7 @@ class Cancel(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.done(self.result)
+        await manager.done(self.result, show_mode=self.show_mode)
 
 
 class Start(EventProcessorButton):
