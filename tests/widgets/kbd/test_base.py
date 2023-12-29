@@ -50,9 +50,9 @@ async def test_or(mock_manager):
 @pytest.mark.asyncio
 async def test_or_condition(mock_manager):
     text = (
-            Button("A", when=F["a"]) |
-            Button("B", when=F["b"]) |
-            Button("C")
+        Button("A", when=F["a"]) |
+        Button("B", when=F["b"]) |
+        Button("C")
     )
     res = await text.render_keyboard({"a": True}, mock_manager)
     assert res == [[KeyboardButton(text="A")]]
