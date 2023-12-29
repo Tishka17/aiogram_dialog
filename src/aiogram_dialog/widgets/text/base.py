@@ -37,6 +37,8 @@ class Text(Whenable, BaseWidget, TextWidget):
     def __add__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
+        elif isinstance(other, Multi):
+            return NotImplemented
         return Multi(self, other, sep="")
 
     def __radd__(self, other: Union["Text", str]):
@@ -47,6 +49,8 @@ class Text(Whenable, BaseWidget, TextWidget):
     def __or__(self, other: Union["Text", str]):
         if isinstance(other, str):
             other = Const(other)
+        elif isinstance(other, Or):
+            return NotImplemented
         return Or(self, other)
 
     def __ror__(self, other: Union["Text", str]):
@@ -141,7 +145,7 @@ class Or(Text):
 
     def __ror__(self, other: Union[Text, str]) -> "Or":
         if isinstance(other, str):
-            return Const(other)
+            other = Const(other)
         # reduce nesting
         return Or(other, *self.texts)
 
