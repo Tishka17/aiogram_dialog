@@ -36,3 +36,15 @@ class MediaAttachment:
         self.file_id = file_id
         self.use_pipe = use_pipe
         self.kwargs = kwargs
+
+    def __eq__(self, other):
+        if type(other) is not type(self):
+            return False
+        return (
+            self.type == other.type and
+            self.url == other.url and
+            self.path == other.path and
+            self.file_id == other.file_id and
+            self.use_pipe == other.use_pipe and
+            self.kwargs == other.kwargs
+        )

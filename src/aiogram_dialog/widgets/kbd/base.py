@@ -109,3 +109,46 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
         Can be used for layouts
         """
         return False
+
+    def __or__(self, other: "Keyboard") -> "Or":
+        # reduce nesting
+        if isinstance(other, Or):
+            return NotImplemented
+        return Or(self, other)
+
+    def __ror__(self, other: "Keyboard") -> "Or":
+        # reduce nesting
+        return Or(other, self)
+
+
+class Or(Keyboard):
+    def __init__(self, *widgets: Keyboard):
+        super().__init__()
+        self.widgets = widgets
+
+    async def _render_keyboard(
+            self, data: dict, manager: DialogManager,
+    ) -> RawKeyboard:
+        for widget in self.widgets:
+            res = await widget.render_keyboard(data, manager)
+            if res and any(res):
+                return res
+        return []
+
+    def __ior__(self, other: Keyboard) -> "Or":
+        self.widgets += (other,)
+        return self
+
+    def __or__(self, other: Keyboard) -> "Or":
+        # reduce nesting
+        return Or(*self.widgets, other)
+
+    def __ror__(self, other: Keyboard) -> "Or":
+        # reduce nesting
+        return Or(other, *self.widgets)
+
+    def find(self, widget_id: str) -> Optional[Keyboard]:
+        for text in self.widgets:
+            if found := text.find(widget_id):
+                return found
+        return None
