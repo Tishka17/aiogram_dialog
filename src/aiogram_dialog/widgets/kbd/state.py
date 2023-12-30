@@ -3,12 +3,11 @@ from typing import Any, Optional
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog.api.entities import ChatEvent, Data, StartMode
+from aiogram_dialog.api.entities import ChatEvent, Data, StartMode, ShowMode
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
-from aiogram_dialog import ShowMode
 
 from .button import Button, OnClick
 
