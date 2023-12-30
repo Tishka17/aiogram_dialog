@@ -218,6 +218,6 @@ def setup_dialogs(
         dialog_manager_factory=dialog_manager_factory,
         bg_manager_factory=bg_manager_factory,
         stack_access_validator=stack_access_validator,
-        events_isolation=events_isolation
+        events_isolation=events_isolation,
     )
     return bg_manager_factory

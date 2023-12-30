@@ -67,15 +67,16 @@ class IntentMiddlewareFactory:
 
     async def _load_stack(
             self,
+            event: ChatEvent,
             stack_id: Optional[str],
             proxy: StorageProxy,
-            user: User,
-            chat: Chat,
+            data: dict,
     ) -> Optional[Stack]:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
         stack = await proxy.load_stack(stack_id)
-        if not await self.access_validator.is_allowed(stack, user, chat):
+        if not await self.access_validator.is_allowed(stack, event, data):
+            user = data["event_from_user"]
             logger.debug(
                 "Stack %s is not allowed for user %s",
                 stack.id, user.id,
@@ -86,6 +87,7 @@ class IntentMiddlewareFactory:
 
     async def _load_context_by_stack(
             self,
+            event: ChatEvent,
             proxy: StorageProxy,
             stack_id: Optional[str],
             data: dict,
@@ -96,7 +98,7 @@ class IntentMiddlewareFactory:
             "Loading context for stack: `%s`, user: `%s`, chat: `%s`",
             stack_id, user.id, chat.id,
         )
-        stack = await self._load_stack(stack_id, proxy, user, chat)
+        stack = await self._load_stack(event, stack_id, proxy, data)
         if not stack:
             return
         if stack.empty():
@@ -109,6 +111,7 @@ class IntentMiddlewareFactory:
 
     async def _load_context_by_intent(
             self,
+            event: ChatEvent,
             proxy: StorageProxy,
             intent_id: Optional[str],
             data: dict,
@@ -120,7 +123,7 @@ class IntentMiddlewareFactory:
             intent_id, user.id, chat.id,
         )
         context = await proxy.load_context(intent_id)
-        stack = await self._load_stack(context.stack_id, proxy, user, chat)
+        stack = await self._load_stack(event, context.stack_id, proxy, data)
         if not stack:
             return
         self._check_outdated(intent_id, stack)
@@ -133,6 +136,7 @@ class IntentMiddlewareFactory:
             self, event: ChatEvent, data: dict,
     ) -> None:
         return await self._load_context_by_stack(
+            event=event,
             proxy=self.storage_proxy(data),
             stack_id=DEFAULT_STACK_ID,
             data=data,
@@ -182,6 +186,7 @@ class IntentMiddlewareFactory:
 
         if intent_id := self._intent_id_from_reply(event, data):
             await self._load_context_by_intent(
+                event=event,
                 proxy=self.storage_proxy(data),
                 intent_id=intent_id,
                 data=data,
@@ -216,12 +221,14 @@ class IntentMiddlewareFactory:
     ):
         if event.intent_id:
             await self._load_context_by_intent(
+                event=event,
                 proxy=self.storage_proxy(data),
                 intent_id=event.intent_id,
                 data=data,
             )
         else:
             await self._load_context_by_stack(
+                event=event,
                 proxy=self.storage_proxy(data),
                 stack_id=event.stack_id,
                 data=data,
@@ -241,6 +248,7 @@ class IntentMiddlewareFactory:
             intent_id, callback_data = remove_indent_id(event.data)
             if intent_id:
                 await self._load_context_by_intent(
+                    event=event,
                     proxy=self.storage_proxy(data),
                     intent_id=intent_id,
                     data=data,

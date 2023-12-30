@@ -5,14 +5,14 @@ from typing import Dict, Optional, Type
 from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.base import BaseStorage, StorageKey, \
-    BaseEventIsolation
+from aiogram.fsm.storage.base import (
+    BaseEventIsolation, BaseStorage, StorageKey,
+)
 
 from aiogram_dialog.api.entities import (
     AccessSettings, Context, DEFAULT_STACK_ID, Stack,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
-
 
 
 class StorageProxy:
