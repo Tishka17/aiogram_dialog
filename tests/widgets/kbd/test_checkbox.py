@@ -1,29 +1,10 @@
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
-from aiogram.fsm.state import State
 from aiogram.types import TelegramObject
 
-from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import Context
 from aiogram_dialog.widgets.kbd import Checkbox
 from aiogram_dialog.widgets.text import Const
-
-
-@pytest.fixture()
-def mock_manager() -> DialogManager:
-    manager = Mock()
-    context = Context(
-        dialog_data={},
-        start_data={},
-        widget_data={},
-        state=State(),
-        _stack_id="_stack_id",
-        _intent_id="_intent_id",
-    )
-    manager.current_context = Mock(side_effect=lambda: context)
-
-    return manager
 
 
 @pytest.mark.asyncio
