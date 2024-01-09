@@ -1,10 +1,9 @@
-import itertools
 import operator
 from unittest.mock import AsyncMock, Mock
 
 import pytest
 from aiogram.fsm.state import State
-from aiogram.types import InlineKeyboardButton, TelegramObject
+from aiogram.types import TelegramObject
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import Context
@@ -137,13 +136,9 @@ async def test_render_multiselect(mock_manager) -> None:
 
     keyboard = await multiselect.render_keyboard(data={}, manager=mock_manager)
 
-    buttons: list[InlineKeyboardButton] = list(
-        itertools.chain.from_iterable(keyboard),
-    )
-
     await multiselect.set_checked(TelegramObject(), "1", True, mock_manager)
     await multiselect.set_checked(TelegramObject(), "3", True, mock_manager)
 
-    assert buttons[0].text == "✓ Apple"
-    assert buttons[1].text == "Banana"
-    assert buttons[2].text == "✓ Orange"
+    assert keyboard[0][0].text == "✓ Apple"
+    assert keyboard[0][1].text == "Banana"
+    assert keyboard[0][2].text == "✓ Orange"

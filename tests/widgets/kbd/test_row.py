@@ -35,6 +35,8 @@ async def test_render_row(mock_manager) -> None:
 
     keyboard = await row.render_keyboard(data={}, manager=mock_manager)
 
+    assert len(keyboard) == 1
+
     assert len(keyboard[0]) == 3
 
     assert keyboard[0][0].text == "1"

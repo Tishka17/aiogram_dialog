@@ -1,9 +1,7 @@
-import itertools
 from unittest.mock import Mock
 
 import pytest
 from aiogram.fsm.state import State
-from aiogram.types import InlineKeyboardButton
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import Context
@@ -37,12 +35,13 @@ async def test_render_column(mock_manager) -> None:
 
     keyboard = await column.render_keyboard(data={}, manager=mock_manager)
 
-    buttons: list[InlineKeyboardButton] = list(
-        itertools.chain.from_iterable(keyboard),
-    )
+    assert len(keyboard) == 3
 
-    assert len(buttons) == 3
+    assert len(keyboard[0]) == 1
+    assert keyboard[0][0].text == "1"
 
-    assert buttons[0].text == "1"
-    assert buttons[1].text == "2"
-    assert buttons[2].text == "3"
+    assert len(keyboard[1]) == 1
+    assert keyboard[1][0].text == "2"
+
+    assert len(keyboard[2]) == 1
+    assert keyboard[2][0].text == "3"
