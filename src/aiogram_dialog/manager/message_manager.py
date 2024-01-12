@@ -353,6 +353,7 @@ class MessageManager(MessageManagerProtocol):
         return await bot.send_message(
             new_message.chat.id,
             text=new_message.text,
+            message_thread_id=new_message.thread_id,
             disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
@@ -372,6 +373,7 @@ class MessageManager(MessageManagerProtocol):
         return await method(
             new_message.chat.id,
             await self.get_media_source(new_message.media, bot),
+            message_thread_id=new_message.thread_id,
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
