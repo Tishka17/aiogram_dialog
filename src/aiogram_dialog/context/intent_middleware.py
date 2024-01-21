@@ -37,7 +37,7 @@ class IntentMiddlewareFactory:
             storage=data["fsm_storage"],
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
-            state_groups=self.registry.state_groups(),
+            state_groups=self.registry.states_groups(),
         )
         return proxy
 
@@ -266,7 +266,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                 storage=data["fsm_storage"],
                 user_id=user.id,
                 chat_id=chat.id,
-                state_groups=self.registry.state_groups(),
+                state_groups=self.registry.states_groups(),
             )
             data[STORAGE_KEY] = proxy
             if isinstance(error, OutdatedIntent):
