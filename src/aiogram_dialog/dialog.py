@@ -24,7 +24,7 @@ from aiogram_dialog.api.protocols import (
     DialogManager, DialogProtocol,
 )
 from .context.intent_filter import IntentFilter
-from .utils import remove_indent_id
+from .utils import remove_intent_id
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
 
@@ -139,7 +139,7 @@ class Dialog(Router, DialogProtocol):
             dialog_manager: DialogManager,
     ):
         old_context = dialog_manager.current_context()
-        intent_id, callback_data = remove_indent_id(callback.data)
+        intent_id, callback_data = remove_intent_id(callback.data)
         cleaned_callback = callback.model_copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         await window.process_callback(cleaned_callback, self, dialog_manager)
