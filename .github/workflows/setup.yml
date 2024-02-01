@@ -17,6 +17,8 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - windows-latest
+          - macos-latest
         python-version:
           - "3.8"
           - "3.9"
@@ -38,6 +40,7 @@ jobs:
           pip install . -r requirements_dev.txt
 
       - name: Run flake8
+        if: ${{ matrix.python-version }} != "3.12"
         run: |
           python -m flake8 src/aiogram_dialog tests
 
