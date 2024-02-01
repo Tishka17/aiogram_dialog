@@ -127,7 +127,7 @@ class Window(WindowProtocol):
         return self.state
 
     def find(self, widget_id) -> Optional[Widget]:
-        for root in (self.text, self.keyboard, self.on_message):
+        for root in (self.text, self.keyboard, self.on_message, self.media):
             if root:
                 if found := root.find(widget_id):
                     return found

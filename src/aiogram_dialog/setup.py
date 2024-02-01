@@ -43,7 +43,7 @@ class DialogRegistry(DialogRegistryProtocol):
         self.router = router
         self._loaded = False
         self._dialogs = {}
-        self._state_groups = {}
+        self._states_groups = {}
 
     def _ensure_loaded(self):
         if not self._loaded:
@@ -59,14 +59,14 @@ class DialogRegistry(DialogRegistryProtocol):
                 f" (looking by state `{state}`)",
             ) from e
 
-    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
         self._ensure_loaded()
-        return self._state_groups
+        return self._states_groups
 
     def refresh(self):
         dialogs = collect_dialogs(self.router)
         self._dialogs = {d.states_group(): d for d in dialogs}
-        self._state_groups = {
+        self._states_groups = {
             d.states_group_name(): d.states_group()
             for d in self._dialogs.values()
         }
