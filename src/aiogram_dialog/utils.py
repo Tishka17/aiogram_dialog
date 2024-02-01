@@ -165,7 +165,7 @@ def intent_callback_data(
     return prefix + callback_data
 
 
-def add_indent_id(keyboard: RawKeyboard, intent_id: str):
+def add_intent_id(keyboard: RawKeyboard, intent_id: str):
     for row in keyboard:
         for button in row:
             if isinstance(button, InlineKeyboardButton):
@@ -174,7 +174,7 @@ def add_indent_id(keyboard: RawKeyboard, intent_id: str):
                 )
 
 
-def remove_indent_id(callback_data: str) -> Tuple[Optional[str], str]:
+def remove_intent_id(callback_data: str) -> Tuple[Optional[str], str]:
     if CB_SEP in callback_data:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data

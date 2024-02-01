@@ -12,5 +12,5 @@ class DialogRegistryProtocol(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
         raise NotImplementedError
