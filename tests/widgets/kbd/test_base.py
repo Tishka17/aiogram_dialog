@@ -1,31 +1,11 @@
-from unittest.mock import Mock
-
 import pytest
 from aiogram import F
-from aiogram.fsm.state import State
 from aiogram.types import KeyboardButton
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import Context
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
-
-
-@pytest.fixture()
-def mock_manager() -> DialogManager:
-    manager = Mock()
-    context = Context(
-        dialog_data={},
-        start_data={},
-        widget_data={},
-        state=State(),
-        _stack_id="_stack_id",
-        _intent_id="_intent_id",
-    )
-    manager.current_context = Mock(side_effect=lambda: context)
-
-    return manager
 
 
 class Button(Keyboard):
