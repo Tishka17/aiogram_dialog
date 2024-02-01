@@ -1,10 +1,9 @@
 vulture
-flake8==3.*
+flake8==7.*
 flake8-blind-except
 flake8-bugbear
 flake8-builtins
 flake8-cognitive-complexity
-flake8-commas
 flake8-comprehensions
 flake8-docstrings
 flake8-eradicate
