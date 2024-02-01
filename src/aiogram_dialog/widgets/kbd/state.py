@@ -7,8 +7,8 @@ from aiogram_dialog.api.entities import ChatEvent, Data, ShowMode, StartMode
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
-from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 from aiogram_dialog.widgets.kbd.button import Button, OnClick
+from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 
 BACK_TEXT = Const("Back")
 NEXT_TEXT = Const("Next")
