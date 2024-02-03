@@ -25,7 +25,7 @@ class Bg(StatesGroup):
 
 async def get_bg_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "progress": dialog_manager.dialog_data.get("progress", 0)
+        "progress": dialog_manager.dialog_data.get("progress", 0),
     }
 
 

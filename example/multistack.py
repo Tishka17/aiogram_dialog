@@ -36,7 +36,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
             ("Pear", 2),
             ("Orange", 3),
             ("Banana", 4),
-        ]
+        ],
     }
 
 

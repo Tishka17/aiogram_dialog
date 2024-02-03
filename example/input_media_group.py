@@ -10,7 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.api.entities import MediaAttachment, MediaId
 from aiogram_dialog.widgets.common import ManagedScroll
@@ -70,7 +70,7 @@ dialog = Dialog(Window(
     StubScroll(id="pages", pages="media_count"),
     Group(
         NumberedPager(scroll="pages", when=F["pages"] > 1),
-        width=8
+        width=8,
     ),
     Button(Format("🗑️ Delete photo #{media_number}"), id="del",
            on_click=on_delete, when="media_count"),

@@ -36,5 +36,5 @@ multiwidget_dialog = Dialog(
         ),
         MAIN_MENU_BUTTON,
         state=states.Multiwidget.MAIN,
-    )
+    ),
 )

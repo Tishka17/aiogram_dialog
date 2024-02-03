@@ -18,7 +18,7 @@ from i18n_format import I18NFormat
 from i18n_middleware import I18nMiddleware
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import Button, Cancel, Row
 
@@ -43,7 +43,7 @@ dialog = Dialog(
         ),
         getter=get_data,
         state=DialogSG.greeting,
-    )
+    ),
 )
 
 DEFAULT_LOCALE = "en"

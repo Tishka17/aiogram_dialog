@@ -36,14 +36,14 @@ def when_checked(data: Dict, widget, manager: SubManager) -> bool:
 async def data_getter(*args, **kwargs):
     return {
         "fruits": ["mango", "papaya", "kiwi"],
-        "colors": ["blue", "pink"]
+        "colors": ["blue", "pink"],
     }
 
 
 dialog = Dialog(
     Window(
         Const(
-            "Hello, please check you options for each item:"
+            "Hello, please check you options for each item:",
         ),
         ListGroup(
             Checkbox(
@@ -62,7 +62,7 @@ dialog = Dialog(
                     # items=F["data"]["colors"],  # noqa: E800
                     # items=lambda d: d["data"]["colors"],  # noqa: E800
                     when=when_checked,
-                )
+                ),
             ),
             id="lg",
             item_id_getter=str,
@@ -72,9 +72,9 @@ dialog = Dialog(
             # items=lambda d: d["fruits"],  # noqa: E800
         ),
         state=DialogSG.greeting,
-        getter=data_getter
+        getter=data_getter,
     ),
-    launch_mode=LaunchMode.SINGLE_TOP
+    launch_mode=LaunchMode.SINGLE_TOP,
 )
 
 

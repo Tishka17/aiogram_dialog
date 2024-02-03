@@ -35,5 +35,5 @@ reply_kbd_dialog = Dialog(
             resize_keyboard=True,
         ),
         state=states.ReplyKeyboard.MAIN,
-    )
+    ),
 )

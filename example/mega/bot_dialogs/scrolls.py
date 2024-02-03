@@ -243,7 +243,7 @@ sync_scroll_window = Window(
         width=1,
         height=10,
         id=ID_SYNC_SCROLL,
-        on_page_changed=sync_scroll(ID_LIST_SCROLL)
+        on_page_changed=sync_scroll(ID_LIST_SCROLL),
     ),
     SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.SYNC,

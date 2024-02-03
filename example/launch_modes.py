@@ -34,7 +34,7 @@ banner = Dialog(
         Const("BANNER IS HERE"),
         Start(Const("Try start"), id="start", state=MainSG.default),
         Cancel(),
-        state=BannerSG.default
+        state=BannerSG.default,
     ),
     launch_mode=LaunchMode.EXCLUSIVE,
 )
@@ -43,7 +43,7 @@ main_menu = Dialog(
         Const("This is main menu"),
         Start(Const("Product"), id="product", state=Product.show),
         Cancel(),
-        state=MainSG.default
+        state=MainSG.default,
     ),
     # we do not worry about resetting stack
     # each time we start dialog with ROOT launch mode
@@ -67,7 +67,7 @@ product = Dialog(
         ),
         Cancel(),
         getter=product_getter,
-        state=Product.show
+        state=Product.show,
     ),
     # when this dialog is on top and tries to launch a copy
     # it just replaces himself with it

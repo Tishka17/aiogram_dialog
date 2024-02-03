@@ -85,7 +85,7 @@ dialog = Dialog(
             "<b>Опции</b>: \n"
             "{% for item in options %}"
             "• {{item}}\n"
-            "{% endfor %}"
+            "{% endfor %}",
         ),
         SwitchTo(
             Const("Изменить название"),

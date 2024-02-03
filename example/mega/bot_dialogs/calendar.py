@@ -79,7 +79,7 @@ class CustomCalendar(Calendar):
 async def on_date_clicked(
         callback: ChatEvent, widget: ManagedCalendar,
         manager: DialogManager,
-        selected_date: date, /
+        selected_date: date, /,
 ):
     await callback.answer(str(selected_date))
 
@@ -87,7 +87,7 @@ async def on_date_clicked(
 async def on_date_selected(
         callback: ChatEvent, widget: ManagedCalendar,
         manager: DialogManager,
-        clicked_date: date, /
+        clicked_date: date, /,
 ):
     selected = manager.dialog_data.setdefault(SELECTED_DAYS_KEY, [])
     serial_date = clicked_date.isoformat()
@@ -100,7 +100,7 @@ async def on_date_selected(
 async def selection_getter(dialog_manager, **_):
     selected = dialog_manager.dialog_data.get(SELECTED_DAYS_KEY, [])
     return {
-        "selected": ", ".join(sorted(selected))
+        "selected": ", ".join(sorted(selected)),
     }
 
 
@@ -113,12 +113,12 @@ calendar_dialog = Dialog(
         SwitchTo(
             Const("Default"),
             id="default",
-            state=states.Calendar.DEFAULT
+            state=states.Calendar.DEFAULT,
         ),
         SwitchTo(
             Const("Customized"),
             id="custom",
-            state=states.Calendar.CUSTOM
+            state=states.Calendar.CUSTOM,
         ),
         MAIN_MENU_BUTTON,
         state=states.Calendar.MAIN,
