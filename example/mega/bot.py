@@ -28,7 +28,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 
 async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
-    """Example of handling UnknownIntent Error and starting new dialog."""  # noqa: D401, E501
+    # Example of handling UnknownIntent Error and starting new dialog.
     logging.error("Restarting dialog: %s", event.exception)
     if event.update.callback_query:
         await event.update.callback_query.answer(

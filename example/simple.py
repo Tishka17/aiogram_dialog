@@ -118,7 +118,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 
 async def on_unknown_intent(event, dialog_manager: DialogManager):
-    """Example of handling UnknownIntent Error and starting new dialog."""  # noqa: D401, E501
+    # Example of handling UnknownIntent Error and starting new dialog.
     logging.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
         DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
@@ -126,7 +126,7 @@ async def on_unknown_intent(event, dialog_manager: DialogManager):
 
 
 async def on_unknown_state(event, dialog_manager: DialogManager):
-    """Example of handling UnknownState Error and starting new dialog."""  # noqa: D401, E501
+    # Example of handling UnknownState Error and starting new dialog.
     logging.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
         DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
