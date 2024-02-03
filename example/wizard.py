@@ -2,12 +2,14 @@ import asyncio
 import logging
 import os
 
-from aiogram import Dispatcher, Bot, F
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
-from aiogram_dialog import Window, Dialog, DialogManager, StartMode, setup_dialogs
+from aiogram_dialog import (
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+)
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Checkbox, Next, SwitchTo
 from aiogram_dialog.widgets.text import Const, Jinja
@@ -85,9 +87,18 @@ dialog = Dialog(
             "• {{item}}\n"
             "{% endfor %}"
         ),
-        SwitchTo(Const("Изменить название"), state=Wizard.title, id="to_title"),
-        SwitchTo(Const("Изменить описание"), state=Wizard.description, id="to_desc"),
-        SwitchTo(Const("Изменить опции"), state=Wizard.options, id="to_opts"),
+        SwitchTo(
+            Const("Изменить название"),
+            state=Wizard.title, id="to_title",
+        ),
+        SwitchTo(
+            Const("Изменить описание"),
+            state=Wizard.description, id="to_desc",
+        ),
+        SwitchTo(
+            Const("Изменить опции"),
+            state=Wizard.options, id="to_opts",
+        ),
         state=Wizard.preview,
         getter=result_getter,
         parse_mode="html",

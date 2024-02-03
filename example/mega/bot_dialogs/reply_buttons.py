@@ -1,8 +1,9 @@
 from aiogram_dialog import (
     Dialog, Window,
 )
-from aiogram_dialog.widgets.kbd import Checkbox, Radio, Counter, Multiselect, \
-    RequestContact, RequestLocation, Row
+from aiogram_dialog.widgets.kbd import (
+    Checkbox, Radio, RequestContact, RequestLocation, Row,
+)
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.text import Const, Format
 from . import states

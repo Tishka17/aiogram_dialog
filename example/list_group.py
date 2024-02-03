@@ -5,18 +5,16 @@ from typing import Dict
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
-from magic_filter import F
 
 from aiogram_dialog import (
-    Dialog, LaunchMode, SubManager, Window, DialogManager, StartMode,
-    setup_dialogs,
+    Dialog, DialogManager, LaunchMode, setup_dialogs, StartMode, SubManager,
+    Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    Row, Checkbox, Radio, ManagedCheckbox,
-    ListGroup,
+    Checkbox, ListGroup, ManagedCheckbox, Radio, Row,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -61,8 +59,8 @@ dialog = Dialog(
                     item_id_getter=str,
                     items=["black", "white"],
                     # Alternatives:
-                        #items=F["data"]["colors"],
-                        #items=lambda d: d["data"]["colors"],
+                    # items=F["data"]["colors"],  # noqa: E800
+                    # items=lambda d: d["data"]["colors"],  # noqa: E800
                     when=when_checked,
                 )
             ),
@@ -70,8 +68,8 @@ dialog = Dialog(
             item_id_getter=str,
             items=["apple", "orange", "pear"],
             # Alternatives:
-                #items=F["fruits"],
-                #items=lambda d: d["fruits"],
+            # items=F["fruits"],  # noqa: E800
+            # items=lambda d: d["fruits"],  # noqa: E800
         ),
         state=DialogSG.greeting,
         getter=data_getter

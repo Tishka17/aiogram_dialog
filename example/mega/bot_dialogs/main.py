@@ -1,11 +1,6 @@
-from aiogram_dialog import (
-    Dialog, Window, LaunchMode,
-)
+from aiogram_dialog import Dialog, LaunchMode, Window
 from aiogram_dialog.about import about_aiogram_dialog_button
-from aiogram_dialog.widgets.kbd import (
-    Start, Row, RequestContact, RequestLocation,
-)
-from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
+from aiogram_dialog.widgets.kbd import Start
 from aiogram_dialog.widgets.text import Const
 from . import states
 

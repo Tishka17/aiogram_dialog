@@ -4,12 +4,12 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    BaseDialogManager, Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    BaseDialogManager, Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress

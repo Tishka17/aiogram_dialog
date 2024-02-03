@@ -5,15 +5,14 @@ from typing import Any
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager, Window, StartMode,
-    setup_dialogs,
+    Data, Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
-from aiogram_dialog.tools import render_transitions, render_preview
+from aiogram_dialog.tools import render_preview, render_transitions
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back, Button, Cancel, Group, Next, Row, Start,

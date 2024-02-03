@@ -2,12 +2,9 @@ from datetime import date
 from typing import Dict
 
 from aiogram import F
-from aiogram.types import CallbackQuery
 from babel.dates import get_day_names, get_month_names
 
-from aiogram_dialog import (
-    Dialog, Window, DialogManager, ChatEvent,
-)
+from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
     Calendar, CalendarScope, ManagedCalendar, SwitchTo,
 )
@@ -15,7 +12,7 @@ from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarDaysView, CalendarMonthView, CalendarScopeView, CalendarYearsView,
     DATE_TEXT, TODAY_TEXT,
 )
-from aiogram_dialog.widgets.text import Const, Text, Format
+from aiogram_dialog.widgets.text import Const, Format, Text
 from . import states
 from .common import MAIN_MENU_BUTTON
 

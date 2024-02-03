@@ -11,13 +11,13 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    Dialog, DialogManager, setup_dialogs, StartMode, Window
 )
 from aiogram_dialog.widgets.kbd import (
     CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
     PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format, ScrollingText, List
+from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
 
 
 class DialogSG(StatesGroup):
@@ -57,7 +57,7 @@ Ea reprehenderit sunt aut voluptas vitae non iure consequatur. Aut repudiandae e
 Eum odit tenetur eum galisum accusamus aut nulla iusto qui eaque illum non voluptatem magni. Ut placeat facere ea voluptatem voluptatem quo quia cumque aut provident cupiditate qui fuga voluptatem. Ad libero voluptatem rem aliquid deserunt est consequuntur pariatur et sequi asperiores et nostrum assumenda. Nam quia voluptatem aut quidem velit At fugit voluptas sit dicta dolores quo ratione delectus nam consectetur temporibus.
 
 Id soluta voluptates a dolor amet est tempore modi et obcaecati dolor aut quae omnis. Qui nihil accusamus aut enim odit et ratione galisum cum assumenda sequi quo asperiores rerum et similique veniam non cumque ratione. Et nobis inventore aut facilis consequatur et commodi placeat eos quasi commodi non quis eligendi sit magnam consequatur et obcaecati Quis! Et expedita distinctio qui dolorum odio ut omnis tempore eos deserunt aspernatur vel sequi facilis.
-"""
+"""  # noqa: E501
 
 
 async def product_getter(**_kwargs):

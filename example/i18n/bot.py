@@ -1,7 +1,7 @@
 """
-This is example of i18n with aiogram-dialog
-To use it you need to install `fluent.runtime` package
+This is example of i18n with aiogram-dialog.
 
+To use it you need to install `fluent.runtime` package
 Translation files are located in `translations` directory
 """
 
@@ -11,16 +11,16 @@ import os.path
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
-from fluent.runtime import FluentResourceLoader, FluentLocalization
-
-from aiogram_dialog import (
-    Dialog, DialogManager, StartMode, setup_dialogs, Window,
-)
-from aiogram_dialog.widgets.kbd import Button, Cancel, Row
+from fluent.runtime import FluentLocalization, FluentResourceLoader
 from i18n_format import I18NFormat
 from i18n_middleware import I18nMiddleware
+
+from aiogram_dialog import (
+    Dialog, DialogManager, setup_dialogs, StartMode, Window
+)
+from aiogram_dialog.widgets.kbd import Button, Cancel, Row
 
 
 class DialogSG(StatesGroup):

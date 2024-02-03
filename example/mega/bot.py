@@ -6,20 +6,20 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, ErrorEvent, ReplyKeyboardRemove
-
-from aiogram_dialog import DialogManager, setup_dialogs, StartMode, ShowMode
-from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram.types import ErrorEvent, Message, ReplyKeyboardRemove
 from bot_dialogs import states
 from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.counter import counter_dialog
 from bot_dialogs.layouts import layouts_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.mutltiwidget import multiwidget_dialog
+from bot_dialogs.reply_buttons import reply_kbd_dialog
 from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
-from bot_dialogs.reply_buttons import reply_kbd_dialog
+
+from aiogram_dialog import DialogManager, setup_dialogs, ShowMode, StartMode
+from aiogram_dialog.api.exceptions import UnknownIntent
 
 
 async def start(message: Message, dialog_manager: DialogManager):
@@ -28,7 +28,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 
 async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
-    """Example of handling UnknownIntent Error and starting new dialog."""
+    """Example of handling UnknownIntent Error and starting new dialog."""  # noqa: D401, E501
     logging.error("Restarting dialog: %s", event.exception)
     if event.update.callback_query:
         await event.update.callback_query.answer(
@@ -65,6 +65,7 @@ dialog_router.include_routers(
     switch_dialog,
     reply_kbd_dialog,
 )
+
 
 def setup_dp():
     storage = MemoryStorage()
