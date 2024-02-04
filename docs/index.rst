@@ -2,15 +2,15 @@ aiogram-dialog
 =============================================
 
 .. toctree::
-   :caption: Contents:
+    :caption: Contents:
 
-   overview/index
-   quickstart/index
-   widgets/index
-   transitions/index
-   helper_tools/index
-   migration
-   faq
+    overview/index
+    quickstart/index
+    widgets/index
+    transitions/index
+    helper_tools/index
+    migration
+    faq
 
 .. toctree::
     :hidden:
