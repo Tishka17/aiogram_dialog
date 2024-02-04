@@ -1,10 +1,8 @@
 from typing import Any, Dict
 
-from aiogram_dialog import (
-    Dialog, Window, DialogManager,
-)
-from aiogram_dialog.widgets.kbd import Next, Row, Back, Checkbox, Radio
-from aiogram_dialog.widgets.text import Const, Format, Case
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.kbd import Back, Checkbox, Next, Radio, Row
+from aiogram_dialog.widgets.text import Case, Const, Format
 from . import states
 from .common import MAIN_MENU_BUTTON
 

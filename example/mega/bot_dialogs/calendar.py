@@ -2,12 +2,9 @@ from datetime import date
 from typing import Dict
 
 from aiogram import F
-from aiogram.types import CallbackQuery
 from babel.dates import get_day_names, get_month_names
 
-from aiogram_dialog import (
-    Dialog, Window, DialogManager, ChatEvent,
-)
+from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
     Calendar, CalendarScope, ManagedCalendar, SwitchTo,
 )
@@ -15,7 +12,7 @@ from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarDaysView, CalendarMonthView, CalendarScopeView, CalendarYearsView,
     DATE_TEXT, TODAY_TEXT,
 )
-from aiogram_dialog.widgets.text import Const, Text, Format
+from aiogram_dialog.widgets.text import Const, Format, Text
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -82,7 +79,7 @@ class CustomCalendar(Calendar):
 async def on_date_clicked(
         callback: ChatEvent, widget: ManagedCalendar,
         manager: DialogManager,
-        selected_date: date, /
+        selected_date: date, /,
 ):
     await callback.answer(str(selected_date))
 
@@ -90,7 +87,7 @@ async def on_date_clicked(
 async def on_date_selected(
         callback: ChatEvent, widget: ManagedCalendar,
         manager: DialogManager,
-        clicked_date: date, /
+        clicked_date: date, /,
 ):
     selected = manager.dialog_data.setdefault(SELECTED_DAYS_KEY, [])
     serial_date = clicked_date.isoformat()
@@ -103,7 +100,7 @@ async def on_date_selected(
 async def selection_getter(dialog_manager, **_):
     selected = dialog_manager.dialog_data.get(SELECTED_DAYS_KEY, [])
     return {
-        "selected": ", ".join(sorted(selected))
+        "selected": ", ".join(sorted(selected)),
     }
 
 
@@ -116,12 +113,12 @@ calendar_dialog = Dialog(
         SwitchTo(
             Const("Default"),
             id="default",
-            state=states.Calendar.DEFAULT
+            state=states.Calendar.DEFAULT,
         ),
         SwitchTo(
             Const("Customized"),
             id="custom",
-            state=states.Calendar.CUSTOM
+            state=states.Calendar.CUSTOM,
         ),
         MAIN_MENU_BUTTON,
         state=states.Calendar.MAIN,

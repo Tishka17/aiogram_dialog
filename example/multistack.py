@@ -6,12 +6,12 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
@@ -36,7 +36,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
             ("Pear", 2),
             ("Orange", 3),
             ("Banana", 4),
-        ]
+        ],
     }
 
 

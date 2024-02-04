@@ -2,11 +2,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from aiogram.types import CallbackQuery
-from magic_filter import F
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
-    SwitchTo, Select, Column, Radio, Multiselect, Toggle,
+    Column, Multiselect, Radio, Select, SwitchTo, Toggle,
 )
 from aiogram_dialog.widgets.text import Const, Format, List
 from . import states
@@ -41,7 +40,7 @@ async def getter(**_kwargs):
                 Fruit("pineapple_p", "Pineapple", "🍍"),
                 Fruit("kiwi_k", "Kiwi", "🥝"),
             ],
-        }
+        },
     }
 
 
@@ -87,10 +86,10 @@ select_window = Window(
     Const("Select widget"),
     List(
         field=Format("+ {item.emoji} {item.name} - {item.id}"),
-        items=FRUITS_KEY
+        items=FRUITS_KEY,
         # Alternatives:
-            #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
-            #items=F[OTHER_KEY][FRUITS_KEY],
+        # items=lambda d: d[OTHER_KEY][FRUITS_KEY],  # noqa: E800
+        # items=F[OTHER_KEY][FRUITS_KEY],  # noqa: E800
     ),
     Column(
         Select(
@@ -98,11 +97,11 @@ select_window = Window(
             id="sel",
             items=FRUITS_KEY,
             # Alternatives:
-                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
-                #items=F[OTHER_KEY][FRUITS_KEY],
+            # items=lambda d: d[OTHER_KEY][FRUITS_KEY],  # noqa: E800
+            # items=F[OTHER_KEY][FRUITS_KEY],  # noqa: E800
             item_id_getter=fruit_id_getter,
             on_click=on_item_selected,
-        )
+        ),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.SELECT,
@@ -118,10 +117,10 @@ radio_window = Window(
             id="radio",
             items=FRUITS_KEY,
             # Alternatives:
-                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
-                #items=F[OTHER_KEY][FRUITS_KEY],
+            # items=lambda d: d[OTHER_KEY][FRUITS_KEY],  # noqa: E800
+            # items=F[OTHER_KEY][FRUITS_KEY],  # noqa: E800
             item_id_getter=fruit_id_getter,
-        )
+        ),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.RADIO,
@@ -138,10 +137,10 @@ multiselect_window = Window(
             id="multi",
             items=FRUITS_KEY,
             # Alternatives:
-                #items=lambda d: d[OTHER_KEY][FRUITS_KEY],
-                #items=F[OTHER_KEY][FRUITS_KEY],
+            # items=lambda d: d[OTHER_KEY][FRUITS_KEY],  # noqa: E800
+            # items=F[OTHER_KEY][FRUITS_KEY],  # noqa: E800
             item_id_getter=fruit_id_getter,
-        )
+        ),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.MULTI,
@@ -157,7 +156,7 @@ toggle_window = Window(
             id="radio",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
-        )
+        ),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.TOGGLE,

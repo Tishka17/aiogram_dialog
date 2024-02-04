@@ -5,15 +5,14 @@ from typing import Any
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager, Window, StartMode,
-    setup_dialogs,
+    Data, Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
-from aiogram_dialog.tools import render_transitions, render_preview
+from aiogram_dialog.tools import render_preview, render_transitions
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back, Button, Cancel, Group, Next, Row, Start,
@@ -30,7 +29,7 @@ class NameSG(StatesGroup):
 
 
 async def name_handler(
-        message: Message, widget: MessageInput, manager: DialogManager
+        message: Message, widget: MessageInput, manager: DialogManager,
 ):
     manager.dialog_data["name"] = message.text
     await manager.next()
@@ -38,7 +37,7 @@ async def name_handler(
 
 async def get_name_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "name": dialog_manager.dialog_data.get("name")
+        "name": dialog_manager.dialog_data.get("name"),
     }
 
 
@@ -64,8 +63,8 @@ name_dialog = Dialog(
         state=NameSG.confirm,
         getter=get_name_data,
         preview_add_transitions=[Cancel()],  # hint for graph rendering
-        preview_data={"name": "John Doe"}  # for preview rendering
-    )
+        preview_data={"name": "John Doe"},  # for preview rendering
+    ),
 )
 
 
@@ -100,11 +99,11 @@ main_menu = Dialog(
         Group(
             Start(Const("Enter name"), id="set", state=NameSG.input),
             Button(Const("Reset name"), id="reset",
-                   on_click=on_reset_name, when="name")
+                   on_click=on_reset_name, when="name"),
         ),
         state=MainSG.main,
         getter=get_main_data,
-        preview_data={"name": "John Doe"}  # for preview rendering
+        preview_data={"name": "John Doe"},  # for preview rendering
     ),
     on_process_result=process_result,
 )
