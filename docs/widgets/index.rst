@@ -30,6 +30,8 @@ Also there are 2 general types:
   * ``hello world``, ``my:item``, ``птичка`` - invalid ids
 
 .. toctree::
+    :maxdepth: 1
+
     passing_data/index
     text/index
     keyboard/index

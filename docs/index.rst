@@ -2,6 +2,7 @@ aiogram-dialog
 =============================================
 
 .. toctree::
+    :maxdepth: 3
     :caption: Contents:
 
     overview/index
