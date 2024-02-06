@@ -11,11 +11,14 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
+    CurrentPage, FirstPage, LastPage,
+    Multiselect, NextPage, NumberedPager,
+    PrevPage, Row, ScrollingGroup,
+    StubScroll, SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
 
@@ -80,8 +83,11 @@ MAIN_MENU_BTN = SwitchTo(Const("Main menu"), id="main", state=DialogSG.MAIN)
 dialog = Dialog(
     Window(
         Const("Scrolling variant demo. Please, select an option:"),
-        SwitchTo(Const("Default Pager"), id="default",
-                 state=DialogSG.DEFAULT_PAGER),
+        SwitchTo(
+            Const("Default Pager"),
+            state=DialogSG.DEFAULT_PAGER,
+            id="default",
+        ),
         SwitchTo(Const("Pager options"), id="pagers", state=DialogSG.PAGERS),
         SwitchTo(Const("Text list scroll"), id="text", state=DialogSG.LIST),
         SwitchTo(Const("Text scroll"), id="text", state=DialogSG.TEXT),

@@ -10,11 +10,13 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, LaunchMode, setup_dialogs, StartMode, SubManager,
+    Dialog, DialogManager, LaunchMode,
+    setup_dialogs, StartMode, SubManager,
     Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    Checkbox, ListGroup, ManagedCheckbox, Radio, Row,
+    Checkbox, ListGroup,
+    ManagedCheckbox, Radio, Row,
 )
 from aiogram_dialog.widgets.text import Const, Format
 

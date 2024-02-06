@@ -86,9 +86,7 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    dp.include_router(banner)
-    dp.include_router(product)
-    dp.include_router(main_menu)
+    dp.include_routers(banner, product, main_menu)
 
     dp.message.register(start, CommandStart())
     setup_dialogs(dp)
