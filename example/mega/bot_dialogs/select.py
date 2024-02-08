@@ -5,7 +5,8 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
-    Column, Multiselect, Radio, Select, SwitchTo, Toggle,
+    Column, Multiselect, Radio,
+    Select, SwitchTo, Toggle,
 )
 from aiogram_dialog.widgets.text import Const, Format, List
 from . import states
@@ -49,10 +50,10 @@ def fruit_id_getter(fruit: Fruit) -> str:
 
 
 async def on_item_selected(
-        callback: CallbackQuery,
-        widget: Any,
-        manager: DialogManager,
-        selected_item: str,
+    callback: CallbackQuery,
+    widget: Any,
+    manager: DialogManager,
+    selected_item: str,
 ):
     await callback.answer(selected_item)
 

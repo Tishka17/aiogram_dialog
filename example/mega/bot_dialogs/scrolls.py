@@ -1,13 +1,13 @@
 import calendar
 from operator import itemgetter
 
-from aiogram_dialog import (
-    Dialog, DialogManager, Window,
-)
+from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.common import sync_scroll
 from aiogram_dialog.widgets.kbd import (
-    CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
+    CurrentPage, FirstPage, LastPage,
+    Multiselect, NextPage, NumberedPager,
+    PrevPage, Row, ScrollingGroup,
+    StubScroll, SwitchTo,
 )
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
@@ -215,9 +215,7 @@ stub_scroll_window = Window(
     Format("Day by number is {day}"),
     StaticMedia(path=Format("media/{current_page}.png")),
     StubScroll(id=ID_STUB_SCROLL, pages="pages"),
-    NumberedPager(
-        scroll=ID_STUB_SCROLL,
-    ),
+    NumberedPager(scroll=ID_STUB_SCROLL),
     SCROLLS_MAIN_MENU_BUTTON,
     state=states.Scrolls.STUB,
     getter=paging_getter,

@@ -57,7 +57,7 @@ Each window consists of:
 
 
 ```python
-from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.state import StatesGroup, State
 from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import Window
@@ -84,7 +84,7 @@ Window(
 Window itself can do nothing, just prepares message. To use it you need dialog:
 
 ```python
-from aiogram.filters.state import StatesGroup, State
+from aiogram.fsm.state import StatesGroup, State
 from aiogram_dialog import Dialog, Window
 
 
@@ -122,7 +122,7 @@ For example in `/start` command handler:
 async def user_start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MySG.first, mode=StartMode.RESET_STACK)
 
-dp.message.register(user_start, F.text == "/start")
+dp.message.register(user_start, CommandStart())
 ```
 
 > **Info:** Always set `mode=StartMode.RESET_STACK` in your top level start command. Otherwise, dialogs are stacked just as they do

@@ -9,7 +9,8 @@ from aiogram_dialog.widgets.kbd import (
     Calendar, CalendarScope, ManagedCalendar, SwitchTo,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
-    CalendarDaysView, CalendarMonthView, CalendarScopeView, CalendarYearsView,
+    CalendarDaysView, CalendarMonthView,
+    CalendarScopeView, CalendarYearsView,
     DATE_TEXT, TODAY_TEXT,
 )
 from aiogram_dialog.widgets.text import Const, Format, Text
@@ -77,17 +78,19 @@ class CustomCalendar(Calendar):
 
 
 async def on_date_clicked(
-        callback: ChatEvent, widget: ManagedCalendar,
-        manager: DialogManager,
-        selected_date: date, /,
+    callback: ChatEvent,
+    widget: ManagedCalendar,
+    manager: DialogManager,
+    selected_date: date, /,
 ):
     await callback.answer(str(selected_date))
 
 
 async def on_date_selected(
-        callback: ChatEvent, widget: ManagedCalendar,
-        manager: DialogManager,
-        clicked_date: date, /,
+    callback: ChatEvent,
+    widget: ManagedCalendar,
+    manager: DialogManager,
+    clicked_date: date, /,
 ):
     selected = manager.dialog_data.setdefault(SELECTED_DAYS_KEY, [])
     serial_date = clicked_date.isoformat()

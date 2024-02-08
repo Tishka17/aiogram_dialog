@@ -10,12 +10,14 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Data, Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.tools import render_preview, render_transitions
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
-    Back, Button, Cancel, Group, Next, Row, Start,
+    Back, Button, Cancel,
+    Group, Next, Row, Start,
 )
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
@@ -29,7 +31,9 @@ class NameSG(StatesGroup):
 
 
 async def name_handler(
-        message: Message, widget: MessageInput, manager: DialogManager,
+    message: Message,
+    widget: MessageInput,
+    manager: DialogManager,
 ):
     manager.dialog_data["name"] = message.text
     await manager.next()
@@ -41,8 +45,11 @@ async def get_name_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_finish(callback: CallbackQuery, button: Button,
-                    manager: DialogManager):
+async def on_finish(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     await manager.done({"name": manager.dialog_data["name"]})
 
 
@@ -73,8 +80,11 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def process_result(start_data: Data, result: Any,
-                         manager: DialogManager):
+async def process_result(
+    start_data: Data,
+    result: Any,
+    manager: DialogManager,
+):
     if result:
         manager.dialog_data["name"] = result["name"]
 
@@ -85,8 +95,11 @@ async def get_main_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_reset_name(callback: CallbackQuery, button: Button,
-                        manager: DialogManager):
+async def on_reset_name(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     del manager.dialog_data["name"]
 
 
@@ -98,8 +111,13 @@ main_menu = Dialog(
         ),
         Group(
             Start(Const("Enter name"), id="set", state=NameSG.input),
-            Button(Const("Reset name"), id="reset",
-                   on_click=on_reset_name, when="name"),
+            Button(
+                Const("Reset name"),
+                id="reset",
+                on_click=on_reset_name,
+                when="name",
+                # Alternative F['name']
+            ),
         ),
         state=MainSG.main,
         getter=get_main_data,

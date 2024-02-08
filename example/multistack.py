@@ -11,7 +11,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
@@ -47,8 +48,11 @@ async def name_handler(
     await message.answer(f"Nice to meet you, {message.text}")
 
 
-async def on_click(callback: CallbackQuery, button: Button,
-                   manager: DialogManager):
+async def on_click(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     counter = manager.dialog_data.get("counter", 0)
     manager.dialog_data["counter"] = counter + 1
 
@@ -69,8 +73,12 @@ dialog = Dialog(
         Format("Last text: {last_text}\n"),
         Format("{now}"),
         Button(Const("Click me!"), id="btn1", on_click=on_click),
-        Start(Const("Start new stack"), id="s1",
-              mode=StartMode.NEW_STACK, state=DialogSG.greeting),
+        Start(
+            Const("Start new stack"),
+            mode=StartMode.NEW_STACK,
+            state=DialogSG.greeting,
+            id="s1",
+        ),
         multi,
         Cancel(),
         # Inputs work only in default stack

@@ -4,11 +4,13 @@ import os.path
 from io import BytesIO
 from typing import Union
 
+
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import BufferedInputFile, ContentType, InputFile, Message
 from PIL import Image, ImageDraw, ImageFont
+
 
 from aiogram_dialog import (
     Dialog, DialogManager, setup_dialogs,
@@ -20,15 +22,11 @@ from aiogram_dialog.widgets.kbd import Back, Next, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const
 
+
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
 API_TOKEN = os.getenv("BOT_TOKEN")
-
-
-class DialogSG(StatesGroup):
-    custom = State()
-    custom2 = State()
-    normal = State()
+CUSTOM_URL_PREFIX = "my://"
 
 
 def draw(text) -> bytes:
@@ -50,12 +48,15 @@ def draw(text) -> bytes:
     return io.read()
 
 
-CUSTOM_URL_PREFIX = "my://"
+class DialogSG(StatesGroup):
+    custom = State()
+    custom2 = State()
+    normal = State()
 
 
 class CustomMessageManager(MessageManager):
     async def get_media_source(
-            self, media: MediaAttachment, bot: Bot,
+        self, media: MediaAttachment, bot: Bot,
     ) -> Union[InputFile, str]:
         if media.file_id:
             return await super().get_media_source(media, bot)

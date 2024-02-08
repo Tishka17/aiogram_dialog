@@ -24,8 +24,11 @@ class Medias(StatesGroup):
     start = State()
 
 
-async def on_input_photo(message: Message, widget: MessageInput,
-                         dialog_manager: DialogManager):
+async def on_input_photo(
+    message: Message,
+    widget: MessageInput,
+    dialog_manager: DialogManager,
+):
     dialog_manager.dialog_data.setdefault("photos", []).append(
         (message.photo[-1].file_id, message.photo[-1].file_unique_id),
     )
@@ -72,8 +75,13 @@ dialog = Dialog(Window(
         NumberedPager(scroll="pages", when=F["pages"] > 1),
         width=8,
     ),
-    Button(Format("🗑️ Delete photo #{media_number}"), id="del",
-           on_click=on_delete, when="media_count"),
+    Button(
+        Format("🗑️ Delete photo #{media_number}"),
+        id="del",
+        on_click=on_delete,
+        when="media_count",
+        # Alternative F['media_count']
+    ),
     MessageInput(content_types=[ContentType.PHOTO], func=on_input_photo),
     getter=getter,
     state=Medias.start,

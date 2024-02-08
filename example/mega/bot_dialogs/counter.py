@@ -19,8 +19,9 @@ async def getter(dialog_manager: DialogManager, **kwargs):
 
 
 async def on_text_click(
-        event: CallbackQuery, widget: ManagedCounter,
-        dialog_manager: DialogManager,
+    event: CallbackQuery,
+    widget: ManagedCounter,
+    dialog_manager: DialogManager,
 ) -> None:
     await event.answer(f"Value: {widget.get_value()}")
 
