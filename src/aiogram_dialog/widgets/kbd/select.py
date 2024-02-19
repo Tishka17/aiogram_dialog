@@ -226,7 +226,7 @@ class Radio(StatefulSelect[T], Generic[T]):
             when=when,
         )
 
-    def get_checked(self, manager: DialogManager) -> Optional[str]:
+    def get_checked(self, manager: DialogManager) -> Optional[T]:
         data = self._get_checked(manager)
         if data is None:
             return None
