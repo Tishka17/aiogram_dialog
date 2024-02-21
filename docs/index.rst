@@ -9,6 +9,7 @@ aiogram-dialog
     quickstart/index
     widgets/index
     transitions/index
+    how_are_messages_updated/index
     helper_tools/index
     migration
     faq
