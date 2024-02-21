@@ -8,7 +8,8 @@ class ShowMode(Enum):
     AUTO:
         default show mode.
 
-        Uses `SEND mode` when new message from user handled or `EDIT mode` when any other updated handled.
+        Uses `SEND mode` when new message from user handled or `EDIT mode`
+        when any other updated handled.
 
     EDIT:
         edit dialog message
@@ -25,6 +26,7 @@ class ShowMode(Enum):
     NO_UPDATE:
         will not update and rerender the dialog message
     """
+
     AUTO = "auto"
     EDIT = "edit"
     SEND = "send"
