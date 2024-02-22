@@ -245,6 +245,7 @@ class ManagerImpl(DialogManager):
         if launch_mode is LaunchMode.SINGLE_TOP:
             if new_dialog is old_dialog:
                 await self.storage().remove_context(stack.pop())
+                self._data[CONTEXT_KEY] = None
 
         if self.has_context():
             await self.storage().save_context(self.current_context())
