@@ -134,6 +134,17 @@ class Or(Keyboard):
             if res and any(res):
                 return res
         return []
+    
+    async def _process_other_callback(
+            self,
+            callback: CallbackQuery,
+            dialog: DialogProtocol,
+            manager: DialogManager,
+    ) -> bool:
+        for b in self.widgets:
+            if await b.process_callback(callback, dialog, manager):
+                return True
+        return False
 
     def __ior__(self, other: Keyboard) -> "Or":
         self.widgets += (other,)
