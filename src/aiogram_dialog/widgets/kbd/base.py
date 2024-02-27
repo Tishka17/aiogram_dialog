@@ -6,7 +6,9 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
-    Actionable, Whenable, WhenCondition,
+    Actionable,
+    Whenable,
+    WhenCondition,
 )
 
 
@@ -134,7 +136,7 @@ class Or(Keyboard):
             if res and any(res):
                 return res
         return []
-    
+
     async def _process_other_callback(
             self,
             callback: CallbackQuery,
