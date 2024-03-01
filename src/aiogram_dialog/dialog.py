@@ -174,6 +174,10 @@ class Dialog(Router, DialogProtocol):
         await self._process_callback(
             self.on_process_result, start_data, result, manager,
         )
+        context = manager.current_context()
+        await self.windows[context.state].process_result(
+            context.start_data, result, manager,
+        )
 
     def include_router(self, router: Router) -> Router:
         raise TypeError("Dialog cannot include routers")
