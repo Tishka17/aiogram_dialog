@@ -89,7 +89,7 @@ dialog = Dialog(
             id="default",
         ),
         SwitchTo(Const("Pager options"), id="pagers", state=DialogSG.PAGERS),
-        SwitchTo(Const("Text list scroll"), id="text", state=DialogSG.LIST),
+        SwitchTo(Const("Text list scroll"), id="list", state=DialogSG.LIST),
         SwitchTo(Const("Text scroll"), id="text", state=DialogSG.TEXT),
         SwitchTo(Const("Stub: getter-based"), id="stub", state=DialogSG.STUB),
         state=DialogSG.MAIN,
