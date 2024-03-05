@@ -67,6 +67,7 @@ class Next(EventProcessorButton):
             text: Text = NEXT_TEXT,
             id: str = "__next__",
             on_click: Optional[OnClick] = None,
+            show_mode: Optional[ShowMode] = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -75,6 +76,7 @@ class Next(EventProcessorButton):
             id=id, when=when,
         )
         self.text = text
+        self.show_mode = show_mode
         self.user_on_click = on_click
 
     async def _on_click(
@@ -83,7 +85,7 @@ class Next(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.next()
+        await manager.next(self.show_mode)
 
 
 class Back(EventProcessorButton):
@@ -92,6 +94,7 @@ class Back(EventProcessorButton):
             text: Text = BACK_TEXT,
             id: str = "__back__",
             on_click: Optional[OnClick] = None,
+            show_mode: Optional[ShowMode] = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -100,6 +103,7 @@ class Back(EventProcessorButton):
         )
         self.text = text
         self.callback_data = id
+        self.show_mode = show_mode
         self.user_on_click = on_click
 
     async def _on_click(
@@ -108,7 +112,7 @@ class Back(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.back()
+        await manager.back(self.show_mode)
 
 
 class Cancel(EventProcessorButton):
@@ -147,6 +151,7 @@ class Start(EventProcessorButton):
             state: State,
             data: Data = None,
             on_click: Optional[OnClick] = None,
+            show_mode: Optional[ShowMode] = None,
             mode: StartMode = StartMode.NORMAL,
             when: WhenCondition = None,
     ):
@@ -157,6 +162,7 @@ class Start(EventProcessorButton):
         self.text = text
         self.start_data = data
         self.user_on_click = on_click
+        self.show_mode = show_mode
         self.state = state
         self.mode = mode
 
@@ -166,4 +172,9 @@ class Start(EventProcessorButton):
     ):
         if self.user_on_click:
             await self.user_on_click(callback, self, manager)
-        await manager.start(self.state, self.start_data, self.mode)
+        await manager.start(
+            state=self.state,
+            data=self.start_data,
+            mode=self.mode,
+            show_mode=self.show_mode,
+        )

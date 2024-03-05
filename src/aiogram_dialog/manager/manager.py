@@ -256,19 +256,19 @@ class ManagerImpl(DialogManager):
         if new_context and context.id == new_context.id:
             await self.show()
 
-    async def next(self) -> None:
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index + 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
-    async def back(self) -> None:
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index - 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
     async def switch_to(
             self,
