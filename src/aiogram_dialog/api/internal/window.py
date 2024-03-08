@@ -8,7 +8,7 @@ from typing import (
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import NewMessage
+from aiogram_dialog.api.entities import Data, NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
 from .manager import DialogManager
 from .widgets import MarkupVariant
@@ -49,6 +49,13 @@ class WindowProtocol(Protocol):
             callback: CallbackQuery,
             dialog: "DialogProtocol",
             manager: DialogManager,
+    ) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def process_result(
+            self, start_data: Data, result: Any,
+            manager: "DialogManager",
     ) -> None:
         raise NotImplementedError
 
