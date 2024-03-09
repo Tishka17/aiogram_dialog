@@ -37,7 +37,7 @@ class DialogProtocol(Protocol):
     async def process_start(
             self,
             manager: "DialogManager",
-            start_data: Any,
+            start_data: Data,
             state: Optional[State] = None,
     ) -> None:
         raise NotImplementedError

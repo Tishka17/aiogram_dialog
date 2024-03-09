@@ -84,7 +84,7 @@ class Dialog(Router, DialogProtocol):
     async def process_start(
             self,
             manager: DialogManager,
-            start_data: Any,
+            start_data: Data,
             state: Optional[State] = None,
     ) -> None:
         if state is None:
