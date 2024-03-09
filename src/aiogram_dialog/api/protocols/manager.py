@@ -92,7 +92,7 @@ class DialogManager(BaseDialogManager, Protocol):
 
     @property
     @abstractmethod
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         """Start data for current context."""
         raise NotImplementedError
 
