@@ -74,7 +74,7 @@ class ManagerImpl(DialogManager):
         return self.current_context().dialog_data
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         """Start data for current context."""
         return self.current_context().start_data
 

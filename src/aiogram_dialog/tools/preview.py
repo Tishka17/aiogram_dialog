@@ -179,7 +179,7 @@ class FakeManager(DialogManager):
         pass
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         return {}
 
     @property
