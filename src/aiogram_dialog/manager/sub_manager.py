@@ -91,11 +91,11 @@ class SubManager(DialogManager):
     def show_mode(self, show_mode: ShowMode) -> None:
         self.manager.show_mode = show_mode
 
-    async def next(self) -> None:
-        await self.manager.next()
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
+        await self.manager.next(show_mode)
 
-    async def back(self) -> None:
-        await self.manager.back()
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
+        await self.manager.back(show_mode)
 
     async def done(
             self,

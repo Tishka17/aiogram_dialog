@@ -143,12 +143,12 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def next(self) -> None:
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         """Switch to the next state within current dialog."""
         raise NotImplementedError
 
     @abstractmethod
-    async def back(self) -> None:
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         """Switch to the previous state within current dialog."""
         raise NotImplementedError
 
