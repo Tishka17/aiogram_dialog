@@ -451,7 +451,7 @@ class Toggle(Radio[T], Generic[T]):
         if first_item is None:
             return [[]]
 
-        selected = self.get_checked(manager)
+        selected = self._get_checked(manager)
         # by default first one is shown
         if selected is None:
             pos = 0
