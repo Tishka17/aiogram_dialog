@@ -120,7 +120,7 @@ class Select(Keyboard, Generic[T]):
             callback,
             self.managed(manager),
             manager,
-            self.type_factory(data),
+            data,
         )
         return True
 
@@ -181,7 +181,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             await self.on_item_click.process_event(
                 callback, select, manager, self.type_factory(item_id),
             )
-        await self._on_click(callback, select, manager, str(item_id))
+        await self._on_click(callback, select, manager, item_id)
 
     @abstractmethod
     async def _on_click(
