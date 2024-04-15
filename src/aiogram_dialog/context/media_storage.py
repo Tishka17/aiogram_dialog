@@ -13,16 +13,18 @@ class MediaIdStorage(MediaIdStorageProtocol):
 
     async def get_media_id(
             self,
+            bot_id: int,
             path: Optional[str],
             url: Optional[str],
             type: ContentType,
     ) -> Optional[MediaId]:
         if not path and not url:
             return None
-        return self.cache.get((path, url, type))
+        return self.cache.get((bot_id, path, url, type))
 
     async def save_media_id(
             self,
+            bot_id: int,
             path: Optional[str],
             url: Optional[str],
             type: ContentType,
@@ -30,4 +32,4 @@ class MediaIdStorage(MediaIdStorageProtocol):
     ) -> None:
         if not path and not url:
             return None
-        self.cache[(path, url, type)] = media_id
+        self.cache[(bot_id, path, url, type)] = media_id
