@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'aiogram-dialog'
-copyright = '2021, Tishka17'
+copyright = '2021 - 2024, Tishka17'
 author = 'Tishka17'
 master_doc = 'index'
 
