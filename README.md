@@ -1,4 +1,4 @@
-# Aiogram Dialog
+![Aiogram Dialog](.github/aiogram_dialog_text.png)
 
 [![PyPI version](https://badge.fury.io/py/aiogram-dialog.svg)](https://badge.fury.io/py/aiogram-dialog)
 [![Doc](https://readthedocs.org/projects/aiogram-dialog/badge/?version=latest&style=flat)](https://aiogram-dialog.readthedocs.io)
