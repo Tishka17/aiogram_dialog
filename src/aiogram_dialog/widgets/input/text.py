@@ -101,6 +101,6 @@ class TextInput(BaseInput, Generic[T]):
 
 
 class ManagedTextInput(ManagedWidget[TextInput[T]], Generic[T]):
-    def get_value(self) -> T:
+    def get_value(self) -> Optional[T]:
         """Get last input data stored by widget."""
         return self.widget.get_value(self.manager)
