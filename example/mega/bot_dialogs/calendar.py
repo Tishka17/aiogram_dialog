@@ -58,6 +58,7 @@ class CustomCalendar(Calendar):
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data,
+                self.config,
                 date_text=MarkedDay("🔴", DATE_TEXT),
                 today_text=MarkedDay("⭕", TODAY_TEXT),
                 header_text="~~~~~ " + Month() + " ~~~~~",
@@ -67,12 +68,14 @@ class CustomCalendar(Calendar):
             ),
             CalendarScope.MONTHS: CalendarMonthView(
                 self._item_callback_data,
+                self.config,
                 month_text=Month(),
                 header_text="~~~~~ " + Format("{date:%Y}") + " ~~~~~",
                 this_month_text="[" + Month() + "]",
             ),
             CalendarScope.YEARS: CalendarYearsView(
                 self._item_callback_data,
+                self.config,
             ),
         }
 
