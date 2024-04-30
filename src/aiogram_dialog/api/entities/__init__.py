@@ -28,11 +28,5 @@ from .media import MediaAttachment, MediaId
 from .modes import ShowMode, StartMode
 from .new_message import MarkupVariant, NewMessage, OldMessage, UnknownText
 from .stack import DEFAULT_STACK_ID, Stack
-from .update_event import (
-    DIALOG_EVENT_NAME,
-    DialogAction,
-    DialogStartEvent,
-    DialogSwitchEvent,
-    DialogUpdate,
-    DialogUpdateEvent,
-)
+from .update_event import (DIALOG_EVENT_NAME, DialogAction, DialogStartEvent,
+                           DialogSwitchEvent, DialogUpdate, DialogUpdateEvent)

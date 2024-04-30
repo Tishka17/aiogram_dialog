@@ -1,16 +1,14 @@
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Type, Union
+from typing import (Any, Dict, List, Optional, Protocol, Type, Union,
+                    runtime_checkable)
 
 from aiogram.fsm.state import State, StatesGroup
 
-from aiogram_dialog.api.entities import (
-    Data,
-    LaunchMode,
-    NewMessage,
-)
-from .manager import DialogManager
-from ..entities.context import DataDict
+from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
+
 from ... import ChatEvent
+from ..entities.context import DataDict
+from .manager import DialogManager
 
 
 @runtime_checkable

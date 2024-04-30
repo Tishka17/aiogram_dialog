@@ -5,11 +5,7 @@ from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
-from aiogram_dialog.api.entities import (
-    Context,
-    DEFAULT_STACK_ID,
-    Stack,
-)
+from aiogram_dialog.api.entities import DEFAULT_STACK_ID, Context, Stack
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
 

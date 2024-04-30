@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 
 from aiogram.types import ContentType
 

@@ -1,18 +1,13 @@
 from abc import abstractmethod
-from typing import (
-    Any,
-    Dict,
-    Protocol,
-    Union,
-)
+from typing import Any, Dict, Protocol, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import Data, NewMessage, MarkupVariant
+from aiogram_dialog import ChatEvent, DialogManager
+from aiogram_dialog.api.entities import Data, MarkupVariant, NewMessage
 from aiogram_dialog.api.entities.context import DataDict
 from aiogram_dialog.api.protocols import DialogProtocol
-from aiogram_dialog import DialogManager, ChatEvent
 
 
 class WindowProtocol(Protocol):

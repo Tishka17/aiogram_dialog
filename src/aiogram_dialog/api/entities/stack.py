@@ -7,6 +7,7 @@ from typing import List, Optional
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
+
 from .context import Context, Data
 
 DEFAULT_STACK_ID = ""

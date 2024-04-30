@@ -1,4 +1,4 @@
-from typing import Optional, Type, Any
+from typing import Any, Optional, Type
 
 from aiogram.filters import BaseFilter
 from aiogram.fsm.state import StatesGroup

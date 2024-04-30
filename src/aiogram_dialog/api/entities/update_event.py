@@ -2,18 +2,10 @@ from enum import Enum
 from typing import Any, Optional
 
 from aiogram.fsm.state import State
-from aiogram.types import (
-    Chat,
-    TelegramObject,
-    Update,
-    User,
-)
+from aiogram.types import Chat, TelegramObject, Update, User
 from pydantic import ConfigDict
 
-from .modes import (
-    ShowMode,
-    StartMode,
-)
+from .modes import ShowMode, StartMode
 
 DIALOG_EVENT_NAME = "aiogd_update"
 

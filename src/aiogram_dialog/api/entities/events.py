@@ -1,11 +1,7 @@
 from typing import Union
 
-from aiogram.types import (
-    CallbackQuery,
-    ChatJoinRequest,
-    ChatMemberUpdated,
-    Message,
-)
+from aiogram.types import (CallbackQuery, ChatJoinRequest, ChatMemberUpdated,
+                           Message)
 
 from .update_event import DialogUpdateEvent
 

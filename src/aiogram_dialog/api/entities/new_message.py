@@ -2,13 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Union
 
-from aiogram.types import (
-    Chat,
-    ForceReply,
-    InlineKeyboardMarkup,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-)
+from aiogram.types import (Chat, ForceReply, InlineKeyboardMarkup,
+                           ReplyKeyboardMarkup, ReplyKeyboardRemove)
 
 from aiogram_dialog.api.entities import MediaAttachment, ShowMode
 

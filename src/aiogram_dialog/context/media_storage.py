@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from aiogram.types import ContentType
 from cachetools import LRUCache
