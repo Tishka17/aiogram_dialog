@@ -1,4 +1,5 @@
-from typing import Any, Optional
+from pathlib import Path
+from typing import Any, Optional, Union
 
 from aiogram.types import ContentType
 from cachetools import LRUCache
@@ -15,7 +16,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
 
     async def get_media_id(
         self,
-        path: Optional[str],
+        path: Optional[Union[str, Path]],
         url: Optional[str],
         type: ContentType,
     ) -> Optional[MediaId]:
@@ -25,7 +26,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
 
     async def save_media_id(
         self,
-        path: Optional[str],
+        path: Optional[Union[str, Path]],
         url: Optional[str],
         type: ContentType,
         media_id: MediaId,

@@ -6,13 +6,14 @@ from aiogram_dialog.api.entities import (
     DialogSwitchEvent,
     DialogUpdateEvent,
 )
-from .manager import ManagerImpl
+
 from .. import ShowMode
+from .manager import ManagerImpl
 
 logger = getLogger(__name__)
 
 
-async def handle_update(event: DialogUpdateEvent, dialog_manager: ManagerImpl):
+async def handle_update(event: DialogUpdateEvent, dialog_manager: ManagerImpl) -> None:
     dialog_manager.show_mode = event.show_mode or ShowMode.AUTO
     if isinstance(event, DialogStartEvent):
         await dialog_manager.start(

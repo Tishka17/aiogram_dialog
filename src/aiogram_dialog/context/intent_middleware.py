@@ -6,13 +6,27 @@ from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import CallbackQuery, Chat, Message, TelegramObject, User
 from aiogram.types.error_event import ErrorEvent
 
-from aiogram_dialog.api.entities import (DEFAULT_STACK_ID, ChatEvent, Context,
-                                         DialogUpdateEvent, Stack)
-from aiogram_dialog.api.exceptions import (InvalidStackIdError, OutdatedIntent,
-                                           UnknownIntent, UnknownState)
-from aiogram_dialog.api.internal import (CALLBACK_DATA_KEY, CONTEXT_KEY,
-                                         EVENT_SIMULATED, STACK_KEY,
-                                         STORAGE_KEY, ReplyCallbackQuery)
+from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
+    ChatEvent,
+    Context,
+    DialogUpdateEvent,
+    Stack,
+)
+from aiogram_dialog.api.exceptions import (
+    InvalidStackIdError,
+    OutdatedIntent,
+    UnknownIntent,
+    UnknownState,
+)
+from aiogram_dialog.api.internal import (
+    CALLBACK_DATA_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    ReplyCallbackQuery,
+)
 from aiogram_dialog.api.protocols import DialogRegistryProtocol
 from aiogram_dialog.utils import remove_intent_id, split_reply_callback
 

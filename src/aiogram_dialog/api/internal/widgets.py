@@ -1,9 +1,17 @@
 from abc import abstractmethod
-from typing import (Any, Awaitable, Callable, Dict, List, Optional, Protocol,
-                    Union, runtime_checkable)
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Protocol,
+    Union,
+    runtime_checkable,
+)
 
-from aiogram.types import (CallbackQuery, InlineKeyboardButton, KeyboardButton,
-                           Message)
+from aiogram.types import CallbackQuery, InlineKeyboardButton, KeyboardButton, Message
 
 from aiogram_dialog import ChatEvent, DialogManager
 from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
@@ -14,7 +22,7 @@ from aiogram_dialog.api.protocols import DialogProtocol
 @runtime_checkable
 class Widget(Protocol):
     @abstractmethod
-    def managed(self, manager: DialogManager) -> Any:
+    def managed(self, manager: DialogManager) -> "Widget":
         raise NotImplementedError
 
     @abstractmethod

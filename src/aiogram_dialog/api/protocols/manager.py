@@ -4,8 +4,14 @@ from typing import Any, Dict, Optional, Protocol, Union
 from aiogram import Bot
 from aiogram.fsm.state import State
 
-from aiogram_dialog.api.entities import (ChatEvent, Context, Data, ShowMode,
-                                         Stack, StartMode)
+from aiogram_dialog.api.entities import (
+    ChatEvent,
+    Context,
+    Data,
+    ShowMode,
+    Stack,
+    StartMode,
+)
 from aiogram_dialog.api.entities.context import DataDict
 from aiogram_dialog.api.internal import Widget
 
@@ -173,7 +179,9 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def load_data(self) -> Dict[str, Union[DataDict, Dict[str, Any], ChatEvent]]:
+    async def load_data(
+        self,
+    ) -> Dict[str, Union[Data, DataDict, Dict[str, Any], ChatEvent]]:
         """Load data for current state."""
         raise NotImplementedError
 

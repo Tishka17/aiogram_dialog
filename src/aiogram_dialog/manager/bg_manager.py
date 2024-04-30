@@ -1,13 +1,13 @@
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Optional, TypedDict
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import (
-    Data,
     DEFAULT_STACK_ID,
+    Data,
     DialogAction,
     DialogStartEvent,
     DialogSwitchEvent,
@@ -16,9 +16,8 @@ from aiogram_dialog.api.entities import (
     ShowMode,
     StartMode,
 )
-from aiogram_dialog.api.internal import (
-    FakeChat, FakeUser,
-)
+from aiogram_dialog.api.entities.context import DataDict
+from aiogram_dialog.api.internal import FakeChat, FakeUser
 from aiogram_dialog.api.protocols import BaseDialogManager, BgManagerFactory
 from aiogram_dialog.manager.updater import Updater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
@@ -26,16 +25,23 @@ from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 logger = getLogger(__name__)
 
 
+class BaseEventParams(TypedDict):
+    from_user: User
+    chat: Chat
+    intent_id: Optional[str]
+    stack_id: Optional[str]
+
+
 class BgManager(BaseDialogManager):
     def __init__(
-            self,
-            user: User,
-            chat: Chat,
-            bot: Bot,
-            router: Router,
-            intent_id: Optional[str],
-            stack_id: Optional[str],
-            load: bool = False,
+        self,
+        user: User,
+        chat: Chat,
+        bot: Bot,
+        router: Router,
+        intent_id: Optional[str],
+        stack_id: Optional[str],
+        load: bool = False,
     ):
         self.user = user
         self.chat = chat
@@ -47,18 +53,18 @@ class BgManager(BaseDialogManager):
         self.load = load
 
     def bg(
-            self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            load: bool = False,
+        self,
+        user_id: Optional[int] = None,
+        chat_id: Optional[int] = None,
+        stack_id: Optional[str] = None,
+        load: bool = False,
     ) -> "BaseDialogManager":
-        if chat_id in (None, self.chat.id):
+        if chat_id is None or chat_id == self.chat.id:
             chat = self.chat
         else:
             chat = FakeChat(id=chat_id, type="")
 
-        if user_id in (None, self.user.id):
+        if user_id is None or user_id == self.user.id:
             user = self.user
         else:
             user = FakeUser(id=user_id, is_bot=False, first_name="")
@@ -84,7 +90,7 @@ class BgManager(BaseDialogManager):
             load=load,
         )
 
-    def _base_event_params(self):
+    def _base_event_params(self) -> BaseEventParams:
         return {
             "from_user": self.user,
             "chat": self.chat,
@@ -92,44 +98,50 @@ class BgManager(BaseDialogManager):
             "stack_id": self.stack_id,
         }
 
-    async def _notify(self, event: DialogUpdateEvent):
+    async def _notify(self, event: DialogUpdateEvent) -> None:
         await self._updater.notify(
-            bot=self.bot, update=DialogUpdate(aiogd_update=event),
+            bot=self.bot,
+            update=DialogUpdate(aiogd_update=event),
         )
 
-    async def _load(self):
+    async def _load(self) -> None:
         if self.load:
             if not is_chat_loaded(self.chat):
                 logger.debug("load chat: %s", self.chat.id)
                 self.chat = await self.bot.get_chat(self.chat.id)
             if not is_user_loaded(self.user):
                 logger.debug(
-                    "load user %s from chat %s", self.chat.id, self.user.id,
+                    "load user %s from chat %s",
+                    self.chat.id,
+                    self.user.id,
                 )
                 chat_member = await self.bot.get_chat_member(
-                    self.chat.id, self.user.id,
+                    self.chat.id,
+                    self.user.id,
                 )
                 self.user = chat_member.user
 
     async def done(
-            self,
-            result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        result: Any = None,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.DONE, data=result, show_mode=show_mode,
+                action=DialogAction.DONE,
+                data=result,
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
 
     async def start(
-            self,
-            state: State,
-            data: Data = None,
-            mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        data: Data = None,
+        mode: StartMode = StartMode.NORMAL,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -144,9 +156,9 @@ class BgManager(BaseDialogManager):
         )
 
     async def switch_to(
-            self,
-            state: State,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -160,14 +172,16 @@ class BgManager(BaseDialogManager):
         )
 
     async def update(
-            self,
-            data: Dict,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        data: DataDict,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.UPDATE, data=data, show_mode=show_mode,
+                action=DialogAction.UPDATE,
+                data=data,
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
@@ -178,12 +192,12 @@ class BgManagerFactoryImpl(BgManagerFactory):
         self._router = router
 
     def bg(
-            self,
-            bot: Bot,
-            user_id: int,
-            chat_id: int,
-            stack_id: Optional[str] = None,
-            load: bool = False,
+        self,
+        bot: Bot,
+        user_id: int,
+        chat_id: int,
+        stack_id: Optional[str] = None,
+        load: bool = False,
     ) -> "BaseDialogManager":
         chat = FakeChat(id=chat_id, type="")
         user = FakeUser(id=user_id, is_bot=False, first_name="")

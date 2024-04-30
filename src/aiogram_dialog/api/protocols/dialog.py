@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from typing import (Any, Dict, List, Optional, Protocol, Type, Union,
-                    runtime_checkable)
+from typing import Any, Dict, List, Optional, Protocol, Type, Union, runtime_checkable
 
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
+from ..internal import Widget
 
 from ... import ChatEvent
 from ..entities.context import DataDict
@@ -56,7 +56,7 @@ class DialogProtocol(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id: str) -> Any:
+    def find(self, widget_id: str) -> Optional[Widget]:
         raise NotImplementedError
 
     @abstractmethod
