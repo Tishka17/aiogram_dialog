@@ -1,12 +1,16 @@
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Type
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Type, Union
 
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog.api.entities import (
-    Data, LaunchMode, NewMessage,
+    Data,
+    LaunchMode,
+    NewMessage,
 )
 from .manager import DialogManager
+from ..entities.context import DataDict
+from ... import ChatEvent
 
 
 @runtime_checkable
@@ -29,34 +33,39 @@ class DialogProtocol(Protocol):
 
     @abstractmethod
     async def process_close(
-            self, result: Any, manager: DialogManager,
+        self,
+        result: Any,
+        manager: DialogManager,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def process_start(
-            self,
-            manager: "DialogManager",
-            start_data: Data,
-            state: Optional[State] = None,
+        self,
+        manager: "DialogManager",
+        start_data: Data,
+        state: Optional[State] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def process_result(
-            self, start_data: Data, result: Any,
-            manager: "DialogManager",
+        self,
+        start_data: Data,
+        result: Any,
+        manager: "DialogManager",
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Any:
+    def find(self, widget_id: str) -> Any:
         raise NotImplementedError
 
     @abstractmethod
     async def load_data(
-            self, manager: DialogManager,
-    ) -> Dict:
+        self,
+        manager: DialogManager,
+    ) -> Dict[str, Union[DataDict, Dict[str, Any], ChatEvent]]:
         raise NotImplementedError
 
     @abstractmethod

@@ -29,7 +29,7 @@ def id_to_str(int_id: int) -> str:
     return res
 
 
-def new_id():
+def new_id() -> str:
     return id_to_str(new_int_id())
 
 
@@ -42,11 +42,12 @@ class Stack:
     last_media_id: Optional[str] = field(compare=False, default=None)
     last_media_unique_id: Optional[str] = field(compare=False, default=None)
     last_income_media_group_id: Optional[str] = field(
-        compare=False, default=None,
+        compare=False,
+        default=None,
     )
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
     def push(self, state: State, data: Data) -> Context:
@@ -64,14 +65,14 @@ class Stack:
         self.intents.append(context.id)
         return context
 
-    def pop(self):
+    def pop(self) -> str:
         return self.intents.pop()
 
-    def last_intent_id(self):
+    def last_intent_id(self) -> str:
         return self.intents[-1]
 
-    def empty(self):
+    def empty(self) -> bool:
         return not self.intents
 
-    def default(self):
+    def default(self) -> bool:
         return self.id == DEFAULT_STACK_ID

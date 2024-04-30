@@ -3,7 +3,8 @@ from typing import Dict, List, Union
 
 from aiogram.fsm.state import State
 
-Data = Union[Dict, List, int, str, float, None]
+SerializationData = Union[int, str, float, None]
+Data = Union[Dict[SerializationData, "Data"], List["Data"], SerializationData]
 DataDict = Dict[str, Data]
 
 

@@ -16,22 +16,26 @@ class MessageNotModified(DialogsError):
 class MessageManagerProtocol(Protocol):
     @abstractmethod
     async def remove_kbd(
-            self,
-            bot: Bot,
-            show_mode: ShowMode,
-            old_message: Optional[OldMessage],
+        self,
+        bot: Bot,
+        show_mode: ShowMode,
+        old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         raise NotImplementedError
 
     @abstractmethod
     async def show_message(
-            self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[OldMessage],
+        self,
+        bot: Bot,
+        new_message: NewMessage,
+        old_message: Optional[OldMessage],
     ) -> OldMessage:
         raise NotImplementedError
 
     @abstractmethod
     async def answer_callback(
-            self, bot: Bot, callback_query: CallbackQuery,
+        self,
+        bot: Bot,
+        callback_query: CallbackQuery,
     ) -> None:
         raise NotImplementedError

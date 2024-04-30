@@ -1,56 +1,63 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Dict, Optional, Protocol, Union
 
 from aiogram import Bot
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, ShowMode, Stack, StartMode,
+    ChatEvent,
+    Context,
+    Data,
+    ShowMode,
+    Stack,
+    StartMode,
 )
+from aiogram_dialog.api.entities.context import DataDict
+from aiogram_dialog.api.internal import Widget
 
 
 class BaseDialogManager(Protocol):
     @abstractmethod
     async def done(
-            self,
-            result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        result: Any = None,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def start(
-            self,
-            state: State,
-            data: Data = None,
-            mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        data: Data = None,
+        mode: StartMode = StartMode.NORMAL,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def switch_to(
-            self,
-            state: State,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def update(
-            self,
-            data: Dict,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        data: DataDict,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     def bg(
-            self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            load: bool = False,  # load chat and user
+        self,
+        user_id: Optional[int] = None,
+        chat_id: Optional[int] = None,
+        stack_id: Optional[str] = None,
+        load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
 
@@ -58,12 +65,12 @@ class BaseDialogManager(Protocol):
 class BgManagerFactory(Protocol):
     @abstractmethod
     def bg(
-            self,
-            bot: Bot,
-            user_id: int,
-            chat_id: int,
-            stack_id: Optional[str] = None,
-            load: bool = False,  # load chat and user
+        self,
+        bot: Bot,
+        user_id: int,
+        chat_id: int,
+        stack_id: Optional[str] = None,
+        load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
 
@@ -80,13 +87,13 @@ class DialogManager(BaseDialogManager, Protocol):
 
     @property
     @abstractmethod
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> Dict[str, Any]:
         """Middleware data."""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> DataDict:
         """Dialog data for current context."""
         raise NotImplementedError
 
@@ -153,7 +160,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id: str) -> Optional[Widget]:
         """
         Find a widget in current dialog by its id.
 
@@ -172,7 +179,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> Dict[str, Union[DataDict, Dict[str, Any], ChatEvent]]:
         """Load data for current state."""
         raise NotImplementedError
 
