@@ -6,19 +6,21 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
 from aiogram_dialog.api.entities import (
-    Context, DEFAULT_STACK_ID, Stack,
+    Context,
+    DEFAULT_STACK_ID,
+    Stack,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
 
 class StorageProxy:
     def __init__(
-            self,
-            storage: BaseStorage,
-            user_id: int,
-            chat_id: int,
-            bot: Bot,
-            state_groups: Dict[str, Type[StatesGroup]],
+        self,
+        storage: BaseStorage,
+        user_id: int,
+        chat_id: int,
+        bot: Bot,
+        state_groups: Dict[str, Type[StatesGroup]],
     ):
         self.storage = storage
         self.state_groups = state_groups
@@ -55,13 +57,13 @@ class StorageProxy:
             data=data,
         )
 
-    async def remove_context(self, intent_id: str):
+    async def remove_context(self, intent_id: str) -> None:
         await self.storage.set_data(
             key=self._context_key(intent_id),
             data={},
         )
 
-    async def remove_stack(self, stack_id: str):
+    async def remove_stack(self, stack_id: str) -> None:
         await self.storage.set_data(
             key=self._stack_key(stack_id),
             data={},
