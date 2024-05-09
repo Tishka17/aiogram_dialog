@@ -19,7 +19,7 @@ Also there are 2 general types:
 * ``Whenable`` can be hidden or shown depending on data or some conditions. Currently all widgets are whenable.
   See: :ref:`Hiding widgets<hiding_widgets>`
 * ``Actionable`` is any widget with action (currently only any type of keyboard). It has ``id`` and can be found by that id.
-  It recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog.
+  It's recommended for all stateful widgets (e.g Checkboxes) to have unique id within dialog.
   Buttons with different behavior also must have different ids.
 
 .. note::
@@ -39,5 +39,3 @@ Also there are 2 general types:
     media/index
     hiding/index
     custom_widgets/index
-
-
