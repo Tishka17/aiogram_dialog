@@ -866,7 +866,10 @@ class Calendar(Keyboard):
             self, data: str, manager: DialogManager,
     ) -> None:
         await self.on_click.process_event(
-            manager.event, self.managed(manager), manager, date_from_raw(int(data))
+            manager.event,
+            self.managed(manager),
+            manager,
+            date_from_raw(int(data)),
         )
 
     async def _process_item_callback(
