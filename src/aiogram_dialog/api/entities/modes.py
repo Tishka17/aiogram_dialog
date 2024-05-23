@@ -58,6 +58,7 @@ class StartMode(Enum):
         when a new sequence of operations is to be started alongside the
         current one.
     """
+
     NORMAL = "NORMAL"
     RESET_STACK = "RESET_STACK"
     NEW_STACK = "NEW_STACK"
