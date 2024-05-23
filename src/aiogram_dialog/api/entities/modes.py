@@ -35,6 +35,29 @@ class ShowMode(Enum):
 
 
 class StartMode(Enum):
+    """
+    Modes of starting a new dialog.
+
+    **NORMAL**:
+        default start mode.
+
+        This mode continues from the current state without resetting or
+        creating a new stack.
+
+    **RESET_STACK**:
+        reset the current stack.
+
+        This mode clears the existing stack and starts fresh. It is used when
+        the existing stack needs to be discarded and a new operation stack
+        is required.
+
+    **NEW_STACK**:
+        start with a new stack.
+
+        This mode initiates a new stack while retaining the old one, useful
+        when a new sequence of operations is to be started alongside the
+        current one.
+    """
     NORMAL = "NORMAL"
     RESET_STACK = "RESET_STACK"
     NEW_STACK = "NEW_STACK"

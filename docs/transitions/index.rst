@@ -105,3 +105,21 @@ To close a dialog you have to methods:
 Parent dialog has no access to the context of child one. But you can pass some data as a result to ``done()`` method and then process it in ``on_process_result`` callback of parent dialog.
 
 .. literalinclude:: ./done.py
+
+LaunchMode
+=================
+
+**LaunchMode** is a mode for launching new dialogs. It helps manage the dialog stack and ensures dialogs are handled appropriately based on their type.
+
+.. literalinclude:: ./launchmode.py
+
+.. autoclass:: aiogram_dialog.api.entities.launch_mode.LaunchMode(Enum)
+
+StartMode
+=================
+
+**StartMode** is a mode for starting new dialog. It defines how the current stack should be handled when initiating a new dialog.
+
+.. literalinclude:: ./startmode.py
+
+.. autoclass:: aiogram_dialog.api.entities.modes.StartMode(Enum)
