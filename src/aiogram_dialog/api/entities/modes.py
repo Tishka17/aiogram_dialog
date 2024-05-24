@@ -14,7 +14,7 @@ class ShowMode(Enum):
     **EDIT**:
         edit dialog message
 
-    **SEND****:
+    **SEND**:
         send new dialog message
 
     **DELETE_AND_SEND**:
