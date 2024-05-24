@@ -38,7 +38,7 @@ class OnItemStateChanged(Protocol[ManagedT, T]):
             event: ChatEvent,
             select: ManagedT,  # noqa: F841
             dialog_manager: DialogManager,
-            data: T,
+            data: Optional[T],
             /,
     ):
         raise NotImplementedError
@@ -252,11 +252,14 @@ class Radio(StatefulSelect[T], Generic[T]):
         return self.get_widget_data(manager, None)
 
     async def set_checked(
-            self, event: ChatEvent, item_id: T,
+            self, event: ChatEvent, item_id: Optional[T],
             manager: DialogManager,
     ) -> None:
         checked = self._get_checked(manager)
-        item_id_str = str(item_id)
+        if item_id is None:
+            item_id_str = None
+        else:
+            item_id_str = str(item_id)
         self.set_widget_data(manager, item_id_str)
         if checked != item_id_str:
             await self._process_on_state_changed(event, item_id_str, manager)
@@ -297,11 +300,7 @@ class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
         """Get an id of selected item."""
         return self.widget.get_checked(self.manager)
 
-    def reset_checked(self) -> None:
-        """Reset which item is selected."""
-        return self.widget.set_widget_data(self.manager, None)
-
-    async def set_checked(self, item_id: T):
+    async def set_checked(self, item_id: Optional[T]) -> None:
         """Get set which item is selected."""
         return await self.widget.set_checked(
             self.manager.event, item_id, self.manager,
