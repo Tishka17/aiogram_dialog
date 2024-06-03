@@ -90,14 +90,17 @@ class TextInput(BaseInput, Generic[T]):
             )
         return True
 
-    def get_value(self, manager: DialogManager) -> T:
-        return self.type_factory(self.get_widget_data(manager, None))
+    def get_value(self, manager: DialogManager) -> Optional[T]:
+        data = self.get_widget_data(manager, None)
+        if data is None:
+            return None
+        return self.type_factory(data)
 
     def managed(self, manager: DialogManager):
         return ManagedTextInput(self, manager)
 
 
 class ManagedTextInput(ManagedWidget[TextInput[T]], Generic[T]):
-    def get_value(self) -> T:
+    def get_value(self) -> Optional[T]:
         """Get last input data stored by widget."""
         return self.widget.get_value(self.manager)

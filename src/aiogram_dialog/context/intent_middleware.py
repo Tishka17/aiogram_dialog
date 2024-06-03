@@ -20,7 +20,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     DialogRegistryProtocol, StackAccessValidator,
 )
-from aiogram_dialog.utils import remove_indent_id, split_reply_callback
+from aiogram_dialog.utils import remove_intent_id, split_reply_callback
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
@@ -43,7 +43,7 @@ class IntentMiddlewareFactory:
             bot=data["bot"],
             storage=data["fsm_storage"],
             events_isolation=self.events_isolation,
-            state_groups=self.registry.state_groups(),
+            state_groups=self.registry.states_groups(),
             user_id=data["event_from_user"].id,
             chat_id=data["event_chat"].id,
             thread_id=data.get("event_thread_id"),
@@ -155,7 +155,7 @@ class IntentMiddlewareFactory:
         for row in event.reply_to_message.reply_markup.inline_keyboard:
             for button in row:
                 if button.callback_data:
-                    intent_id, _ = remove_indent_id(button.callback_data)
+                    intent_id, _ = remove_intent_id(button.callback_data)
                     return intent_id
         return None
 
@@ -245,7 +245,7 @@ class IntentMiddlewareFactory:
             return await handler(event, data)
         original_data = event.data
         if event.data:
-            intent_id, callback_data = remove_indent_id(event.data)
+            intent_id, callback_data = remove_intent_id(event.data)
             if intent_id:
                 await self._load_context_by_intent(
                     event=event,
@@ -350,7 +350,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                 user_id=user.id,
                 chat_id=chat.id,
                 thread_id=data.get("event_thread_id"),
-                state_groups=self.registry.state_groups(),
+                state_groups=self.registry.states_groups(),
             )
             data[STORAGE_KEY] = proxy
             if isinstance(error, OutdatedIntent):

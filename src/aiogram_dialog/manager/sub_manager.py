@@ -41,7 +41,7 @@ class SubManager(DialogManager):
         return self.current_context().dialog_data
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         """Start data for current context."""
         return self.manager.start_data
 
@@ -92,11 +92,11 @@ class SubManager(DialogManager):
     def show_mode(self, show_mode: ShowMode) -> None:
         self.manager.show_mode = show_mode
 
-    async def next(self) -> None:
-        await self.manager.next()
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
+        await self.manager.next(show_mode)
 
-    async def back(self) -> None:
-        await self.manager.back()
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
+        await self.manager.back(show_mode)
 
     async def done(
             self,

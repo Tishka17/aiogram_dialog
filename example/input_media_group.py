@@ -7,16 +7,15 @@ from aiogram.enums import ContentType
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Dialog, Window, DialogManager, StartMode, setup_dialogs,
+    Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.api.entities import MediaAttachment, MediaId
 from aiogram_dialog.widgets.common import ManagedScroll
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import StubScroll, NumberedPager, Group, Button
-from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
+from aiogram_dialog.widgets.kbd import Button, Group, NumberedPager, StubScroll
 from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -25,8 +24,11 @@ class Medias(StatesGroup):
     start = State()
 
 
-async def on_input_photo(message: Message, widget: MessageInput,
-                         dialog_manager: DialogManager):
+async def on_input_photo(
+    message: Message,
+    widget: MessageInput,
+    dialog_manager: DialogManager,
+):
     dialog_manager.dialog_data.setdefault("photos", []).append(
         (message.photo[-1].file_id, message.photo[-1].file_unique_id),
     )
@@ -55,7 +57,7 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
         )
     else:
         media = MediaAttachment(
-            url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/800px-Image_not_available.png?20210219185637",
+            url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/800px-Image_not_available.png?20210219185637",  # noqa: E501
             type=ContentType.PHOTO,
         )
     return {
@@ -71,10 +73,15 @@ dialog = Dialog(Window(
     StubScroll(id="pages", pages="media_count"),
     Group(
         NumberedPager(scroll="pages", when=F["pages"] > 1),
-        width=8
+        width=8,
     ),
-    Button(Format("🗑️ Delete photo #{media_number}"), id="del",
-           on_click=on_delete, when="media_count"),
+    Button(
+        Format("🗑️ Delete photo #{media_number}"),
+        id="del",
+        on_click=on_delete,
+        when="media_count",
+        # Alternative F['media_count']
+    ),
     MessageInput(content_types=[ContentType.PHOTO], func=on_input_photo),
     getter=getter,
     state=Medias.start,

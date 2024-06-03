@@ -1,11 +1,7 @@
 from aiogram.types import CallbackQuery
 
-from aiogram_dialog import (
-    Dialog, Window, DialogManager,
-)
-from aiogram_dialog.widgets.kbd import (
-    Counter, ManagedCounter,
-)
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.kbd import Counter, ManagedCounter
 from aiogram_dialog.widgets.text import Const, Progress
 from . import states
 from .common import MAIN_MENU_BUTTON
@@ -23,8 +19,9 @@ async def getter(dialog_manager: DialogManager, **kwargs):
 
 
 async def on_text_click(
-        event: CallbackQuery, widget: ManagedCounter,
-        dialog_manager: DialogManager,
+    event: CallbackQuery,
+    widget: ManagedCounter,
+    dialog_manager: DialogManager,
 ) -> None:
     await event.answer(f"Value: {widget.get_value()}")
 

@@ -76,7 +76,7 @@ class ManagerImpl(DialogManager):
         return self.current_context().dialog_data
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         """Start data for current context."""
         return self.current_context().start_data
 
@@ -273,20 +273,21 @@ class ManagerImpl(DialogManager):
         if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:
             if new_dialog is old_dialog:
                 await self.storage().remove_context(self.current_stack().pop())
+                self._data[CONTEXT_KEY] = None
 
-    async def next(self) -> None:
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index + 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
-    async def back(self) -> None:
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
         new_state = states[current_index - 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
     async def switch_to(
             self,

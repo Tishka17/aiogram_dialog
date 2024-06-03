@@ -4,12 +4,12 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, LaunchMode, Window, setup_dialogs, StartMode,
+    Dialog, DialogManager, LaunchMode, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import Cancel, Row, Start
 from aiogram_dialog.widgets.text import Const, Format
@@ -34,7 +34,7 @@ banner = Dialog(
         Const("BANNER IS HERE"),
         Start(Const("Try start"), id="start", state=MainSG.default),
         Cancel(),
-        state=BannerSG.default
+        state=BannerSG.default,
     ),
     launch_mode=LaunchMode.EXCLUSIVE,
 )
@@ -43,7 +43,7 @@ main_menu = Dialog(
         Const("This is main menu"),
         Start(Const("Product"), id="product", state=Product.show),
         Cancel(),
-        state=MainSG.default
+        state=MainSG.default,
     ),
     # we do not worry about resetting stack
     # each time we start dialog with ROOT launch mode
@@ -67,7 +67,7 @@ product = Dialog(
         ),
         Cancel(),
         getter=product_getter,
-        state=Product.show
+        state=Product.show,
     ),
     # when this dialog is on top and tries to launch a copy
     # it just replaces himself with it
@@ -86,9 +86,7 @@ async def main():
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(storage=storage)
-    dp.include_router(banner)
-    dp.include_router(product)
-    dp.include_router(main_menu)
+    dp.include_routers(banner, product, main_menu)
 
     dp.message.register(start, CommandStart())
     setup_dialogs(dp)

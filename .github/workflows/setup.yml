@@ -6,8 +6,12 @@ name: CI
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - "docs/**"
   pull_request:
     branches: [develop]
+    paths-ignore:
+      - "docs/**"
 
 jobs:
   cpython:
@@ -21,11 +25,12 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
 
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -33,10 +38,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install . -r requirements_dev.txt
+          pip install diagrams
 
       - name: Run flake8
         run: |
-          python -m flake8 src/aiogram_dialog tests
+          python -m flake8 src/aiogram_dialog tests example
 
       - name: Run tests
         run: |

@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from enum import Enum
-from time import mktime
 from typing import (
     Any, Callable, Dict, List, Optional, Protocol, TypedDict, TypeVar, Union,
 )
@@ -19,6 +18,8 @@ from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor, WidgetEventProcessor,
 )
 from .base import Keyboard
+
+EPOCH = date(1970, 1, 1)
 
 CALLBACK_NEXT_MONTH = "+"
 CALLBACK_PREV_MONTH = "-"
@@ -61,6 +62,16 @@ class CalendarScope(Enum):
     DAYS = "DAYS"
     MONTHS = "MONTHS"
     YEARS = "YEARS"
+
+
+def raw_from_date(d: date) -> int:
+    diff = d - EPOCH
+    raw_date = int(diff.total_seconds())
+    return raw_date
+
+
+def date_from_raw(raw_date: int) -> date:
+    return EPOCH + timedelta(seconds=raw_date)
 
 
 def month_begin(offset: date):
@@ -203,7 +214,9 @@ class CalendarDaysView(CalendarScopeView):
             text = self.today_text
         else:
             text = self.date_text
-        raw_date = int(mktime(selected_date.timetuple()))
+
+        raw_date = raw_from_date(selected_date)
+
         return InlineKeyboardButton(
             text=await text.render_text(
                 current_data, manager,
@@ -852,12 +865,11 @@ class Calendar(Keyboard):
     async def _handle_click_date(
             self, data: str, manager: DialogManager,
     ) -> None:
-        raw_date = int(data)
         await self.on_click.process_event(
             manager.event,
             self.managed(manager),
             manager,
-            date.fromtimestamp(raw_date),
+            date_from_raw(int(data)),
         )
 
     async def _process_item_callback(

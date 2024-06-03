@@ -79,17 +79,17 @@ class FakeManager(DialogManager):
             "event_from_user": User(id=1, is_bot=False, first_name="Fake"),
         }
 
-    async def next(self) -> None:
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
         new_state = states[current_index + 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
-    async def back(self) -> None:
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
         new_state = states[current_index - 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
     @property
     def data(self) -> Dict:
@@ -181,7 +181,7 @@ class FakeManager(DialogManager):
         pass
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         return {}
 
     @property

@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -13,8 +13,10 @@ from aiogram_dialog.api.entities import (
     MarkupVariant, MediaAttachment, NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
+from .dialog import OnResultEvent
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.markup.inline_keyboard import InlineKeyboardFactory
@@ -36,6 +38,7 @@ class Window(WindowProtocol):
             *widgets: WidgetSrc,
             state: State,
             getter: GetterVariant = None,
+            on_process_result: Optional[OnResultEvent] = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
@@ -53,6 +56,7 @@ class Window(WindowProtocol):
             ensure_data_getter(preview_data),
         )
         self.state = state
+        self.on_process_result = on_process_result
         self.markup_factory = markup_factory
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
@@ -98,6 +102,12 @@ class Window(WindowProtocol):
     ) -> None:
         if self.keyboard:
             await self.keyboard.process_callback(callback, dialog, manager)
+
+    async def process_result(
+            self, start_data: Data, result: Any, manager: DialogManager,
+    ) -> None:
+        if self.on_process_result:
+            await self.on_process_result(start_data, result, manager)
 
     async def render(
             self, dialog: DialogProtocol,

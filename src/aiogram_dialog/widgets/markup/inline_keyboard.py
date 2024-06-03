@@ -4,7 +4,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal.widgets import (
     MarkupFactory, MarkupVariant, RawKeyboard,
 )
-from aiogram_dialog.utils import add_indent_id
+from aiogram_dialog.utils import add_intent_id
 
 
 class InlineKeyboardFactory(MarkupFactory):
@@ -12,7 +12,7 @@ class InlineKeyboardFactory(MarkupFactory):
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
     ) -> MarkupVariant:
         # TODO validate buttons
-        add_indent_id(keyboard, manager.current_context().id)
+        add_intent_id(keyboard, manager.current_context().id)
         return InlineKeyboardMarkup(
             inline_keyboard=keyboard,
         )

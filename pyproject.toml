@@ -15,7 +15,7 @@ readme = "README.md"
 authors = [
     { name = "Andrey Tikhonov", email = "17@itishka.org" },
 ]
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0" }
 description = "Telegram bot UI framework on top of aiogram"
 requires-python = ">=3.8"
 classifiers = [
@@ -42,3 +42,8 @@ tools = [
 
 [project.scripts]
 aiogram-dialog-preview = "aiogram_dialog.tools.web_preview:main"
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+include = ["src/**"]

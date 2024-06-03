@@ -16,6 +16,8 @@ ignore=
     A002,
     # A003 class attribute "id" is shadowing a python builtin
     A003,
+    # A005 A module is shadowing a Python builtin module
+    A005,
     # D100 Missing docstring in public module
     D100,
     # D101 Missing docstring in public class

@@ -1,10 +1,8 @@
 from typing import Any, Dict
 
-from aiogram_dialog import (
-    Dialog, Window, DialogManager,
-)
-from aiogram_dialog.widgets.kbd import Next, Row, Back, Checkbox, Radio
-from aiogram_dialog.widgets.text import Const, Format, Case
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.kbd import Back, Checkbox, Next, Radio, Row
+from aiogram_dialog.widgets.text import Case, Const, Format
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -13,6 +11,15 @@ HEADER = Const("Multiple windows in the same dialog can be used "
 CHECKBOX_ID = "chk"
 EMOJI_ID = "emoji"
 
+
+async def data_getter(
+        dialog_manager: DialogManager, **_kwargs,
+) -> Dict[str, Any]:
+    return {
+        "option": dialog_manager.find(CHECKBOX_ID).is_checked(),
+        "emoji": dialog_manager.find(EMOJI_ID).get_checked(),
+    }
+
 main_window = Window(
     HEADER,
     Const("Step 1. Press Next"),
@@ -20,6 +27,7 @@ main_window = Window(
     MAIN_MENU_BUTTON,
     state=states.Switch.MAIN,
 )
+
 input_window = Window(
     HEADER,
     Const("Step 2. Select options"),
@@ -40,16 +48,6 @@ input_window = Window(
     state=states.Switch.INPUT,
 )
 
-
-async def data_getter(
-        dialog_manager: DialogManager, **_kwargs,
-) -> Dict[str, Any]:
-    return {
-        "option": dialog_manager.find(CHECKBOX_ID).is_checked(),
-        "emoji": dialog_manager.find(EMOJI_ID).get_checked(),
-    }
-
-
 last_window = Window(
     HEADER,
     Const("Step 3. Your data:"),
@@ -66,6 +64,7 @@ last_window = Window(
     state=states.Switch.LAST,
     getter=data_getter,
 )
+
 switch_dialog = Dialog(
     main_window,
     input_window,

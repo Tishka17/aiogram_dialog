@@ -4,12 +4,13 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    BaseDialogManager, Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    BaseDialogManager, Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress
@@ -25,7 +26,7 @@ class Bg(StatesGroup):
 
 async def get_bg_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "progress": dialog_manager.dialog_data.get("progress", 0)
+        "progress": dialog_manager.dialog_data.get("progress", 0),
     }
 
 
@@ -46,8 +47,11 @@ class MainSG(StatesGroup):
     main = State()
 
 
-async def start_bg(callback: CallbackQuery, button: Button,
-                   manager: DialogManager):
+async def start_bg(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     await manager.start(Bg.progress)
     asyncio.create_task(background(callback, manager.bg()))
 
