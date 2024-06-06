@@ -74,16 +74,18 @@ class IntentMiddlewareFactory:
     ) -> Optional[Stack]:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
-        stack = await proxy.load_stack(stack_id)
-        if not await self.access_validator.is_allowed(stack, event, data):
-            user = data["event_from_user"]
-            logger.debug(
-                "Stack %s is not allowed for user %s",
-                stack.id, user.id,
-            )
+        try:
+            stack = await proxy.load_stack(stack_id)
+            if not await self.access_validator.is_allowed(stack, event, data):
+                user = data["event_from_user"]
+                logger.debug(
+                    "Stack %s is not allowed for user %s",
+                    stack.id, user.id,
+                )
+                return
+            return stack
+        finally:
             await proxy.unlock()
-            return
-        return stack
 
     async def _load_context_by_stack(
             self,
