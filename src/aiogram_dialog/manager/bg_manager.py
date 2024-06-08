@@ -36,6 +36,7 @@ class BgManager(BaseDialogManager):
             router: Router,
             intent_id: Optional[str],
             stack_id: Optional[str],
+            thread_id: Optional[int],
             load: bool = False,
     ):
         self.user = user
@@ -45,6 +46,7 @@ class BgManager(BaseDialogManager):
         self._updater = Updater(router)
         self.intent_id = intent_id
         self.stack_id = stack_id
+        self.thread_id = thread_id
         self.load = load
 
     def bg(
@@ -52,6 +54,7 @@ class BgManager(BaseDialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
             load: bool = False,
     ) -> "BaseDialogManager":
         if chat_id in (None, self.chat.id):
@@ -75,6 +78,9 @@ class BgManager(BaseDialogManager):
         else:
             intent_id = None
 
+        if thread_id is None and same_chat:
+            thread_id = self.thread_id
+
         return BgManager(
             user=user,
             chat=chat,
@@ -82,6 +88,7 @@ class BgManager(BaseDialogManager):
             router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
+            thread_id=thread_id,
             load=load,
         )
 
@@ -91,6 +98,7 @@ class BgManager(BaseDialogManager):
             "chat": self.chat,
             "intent_id": self.intent_id,
             "stack_id": self.stack_id,
+            "thread_id": self.thread_id,
         }
 
     async def _notify(self, event: DialogUpdateEvent):
@@ -186,6 +194,7 @@ class BgManagerFactoryImpl(BgManagerFactory):
             user_id: int,
             chat_id: int,
             stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
             load: bool = False,
     ) -> "BaseDialogManager":
         chat = FakeChat(id=chat_id, type="")
@@ -200,5 +209,6 @@ class BgManagerFactoryImpl(BgManagerFactory):
             router=self._router,
             intent_id=None,
             stack_id=stack_id,
+            thread_id=thread_id,
             load=load,
         )

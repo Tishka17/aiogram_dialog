@@ -37,6 +37,7 @@ class DialogUpdateEvent(TelegramObject):
     data: Any
     intent_id: Optional[str]
     stack_id: Optional[str]
+    thread_id: Optional[int]
     show_mode: Optional[ShowMode] = None
 
 

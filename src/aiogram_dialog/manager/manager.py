@@ -487,18 +487,22 @@ class ManagerImpl(DialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
+        same_chat = self.is_same_chat(user, chat)
         if stack_id is None:
-            if self.is_same_chat(user, chat):
+            if same_chat:
                 stack_id = self.current_stack().id
                 if self.has_context():
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID
+        if thread_id is None and same_chat:
+            thread_id = self.middleware_data.get("event_thread_id")
 
         return BgManager(
             user=user,
@@ -507,6 +511,7 @@ class ManagerImpl(DialogManager):
             router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
+            thread_id=thread_id,
             load=load,
         )
 

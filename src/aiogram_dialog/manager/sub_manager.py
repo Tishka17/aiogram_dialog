@@ -137,9 +137,18 @@ class SubManager(DialogManager):
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
-    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None,
-           stack_id: Optional[str] = None,
-           load: bool = False) -> BaseDialogManager:
+    def bg(
+            self,
+            user_id: Optional[int] = None,
+            chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
+            load: bool = False,
+    ) -> BaseDialogManager:
         return self.manager.bg(
-            user_id=user_id, chat_id=chat_id, stack_id=stack_id, load=load,
+            user_id=user_id,
+            chat_id=chat_id,
+            stack_id=stack_id,
+            thread_id=thread_id,
+            load=load,
         )

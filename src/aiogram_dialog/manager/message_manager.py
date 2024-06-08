@@ -349,7 +349,7 @@ class MessageManager(MessageManagerProtocol):
             return await self.send_text(bot, new_message)
 
     async def send_text(self, bot: Bot, new_message: NewMessage) -> Message:
-        logger.debug("send_text to %s", new_message.chat)
+        logger.debug("send_text to chat %s, thread %s", new_message.chat.id, new_message.thread_id)
         return await bot.send_message(
             new_message.chat.id,
             text=new_message.text,

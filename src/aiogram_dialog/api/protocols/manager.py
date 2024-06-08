@@ -52,6 +52,7 @@ class BaseDialogManager(Protocol):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
@@ -65,6 +66,7 @@ class BgManagerFactory(Protocol):
             user_id: int,
             chat_id: int,
             stack_id: Optional[str] = None,
+            thread_id: Optional[int] = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
