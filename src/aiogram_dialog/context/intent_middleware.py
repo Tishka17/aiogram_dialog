@@ -278,13 +278,18 @@ SUPPORTED_ERROR_EVENTS = {
 
 
 async def context_saver_middleware(handler, event, data):
+    result = await handler(event, data)
+    proxy: StorageProxy = data.pop(STORAGE_KEY, None)
+    if proxy:
+        await proxy.save_context(data.pop(CONTEXT_KEY))
+        await proxy.save_stack(data.pop(STACK_KEY))
+    return result
+
+
+async def context_unlocker_middleware(handler, event, data):
     proxy: StorageProxy = data.get(STORAGE_KEY, None)
     try:
         result = await handler(event, data)
-        proxy: StorageProxy = data.pop(STORAGE_KEY, None)
-        if proxy:
-            await proxy.save_context(data.pop(CONTEXT_KEY))
-            await proxy.save_stack(data.pop(STACK_KEY))
     finally:
         if proxy:
             await proxy.unlock()

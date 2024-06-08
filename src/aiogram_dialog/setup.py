@@ -15,6 +15,7 @@ from aiogram_dialog.api.protocols import (
 )
 from aiogram_dialog.context.intent_middleware import (
     context_saver_middleware,
+    context_unlocker_middleware,
     IntentErrorMiddleware,
     IntentMiddlewareFactory,
 )
@@ -132,6 +133,12 @@ def _register_middleware(
     router.chat_join_request.outer_middleware(
         intent_middleware.process_chat_join_request,
     )
+
+    router.message.outer_middleware(context_unlocker_middleware)
+    router.callback_query.outer_middleware(context_unlocker_middleware)
+    update_handler.outer_middleware(context_unlocker_middleware)
+    router.my_chat_member.outer_middleware(context_unlocker_middleware)
+    router.chat_join_request.outer_middleware(context_unlocker_middleware)
 
     router.message.middleware(context_saver_middleware)
     router.callback_query.middleware(context_saver_middleware)

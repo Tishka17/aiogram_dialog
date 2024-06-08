@@ -70,6 +70,7 @@ class FakeManager(DialogManager):
             data={},
             intent_id=None,
             stack_id=None,
+            thread_id=None,
         )
         self._context: Optional[Context] = None
         self._dialog: Optional[DialogProtocol] = None
