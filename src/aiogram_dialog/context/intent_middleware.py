@@ -104,7 +104,11 @@ class IntentMiddlewareFactory:
         if stack.empty():
             context = None
         else:
-            context = await proxy.load_context(stack.last_intent_id())
+            try:
+                context = await proxy.load_context(stack.last_intent_id())
+            except:
+                await proxy.unlock()
+                raise
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
@@ -126,7 +130,11 @@ class IntentMiddlewareFactory:
         stack = await self._load_stack(event, context.stack_id, proxy, data)
         if not stack:
             return
-        self._check_outdated(intent_id, stack)
+        try:
+            self._check_outdated(intent_id, stack)
+        except:
+            await proxy.unlock()
+            raise
 
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
