@@ -373,7 +373,9 @@ class ManagerImpl(DialogManager):
     ) -> Optional[OldMessage]:
         current_message = event.message
         stack = self.current_stack()
-        chat = self.middleware_data["event_chat"]
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
         if current_message:
             media_id = get_media_id(current_message)
             return OldMessage(
@@ -381,8 +383,9 @@ class ManagerImpl(DialogManager):
                 media_uniq_id=(media_id.file_unique_id if media_id else None),
                 text=current_message.text,
                 has_reply_keyboard=self.is_event_simulated(),
-                chat=chat,
+                chat=event_context.chat,
                 message_id=current_message.message_id,
+                business_connection_id=event_context.business_connection_id,
             )
         elif not stack or not stack.last_message_id:
             return None
@@ -392,8 +395,9 @@ class ManagerImpl(DialogManager):
                 media_uniq_id=None,
                 text=UnknownText.UNKNOWN,
                 has_reply_keyboard=self.is_event_simulated(),
-                chat=chat,
+                chat=event_context.chat,
                 message_id=stack.last_message_id,
+                business_connection_id=event_context.business_connection_id,
             )
 
     def _get_last_message(self) -> Optional[OldMessage]:
@@ -405,16 +409,19 @@ class ManagerImpl(DialogManager):
             return self._get_message_from_callback(event)
 
         stack = self.current_stack()
-        chat = self.middleware_data["event_chat"]
         if not stack or not stack.last_message_id:
             return None
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
         return OldMessage(
             media_id=stack.last_media_id,
             media_uniq_id=stack.last_media_unique_id,
             text=UnknownText.UNKNOWN,
             has_reply_keyboard=stack.last_reply_keyboard,
-            chat=chat,
+                chat=event_context.chat,
             message_id=stack.last_message_id,
+            business_connection_id=event_context.business_connection_id,
         )
 
     def _save_last_message(self, message: OldMessage):

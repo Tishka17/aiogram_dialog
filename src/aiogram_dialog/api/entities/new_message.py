@@ -26,12 +26,14 @@ class OldMessage:
     media_uniq_id: Optional[str]
     text: Union[str, None, UnknownText] = None
     has_reply_keyboard: bool = False
+    business_connection_id: Optional[str] = None
 
 
 @dataclass
 class NewMessage:
     chat: Chat
     thread_id: Optional[int] = None
+    business_connection_id: Optional[str] = None
     text: Optional[str] = None
     reply_markup: Optional[MarkupVariant] = None
     parse_mode: Optional[str] = None

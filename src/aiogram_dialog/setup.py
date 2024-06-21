@@ -114,6 +114,7 @@ def _register_middleware(
     ))
 
     router.message.middleware(manager_middleware)
+    router.business_message.middleware(manager_middleware)
     router.callback_query.middleware(manager_middleware)
     update_handler.middleware(manager_middleware)
     router.my_chat_member.middleware(manager_middleware)
@@ -121,6 +122,7 @@ def _register_middleware(
     router.errors.middleware(manager_middleware)
 
     router.message.outer_middleware(intent_middleware.process_message)
+    router.business_message.outer_middleware(intent_middleware.process_message)
     router.callback_query.outer_middleware(
         intent_middleware.process_callback_query,
     )
@@ -135,12 +137,14 @@ def _register_middleware(
     )
 
     router.message.outer_middleware(context_unlocker_middleware)
+    router.business_message.outer_middleware(context_unlocker_middleware)
     router.callback_query.outer_middleware(context_unlocker_middleware)
     update_handler.outer_middleware(context_unlocker_middleware)
     router.my_chat_member.outer_middleware(context_unlocker_middleware)
     router.chat_join_request.outer_middleware(context_unlocker_middleware)
 
     router.message.middleware(context_saver_middleware)
+    router.business_message.middleware(context_saver_middleware)
     router.callback_query.middleware(context_saver_middleware)
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)

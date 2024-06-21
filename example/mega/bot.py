@@ -75,6 +75,7 @@ def setup_dp():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
+    dp.business_message.register(start, F.text == "/start")
     dp.errors.register(
         on_unknown_intent,
         ExceptionTypeFilter(UnknownIntent),

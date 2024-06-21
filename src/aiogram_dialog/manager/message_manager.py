@@ -65,6 +65,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         text=message_result.text,
         media_uniq_id=(media_id.file_unique_id if media_id else None),
         media_id=(media_id.file_id if media_id else None),
+        business_connection_id=message_result.business_connection_id,
     )
 
 
@@ -221,6 +222,7 @@ class MessageManager(MessageManagerProtocol):
             return await bot.edit_message_reply_markup(
                 message_id=old_message.message_id,
                 chat_id=old_message.chat.id,
+                business_connection_id=old_message.business_connection_id,
             )
         except TelegramBadRequest as err:
             if "message is not modified" in err.message:
@@ -244,6 +246,7 @@ class MessageManager(MessageManagerProtocol):
                 chat=old_message.chat,
                 text="...",
                 reply_markup=ReplyKeyboardRemove(),
+                business_connection_id=old_message.business_connection_id,
             ),
         )
 
@@ -253,6 +256,9 @@ class MessageManager(MessageManagerProtocol):
             old_message: OldMessage,
             new_message: Optional[NewMessage],
     ) -> None:
+        if old_message.business_connection_id:
+            await self._remove_kbd(bot, old_message, new_message)
+            return
         try:
             await bot.delete_message(
                 chat_id=old_message.chat.id,
@@ -300,6 +306,7 @@ class MessageManager(MessageManagerProtocol):
         return await bot.edit_message_caption(
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
+            business_connection_id=new_message.business_connection_id,
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
@@ -312,6 +319,7 @@ class MessageManager(MessageManagerProtocol):
         return await bot.edit_message_text(
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
+            business_connection_id=new_message.business_connection_id,
             text=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
@@ -349,11 +357,16 @@ class MessageManager(MessageManagerProtocol):
             return await self.send_text(bot, new_message)
 
     async def send_text(self, bot: Bot, new_message: NewMessage) -> Message:
-        logger.debug("send_text to chat %s, thread %s", new_message.chat.id, new_message.thread_id)
+        logger.debug(
+            "send_text to chat %s, thread %s, business_id %s",
+            new_message.chat.id, new_message.thread_id,
+            new_message.business_connection_id,
+        )
         return await bot.send_message(
             new_message.chat.id,
             text=new_message.text,
             message_thread_id=new_message.thread_id,
+            business_connection_id=new_message.business_connection_id,
             disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
@@ -374,6 +387,7 @@ class MessageManager(MessageManagerProtocol):
             new_message.chat.id,
             await self.get_media_source(new_message.media, bot),
             message_thread_id=new_message.thread_id,
+            business_connection_id=new_message.business_connection_id,
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,

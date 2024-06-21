@@ -1,6 +1,8 @@
 from logging import getLogger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
+from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, \
+    EventContext
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
@@ -121,9 +123,13 @@ class Window(WindowProtocol):
             logger.error("Cannot get window data for state %s", self.state)
             raise
         try:
+            event_context = cast(
+                EventContext, manager.middleware_data.get(EVENT_CONTEXT_KEY),
+            )
             return NewMessage(
                 chat=chat,
-                thread_id=manager.middleware_data.get("event_thread_id"),
+                thread_id=event_context.thread_id,
+                business_connection_id=event_context.business_connection_id,
                 text=await self.render_text(current_data, manager),
                 reply_markup=await self.render_kbd(current_data, manager),
                 parse_mode=self.parse_mode,
