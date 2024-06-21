@@ -1,7 +1,9 @@
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union, cast
 
 from aiogram import Router
+from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, \
+    EventContext
 from aiogram.enums import ChatType
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -24,6 +26,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
+    UnsetId,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
@@ -487,7 +490,8 @@ class ManagerImpl(DialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
@@ -501,8 +505,20 @@ class ManagerImpl(DialogManager):
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID
-        if thread_id is None and same_chat:
-            thread_id = self.middleware_data.get("event_thread_id")
+
+        event_context = cast(
+            self.middleware_data.get(EVENT_CONTEXT_KEY), EventContext,
+        )
+        if thread_id is UnsetId.UNSET:
+            if same_chat:
+                thread_id = event_context.thread_id
+            else:
+                thread_id = None
+        if business_connection_id is UnsetId.UNSET:
+            if same_chat:
+                business_connection_id = event_context.business_connection_id
+            else:
+                business_connection_id = None
 
         return BgManager(
             user=user,
@@ -512,6 +528,7 @@ class ManagerImpl(DialogManager):
             intent_id=intent_id,
             stack_id=stack_id,
             thread_id=thread_id,
+            business_connection_id=business_connection_id,
             load=load,
         )
 

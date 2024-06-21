@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Protocol
+from enum import Enum
+from typing import Any, Dict, Optional, Protocol, Union
 
 from aiogram import Bot
 from aiogram.fsm.state import State
@@ -8,6 +9,10 @@ from aiogram_dialog.api.entities import (
     AccessSettings,
     ChatEvent, Context, Data, ShowMode, Stack, StartMode,
 )
+
+
+class UnsetId(Enum):
+    UNSET = "UNSET"
 
 
 class BaseDialogManager(Protocol):
@@ -52,7 +57,8 @@ class BaseDialogManager(Protocol):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
@@ -67,6 +73,7 @@ class BgManagerFactory(Protocol):
             chat_id: int,
             stack_id: Optional[str] = None,
             thread_id: Optional[int] = None,
+            business_connection_id:  Optional[str] = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError

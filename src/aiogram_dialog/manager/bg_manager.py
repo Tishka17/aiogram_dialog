@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
@@ -20,7 +20,9 @@ from aiogram_dialog.api.entities import (
 from aiogram_dialog.api.internal import (
     FakeChat, FakeUser,
 )
-from aiogram_dialog.api.protocols import BaseDialogManager, BgManagerFactory
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, BgManagerFactory, UnsetId,
+)
 from aiogram_dialog.manager.updater import Updater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
@@ -37,6 +39,7 @@ class BgManager(BaseDialogManager):
             intent_id: Optional[str],
             stack_id: Optional[str],
             thread_id: Optional[int],
+            business_connection_id: Optional[str],
             load: bool = False,
     ):
         self.user = user
@@ -47,6 +50,7 @@ class BgManager(BaseDialogManager):
         self.intent_id = intent_id
         self.stack_id = stack_id
         self.thread_id = thread_id
+        self.business_connection_id = business_connection_id
         self.load = load
 
     def bg(
@@ -54,7 +58,8 @@ class BgManager(BaseDialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> "BaseDialogManager":
         if chat_id in (None, self.chat.id):
@@ -67,7 +72,11 @@ class BgManager(BaseDialogManager):
         else:
             user = FakeUser(id=user_id, is_bot=False, first_name="")
 
-        same_chat = user.id == self.user.id and chat.id == self.chat.id
+        same_chat = (
+                user.id == self.user.id and
+                chat.id == self.chat.id and
+                business_connection_id == self.business_connection_id
+        )
         if stack_id is None:
             if same_chat:
                 stack_id = self.stack_id
@@ -78,8 +87,16 @@ class BgManager(BaseDialogManager):
         else:
             intent_id = None
 
-        if thread_id is None and same_chat:
-            thread_id = self.thread_id
+        if thread_id is UnsetId.UNSET:
+            if same_chat:
+                thread_id = self.thread_id
+            else:
+                thread_id = None
+        if business_connection_id is UnsetId.UNSET:
+            if same_chat:
+                business_connection_id = self.business_connection_id
+            else:
+                business_connection_id = None
 
         return BgManager(
             user=user,
@@ -89,6 +106,7 @@ class BgManager(BaseDialogManager):
             intent_id=intent_id,
             stack_id=stack_id,
             thread_id=thread_id,
+            business_connection_id=business_connection_id,
             load=load,
         )
 
@@ -99,6 +117,7 @@ class BgManager(BaseDialogManager):
             "intent_id": self.intent_id,
             "stack_id": self.stack_id,
             "thread_id": self.thread_id,
+            "business_connection_id": self.business_connection_id,
         }
 
     async def _notify(self, event: DialogUpdateEvent):
@@ -128,7 +147,9 @@ class BgManager(BaseDialogManager):
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.DONE, data=result, show_mode=show_mode,
+                action=DialogAction.DONE,
+                data=result,
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
@@ -195,6 +216,7 @@ class BgManagerFactoryImpl(BgManagerFactory):
             chat_id: int,
             stack_id: Optional[str] = None,
             thread_id: Optional[int] = None,
+            business_connection_id:  Optional[str] = None,
             load: bool = False,
     ) -> "BaseDialogManager":
         chat = FakeChat(id=chat_id, type="")
@@ -210,5 +232,6 @@ class BgManagerFactoryImpl(BgManagerFactory):
             intent_id=None,
             stack_id=stack_id,
             thread_id=thread_id,
+            business_connection_id=business_connection_id,
             load=load,
         )

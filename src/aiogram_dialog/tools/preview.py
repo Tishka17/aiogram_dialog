@@ -2,7 +2,7 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Union
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
@@ -29,6 +29,7 @@ from aiogram_dialog.api.entities import (
     StartMode,
 )
 from aiogram_dialog.api.exceptions import NoContextError
+from aiogram_dialog.api.protocols import UnsetId
 from aiogram_dialog.setup import collect_dialogs
 from aiogram_dialog.utils import split_reply_callback
 
@@ -211,8 +212,12 @@ class FakeManager(DialogManager):
 
     def bg(
             self,
-            user_id: Optional[int] = None, chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None, load: bool = False,
+            user_id: Optional[int] = None,
+            chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
+            load: bool = False,
     ) -> BaseDialogManager:
         return self
 

@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import Message
@@ -10,7 +10,9 @@ from aiogram_dialog.api.entities import (
 )
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import Widget
-from aiogram_dialog.api.protocols import BaseDialogManager, DialogManager
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, DialogManager, UnsetId,
+)
 
 
 class SubManager(DialogManager):
@@ -142,7 +144,8 @@ class SubManager(DialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         return self.manager.bg(
@@ -150,5 +153,6 @@ class SubManager(DialogManager):
             chat_id=chat_id,
             stack_id=stack_id,
             thread_id=thread_id,
+            business_connection_id=business_connection_id,
             load=load,
         )

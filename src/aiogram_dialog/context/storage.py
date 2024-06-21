@@ -23,6 +23,7 @@ class StorageProxy:
             user_id: Optional[int],
             chat_id: int,
             thread_id: Optional[int],
+            business_connection_id: Optional[str],
             bot: Bot,
             state_groups: Dict[str, Type[StatesGroup]],
     ):
@@ -32,6 +33,7 @@ class StorageProxy:
         self.user_id = user_id
         self.chat_id = chat_id
         self.thread_id = thread_id
+        self.business_connection_id = business_connection_id
         self.bot = bot
         self.lock_stack = AsyncExitStack()
 
@@ -120,6 +122,7 @@ class StorageProxy:
             chat_id=self.chat_id,
             user_id=self.chat_id,
             thread_id=self.thread_id,
+            business_connection_id=self.business_connection_id,
             destiny=f"aiogd:context:{intent_id}",
         )
 
@@ -137,6 +140,7 @@ class StorageProxy:
             chat_id=self.chat_id,
             user_id=self.chat_id,
             thread_id=self.thread_id,
+            business_connection_id=self.business_connection_id,
             destiny=f"aiogd:stack:{stack_id}",
         )
 

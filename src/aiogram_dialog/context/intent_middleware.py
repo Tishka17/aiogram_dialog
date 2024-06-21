@@ -1,11 +1,14 @@
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Optional, cast
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.storage.base import BaseEventIsolation
 from aiogram.types import CallbackQuery, Chat, Message, User
 from aiogram.types.error_event import ErrorEvent
+from aiogram.dispatcher.middlewares.user_context import (
+    EVENT_CONTEXT_KEY, EventContext
+)
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
@@ -39,14 +42,16 @@ class IntentMiddlewareFactory:
         self.events_isolation = events_isolation
 
     def storage_proxy(self, data: dict):
+        event_context = cast(EventContext, data.get(EVENT_CONTEXT_KEY))
         proxy = StorageProxy(
             bot=data["bot"],
             storage=data["fsm_storage"],
             events_isolation=self.events_isolation,
             state_groups=self.registry.states_groups(),
-            user_id=data["event_from_user"].id,
-            chat_id=data["event_chat"].id,
-            thread_id=data.get("event_thread_id"),
+            user_id=event_context.user_id,
+            chat_id=event_context.chat_id,
+            thread_id=event_context.thread_id,
+            business_connection_id=event_context.business_connection_id,
         )
         return proxy
 
@@ -94,9 +99,10 @@ class IntentMiddlewareFactory:
     ) -> None:
         user = data["event_from_user"]
         chat = data["event_chat"]
+        thread_id = data.get("event_thread_id")
         logger.debug(
-            "Loading context for stack: `%s`, user: `%s`, chat: `%s`",
-            stack_id, user.id, chat.id,
+            "Loading context for stack: `%s`, user: `%s`, chat: `%s`, thread: `%s`",
+            stack_id, user.id, chat.id, thread_id,
         )
         stack = await self._load_stack(event, stack_id, proxy, data)
         if not stack:
@@ -328,14 +334,13 @@ class IntentErrorMiddleware(BaseMiddleware):
 
     async def _load_last_context(
             self, storage: StorageProxy, stack: Stack,
-            chat: Chat, user: User,
     ) -> Optional[Context]:
         try:
             return await storage.load_context(stack.last_intent_id())
         except (UnknownIntent, OutdatedIntent):
             logger.warning(
                 "Stack is broken for user %s, chat %s, resetting",
-                user.id, chat.id,
+                storage.user_id, storage.chat_id,
             )
             await self._fix_broken_stack(storage, stack)
         return None
@@ -353,17 +358,16 @@ class IntentErrorMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         try:
-            chat = data["event_chat"]
-            user = data["event_from_user"]
-
+            event_context = cast(EventContext, data.get(EVENT_CONTEXT_KEY))
             proxy = StorageProxy(
                 bot=data["bot"],
                 storage=data["fsm_storage"],
                 events_isolation=self.events_isolation,
-                user_id=user.id,
-                chat_id=chat.id,
-                thread_id=data.get("event_thread_id"),
                 state_groups=self.registry.states_groups(),
+                user_id=event_context.user_id,
+                chat_id=event_context.chat_id,
+                thread_id=event_context.thread_id,
+                business_connection_id=event_context.business_connection_id,
             )
             data[STORAGE_KEY] = proxy
             if isinstance(error, OutdatedIntent):
@@ -374,7 +378,8 @@ class IntentErrorMiddleware(BaseMiddleware):
                 context = None
             else:
                 context = await self._load_last_context(
-                    storage=proxy, stack=stack, chat=chat, user=user,
+                    storage=proxy,
+                    stack=stack,
                 )
             data[STACK_KEY] = stack
             data[CONTEXT_KEY] = context

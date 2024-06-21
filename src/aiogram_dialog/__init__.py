@@ -9,6 +9,7 @@ __all__ = [
     "BgManagerFactory",
     "DialogManager",
     "DialogProtocol",
+    "UnsetId",
     "setup_dialogs",
     "ShowMode",
     "SubManager",
@@ -22,6 +23,7 @@ from .api.entities import (
 )
 from .api.protocols import (
     BaseDialogManager, BgManagerFactory, DialogManager, DialogProtocol,
+    UnsetId,
 )
 from .dialog import Dialog
 from .manager.sub_manager import SubManager
