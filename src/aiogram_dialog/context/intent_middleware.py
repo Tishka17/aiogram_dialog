@@ -3,15 +3,14 @@ from typing import Any, Awaitable, Callable, Dict, Optional, cast
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.fsm.storage.base import BaseEventIsolation
-from aiogram.types import CallbackQuery, Chat, Message, User
+from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
+from aiogram.types import CallbackQuery, Message, ChatMemberUpdated, \
+    ChatJoinRequest
 from aiogram.types.error_event import ErrorEvent
-from aiogram.dispatcher.middlewares.user_context import (
-    EVENT_CONTEXT_KEY, EventContext
-)
 
 from aiogram_dialog.api.entities import (
     ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
+    EVENT_CONTEXT_KEY, EventContext,
 )
 from aiogram_dialog.api.exceptions import (
     InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
@@ -29,6 +28,78 @@ from .storage import StorageProxy
 logger = getLogger(__name__)
 
 
+def get_thread_id(message: Message) -> Optional[str]:
+    if not message.is_topic_message:
+        return None
+    return message.message_thread_id
+
+
+def event_context_from_callback(event: CallbackQuery) -> EventContext:
+    return EventContext(
+        bot=event.bot,
+        user=event.from_user,
+        chat=event.message.chat,
+        thread_id=(
+            get_thread_id(event.message)
+            if isinstance(event.message, Message)
+            else None
+        ),
+        business_connection_id=event.message.business_connection_id,
+    )
+
+
+def event_context_from_chat_member(event: ChatMemberUpdated) -> EventContext:
+    return EventContext(
+        bot=event.bot,
+        user=event.from_user,
+        chat=event.chat,
+        thread_id=None,
+        business_connection_id=None,
+    )
+
+
+def event_context_from_chat_join(event: ChatJoinRequest) -> EventContext:
+    return EventContext(
+        bot=event.bot,
+        user=event.from_user,
+        chat=event.chat,
+        thread_id=None,
+        business_connection_id=None,
+    )
+
+
+def event_context_from_message(event: Message) -> EventContext:
+    return EventContext(
+        bot=event.bot,
+        user=event.from_user,
+        chat=event.chat,
+        thread_id=get_thread_id(event),
+        business_connection_id=event.business_connection_id,
+    )
+
+
+def event_context_from_aiogd(event: DialogUpdateEvent) -> EventContext:
+    return EventContext(
+        bot=event.bot,
+        user=event.from_user,
+        chat=event.chat,
+        thread_id=event.thread_id,
+        business_connection_id=event.business_connection_id,
+    )
+
+def event_context_from_error(event: ErrorEvent) -> EventContext:
+    if event.update.message:
+        return event_context_from_message(event.update.message)
+    elif event.update.business_message:
+        return event_context_from_message(event.update.business_message)
+    elif event.update.my_chat_member:
+        return event_context_from_chat_member(event.update.my_chat_member)
+    elif event.update.chat_join_request:
+        return event_context_from_chat_join(event.update.chat_join_request)
+    elif event.update.callback_query:
+        return event_context_from_callback(event.update.callback_query)
+
+
 class IntentMiddlewareFactory:
     def __init__(
             self,
@@ -41,15 +112,16 @@ class IntentMiddlewareFactory:
         self.access_validator = access_validator
         self.events_isolation = events_isolation
 
-    def storage_proxy(self, data: dict):
-        event_context = cast(EventContext, data.get(EVENT_CONTEXT_KEY))
+    def storage_proxy(
+            self, event_context: EventContext, fsm_storage: BaseStorage,
+    ) -> StorageProxy:
         proxy = StorageProxy(
-            bot=data["bot"],
-            storage=data["fsm_storage"],
+            bot=event_context.bot,
+            storage=fsm_storage,
             events_isolation=self.events_isolation,
             state_groups=self.registry.states_groups(),
-            user_id=event_context.user_id,
-            chat_id=event_context.chat_id,
+            user_id=event_context.user.id,
+            chat_id=event_context.chat.id,
             thread_id=event_context.thread_id,
             business_connection_id=event_context.business_connection_id,
         )
@@ -97,12 +169,9 @@ class IntentMiddlewareFactory:
             stack_id: Optional[str],
             data: dict,
     ) -> None:
-        user = data["event_from_user"]
-        chat = data["event_chat"]
-        thread_id = data.get("event_thread_id")
         logger.debug(
             "Loading context for stack: `%s`, user: `%s`, chat: `%s`, thread: `%s`",
-            stack_id, user.id, chat.id, thread_id,
+            stack_id, proxy.user_id, proxy.chat_id, proxy.thread_id,
         )
         stack = await self._load_stack(event, stack_id, proxy, data)
         if not stack:
@@ -126,11 +195,9 @@ class IntentMiddlewareFactory:
             intent_id: Optional[str],
             data: dict,
     ) -> None:
-        user = data["event_from_user"]
-        chat = data["event_chat"]
         logger.debug(
             "Loading context for intent: `%s`, user: `%s`, chat: `%s`",
-            intent_id, user.id, chat.id,
+            intent_id, proxy.user_id, proxy.chat_id,
         )
         context = await proxy.load_context(intent_id)
         stack = await self._load_stack(event, context.stack_id, proxy, data)
@@ -147,11 +214,11 @@ class IntentMiddlewareFactory:
         data[CONTEXT_KEY] = context
 
     async def _load_default_context(
-            self, event: ChatEvent, data: dict,
+            self, event: ChatEvent, data: dict, event_context: EventContext,
     ) -> None:
         return await self._load_context_by_stack(
             event=event,
-            proxy=self.storage_proxy(data),
+            proxy=self.storage_proxy(event_context, data["fsm_storage"]),
             stack_id=DEFAULT_STACK_ID,
             data=data,
         )
@@ -179,6 +246,9 @@ class IntentMiddlewareFactory:
             event: Message,
             data: dict,
     ):
+        event_context = event_context_from_message(event)
+        data[EVENT_CONTEXT_KEY] = event_context
+
         text, callback_data = split_reply_callback(event.text)
         if callback_data:
             query = ReplyCallbackQuery(
@@ -201,30 +271,36 @@ class IntentMiddlewareFactory:
         if intent_id := self._intent_id_from_reply(event, data):
             await self._load_context_by_intent(
                 event=event,
-                proxy=self.storage_proxy(data),
+                proxy=self.storage_proxy(event_context, data["fsm_storage"]),
                 intent_id=intent_id,
                 data=data,
             )
         else:
-            await self._load_default_context(event, data)
+            await self._load_default_context(event, data, event_context)
         return await handler(event, data)
 
     async def process_my_chat_member(
             self,
             handler: Callable,
-            event: Message,
+            event: ChatMemberUpdated,
             data: dict,
     ) -> None:
-        await self._load_default_context(event, data)
+        event_context = event_context_from_chat_member(event)
+        data[EVENT_CONTEXT_KEY] = event_context
+
+        await self._load_default_context(event, data, event_context)
         return await handler(event, data)
 
     async def process_chat_join_request(
             self,
             handler: Callable,
-            event: Message,
+            event: ChatJoinRequest,
             data: dict,
     ) -> None:
-        await self._load_default_context(event, data)
+        event_context = event_context_from_chat_join(event)
+        data[EVENT_CONTEXT_KEY] = event_context
+
+        await self._load_default_context(event, data, event_context)
         return await handler(event, data)
 
     async def process_aiogd_update(
@@ -233,17 +309,20 @@ class IntentMiddlewareFactory:
             event: DialogUpdateEvent,
             data: dict,
     ):
+        event_context = event_context_from_aiogd(event)
+        data[EVENT_CONTEXT_KEY] = event_context
+
         if event.intent_id:
             await self._load_context_by_intent(
                 event=event,
-                proxy=self.storage_proxy(data),
+                proxy=self.storage_proxy(event_context, data["fsm_storage"]),
                 intent_id=event.intent_id,
                 data=data,
             )
         else:
             await self._load_context_by_stack(
                 event=event,
-                proxy=self.storage_proxy(data),
+                proxy=self.storage_proxy(event_context, data["fsm_storage"]),
                 stack_id=event.stack_id,
                 data=data,
             )
@@ -255,6 +334,9 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
+        event_context = event_context_from_callback(event)
+        data[EVENT_CONTEXT_KEY] = event_context
+
         if "event_chat" not in data:
             return await handler(event, data)
         original_data = event.data
@@ -263,15 +345,16 @@ class IntentMiddlewareFactory:
             if intent_id:
                 await self._load_context_by_intent(
                     event=event,
-                    proxy=self.storage_proxy(data),
+                    proxy=self.storage_proxy(event_context,
+                                             data["fsm_storage"]),
                     intent_id=intent_id,
                     data=data,
                 )
             else:
-                await self._load_default_context(event, data)
+                await self._load_default_context(event, data, event_context)
             data[CALLBACK_DATA_KEY] = original_data
         else:
-            await self._load_default_context(event, data)
+            await self._load_default_context(event, data, event_context)
         return await handler(event, data)
 
 
@@ -358,14 +441,15 @@ class IntentErrorMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         try:
-            event_context = cast(EventContext, data.get(EVENT_CONTEXT_KEY))
+            event_context = event_context_from_error(event)
+            data[EVENT_CONTEXT_KEY] = event_context
             proxy = StorageProxy(
-                bot=data["bot"],
+                bot=event_context.bot,
                 storage=data["fsm_storage"],
                 events_isolation=self.events_isolation,
                 state_groups=self.registry.states_groups(),
-                user_id=event_context.user_id,
-                chat_id=event_context.chat_id,
+                user_id=event_context.user.id,
+                chat_id=event_context.chat.id,
                 thread_id=event_context.thread_id,
                 business_connection_id=event_context.business_connection_id,
             )

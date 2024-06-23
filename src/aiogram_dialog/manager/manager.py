@@ -2,8 +2,6 @@ from logging import getLogger
 from typing import Any, Dict, Optional, Union, cast
 
 from aiogram import Router
-from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, \
-    EventContext
 from aiogram.enums import ChatType
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -14,6 +12,7 @@ from aiogram_dialog.api.entities import (
     AccessSettings,
     ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
     NewMessage, ShowMode, Stack, StartMode,
+    EVENT_CONTEXT_KEY, EventContext,
 )
 from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
@@ -514,7 +513,7 @@ class ManagerImpl(DialogManager):
                 stack_id = DEFAULT_STACK_ID
 
         event_context = cast(
-            self.middleware_data.get(EVENT_CONTEXT_KEY), EventContext,
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
         )
         if thread_id is UnsetId.UNSET:
             if same_chat:

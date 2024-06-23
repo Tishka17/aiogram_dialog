@@ -1,8 +1,6 @@
 from logging import getLogger
 from typing import Any, Dict, List, Optional, cast
 
-from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, \
-    EventContext
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
@@ -13,6 +11,7 @@ from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
 from aiogram_dialog.api.entities import (
     MarkupVariant, MediaAttachment, NewMessage,
+    EVENT_CONTEXT_KEY, EventContext,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.entities import Data

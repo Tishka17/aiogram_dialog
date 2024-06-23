@@ -1,6 +1,6 @@
 __all__ = [
     "Context", "Data",
-    "ChatEvent",
+    "ChatEvent", "EVENT_CONTEXT_KEY", "EventContext",
     "LaunchMode",
     "MediaAttachment", "MediaId",
     "ShowMode", "StartMode",
@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 from .context import Context, Data
-from .events import ChatEvent
+from .events import ChatEvent, EVENT_CONTEXT_KEY, EventContext
 from .launch_mode import LaunchMode
 from .media import MediaAttachment, MediaId
 from .modes import ShowMode, StartMode
