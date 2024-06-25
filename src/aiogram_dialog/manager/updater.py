@@ -2,7 +2,6 @@ import asyncio
 from contextvars import copy_context
 
 from aiogram import Bot, Dispatcher, Router
-from aiogram.dispatcher.middlewares.user_context import EventContext
 
 from aiogram_dialog.api.entities import DialogUpdate
 

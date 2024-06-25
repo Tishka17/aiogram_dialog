@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, cast, Dict, List, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -10,8 +10,11 @@ from aiogram.types import (
 from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
 from aiogram_dialog.api.entities import (
-    MarkupVariant, MediaAttachment, NewMessage,
-    EVENT_CONTEXT_KEY, EventContext,
+    EVENT_CONTEXT_KEY,
+    EventContext,
+    MarkupVariant,
+    MediaAttachment,
+    NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.entities import Data

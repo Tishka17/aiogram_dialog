@@ -1,16 +1,25 @@
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional, cast
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
-from aiogram.types import CallbackQuery, Message, ChatMemberUpdated, \
-    ChatJoinRequest
+from aiogram.types import (
+    CallbackQuery,
+    ChatJoinRequest,
+    ChatMemberUpdated,
+    Message,
+)
 from aiogram.types.error_event import ErrorEvent
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, DEFAULT_STACK_ID, DialogUpdateEvent, Stack,
-    EVENT_CONTEXT_KEY, EventContext,
+    ChatEvent,
+    Context,
+    DEFAULT_STACK_ID,
+    DialogUpdateEvent,
+    EVENT_CONTEXT_KEY,
+    EventContext,
+    Stack,
 )
 from aiogram_dialog.api.exceptions import (
     InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
@@ -86,6 +95,7 @@ def event_context_from_aiogd(event: DialogUpdateEvent) -> EventContext:
         thread_id=event.thread_id,
         business_connection_id=event.business_connection_id,
     )
+
 
 def event_context_from_error(event: ErrorEvent) -> EventContext:
     if event.update.message:
@@ -170,7 +180,8 @@ class IntentMiddlewareFactory:
             data: dict,
     ) -> None:
         logger.debug(
-            "Loading context for stack: `%s`, user: `%s`, chat: `%s`, thread: `%s`",
+            "Loading context for stack: "
+            "`%s`, user: `%s`, chat: `%s`, thread: `%s`",
             stack_id, proxy.user_id, proxy.chat_id, proxy.thread_id,
         )
         stack = await self._load_stack(event, stack_id, proxy, data)
@@ -181,7 +192,7 @@ class IntentMiddlewareFactory:
         else:
             try:
                 context = await proxy.load_context(stack.last_intent_id())
-            except:
+            except:  # noqa: B001,B901,E722
                 await proxy.unlock()
                 raise
         data[STORAGE_KEY] = proxy
@@ -205,7 +216,7 @@ class IntentMiddlewareFactory:
             return
         try:
             self._check_outdated(intent_id, stack)
-        except:
+        except:  # noqa: B001,B901,E722
             await proxy.unlock()
             raise
 
@@ -363,6 +374,8 @@ SUPPORTED_ERROR_EVENTS = {
     "callback_query",
     "my_chat_member",
     "aiogd_update",
+    "chat_join_request",
+    "business_message",
 }
 
 

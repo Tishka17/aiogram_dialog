@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, cast, Dict, Optional, Union
 
 from aiogram import Router
 from aiogram.enums import ChatType
@@ -10,9 +10,18 @@ from aiogram.types import (
 
 from aiogram_dialog.api.entities import (
     AccessSettings,
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
-    NewMessage, ShowMode, Stack, StartMode,
-    EVENT_CONTEXT_KEY, EventContext,
+    ChatEvent,
+    Context,
+    Data,
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
+    EventContext,
+    LaunchMode,
+    MediaId,
+    NewMessage,
+    ShowMode,
+    Stack,
+    StartMode,
 )
 from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
@@ -29,8 +38,11 @@ from aiogram_dialog.api.protocols import (
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
-from .bg_manager import BgManager
-
+from .bg_manager import (
+    BgManager,
+    coalesce_business_connection_id,
+    coalesce_thread_id,
+)
 logger = getLogger(__name__)
 
 
@@ -418,7 +430,7 @@ class ManagerImpl(DialogManager):
             media_uniq_id=stack.last_media_unique_id,
             text=UnknownText.UNKNOWN,
             has_reply_keyboard=stack.last_reply_keyboard,
-                chat=event_context.chat,
+            chat=event_context.chat,
             message_id=stack.last_message_id,
             business_connection_id=event_context.business_connection_id,
         )
@@ -463,14 +475,6 @@ class ManagerImpl(DialogManager):
             return None
         return widget.managed(self)
 
-    def is_same_chat(self, user: User, chat: Chat) -> bool:
-        if "event_chat" not in self._data:
-            return False
-
-        current_chat = self._data["event_chat"]
-        current_user = self.event.from_user
-        return user.id == current_user.id and chat.id == current_chat.id
-
     def _get_fake_user(self, user_id: Optional[int] = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
         current_user = self.event.from_user
@@ -497,44 +501,50 @@ class ManagerImpl(DialogManager):
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
             thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
-        same_chat = self.is_same_chat(user, chat)
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
+        new_event_context = EventContext(
+            bot=event_context.bot,
+            chat=chat,
+            user=user,
+            thread_id=coalesce_thread_id(
+                chat=chat,
+                user=user,
+                thread_id=thread_id,
+                event_context=event_context,
+            ),
+            business_connection_id=coalesce_business_connection_id(
+                chat=chat,
+                user=user,
+                business_connection_id=business_connection_id,
+                event_context=event_context,
+            ),
+        )
+
         if stack_id is None:
-            if same_chat:
+            if event_context == new_event_context:
                 stack_id = self.current_stack().id
                 if self.has_context():
                     intent_id = self.current_context().id
             else:
                 stack_id = DEFAULT_STACK_ID
 
-        event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
-        )
-        if thread_id is UnsetId.UNSET:
-            if same_chat:
-                thread_id = event_context.thread_id
-            else:
-                thread_id = None
-        if business_connection_id is UnsetId.UNSET:
-            if same_chat:
-                business_connection_id = event_context.business_connection_id
-            else:
-                business_connection_id = None
-
         return BgManager(
-            user=user,
-            chat=chat,
-            bot=self._data["bot"],
+            user=new_event_context.user,
+            chat=new_event_context.chat,
+            bot=new_event_context.bot,
             router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
-            thread_id=thread_id,
-            business_connection_id=business_connection_id,
+            thread_id=new_event_context.thread_id,
+            business_connection_id=new_event_context.business_connection_id,
             load=load,
         )
 

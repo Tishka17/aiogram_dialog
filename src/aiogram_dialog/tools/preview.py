@@ -216,7 +216,7 @@ class FakeManager(DialogManager):
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
             thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id:  Union[str, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         return self
