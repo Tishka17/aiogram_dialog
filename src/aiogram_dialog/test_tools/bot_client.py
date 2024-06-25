@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from aiogram import Bot, Dispatcher
+from aiogram.methods import TelegramMethod, AnswerCallbackQuery
 from aiogram.types import (
     CallbackQuery, Chat, ChatJoinRequest,
     ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft,
@@ -21,7 +22,12 @@ class FakeBot(Bot):
     def id(self):
         return 1
 
-    def __call__(self, *args, **kwargs) -> None:
+    async def __call__(
+            self, method: TelegramMethod[Any],
+            request_timeout: Optional[int] = None,
+    ) -> Any:
+        if isinstance(method, AnswerCallbackQuery):
+            return True
         raise RuntimeError("Fake bot should not be used to call telegram")
 
     def __hash__(self) -> int:

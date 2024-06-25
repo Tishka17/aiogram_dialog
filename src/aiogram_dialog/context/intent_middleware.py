@@ -2,6 +2,7 @@ from logging import getLogger
 from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import Router
+from aiogram.dispatcher.event.bases import UNHANDLED
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
 from aiogram.types import (
@@ -35,6 +36,8 @@ from aiogram_dialog.utils import remove_intent_id, split_reply_callback
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
+
+FORBIDDEN_STACK_KEY = "aiogd_stack_forbidden"
 
 
 def get_thread_id(message: Message) -> Optional[str]:
@@ -163,11 +166,11 @@ class IntentMiddlewareFactory:
             raise InvalidStackIdError("Both stack id and intent id are None")
         stack = await proxy.load_stack(stack_id)
         if not await self.access_validator.is_allowed(stack, event, data):
-            user = data["event_from_user"]
             logger.debug(
                 "Stack %s is not allowed for user %s",
-                stack.id, user.id,
+                stack.id, proxy.user_id,
             )
+            data[FORBIDDEN_STACK_KEY] = True
             await proxy.unlock()
             return
         return stack
@@ -366,7 +369,10 @@ class IntentMiddlewareFactory:
             data[CALLBACK_DATA_KEY] = original_data
         else:
             await self._load_default_context(event, data, event_context)
-        return await handler(event, data)
+        result = await handler(event, data)
+        if result is UNHANDLED and data.get(FORBIDDEN_STACK_KEY):
+            await event.answer()
+        return result
 
 
 SUPPORTED_ERROR_EVENTS = {
