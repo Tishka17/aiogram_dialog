@@ -129,8 +129,10 @@ class StorageProxy:
     def _fixed_stack_id(self, stack_id: str) -> str:
         if stack_id != DEFAULT_STACK_ID:
             return stack_id
+        # private chat has chat_id=user_id and no business connection
         if self.user_id in (None, self.chat_id):
-            return stack_id
+            if self.business_connection_id is None:
+                return stack_id
         return f"<{self.user_id}>"
 
     def _stack_key(self, stack_id: str) -> StorageKey:
