@@ -10,7 +10,7 @@ where = ["src"]
 
 [project]
 name = "aiogram_dialog"
-version = "2.2.0a4"
+version = "2.2.0a5"
 readme = "README.md"
 authors = [
     { name = "Andrey Tikhonov", email = "17@itishka.org" },
