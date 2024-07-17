@@ -70,6 +70,7 @@ class StorageProxy:
         key = self._stack_key(fixed_stack_id)
         await self.lock(key)
         data = await self.storage.get_data(key)
+        data.pop("access_settings", None)  # compat with 2.2a5
         access_settings = self._default_access_settings(stack_id)
         if not data:
             return Stack(_id=stack_id, access_settings=access_settings)
