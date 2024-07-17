@@ -165,14 +165,6 @@ class IntentMiddlewareFactory:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
         stack = await proxy.load_stack(stack_id)
-        if not await self.access_validator.is_allowed(stack, event, data):
-            logger.debug(
-                "Stack %s is not allowed for user %s",
-                stack.id, proxy.user_id,
-            )
-            data[FORBIDDEN_STACK_KEY] = True
-            await proxy.unlock()
-            return
         return stack
 
     async def _load_context_by_stack(
@@ -198,6 +190,15 @@ class IntentMiddlewareFactory:
             except:  # noqa: B001,B901,E722
                 await proxy.unlock()
                 raise
+
+        if not await self.access_validator.is_allowed(stack, event, data):
+            logger.debug(
+                "Stack %s is not allowed for user %s",
+                stack.id, proxy.user_id,
+            )
+            data[FORBIDDEN_STACK_KEY] = True
+            await proxy.unlock()
+            return
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
@@ -223,6 +224,14 @@ class IntentMiddlewareFactory:
             await proxy.unlock()
             raise
 
+        if not await self.access_validator.is_allowed(stack, event, data):
+            logger.debug(
+                "Stack %s is not allowed for user %s",
+                stack.id, proxy.user_id,
+            )
+            data[FORBIDDEN_STACK_KEY] = True
+            await proxy.unlock()
+            return
         data[STORAGE_KEY] = proxy
         data[STACK_KEY] = stack
         data[CONTEXT_KEY] = context
@@ -408,11 +417,13 @@ class IntentErrorMiddleware(BaseMiddleware):
     def __init__(
             self,
             registry: DialogRegistryProtocol,
+            access_validator: StackAccessValidator,
             events_isolation: BaseEventIsolation,
     ):
         super().__init__()
         self.registry = registry
         self.events_isolation = events_isolation
+        self.access_validator = access_validator
 
     def _is_error_supported(
             self, event: ErrorEvent, data: Dict[str, Any],
@@ -484,8 +495,19 @@ class IntentErrorMiddleware(BaseMiddleware):
                     storage=proxy,
                     stack=stack,
                 )
-            data[STACK_KEY] = stack
-            data[CONTEXT_KEY] = context
+
+            if await self.access_validator.is_allowed(
+                    stack, event.update.event, data,
+            ):
+                data[STACK_KEY] = stack
+                data[CONTEXT_KEY] = context
+            else:
+                logger.debug(
+                    "Stack %s is not allowed for user %s",
+                    stack.id, proxy.user_id,
+                )
+                data[FORBIDDEN_STACK_KEY] = True
+                await proxy.unlock()
             return await handler(event, data)
         finally:
             proxy: StorageProxy = data.pop(STORAGE_KEY, None)
