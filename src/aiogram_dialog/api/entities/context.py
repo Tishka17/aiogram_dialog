@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from aiogram.fsm.state import State
+from .access import AccessSettings
 
 Data = Union[Dict, List, int, str, float, None]
 DataDict = Dict[str, Data]
@@ -15,6 +16,9 @@ class Context:
     start_data: Data = field(compare=False)
     dialog_data: DataDict = field(compare=False, default_factory=dict)
     widget_data: DataDict = field(compare=False, default_factory=dict)
+    access_settings: Optional[AccessSettings] = field(
+        compare=False, default=None,
+    )
 
     @property
     def id(self) -> str:
