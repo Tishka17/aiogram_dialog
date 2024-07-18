@@ -73,7 +73,7 @@ class StorageProxy:
         data.pop("access_settings", None)  # compat with 2.2a5
         access_settings = self._default_access_settings(stack_id)
         if not data:
-            return Stack(_id=stack_id, access_settings=access_settings)
+            return Stack(_id=fixed_stack_id, access_settings=access_settings)
         return Stack(access_settings=access_settings, **data)
 
     async def save_context(self, context: Optional[Context]) -> None:

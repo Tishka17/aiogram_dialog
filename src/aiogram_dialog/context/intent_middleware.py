@@ -191,7 +191,9 @@ class IntentMiddlewareFactory:
                 await proxy.unlock()
                 raise
 
-        if not await self.access_validator.is_allowed(stack, event, data):
+        if not await self.access_validator.is_allowed(
+                stack, context, event, data,
+        ):
             logger.debug(
                 "Stack %s is not allowed for user %s",
                 stack.id, proxy.user_id,
@@ -224,7 +226,9 @@ class IntentMiddlewareFactory:
             await proxy.unlock()
             raise
 
-        if not await self.access_validator.is_allowed(stack, event, data):
+        if not await self.access_validator.is_allowed(
+                stack, context, event, data,
+        ):
             logger.debug(
                 "Stack %s is not allowed for user %s",
                 stack.id, proxy.user_id,
@@ -497,7 +501,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                 )
 
             if await self.access_validator.is_allowed(
-                    stack, event.update.event, data,
+                    stack, context, event.update.event, data,
             ):
                 data[STACK_KEY] = stack
                 data[CONTEXT_KEY] = context
