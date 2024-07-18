@@ -1,3 +1,4 @@
+from copy import deepcopy
 from logging import getLogger
 from typing import Any, cast, Dict, Optional, Union
 
@@ -255,8 +256,6 @@ class ManagerImpl(DialogManager):
             access_settings: Optional[AccessSettings],
     ) -> None:
         stack = self.current_stack()
-        if access_settings is not None:
-            stack.access_settings = access_settings
         old_dialog: Optional[DialogProtocol] = None
         if not stack.empty():
             old_dialog = self.dialog()
@@ -270,7 +269,13 @@ class ManagerImpl(DialogManager):
         await self._process_launch_mode(old_dialog, new_dialog)
         if self.has_context():
             await self.storage().save_context(self.current_context())
+            if access_settings is None:
+                access_settings = self.current_context().access_settings
+        if access_settings is None:
+            access_settings = stack.access_settings
+
         context = stack.push(state, data)
+        context.access_settings = deepcopy(access_settings)
         self._data[CONTEXT_KEY] = context
         await self.dialog().process_start(self, data, state)
         new_context = self._current_context_unsafe()

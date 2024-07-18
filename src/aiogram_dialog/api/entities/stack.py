@@ -2,12 +2,12 @@ import random
 import string
 import time
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import List, Optional
 
-from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
+from .access import AccessSettings
 from .context import Context, Data
 
 DEFAULT_STACK_ID = ""
@@ -33,13 +33,6 @@ def id_to_str(int_id: int) -> str:
 
 def new_id():
     return id_to_str(new_int_id())
-
-
-@dataclass
-class AccessSettings:
-    user_ids: List[int]
-    member_status: Optional[ChatMemberStatus] = None
-    custom: Any = None
 
 
 @dataclass(unsafe_hash=True)

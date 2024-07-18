@@ -111,6 +111,7 @@ def _register_middleware(
     router.errors.middleware(IntentErrorMiddleware(
         registry=registry,
         events_isolation=events_isolation,
+        access_validator=stack_access_validator,
     ))
 
     router.message.middleware(manager_middleware)

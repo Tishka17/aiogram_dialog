@@ -53,11 +53,14 @@ class StorageProxy:
             raise UnknownIntent(
                 f"Context not found for intent id: {intent_id}",
             )
+        data["access_settings"] = self._parse_access_settings(
+            data.pop("access_settings", None),
+        )
         data["state"] = self._state(data["state"])
         return Context(**data)
 
     def _default_access_settings(self, stack_id: str) -> AccessSettings:
-        if stack_id == DEFAULT_STACK_ID:
+        if stack_id == DEFAULT_STACK_ID and self.user_id:
             return AccessSettings(user_ids=[self.user_id])
         else:
             return AccessSettings(user_ids=[])
@@ -67,13 +70,10 @@ class StorageProxy:
         key = self._stack_key(fixed_stack_id)
         await self.lock(key)
         data = await self.storage.get_data(key)
+        data.pop("access_settings", None)  # compat with 2.2a5
+        access_settings = self._default_access_settings(stack_id)
         if not data:
-            access_settings = self._default_access_settings(stack_id)
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
-
-        access_settings = self._parse_access_settings(
-            data.pop("access_settings", None),
-        )
         return Stack(access_settings=access_settings, **data)
 
     async def save_context(self, context: Optional[Context]) -> None:
@@ -81,6 +81,9 @@ class StorageProxy:
             return
         data = copy(vars(context))
         data["state"] = data["state"].state
+        data["access_settings"] = self._dump_access_settings(
+            context.access_settings,
+        )
         await self.storage.set_data(
             key=self._context_key(context.id),
             data=data,
@@ -108,9 +111,6 @@ class StorageProxy:
             )
         else:
             data = copy(vars(stack))
-            data["access_settings"] = self._dump_access_settings(
-                stack.access_settings,
-            )
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
                 data=data,

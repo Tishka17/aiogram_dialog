@@ -3,13 +3,13 @@ from typing import Any
 
 import pytest
 from aiogram import Dispatcher
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog import (
     Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
-from aiogram_dialog.api.entities import GROUP_STACK_ID
+from aiogram_dialog.api.entities import GROUP_STACK_ID, AccessSettings
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
@@ -34,6 +34,12 @@ async def start(event: Any, dialog_manager: DialogManager):
 async def start_shared(event: Any, dialog_manager: DialogManager):
     dialog_manager = dialog_manager.bg(stack_id=GROUP_STACK_ID)
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
+
+
+async def add_shared(event: Any, dialog_manager: DialogManager):
+    await dialog_manager.start(MainSG.start, access_settings=AccessSettings(
+        user_ids=[1, 2],
+    ))
 
 
 @pytest.fixture()
@@ -70,6 +76,35 @@ async def test_second_user(dp, client, second_client, message_manager):
     assert not message_manager.sent_messages
     await second_client.click(
         first_message, InlineButtonTextLocator("Button"),
+    )
+    assert not message_manager.sent_messages
+
+
+@pytest.mark.asyncio
+async def test_change_seettings(dp, client, second_client, message_manager):
+    dp.message.register(start, CommandStart())
+    dp.message.register(add_shared, Command("add"))
+
+    await client.send("/start")
+    message_manager.reset_history()
+
+    await client.send("/add")
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+
+    await second_client.click(
+        window_message, InlineButtonTextLocator("Button"),
+    )
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+    assert window_message.text == "stub"
+
+    await client.send("/start")
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+
+    await second_client.click(
+        window_message, InlineButtonTextLocator("Button"),
     )
     assert not message_manager.sent_messages
 
