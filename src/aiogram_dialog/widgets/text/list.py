@@ -35,7 +35,8 @@ class List(Text, BaseScroll):
             current_page = 0
             start = 0
         else:
-            current_page = await self.get_page(manager)
+            last_page = pages - 1
+            current_page = min(last_page, await self.get_page(manager))
             start = current_page * self.page_size
             items = items[start:start + self.page_size]
 
