@@ -144,7 +144,8 @@ def get_media_id(message: Message) -> Optional[MediaId]:
         message.animation or
         message.document or
         (message.photo[-1] if message.photo else None) or
-        message.video
+        message.video or
+        message.voice
     )
     if not media:
         return None
