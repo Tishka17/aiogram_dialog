@@ -151,12 +151,12 @@ def get_media_id(
         return None
 
     media = (
-        message.audio
-        or message.animation
-        or message.document
-        or (message.photo[-1] if message.photo else None)
-        or message.video
-        or message.voice
+        message.audio or 
+        message.animation or 
+        message.document or
+        (message.photo[-1] if message.photo else None) or 
+        message.video or 
+        message.voice
     )
     if not media:
         return None
@@ -164,7 +164,6 @@ def get_media_id(
         file_id=media.file_id,
         file_unique_id=media.file_unique_id,
     )
-
 
 
 def intent_callback_data(
