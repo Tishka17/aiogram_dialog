@@ -151,11 +151,11 @@ def get_media_id(
         return None
 
     media = (
-        message.audio or 
-        message.animation or 
+        message.audio or
+        message.animation or
         message.document or
-        (message.photo[-1] if message.photo else None) or 
-        message.video or 
+        (message.photo[-1] if message.photo else None) or
+        message.video or
         message.voice
     )
     if not media:
