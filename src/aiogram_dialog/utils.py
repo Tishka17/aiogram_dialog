@@ -2,9 +2,15 @@ from logging import getLogger
 from typing import List, Optional, Tuple, Union
 
 from aiogram.types import (
-    CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated,
-    InlineKeyboardButton, KeyboardButton, Message, User,
-
+    CallbackQuery,
+    Chat,
+    ChatJoinRequest,
+    ChatMemberUpdated,
+    InaccessibleMessage,
+    InlineKeyboardButton,
+    KeyboardButton,
+    Message,
+    User,
 )
 
 from aiogram_dialog.api.entities import (
@@ -138,7 +144,12 @@ def is_user_loaded(user: User) -> bool:
     return not getattr(user, "fake", False)
 
 
-def get_media_id(message: Message) -> Optional[MediaId]:
+def get_media_id(
+    message: Union[Message, InaccessibleMessage],
+) -> Optional[MediaId]:
+    if isinstance(message, InaccessibleMessage):
+        return None
+
     media = (
         message.audio or
         message.animation or
