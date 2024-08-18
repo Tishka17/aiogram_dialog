@@ -1,12 +1,7 @@
 from typing import Any, Literal
 
 from aiogram.methods import AnswerCallbackQuery
-from aiogram.types import (
-    CallbackQuery,
-    Chat,
-    Message,
-    User,
-)
+from aiogram.types import CallbackQuery, Chat, Message, User
 
 
 class ReplyCallbackQuery(CallbackQuery):

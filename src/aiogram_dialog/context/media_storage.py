@@ -1,4 +1,5 @@
-from typing import Optional
+from pathlib import Path
+from typing import Any, Optional, Union
 
 from aiogram.types import ContentType
 from cachetools import LRUCache
@@ -8,25 +9,27 @@ from aiogram_dialog.api.protocols import MediaIdStorageProtocol
 
 
 class MediaIdStorage(MediaIdStorageProtocol):
-    def __init__(self, maxsize=10240):
+    cache: LRUCache[Any, Any]
+
+    def __init__(self, maxsize: int = 10240) -> None:
         self.cache = LRUCache(maxsize=maxsize)
 
     async def get_media_id(
-            self,
-            path: Optional[str],
-            url: Optional[str],
-            type: ContentType,
+        self,
+        path: Optional[Union[str, Path]],
+        url: Optional[str],
+        type: ContentType,
     ) -> Optional[MediaId]:
         if not path and not url:
             return None
         return self.cache.get((path, url, type))
 
     async def save_media_id(
-            self,
-            path: Optional[str],
-            url: Optional[str],
-            type: ContentType,
-            media_id: MediaId,
+        self,
+        path: Optional[Union[str, Path]],
+        url: Optional[str],
+        type: ContentType,
+        media_id: MediaId,
     ) -> None:
         if not path and not url:
             return None

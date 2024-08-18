@@ -1,9 +1,13 @@
 __all__ = [
     "DialogProtocol",
-    "BaseDialogManager", "BgManagerFactory", "DialogManager",
+    "BaseDialogManager",
+    "BgManagerFactory",
+    "DialogManager",
     "MediaIdStorageProtocol",
-    "MessageManagerProtocol", "MessageNotModified",
-    "DialogProtocol", "DialogRegistryProtocol",
+    "MessageManagerProtocol",
+    "MessageNotModified",
+    "DialogProtocol",
+    "DialogRegistryProtocol",
 ]
 
 from .dialog import DialogProtocol

@@ -1,44 +1,72 @@
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union, cast
 
 from aiogram import Router
 from aiogram.fsm.state import State
 from aiogram.types import (
-    CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
+    CallbackQuery,
+    Chat,
+    ErrorEvent,
+    Message,
+    ReplyKeyboardMarkup,
+    User,
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
-    NewMessage, ShowMode, Stack, StartMode,
+    DEFAULT_STACK_ID,
+    ChatEvent,
+    Context,
+    Data,
+    LaunchMode,
+    MediaId,
+    NewMessage,
+    OldMessage,
+    ShowMode,
+    Stack,
+    StartMode,
+    UnknownText,
 )
-from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
-    IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
+    IncorrectBackgroundError,
+    InvalidKeyboardType,
+    NoContextError,
 )
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, EVENT_SIMULATED, FakeChat, FakeUser,
-    STACK_KEY, STORAGE_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    FakeChat,
+    FakeUser,
+    Widget,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
+    BaseDialogManager,
+    DialogManager,
+    DialogProtocol,
+    DialogRegistryProtocol,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
+    MessageNotModified,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
+
+from ..api.entities.context import DataDict
 from .bg_manager import BgManager
 
 logger = getLogger(__name__)
 
 
 class ManagerImpl(DialogManager):
-
     def __init__(
-            self, event: ChatEvent,
-            message_manager: MessageManagerProtocol,
-            media_id_storage: MediaIdStorageProtocol,
-            registry: DialogRegistryProtocol,
-            router: Router,
-            data: Dict,
+        self,
+        event: ChatEvent,
+        message_manager: MessageManagerProtocol,
+        media_id_storage: MediaIdStorageProtocol,
+        registry: DialogRegistryProtocol,
+        router: Router,
+        data: Dict[str, Any],
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -64,12 +92,12 @@ class ManagerImpl(DialogManager):
         return self._event
 
     @property
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> Dict[str, Any]:
         """Middleware data."""
         return self._data
 
     @property
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> DataDict:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -78,7 +106,7 @@ class ManagerImpl(DialogManager):
         """Start data for current context."""
         return self.current_context().start_data
 
-    def check_disabled(self):
+    def check_disabled(self) -> None:
         if self.disabled:
             raise IncorrectBackgroundError(
                 "Detected background access to dialog manager. "
@@ -86,7 +114,9 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks",
             )
 
-    async def load_data(self) -> Dict:
+    async def load_data(
+        self,
+    ) -> Dict[str, Union[Data, DataDict, Dict[str, Any], ChatEvent]]:
         context = self.current_context()
         return {
             "dialog_data": context.dialog_data,
@@ -116,7 +146,7 @@ class ManagerImpl(DialogManager):
         return context
 
     def _current_context_unsafe(self) -> Optional[Context]:
-        return self._data[CONTEXT_KEY]
+        return cast(Context, self._data[CONTEXT_KEY])
 
     def has_context(self) -> bool:
         self.check_disabled()
@@ -124,10 +154,10 @@ class ManagerImpl(DialogManager):
 
     def current_stack(self) -> Stack:
         self.check_disabled()
-        return self._data[STACK_KEY]
+        return cast(Stack, self._data[STACK_KEY])
 
     def storage(self) -> StorageProxy:
-        return self._data[STORAGE_KEY]
+        return cast(StorageProxy, self._data[STORAGE_KEY])
 
     async def _remove_kbd(self) -> None:
         if self.current_stack().last_message_id is None:
@@ -140,17 +170,17 @@ class ManagerImpl(DialogManager):
         self.current_stack().last_message_id = None
 
     async def _process_last_dialog_result(
-            self,
-            start_data: Data,
-            result: Any,
+        self,
+        start_data: Data,
+        result: Any,
     ) -> None:
         """Process closing last dialog in stack."""
         await self._remove_kbd()
 
     async def done(
-            self,
-            result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        result: Any = None,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
         await self.dialog().process_close(result, self)
@@ -192,11 +222,11 @@ class ManagerImpl(DialogManager):
         await storage.save_stack(stack)
 
     async def start(
-            self,
-            state: State,
-            data: Data = None,
-            mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        data: Data = None,
+        mode: StartMode = StartMode.NORMAL,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
@@ -224,7 +254,10 @@ class ManagerImpl(DialogManager):
     async def _start_new_stack(self, state: State, data: Data = None) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(
-            state, data, StartMode.NORMAL, self.show_mode,
+            state,
+            data,
+            StartMode.NORMAL,
+            self.show_mode,
         )
 
     async def _start_normal(self, state: State, data: Data = None) -> None:
@@ -234,8 +267,7 @@ class ManagerImpl(DialogManager):
             old_dialog = self.dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError(
-                    "Cannot start dialog on top "
-                    "of one with launch_mode==SINGLE",
+                    "Cannot start dialog on top " "of one with launch_mode==SINGLE",
                 )
 
         new_dialog = self._registry.find_dialog(state)
@@ -271,9 +303,9 @@ class ManagerImpl(DialogManager):
         await self.switch_to(new_state, show_mode)
 
     async def switch_to(
-            self,
-            state: State,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
         context = self.current_context()
@@ -286,7 +318,9 @@ class ManagerImpl(DialogManager):
         context.state = state
 
     def _ensure_stack_compatible(
-            self, stack: Stack, new_message: NewMessage,
+        self,
+        stack: Stack,
+        new_message: NewMessage,
     ) -> None:
         if stack.id == DEFAULT_STACK_ID:
             return  # no limitations for default stack
@@ -313,7 +347,9 @@ class ManagerImpl(DialogManager):
 
         try:
             sent_message = await self.message_manager.show_message(
-                bot, new_message, old_message,
+                bot,
+                new_message,
+                old_message,
             )
         except MessageNotModified:
             # nothing changed so nothing to save
@@ -327,14 +363,14 @@ class ManagerImpl(DialogManager):
                     url=new_message.media.url,
                     type=new_message.media.type,
                     media_id=MediaId(
-                        sent_message.media_id,
+                        cast(str, sent_message.media_id),
                         sent_message.media_uniq_id,
                     ),
                 )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
 
-    async def _fix_cached_media_id(self, new_message: NewMessage):
+    async def _fix_cached_media_id(self, new_message: NewMessage) -> None:
         if not new_message.media or new_message.media.file_id:
             return
         new_message.media.file_id = await self.media_id_storage.get_media_id(
@@ -343,13 +379,14 @@ class ManagerImpl(DialogManager):
             type=new_message.media.type,
         )
 
-    def is_event_simulated(self):
+    def is_event_simulated(self) -> bool:
         return bool(self.middleware_data.get(EVENT_SIMULATED))
 
     def _get_message_from_callback(
-            self, event: CallbackQuery,
+        self,
+        event: CallbackQuery,
     ) -> Optional[OldMessage]:
-        current_message = event.message
+        current_message = cast(Message, event.message)
         stack = self.current_stack()
         chat = self.middleware_data["event_chat"]
         if current_message:
@@ -395,7 +432,7 @@ class ManagerImpl(DialogManager):
             message_id=stack.last_message_id,
         )
 
-    def _save_last_message(self, message: OldMessage):
+    def _save_last_message(self, message: OldMessage) -> None:
         stack = self.current_stack()
         stack.last_message_id = message.message_id
         stack.last_media_id = message.media_id
@@ -412,22 +449,24 @@ class ManagerImpl(DialogManager):
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND
-            elif self.event.media_group_id == \
-                    self.current_stack().last_income_media_group_id:
+            elif (
+                self.event.media_group_id
+                == self.current_stack().last_income_media_group_id
+            ):
                 return ShowMode.EDIT
             else:
                 return ShowMode.SEND
         return ShowMode.EDIT
 
     async def update(
-            self,
-            data: Dict,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        data: DataDict,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id: str) -> Optional[Widget]:
         widget = self.dialog().find(widget_id)
         if not widget:
             return None
@@ -438,35 +477,34 @@ class ManagerImpl(DialogManager):
             return False
 
         current_chat = self._data["event_chat"]
-        current_user = self.event.from_user
+        current_user = cast(User, self.event.from_user)
         return user.id == current_user.id and chat.id == current_chat.id
 
     def _get_fake_user(self, user_id: Optional[int] = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
-        current_user = self.event.from_user
-        if user_id in (None, current_user.id):
+        current_user = cast(User, self.event.from_user)
+        if user_id is None or user_id == current_user.id:
             return current_user
         return FakeUser(id=user_id, is_bot=False, first_name="")
 
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
         if "event_chat" in self._data:
-            current_chat = self._data["event_chat"]
-            if chat_id in (None, current_chat.id):
+            current_chat = cast(Chat, self._data["event_chat"])
+            if chat_id is None or chat_id == current_chat.id:
                 return current_chat
         elif chat_id is None:
             raise ValueError(
-                "Explicit `chat_id` is required "
-                "for events without current chat",
+                "Explicit `chat_id` is required " "for events without current chat",
             )
         return FakeChat(id=chat_id, type="")
 
     def bg(
-            self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            load: bool = False,
+        self,
+        user_id: Optional[int] = None,
+        chat_id: Optional[int] = None,
+        stack_id: Optional[str] = None,
+        load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
