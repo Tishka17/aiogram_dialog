@@ -26,6 +26,7 @@ class FakeBot(Bot):
             self, method: TelegramMethod[Any],
             request_timeout: Optional[int] = None,
     ) -> Any:
+        del request_timeout  # unused
         if isinstance(method, AnswerCallbackQuery):
             return True
         raise RuntimeError("Fake bot should not be used to call telegram")
