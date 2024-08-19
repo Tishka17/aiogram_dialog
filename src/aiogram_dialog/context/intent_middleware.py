@@ -462,6 +462,14 @@ class IntentErrorMiddleware(BaseMiddleware):
             await self._fix_broken_stack(storage, stack)
         return None
 
+    async def _load_stack(
+            self, proxy: StorageProxy, error: Exception,
+    ) -> Stack:
+        if isinstance(error, OutdatedIntent):
+            return await proxy.load_stack(stack_id=error.stack_id)
+        else:
+            return await proxy.load_stack()
+
     async def __call__(
             self,
             handler: Callable[
@@ -488,10 +496,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                 business_connection_id=event_context.business_connection_id,
             )
             data[STORAGE_KEY] = proxy
-            if isinstance(error, OutdatedIntent):
-                stack = await proxy.load_stack(stack_id=error.stack_id)
-            else:
-                stack = await proxy.load_stack()
+            stack = await self._load_stack(proxy, event)
             if stack.empty() or isinstance(error, UnknownState):
                 context = None
             else:
@@ -511,6 +516,7 @@ class IntentErrorMiddleware(BaseMiddleware):
                     stack.id, proxy.user_id,
                 )
                 data[FORBIDDEN_STACK_KEY] = True
+                del data[STORAGE_KEY]
                 await proxy.unlock()
             return await handler(event, data)
         finally:

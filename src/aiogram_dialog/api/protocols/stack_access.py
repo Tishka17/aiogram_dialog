@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from typing import Protocol, Optional
+from typing import Optional, Protocol
 
 from aiogram_dialog import ChatEvent
-from aiogram_dialog.api.entities import Stack, Context
+from aiogram_dialog.api.entities import Context, Stack
 
 
 class StackAccessValidator(Protocol):

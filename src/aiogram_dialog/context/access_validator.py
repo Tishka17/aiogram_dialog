@@ -5,7 +5,7 @@ from aiogram.enums import ChatType
 
 from aiogram_dialog import ChatEvent
 from aiogram_dialog.api.entities import (
-    Stack, Context,
+    Context, Stack,
 )
 from aiogram_dialog.api.protocols import StackAccessValidator
 

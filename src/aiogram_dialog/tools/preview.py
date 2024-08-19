@@ -22,11 +22,13 @@ from aiogram_dialog.api.entities import (
     Data,
     DialogAction,
     DialogUpdateEvent,
+    EVENT_CONTEXT_KEY,
+    EventContext,
     MediaAttachment,
     NewMessage,
     ShowMode,
     Stack,
-    StartMode, EVENT_CONTEXT_KEY, EventContext,
+    StartMode,
 )
 from aiogram_dialog.api.exceptions import NoContextError
 from aiogram_dialog.api.protocols import UnsetId
@@ -84,7 +86,7 @@ class FakeManager(DialogManager):
                 bot=None,
                 thread_id=None,
                 chat=self._event.chat,
-                user= self._event.from_user,
+                user=self._event.from_user,
                 business_connection_id=None,
             ),
         }

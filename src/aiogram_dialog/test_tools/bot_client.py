@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 
 from aiogram import Bot, Dispatcher
-from aiogram.methods import TelegramMethod, AnswerCallbackQuery
+from aiogram.methods import AnswerCallbackQuery, TelegramMethod
 from aiogram.types import (
     CallbackQuery, Chat, ChatJoinRequest,
     ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft,

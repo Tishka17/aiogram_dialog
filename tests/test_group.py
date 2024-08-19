@@ -3,13 +3,13 @@ from typing import Any
 
 import pytest
 from aiogram import Dispatcher
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog import (
     Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
-from aiogram_dialog.api.entities import GROUP_STACK_ID, AccessSettings
+from aiogram_dialog.api.entities import AccessSettings, GROUP_STACK_ID
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.widgets.kbd import Button
