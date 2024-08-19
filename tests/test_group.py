@@ -81,7 +81,36 @@ async def test_second_user(dp, client, second_client, message_manager):
 
 
 @pytest.mark.asyncio
-async def test_change_seettings(dp, client, second_client, message_manager):
+async def test_change_settings(dp, client, second_client, message_manager):
+    dp.message.register(start, CommandStart())
+    dp.message.register(add_shared, Command("add"))
+
+    await client.send("/start")
+    message_manager.reset_history()
+
+    await client.send("/add")
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+
+    await second_client.click(
+        window_message, InlineButtonTextLocator("Button"),
+    )
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+    assert window_message.text == "stub"
+
+    await client.send("/start")
+    window_message = message_manager.one_message()
+    message_manager.reset_history()
+
+    await second_client.click(
+        window_message, InlineButtonTextLocator("Button"),
+    )
+    assert not message_manager.sent_messages
+
+
+@pytest.mark.asyncio
+async def test_change_settings_bg(dp, client, second_client, message_manager):
     dp.message.register(start, CommandStart())
     dp.message.register(add_shared, Command("add"))
 
@@ -117,9 +146,7 @@ async def test_same_user(dp, client, message_manager):
     assert first_message.text == "stub"
     message_manager.reset_history()
     await client.send("test")
-    first_message = message_manager.one_message()
-    assert first_message.text == "stub"
-    message_manager.reset_history()
+    assert not message_manager.sent_messages  # no resend
     await client.click(
         first_message, InlineButtonTextLocator("Button"),
     )

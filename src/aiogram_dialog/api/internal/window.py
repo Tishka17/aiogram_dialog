@@ -19,7 +19,8 @@ class WindowProtocol(Protocol):
             message: Message,
             dialog: "DialogProtocol",
             manager: DialogManager,
-    ) -> None:
+    ) -> bool:
+        """Return True if message in handled."""
         raise NotImplementedError
 
     @abstractmethod
@@ -28,7 +29,8 @@ class WindowProtocol(Protocol):
             callback: CallbackQuery,
             dialog: "DialogProtocol",
             manager: DialogManager,
-    ) -> None:
+    ) -> bool:
+        """Return True if callback in handled."""
         raise NotImplementedError
 
     @abstractmethod

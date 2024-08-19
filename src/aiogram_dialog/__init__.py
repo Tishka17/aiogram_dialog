@@ -7,6 +7,7 @@ __all__ = [
     "StartMode",
     "BaseDialogManager",
     "BgManagerFactory",
+    "CancelEventProcessing",
     "DialogManager",
     "DialogProtocol",
     "UnsetId",
@@ -22,7 +23,8 @@ from .api.entities import (
     ChatEvent, Data, DEFAULT_STACK_ID, LaunchMode, ShowMode, StartMode,
 )
 from .api.protocols import (
-    BaseDialogManager, BgManagerFactory, DialogManager, DialogProtocol,
+    BaseDialogManager, BgManagerFactory, CancelEventProcessing,
+    DialogManager, DialogProtocol,
     UnsetId,
 )
 from .dialog import Dialog

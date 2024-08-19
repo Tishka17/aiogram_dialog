@@ -26,7 +26,7 @@ from aiogram_dialog.api.entities import (
     NewMessage,
     ShowMode,
     Stack,
-    StartMode,
+    StartMode, EVENT_CONTEXT_KEY, EventContext,
 )
 from aiogram_dialog.api.exceptions import NoContextError
 from aiogram_dialog.api.protocols import UnsetId
@@ -72,13 +72,21 @@ class FakeManager(DialogManager):
             intent_id=None,
             stack_id=None,
             thread_id=None,
+            business_connection_id=None,
         )
         self._context: Optional[Context] = None
         self._dialog: Optional[DialogProtocol] = None
         self._data = {
             "dialog_manager": self,
-            "event_chat": Chat(id=1, type="private"),
-            "event_from_user": User(id=1, is_bot=False, first_name="Fake"),
+            "event_chat": self._event.chat,
+            "event_from_user": self._event.from_user,
+            EVENT_CONTEXT_KEY: EventContext(
+                bot=None,
+                thread_id=None,
+                chat=self._event.chat,
+                user= self._event.from_user,
+                business_connection_id=None,
+            ),
         }
 
     async def next(self, show_mode: Optional[ShowMode] = None) -> None:
@@ -94,7 +102,7 @@ class FakeManager(DialogManager):
         await self.switch_to(new_state, show_mode)
 
     @property
-    def data(self) -> Dict:
+    def middleware_data(self) -> Dict:
         return self._data
 
     @property
@@ -119,13 +127,6 @@ class FakeManager(DialogManager):
 
     def is_preview(self) -> bool:
         return True
-
-    @property
-    def middleware_data(self) -> Dict:
-        return {
-            "event_chat": self.event.chat,
-            "dialog_manager": self,
-        }
 
     @property
     def dialog_data(self) -> Dict:

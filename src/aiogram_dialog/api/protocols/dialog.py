@@ -9,6 +9,10 @@ from aiogram_dialog.api.entities import (
 from .manager import DialogManager
 
 
+class CancelEventProcessing(Exception):
+    pass
+
+
 @runtime_checkable
 class DialogProtocol(Protocol):
     @property

@@ -1,5 +1,5 @@
 __all__ = [
-    "DialogProtocol",
+    "CancelEventProcessing", "DialogProtocol",
     "BaseDialogManager", "BgManagerFactory", "DialogManager", "UnsetId",
     "MediaIdStorageProtocol",
     "MessageManagerProtocol", "MessageNotModified",
@@ -7,7 +7,7 @@ __all__ = [
     "StackAccessValidator",
 ]
 
-from .dialog import DialogProtocol
+from .dialog import CancelEventProcessing, DialogProtocol
 from .manager import (
     BaseDialogManager, BgManagerFactory, DialogManager, UnsetId,
 )

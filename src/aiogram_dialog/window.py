@@ -96,16 +96,22 @@ class Window(WindowProtocol):
     async def process_message(
             self, message: Message, dialog: DialogProtocol,
             manager: DialogManager,
-    ) -> None:
+    ) -> bool:
         if self.on_message:
-            await self.on_message.process_message(message, dialog, manager)
+            return await self.on_message.process_message(
+                message, dialog, manager,
+            )
+        return False
 
     async def process_callback(
             self, callback: CallbackQuery, dialog: DialogProtocol,
             manager: DialogManager,
-    ) -> None:
+    ) -> bool:
         if self.keyboard:
-            await self.keyboard.process_callback(callback, dialog, manager)
+            return await self.keyboard.process_callback(
+                callback, dialog, manager,
+            )
+        return False
 
     async def process_result(
             self, start_data: Data, result: Any, manager: DialogManager,
