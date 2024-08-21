@@ -3,7 +3,6 @@ from copy import copy
 from typing import Dict, Optional, Type
 
 from aiogram import Bot
-from aiogram.enums import ChatMemberStatus
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import (
     BaseEventIsolation, BaseStorage, StorageKey,
@@ -161,13 +160,8 @@ class StorageProxy:
     ) -> Optional[AccessSettings]:
         if not raw:
             return None
-        if raw_member_status := raw.get("member_status"):
-            member_status = ChatMemberStatus(raw_member_status)
-        else:
-            member_status = None
         return AccessSettings(
             user_ids=raw.get("user_ids") or [],
-            member_status=member_status,
             custom=raw.get("custom"),
         )
 
@@ -178,6 +172,5 @@ class StorageProxy:
             return None
         return {
             "user_ids": access_settings.user_ids,
-            "member_status": access_settings.member_status,
             "custom": access_settings.custom,
         }
