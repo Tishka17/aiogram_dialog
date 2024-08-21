@@ -1,15 +1,18 @@
 import dataclasses
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent, Data, ShowMode, StartMode,
 )
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import Widget
-from aiogram_dialog.api.protocols import BaseDialogManager, DialogManager
+from aiogram_dialog.api.protocols import (
+    BaseDialogManager, DialogManager, UnsetId,
+)
 
 
 class SubManager(DialogManager):
@@ -107,11 +110,18 @@ class SubManager(DialogManager):
     async def mark_closed(self) -> None:
         await self.manager.mark_closed()
 
-    async def start(self, state: State, data: Data = None,
-                    mode: StartMode = StartMode.NORMAL,
-                    show_mode: Optional[ShowMode] = None) -> None:
+    async def start(
+            self,
+            state: State,
+            data: Data = None,
+            mode: StartMode = StartMode.NORMAL,
+            show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
+    ) -> None:
         await self.manager.start(
-            state=state, data=data, mode=mode, show_mode=show_mode,
+            state=state, data=data,
+            mode=mode, show_mode=show_mode,
+            access_settings=access_settings,
         )
 
     async def switch_to(
@@ -129,9 +139,20 @@ class SubManager(DialogManager):
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
-    def bg(self, user_id: Optional[int] = None, chat_id: Optional[int] = None,
-           stack_id: Optional[str] = None,
-           load: bool = False) -> BaseDialogManager:
+    def bg(
+            self,
+            user_id: Optional[int] = None,
+            chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            load: bool = False,
+    ) -> BaseDialogManager:
         return self.manager.bg(
-            user_id=user_id, chat_id=chat_id, stack_id=stack_id, load=load,
+            user_id=user_id,
+            chat_id=chat_id,
+            stack_id=stack_id,
+            thread_id=thread_id,
+            business_connection_id=business_connection_id,
+            load=load,
         )

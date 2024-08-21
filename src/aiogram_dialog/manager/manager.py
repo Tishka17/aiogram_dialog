@@ -1,15 +1,28 @@
+from copy import deepcopy
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, cast, Dict, Optional, Union
 
 from aiogram import Router
+from aiogram.enums import ChatType
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, Context, Data, DEFAULT_STACK_ID, LaunchMode, MediaId,
-    NewMessage, ShowMode, Stack, StartMode,
+    AccessSettings,
+    ChatEvent,
+    Context,
+    Data,
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
+    EventContext,
+    LaunchMode,
+    MediaId,
+    NewMessage,
+    ShowMode,
+    Stack,
+    StartMode,
 )
 from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
@@ -22,11 +35,15 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
     MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
+    UnsetId,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
-from .bg_manager import BgManager
-
+from .bg_manager import (
+    BgManager,
+    coalesce_business_connection_id,
+    coalesce_thread_id,
+)
 logger = getLogger(__name__)
 
 
@@ -197,16 +214,17 @@ class ManagerImpl(DialogManager):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: Optional[ShowMode] = None,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
         if mode is StartMode.NORMAL:
-            await self._start_normal(state, data)
+            await self._start_normal(state, data, access_settings)
         elif mode is StartMode.RESET_STACK:
             await self.reset_stack(remove_keyboard=False)
-            await self._start_normal(state, data)
+            await self._start_normal(state, data, access_settings)
         elif mode is StartMode.NEW_STACK:
-            await self._start_new_stack(state, data)
+            await self._start_new_stack(state, data, access_settings)
         else:
             raise ValueError(f"Unknown start mode: {mode}")
 
@@ -221,13 +239,22 @@ class ManagerImpl(DialogManager):
             await self._remove_kbd()
         self._data[CONTEXT_KEY] = None
 
-    async def _start_new_stack(self, state: State, data: Data = None) -> None:
+    async def _start_new_stack(
+            self, state: State, data: Data,
+            access_settings: Optional[AccessSettings],
+    ) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(
-            state, data, StartMode.NORMAL, self.show_mode,
+            state, data,
+            mode=StartMode.NORMAL,
+            show_mode=self.show_mode,
+            access_settings=access_settings,
         )
 
-    async def _start_normal(self, state: State, data: Data = None) -> None:
+    async def _start_normal(
+            self, state: State, data: Data,
+            access_settings: Optional[AccessSettings],
+    ) -> None:
         stack = self.current_stack()
         old_dialog: Optional[DialogProtocol] = None
         if not stack.empty():
@@ -239,22 +266,33 @@ class ManagerImpl(DialogManager):
                 )
 
         new_dialog = self._registry.find_dialog(state)
-        launch_mode = new_dialog.launch_mode
-        if launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
-            await self.reset_stack(remove_keyboard=False)
-        if launch_mode is LaunchMode.SINGLE_TOP:
-            if new_dialog is old_dialog:
-                await self.storage().remove_context(stack.pop())
-                self._data[CONTEXT_KEY] = None
-
+        await self._process_launch_mode(old_dialog, new_dialog)
         if self.has_context():
             await self.storage().save_context(self.current_context())
+            if access_settings is None:
+                access_settings = self.current_context().access_settings
+        if access_settings is None:
+            access_settings = stack.access_settings
+
         context = stack.push(state, data)
+        context.access_settings = deepcopy(access_settings)
         self._data[CONTEXT_KEY] = context
         await self.dialog().process_start(self, data, state)
         new_context = self._current_context_unsafe()
         if new_context and context.id == new_context.id:
             await self.show()
+
+    async def _process_launch_mode(
+        self,
+        old_dialog: Optional[DialogProtocol],
+        new_dialog: DialogProtocol,
+    ):
+        if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
+            await self.reset_stack(remove_keyboard=False)
+        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:
+            if new_dialog is old_dialog:
+                await self.storage().remove_context(self.current_stack().pop())
+                self._data[CONTEXT_KEY] = None
 
     async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         context = self.current_context()
@@ -351,7 +389,9 @@ class ManagerImpl(DialogManager):
     ) -> Optional[OldMessage]:
         current_message = event.message
         stack = self.current_stack()
-        chat = self.middleware_data["event_chat"]
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
         if current_message:
             media_id = get_media_id(current_message)
             return OldMessage(
@@ -359,8 +399,9 @@ class ManagerImpl(DialogManager):
                 media_uniq_id=(media_id.file_unique_id if media_id else None),
                 text=current_message.text,
                 has_reply_keyboard=self.is_event_simulated(),
-                chat=chat,
+                chat=event_context.chat,
                 message_id=current_message.message_id,
+                business_connection_id=event_context.business_connection_id,
             )
         elif not stack or not stack.last_message_id:
             return None
@@ -370,8 +411,9 @@ class ManagerImpl(DialogManager):
                 media_uniq_id=None,
                 text=UnknownText.UNKNOWN,
                 has_reply_keyboard=self.is_event_simulated(),
-                chat=chat,
+                chat=event_context.chat,
                 message_id=stack.last_message_id,
+                business_connection_id=event_context.business_connection_id,
             )
 
     def _get_last_message(self) -> Optional[OldMessage]:
@@ -383,16 +425,19 @@ class ManagerImpl(DialogManager):
             return self._get_message_from_callback(event)
 
         stack = self.current_stack()
-        chat = self.middleware_data["event_chat"]
         if not stack or not stack.last_message_id:
             return None
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
         return OldMessage(
             media_id=stack.last_media_id,
             media_uniq_id=stack.last_media_unique_id,
             text=UnknownText.UNKNOWN,
             has_reply_keyboard=stack.last_reply_keyboard,
-            chat=chat,
+            chat=event_context.chat,
             message_id=stack.last_message_id,
+            business_connection_id=event_context.business_connection_id,
         )
 
     def _save_last_message(self, message: OldMessage):
@@ -405,6 +450,8 @@ class ManagerImpl(DialogManager):
     def _calc_show_mode(self) -> ShowMode:
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
+        if self.middleware_data["event_chat"].type != ChatType.PRIVATE:
+            return ShowMode.EDIT
         if self.current_stack().last_reply_keyboard:
             return ShowMode.DELETE_AND_SEND
         if self.current_stack().id != DEFAULT_STACK_ID:
@@ -433,14 +480,6 @@ class ManagerImpl(DialogManager):
             return None
         return widget.managed(self)
 
-    def is_same_chat(self, user: User, chat: Chat) -> bool:
-        if "event_chat" not in self._data:
-            return False
-
-        current_chat = self._data["event_chat"]
-        current_user = self.event.from_user
-        return user.id == current_user.id and chat.id == current_chat.id
-
     def _get_fake_user(self, user_id: Optional[int] = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
         current_user = self.event.from_user
@@ -466,13 +505,36 @@ class ManagerImpl(DialogManager):
             user_id: Optional[int] = None,
             chat_id: Optional[int] = None,
             stack_id: Optional[str] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
+        event_context = cast(
+            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+        )
+        new_event_context = EventContext(
+            bot=event_context.bot,
+            chat=chat,
+            user=user,
+            thread_id=coalesce_thread_id(
+                chat=chat,
+                user=user,
+                thread_id=thread_id,
+                event_context=event_context,
+            ),
+            business_connection_id=coalesce_business_connection_id(
+                chat=chat,
+                user=user,
+                business_connection_id=business_connection_id,
+                event_context=event_context,
+            ),
+        )
+
         if stack_id is None:
-            if self.is_same_chat(user, chat):
+            if event_context == new_event_context:
                 stack_id = self.current_stack().id
                 if self.has_context():
                     intent_id = self.current_context().id
@@ -480,12 +542,14 @@ class ManagerImpl(DialogManager):
                 stack_id = DEFAULT_STACK_ID
 
         return BgManager(
-            user=user,
-            chat=chat,
-            bot=self._data["bot"],
+            user=new_event_context.user,
+            chat=new_event_context.chat,
+            bot=new_event_context.bot,
             router=self._router,
             intent_id=intent_id,
             stack_id=stack_id,
+            thread_id=new_event_context.thread_id,
+            business_connection_id=new_event_context.business_connection_id,
             load=load,
         )
 

@@ -30,5 +30,6 @@ class Updater:
             bot=bot,
             event_from_user=event.from_user,
             event_chat=event.chat,
+            event_thread_id=event.thread_id,
             **self.dp.workflow_data,
         )

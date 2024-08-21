@@ -138,4 +138,5 @@ class MockMessageManager(MessageManagerProtocol):
             has_reply_keyboard=isinstance(
                 new_message.reply_markup, ReplyKeyboardMarkup,
             ),
+            business_connection_id=None,
         )

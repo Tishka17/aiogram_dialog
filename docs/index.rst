@@ -10,6 +10,7 @@ aiogram-dialog
     widgets/index
     transitions/index
     how_are_messages_updated/index
+    group_business
     helper_tools/index
     migration
     faq

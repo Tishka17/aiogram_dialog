@@ -24,7 +24,11 @@ from aiogram_dialog.api.exceptions import UnknownIntent
 
 async def start(message: Message, dialog_manager: DialogManager):
     # it is important to reset stack because user wants to restart everything
-    await dialog_manager.start(states.Main.MAIN, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(
+        states.Main.MAIN,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.SEND,
+    )
 
 
 async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
@@ -71,6 +75,7 @@ def setup_dp():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     dp.message.register(start, F.text == "/start")
+    dp.business_message.register(start, F.text == "/start")
     dp.errors.register(
         on_unknown_intent,
         ExceptionTypeFilter(UnknownIntent),

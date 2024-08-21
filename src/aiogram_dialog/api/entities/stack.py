@@ -7,9 +7,11 @@ from typing import List, Optional
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
+from .access import AccessSettings
 from .context import Context, Data
 
 DEFAULT_STACK_ID = ""
+GROUP_STACK_ID = "<->"
 _STACK_LIMIT = 100
 _ID_SYMS = string.digits + string.ascii_letters
 
@@ -44,6 +46,7 @@ class Stack:
     last_income_media_group_id: Optional[str] = field(
         compare=False, default=None,
     )
+    access_settings: Optional[AccessSettings] = None
 
     @property
     def id(self):
