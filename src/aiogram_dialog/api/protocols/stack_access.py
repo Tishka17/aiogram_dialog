@@ -14,4 +14,5 @@ class StackAccessValidator(Protocol):
             event: ChatEvent,
             data: dict,
     ) -> bool:
+        """Check if current user is allowed to interactor with dialog."""
         raise NotImplementedError
