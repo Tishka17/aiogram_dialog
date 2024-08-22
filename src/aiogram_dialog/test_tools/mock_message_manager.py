@@ -10,14 +10,16 @@ from aiogram.types import (
 )
 
 from aiogram_dialog import ShowMode
-from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
+from aiogram_dialog.api.entities import (
+    MediaAttachment, MediaId, NewMessage, OldMessage,
+)
 from aiogram_dialog.api.protocols import (
     MessageManagerProtocol, MessageNotModified,
 )
 
 
 def file_id(media: MediaAttachment) -> str:
-    return media.file_id or str(uuid4())
+    return media.file_id.file_id or str(uuid4())
 
 
 MEDIA_CLASSES = {
@@ -102,6 +104,8 @@ class MockMessageManager(MessageManagerProtocol):
         self.last_message_id = message_id
 
         if new_message.media:
+            if not new_message.media.file_id:
+                new_message.media.file_id = MediaId("file_id", "file_unique_id")
             contents = {
                 "caption": new_message.text,
                 new_message.media.type: MEDIA_CLASSES[new_message.media.type](
