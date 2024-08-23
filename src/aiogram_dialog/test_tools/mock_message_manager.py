@@ -17,23 +17,33 @@ from aiogram_dialog.api.protocols import (
 
 
 def file_id(media: MediaAttachment) -> str:
-    return media.file_id or str(uuid4())
+    file_id_ = None
+    if media.file_id:
+        file_id_ = media.file_id.file_id
+    return file_id_ or str(uuid4())
+
+
+def file_unique_id(media: MediaAttachment) -> str:
+    file_unique_id_ = None
+    if media.file_id:
+        file_unique_id_ = media.file_id.file_unique_id
+    return file_unique_id_ or str(uuid4())
 
 
 MEDIA_CLASSES = {
     "audio": lambda x: Audio(
-        file_id=file_id(x), file_unique_id=file_id(x),
+        file_id=file_id(x), file_unique_id=file_unique_id(x),
         duration=1024,
     ),
     "document": lambda x: Document(
-        file_id=file_id(x), file_unique_id=file_id(x),
+        file_id=file_id(x), file_unique_id=file_unique_id(x),
     ),
     "photo": lambda x: [PhotoSize(
-        file_id=file_id(x), file_unique_id=file_id(x),
+        file_id=file_id(x), file_unique_id=file_unique_id(x),
         width=1024, height=1024,
     )],
     "video": lambda x: Video(
-        file_id=file_id(x), file_unique_id=file_id(x),
+        file_id=file_id(x), file_unique_id=file_unique_id(x),
         width=1024, height=1024, duration=1024,
     ),
 }
@@ -121,17 +131,18 @@ class MockMessageManager(MessageManagerProtocol):
             **contents,
         )
         self.sent_messages.append(message)
+
         return OldMessage(
             message_id=message_id,
             chat=new_message.chat,
             text=new_message.text,
             media_id=(
-                new_message.media.file_id.file_id
+                file_id(new_message.media)
                 if new_message.media
                 else None
             ),
             media_uniq_id=(
-                new_message.media.file_id.file_unique_id
+                file_unique_id(new_message.media)
                 if new_message.media
                 else None
             ),
