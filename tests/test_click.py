@@ -5,7 +5,6 @@ import pytest
 from aiogram import Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
@@ -13,6 +12,7 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
+from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -62,7 +62,7 @@ async def test_click():
     user_getter = Mock(side_effect=["Username"])
     dp = Dispatcher(
         usecase=usecase, user_getter=user_getter,
-        storage=MemoryStorage(),
+        storage=JsonMemoryStorage(),
     )
     dp.include_router(dialog)
     dp.message.register(start, CommandStart())

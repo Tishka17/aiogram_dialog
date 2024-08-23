@@ -12,6 +12,7 @@ from aiogram_dialog import (
 from aiogram_dialog.api.entities import AccessSettings, GROUP_STACK_ID
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
+from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -49,7 +50,7 @@ def message_manager():
 
 @pytest.fixture()
 def dp(message_manager):
-    dp = Dispatcher()
+    dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
     setup_dialogs(dp, message_manager=message_manager)
     return dp

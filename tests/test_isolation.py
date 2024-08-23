@@ -4,12 +4,11 @@ from asyncio import Event
 import pytest
 from aiogram import Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
-from aiogram_dialog import (
-    setup_dialogs, )
+from aiogram_dialog import setup_dialogs
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
+from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
 
 
 async def start(
@@ -27,7 +26,7 @@ async def test_concurrent_events():
     dp = Dispatcher(
         event_common=event_common,
         data=data,
-        storage=MemoryStorage(),
+        storage=JsonMemoryStorage(),
     )
     dp.message.register(start, CommandStart())
 

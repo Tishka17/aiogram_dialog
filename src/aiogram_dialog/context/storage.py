@@ -109,7 +109,15 @@ class StorageProxy:
                 data={},
             )
         else:
-            data = copy(vars(stack))
+            data = {
+                "_id": stack.id,
+                "intents": stack.intents,
+                "last_message_id": stack.last_message_id,
+                "last_reply_keyboard": stack.last_reply_keyboard,
+                "last_media_id": stack.last_media_id,
+                "last_media_unique_id": stack.last_media_unique_id,
+                "last_income_media_group_id": stack.last_income_media_group_id,
+            }
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
                 data=data,

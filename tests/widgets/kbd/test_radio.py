@@ -50,7 +50,7 @@ async def test_validation_radio(mock_manager) -> None:
 
     await radio.set_checked(
         TelegramObject(), int(datetime(2024, 5, 30).timestamp()),
-        mock_manager
+        mock_manager,
     )
 
     assert radio.is_checked(int(datetime(2024, 5, 30).timestamp()),

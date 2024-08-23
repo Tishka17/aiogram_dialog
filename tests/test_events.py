@@ -10,6 +10,7 @@ from aiogram_dialog import (
     Dialog, DialogManager, setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
+from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
 from aiogram_dialog.widgets.text import Format
 
 
@@ -34,7 +35,7 @@ def message_manager():
 
 @pytest.fixture()
 def dp(message_manager):
-    dp = Dispatcher()
+    dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
     setup_dialogs(dp, message_manager=message_manager)
     return dp
