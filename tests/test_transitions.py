@@ -9,6 +9,7 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
+from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
 from aiogram_dialog.widgets.kbd import Back, Cancel, Next, Start
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -38,7 +39,7 @@ def client(dp) -> BotClient:
 
 @pytest.fixture()
 def dp(message_manager: MockMessageManager):
-    dp = Dispatcher()
+    dp = Dispatcher(storage=JsonMemoryStorage())
     dp.message.register(start, CommandStart())
 
     dp.include_router(Dialog(
