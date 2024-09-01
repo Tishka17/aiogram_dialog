@@ -113,6 +113,10 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_callback(event.update.callback_query)
 
 
+class InaccessibleBusinessMessage(InaccessibleMessage):
+    business_connection_id: Optional[str] = None
+
+
 class IntentMiddlewareFactory:
     def __init__(
             self,
@@ -280,7 +284,7 @@ class IntentMiddlewareFactory:
         if callback_data:
             query = ReplyCallbackQuery(
                 id="",
-                message=InaccessibleMessage(
+                message=InaccessibleBusinessMessage(
                     chat=event.chat,
                     message_id=event.message_id,
                 ),

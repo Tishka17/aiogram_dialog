@@ -392,7 +392,7 @@ class ManagerImpl(DialogManager):
         event_context = cast(
             EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
         )
-        if current_message:
+        if isinstance(current_message, Message):
             media_id = get_media_id(current_message)
             return OldMessage(
                 media_id=(media_id.file_id if media_id else None),
