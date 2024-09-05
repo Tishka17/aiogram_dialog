@@ -47,6 +47,13 @@ def get_thread_id(message: Message) -> Optional[str]:
 
 
 def event_context_from_callback(event: CallbackQuery) -> EventContext:
+    # native inaccessible message has no `business_connection_id`
+    # we can do nothing here
+    business_connection_id = getattr(
+        event.message,
+        "business_connection_id",
+        None,
+    )
     return EventContext(
         bot=event.bot,
         user=event.from_user,
@@ -56,7 +63,7 @@ def event_context_from_callback(event: CallbackQuery) -> EventContext:
             if isinstance(event.message, Message)
             else None
         ),
-        business_connection_id=event.message.business_connection_id,
+        business_connection_id=business_connection_id,
     )
 
 
