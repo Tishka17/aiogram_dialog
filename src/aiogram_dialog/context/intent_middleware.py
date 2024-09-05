@@ -9,7 +9,7 @@ from aiogram.types import (
     CallbackQuery,
     ChatJoinRequest,
     ChatMemberUpdated,
-    Message,
+    InaccessibleMessage, Message,
 )
 from aiogram.types.error_event import ErrorEvent
 
@@ -111,6 +111,10 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_chat_join(event.update.chat_join_request)
     elif event.update.callback_query:
         return event_context_from_callback(event.update.callback_query)
+
+
+class InaccessibleBusinessMessage(InaccessibleMessage):
+    business_connection_id: Optional[str] = None
 
 
 class IntentMiddlewareFactory:
@@ -280,7 +284,10 @@ class IntentMiddlewareFactory:
         if callback_data:
             query = ReplyCallbackQuery(
                 id="",
-                message=None,
+                message=InaccessibleBusinessMessage(
+                    chat=event.chat,
+                    message_id=event.message_id,
+                ),
                 original_message=event,
                 data=callback_data,
                 from_user=event.from_user,
