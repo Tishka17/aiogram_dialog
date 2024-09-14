@@ -21,3 +21,40 @@ class Media(Whenable, BaseWidget, MediaWidget):
             self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         return None
+
+    def __or__(self, other: "Media") -> "Or":
+        # reduce nesting
+        if isinstance(other, Or):
+            return NotImplemented
+        return Or(self, other)
+
+    def __ror__(self, other: "Media") -> "Or":
+        # reduce nesting
+        return Or(other, self)
+
+
+class Or(Media):
+    def __init__(self, *widgets: Media):
+        super().__init__()
+        self.widgets = widgets
+
+    async def _render_media(
+            self, data: dict, manager: DialogManager,
+    ) -> Optional[MediaAttachment]:
+        for widget in self.widgets:
+            res = await widget.render_media(data, manager)
+            if res:
+                return res
+        return None
+
+    def __ior__(self, other: Media) -> "Or":
+        self.widgets += (other,)
+        return self
+
+    def __or__(self, other: Media) -> "Or":
+        # reduce nesting
+        return Or(*self.widgets, other)
+
+    def __ror__(self, other: Media) -> "Or":
+        # reduce nesting
+        return Or(other, *self.widgets)

@@ -3,16 +3,19 @@ from typing import Callable, Dict, Iterable, Optional, Type, Union
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
 from aiogram.fsm.state import any_state, State, StatesGroup
+from aiogram.fsm.storage.base import BaseEventIsolation
+from aiogram.fsm.storage.memory import SimpleEventIsolation
 
 from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
     BgManagerFactory, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol,
+    MediaIdStorageProtocol, MessageManagerProtocol, StackAccessValidator,
 )
 from aiogram_dialog.context.intent_middleware import (
     context_saver_middleware,
+    context_unlocker_middleware,
     IntentErrorMiddleware,
     IntentMiddlewareFactory,
 )
@@ -25,6 +28,7 @@ from aiogram_dialog.manager.manager_middleware import (
 from aiogram_dialog.manager.message_manager import MessageManager
 from aiogram_dialog.manager.update_handler import handle_update
 from .about import about_dialog
+from .context.access_validator import DefaultAccessValidator
 
 
 def _setup_event_observer(router: Router) -> None:
@@ -43,7 +47,7 @@ class DialogRegistry(DialogRegistryProtocol):
         self.router = router
         self._loaded = False
         self._dialogs = {}
-        self._state_groups = {}
+        self._states_groups = {}
 
     def _ensure_loaded(self):
         if not self._loaded:
@@ -59,14 +63,14 @@ class DialogRegistry(DialogRegistryProtocol):
                 f" (looking by state `{state}`)",
             ) from e
 
-    def state_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
         self._ensure_loaded()
-        return self._state_groups
+        return self._states_groups
 
     def refresh(self):
         dialogs = collect_dialogs(self.router)
         self._dialogs = {d.states_group(): d for d in dialogs}
-        self._state_groups = {
+        self._states_groups = {
             d.states_group_name(): d.states_group()
             for d in self._dialogs.values()
         }
@@ -86,6 +90,8 @@ def _register_middleware(
         router: Router,
         dialog_manager_factory: DialogManagerFactory,
         bg_manager_factory: BgManagerFactory,
+        stack_access_validator: StackAccessValidator,
+        events_isolation: BaseEventIsolation,
 ):
     registry = DialogRegistry(router)
     manager_middleware = ManagerMiddleware(
@@ -93,14 +99,23 @@ def _register_middleware(
         router=router,
         registry=registry,
     )
-    intent_middleware = IntentMiddlewareFactory(registry=registry)
+    intent_middleware = IntentMiddlewareFactory(
+        registry=registry,
+        access_validator=stack_access_validator,
+        events_isolation=events_isolation,
+    )
     # delayed configuration of middlewares
     router.startup.register(_startup_callback(registry))
     update_handler = router.observers[DIALOG_EVENT_NAME]
 
-    router.errors.middleware(IntentErrorMiddleware(registry=registry))
+    router.errors.middleware(IntentErrorMiddleware(
+        registry=registry,
+        events_isolation=events_isolation,
+        access_validator=stack_access_validator,
+    ))
 
     router.message.middleware(manager_middleware)
+    router.business_message.middleware(manager_middleware)
     router.callback_query.middleware(manager_middleware)
     update_handler.middleware(manager_middleware)
     router.my_chat_member.middleware(manager_middleware)
@@ -108,6 +123,7 @@ def _register_middleware(
     router.errors.middleware(manager_middleware)
 
     router.message.outer_middleware(intent_middleware.process_message)
+    router.business_message.outer_middleware(intent_middleware.process_message)
     router.callback_query.outer_middleware(
         intent_middleware.process_callback_query,
     )
@@ -121,7 +137,15 @@ def _register_middleware(
         intent_middleware.process_chat_join_request,
     )
 
+    router.message.outer_middleware(context_unlocker_middleware)
+    router.business_message.outer_middleware(context_unlocker_middleware)
+    router.callback_query.outer_middleware(context_unlocker_middleware)
+    update_handler.outer_middleware(context_unlocker_middleware)
+    router.my_chat_member.outer_middleware(context_unlocker_middleware)
+    router.chat_join_request.outer_middleware(context_unlocker_middleware)
+
     router.message.middleware(context_saver_middleware)
+    router.business_message.middleware(context_saver_middleware)
     router.callback_query.middleware(context_saver_middleware)
     update_handler.middleware(context_saver_middleware)
     router.my_chat_member.middleware(context_saver_middleware)
@@ -149,6 +173,24 @@ def _prepare_dialog_manager_factory(
     )
 
 
+def _prepare_stack_access_validator(
+        stack_access_validator: Optional[StackAccessValidator],
+) -> StackAccessValidator:
+    if stack_access_validator:
+        return stack_access_validator
+    else:
+        return DefaultAccessValidator()
+
+
+def _prepare_events_isolation(
+        events_isolation: Optional[BaseEventIsolation],
+) -> BaseEventIsolation:
+    if events_isolation:
+        return events_isolation
+    else:
+        return SimpleEventIsolation()
+
+
 def collect_dialogs(router: Router) -> Iterable[DialogProtocol]:
     if isinstance(router, DialogProtocol):
         yield router
@@ -166,6 +208,8 @@ def setup_dialogs(
         dialog_manager_factory: Optional[DialogManagerFactory] = None,
         message_manager: Optional[MessageManagerProtocol] = None,
         media_id_storage: Optional[MediaIdStorageProtocol] = None,
+        stack_access_validator: Optional[StackAccessValidator] = None,
+        events_isolation: Optional[BaseEventIsolation] = None,
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
@@ -176,11 +220,16 @@ def setup_dialogs(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
     )
+    stack_access_validator = _prepare_stack_access_validator(
+        stack_access_validator,
+    )
+    events_isolation = _prepare_events_isolation(events_isolation)
     bg_manager_factory = BgManagerFactoryImpl(router)
     _register_middleware(
         router=router,
         dialog_manager_factory=dialog_manager_factory,
         bg_manager_factory=bg_manager_factory,
-
+        stack_access_validator=stack_access_validator,
+        events_isolation=events_isolation,
     )
     return bg_manager_factory

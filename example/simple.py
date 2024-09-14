@@ -11,8 +11,9 @@ from aiogram.types import CallbackQuery, ContentType, Message
 from redis.asyncio.client import Redis
 
 from aiogram_dialog import (
-    ChatEvent, Dialog, DialogManager, setup_dialogs,
-    ShowMode, StartMode, Window,
+    ChatEvent, Dialog, DialogManager,
+    setup_dialogs, ShowMode,
+    StartMode, Window,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 from aiogram_dialog.widgets.input import MessageInput
@@ -40,8 +41,11 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def name_handler(message: Message, message_input: MessageInput,
-                       manager: DialogManager):
+async def name_handler(
+    message: Message,
+    message_input: MessageInput,
+    manager: DialogManager,
+):
     if manager.is_preview():
         await manager.next()
         return
@@ -50,13 +54,19 @@ async def name_handler(message: Message, message_input: MessageInput,
     await manager.next()
 
 
-async def other_type_handler(message: Message, message_input: MessageInput,
-                             manager: DialogManager):
+async def other_type_handler(
+    message: Message,
+    message_input: MessageInput,
+    manager: DialogManager,
+):
     await message.answer("Text is expected")
 
 
-async def on_finish(callback: CallbackQuery, button: Button,
-                    manager: DialogManager):
+async def on_finish(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     if manager.is_preview():
         await manager.done()
         return
@@ -64,9 +74,12 @@ async def on_finish(callback: CallbackQuery, button: Button,
     await manager.done()
 
 
-async def on_age_changed(callback: ChatEvent, select: Any,
-                         manager: DialogManager,
-                         item_id: str):
+async def on_age_changed(
+    callback: ChatEvent,
+    select: Any,
+    manager: DialogManager,
+    item_id: str,
+):
     manager.dialog_data["age"] = item_id
     await manager.next()
 
@@ -118,7 +131,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 
 async def on_unknown_intent(event, dialog_manager: DialogManager):
-    """Example of handling UnknownIntent Error and starting new dialog."""
+    # Example of handling UnknownIntent Error and starting new dialog.
     logging.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
         DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
@@ -126,7 +139,7 @@ async def on_unknown_intent(event, dialog_manager: DialogManager):
 
 
 async def on_unknown_state(event, dialog_manager: DialogManager):
-    """Example of handling UnknownState Error and starting new dialog."""
+    # Example of handling UnknownState Error and starting new dialog.
     logging.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
         DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,

@@ -1,14 +1,18 @@
 __all__ = [
+    "AccessSettings",
     "DEFAULT_STACK_ID",
     "Dialog",
     "Data",
+    "GROUP_STACK_ID",
     "ChatEvent",
     "LaunchMode",
     "StartMode",
     "BaseDialogManager",
     "BgManagerFactory",
+    "CancelEventProcessing",
     "DialogManager",
     "DialogProtocol",
+    "UnsetId",
     "setup_dialogs",
     "ShowMode",
     "SubManager",
@@ -18,10 +22,13 @@ __all__ = [
 import importlib.metadata as _metadata
 
 from .api.entities import (
-    ChatEvent, Data, DEFAULT_STACK_ID, LaunchMode, ShowMode, StartMode,
+    AccessSettings, ChatEvent, Data, DEFAULT_STACK_ID, GROUP_STACK_ID,
+    LaunchMode, ShowMode, StartMode,
 )
 from .api.protocols import (
-    BaseDialogManager, BgManagerFactory, DialogManager, DialogProtocol,
+    BaseDialogManager, BgManagerFactory, CancelEventProcessing,
+    DialogManager, DialogProtocol,
+    UnsetId,
 )
 from .dialog import Dialog
 from .manager.sub_manager import SubManager

@@ -8,7 +8,7 @@ Install library:
 .. literalinclude:: ./install.sh
 
 Let's assume that you have created your aiogram bot with dispatcher and states storage as you normally do. When we setup our ``DialogRegistry`` to use that dispatcher.
-It is important you have proper storage because **aiogram_dialog** uses ``FSMContext`` internally to store it state:
+It is important you have proper storage because **aiogram_dialog** uses ``FSMContext`` internally to store its state:
 
 .. literalinclude:: ./bot.py
 

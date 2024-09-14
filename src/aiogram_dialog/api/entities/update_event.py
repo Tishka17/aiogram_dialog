@@ -14,6 +14,7 @@ from .modes import (
     ShowMode,
     StartMode,
 )
+from .stack import AccessSettings
 
 DIALOG_EVENT_NAME = "aiogd_update"
 
@@ -36,12 +37,15 @@ class DialogUpdateEvent(TelegramObject):
     data: Any
     intent_id: Optional[str]
     stack_id: Optional[str]
+    thread_id: Optional[int]
+    business_connection_id: Optional[str]
     show_mode: Optional[ShowMode] = None
 
 
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
+    access_settings: Optional[AccessSettings] = None
 
 
 class DialogSwitchEvent(DialogUpdateEvent):

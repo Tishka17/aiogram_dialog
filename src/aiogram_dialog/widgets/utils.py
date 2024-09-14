@@ -45,12 +45,12 @@ def ensure_input(
             BaseInput,
             Sequence[BaseInput],
         ],
-) -> BaseInput:
+) -> Union[BaseInput, None]:
     if isinstance(widget, BaseInput):
         return widget
     elif isinstance(widget, Sequence):
         if len(widget) == 0:
-            return MessageInput(None)
+            return None
         elif len(widget) == 1:
             return widget[0]
         else:
@@ -71,7 +71,7 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
-) -> Tuple[Text, Keyboard, BaseInput, Media]:
+) -> Tuple[Text, Keyboard, Union[BaseInput, None], Media]:
     texts = []
     keyboards = []
     inputs = []

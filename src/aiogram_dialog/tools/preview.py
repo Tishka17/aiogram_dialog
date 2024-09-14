@@ -2,7 +2,7 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Union
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
@@ -16,11 +16,14 @@ from aiogram_dialog import (
     BaseDialogManager, Dialog, DialogManager, DialogProtocol,
 )
 from aiogram_dialog.api.entities import (
+    AccessSettings,
     ChatEvent,
     Context,
     Data,
     DialogAction,
     DialogUpdateEvent,
+    EVENT_CONTEXT_KEY,
+    EventContext,
     MediaAttachment,
     NewMessage,
     ShowMode,
@@ -28,6 +31,7 @@ from aiogram_dialog.api.entities import (
     StartMode,
 )
 from aiogram_dialog.api.exceptions import NoContextError
+from aiogram_dialog.api.protocols import UnsetId
 from aiogram_dialog.setup import collect_dialogs
 from aiogram_dialog.utils import split_reply_callback
 
@@ -69,29 +73,38 @@ class FakeManager(DialogManager):
             data={},
             intent_id=None,
             stack_id=None,
+            thread_id=None,
+            business_connection_id=None,
         )
         self._context: Optional[Context] = None
         self._dialog: Optional[DialogProtocol] = None
         self._data = {
             "dialog_manager": self,
-            "event_chat": Chat(id=1, type="private"),
-            "event_from_user": User(id=1, is_bot=False, first_name="Fake"),
+            "event_chat": self._event.chat,
+            "event_from_user": self._event.from_user,
+            EVENT_CONTEXT_KEY: EventContext(
+                bot=None,
+                thread_id=None,
+                chat=self._event.chat,
+                user=self._event.from_user,
+                business_connection_id=None,
+            ),
         }
 
-    async def next(self) -> None:
+    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
         new_state = states[current_index + 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
-    async def back(self) -> None:
+    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
         new_state = states[current_index - 1]
-        await self.switch_to(new_state)
+        await self.switch_to(new_state, show_mode)
 
     @property
-    def data(self) -> Dict:
+    def middleware_data(self) -> Dict:
         return self._data
 
     @property
@@ -116,13 +129,6 @@ class FakeManager(DialogManager):
 
     def is_preview(self) -> bool:
         return True
-
-    @property
-    def middleware_data(self) -> Dict:
-        return {
-            "event_chat": self.event.chat,
-            "dialog_manager": self,
-        }
 
     @property
     def dialog_data(self) -> Dict:
@@ -151,6 +157,7 @@ class FakeManager(DialogManager):
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
             show_mode: ShowMode = ShowMode.AUTO,
+            access_settings: Optional[AccessSettings] = None,
     ) -> None:
         self.set_state(state)
 
@@ -179,7 +186,7 @@ class FakeManager(DialogManager):
         pass
 
     @property
-    def start_data(self) -> Dict:
+    def start_data(self) -> Data:
         return {}
 
     @property
@@ -208,8 +215,12 @@ class FakeManager(DialogManager):
 
     def bg(
             self,
-            user_id: Optional[int] = None, chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None, load: bool = False,
+            user_id: Optional[int] = None,
+            chat_id: Optional[int] = None,
+            stack_id: Optional[str] = None,
+            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            load: bool = False,
     ) -> BaseDialogManager:
         return self
 

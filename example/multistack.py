@@ -6,12 +6,13 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Cancel, Multiselect, Start
@@ -36,7 +37,7 @@ async def get_data(dialog_manager: DialogManager, **kwargs):
             ("Pear", 2),
             ("Orange", 3),
             ("Banana", 4),
-        ]
+        ],
     }
 
 
@@ -47,8 +48,11 @@ async def name_handler(
     await message.answer(f"Nice to meet you, {message.text}")
 
 
-async def on_click(callback: CallbackQuery, button: Button,
-                   manager: DialogManager):
+async def on_click(
+    callback: CallbackQuery,
+    button: Button,
+    manager: DialogManager,
+):
     counter = manager.dialog_data.get("counter", 0)
     manager.dialog_data["counter"] = counter + 1
 
@@ -69,8 +73,12 @@ dialog = Dialog(
         Format("Last text: {last_text}\n"),
         Format("{now}"),
         Button(Const("Click me!"), id="btn1", on_click=on_click),
-        Start(Const("Start new stack"), id="s1",
-              mode=StartMode.NEW_STACK, state=DialogSG.greeting),
+        Start(
+            Const("Start new stack"),
+            mode=StartMode.NEW_STACK,
+            state=DialogSG.greeting,
+            id="s1",
+        ),
         multi,
         Cancel(),
         # Inputs work only in default stack
@@ -96,6 +104,7 @@ async def main():
 
     # register handler which resets stack and start dialogs on /start command
     dp.message.register(start, CommandStart())
+    dp.business_message.register(start, CommandStart())
     setup_dialogs(dp)
     await dp.start_polling(bot)
 

@@ -9,6 +9,10 @@ from aiogram_dialog.api.entities import (
 from .manager import DialogManager
 
 
+class CancelEventProcessing(Exception):
+    pass
+
+
 @runtime_checkable
 class DialogProtocol(Protocol):
     @property
@@ -37,7 +41,7 @@ class DialogProtocol(Protocol):
     async def process_start(
             self,
             manager: "DialogManager",
-            start_data: Any,
+            start_data: Data,
             state: Optional[State] = None,
     ) -> None:
         raise NotImplementedError

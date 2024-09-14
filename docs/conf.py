@@ -14,11 +14,12 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import datetime
 
 # -- Project information -----------------------------------------------------
 
 project = 'aiogram-dialog'
-copyright = '2021, Tishka17'
+copyright = f'{datetime.date.today().year}, Tishka17'
 author = 'Tishka17'
 master_doc = 'index'
 
@@ -29,6 +30,7 @@ master_doc = 'index'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_copybutton',
 ]
 autodoc_type_aliases = {
 }
@@ -42,14 +44,12 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = 'furo'
-
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

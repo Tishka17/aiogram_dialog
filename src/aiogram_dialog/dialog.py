@@ -12,19 +12,20 @@ from typing import (
 )
 
 from aiogram import Router
+from aiogram.enums import ChatType
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Chat, Message
 
-from aiogram_dialog.api.entities import Data, LaunchMode, NewMessage
+from aiogram_dialog.api.entities import Context, Data, LaunchMode, NewMessage
 from aiogram_dialog.api.exceptions import (
     UnregisteredWindowError,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol,
+    CancelEventProcessing, DialogManager, DialogProtocol,
 )
 from .context.intent_filter import IntentFilter
-from .utils import remove_indent_id
+from .utils import remove_intent_id
 from .widgets.data import PreviewAwareGetter
 from .widgets.utils import ensure_data_getter, GetterVariant
 
@@ -84,7 +85,7 @@ class Dialog(Router, DialogProtocol):
     async def process_start(
             self,
             manager: DialogManager,
-            start_data: Any,
+            start_data: Data,
             state: Optional[State] = None,
     ) -> None:
         if state is None:
@@ -128,10 +129,14 @@ class Dialog(Router, DialogProtocol):
     ):
         old_context = dialog_manager.current_context()
         window = await self._current_window(dialog_manager)
-        await window.process_message(message, self, dialog_manager)
-        if dialog_manager.has_context():
-            if dialog_manager.current_context() == old_context:  # same dialog
-                await dialog_manager.show()
+        try:
+            processed = await window.process_message(
+                message, self, dialog_manager,
+            )
+        except CancelEventProcessing:
+            processed = False
+        if self._need_refresh(processed, old_context, dialog_manager):
+            await dialog_manager.show()
 
     async def _callback_handler(
             self,
@@ -139,14 +144,38 @@ class Dialog(Router, DialogProtocol):
             dialog_manager: DialogManager,
     ):
         old_context = dialog_manager.current_context()
-        intent_id, callback_data = remove_indent_id(callback.data)
+        intent_id, callback_data = remove_intent_id(callback.data)
         cleaned_callback = callback.model_copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
-        await window.process_callback(cleaned_callback, self, dialog_manager)
-        if dialog_manager.has_context():
-            if dialog_manager.current_context() == old_context:  # same dialog
-                await dialog_manager.show()
+        try:
+            processed = await window.process_callback(
+                cleaned_callback, self, dialog_manager,
+            )
+        except CancelEventProcessing:
+            processed = False
+        if self._need_refresh(processed, old_context, dialog_manager):
+            await dialog_manager.show()
         await dialog_manager.answer_callback()
+
+    def _need_refresh(
+            self, processed: bool,
+            old_context: Context,
+            dialog_manager: DialogManager,
+    ):
+        if not dialog_manager.has_context():
+            # nothing to show
+            return False
+        if dialog_manager.current_context() != old_context:
+            # dialog switched, so it is already refreshed
+            return False
+        if processed:
+            # something happened
+            return True
+        event_chat: Chat = dialog_manager.middleware_data["event_chat"]
+        if event_chat.type == ChatType.PRIVATE:
+            # for private chats we can ensure dialog is visible
+            return True
+        return False
 
     def _setup_filter(self):
         intent_filter = IntentFilter(
@@ -171,9 +200,14 @@ class Dialog(Router, DialogProtocol):
             result: Any,
             manager: DialogManager,
     ) -> None:
+        context = manager.current_context()
         await self._process_callback(
             self.on_process_result, start_data, result, manager,
         )
+        if context.id == manager.current_context().id:
+            await self.windows[context.state].process_result(
+                start_data, result, manager,
+            )
 
     def include_router(self, router: Router) -> Router:
         raise TypeError("Dialog cannot include routers")

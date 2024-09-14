@@ -10,12 +10,12 @@ where = ["src"]
 
 [project]
 name = "aiogram_dialog"
-version = "2.1.0"
+version = "2.2.0b3"
 readme = "README.md"
 authors = [
     { name = "Andrey Tikhonov", email = "17@itishka.org" },
 ]
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0" }
 description = "Telegram bot UI framework on top of aiogram"
 requires-python = ">=3.8"
 classifiers = [
@@ -25,7 +25,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'aiogram>=3.0.0',
+    'aiogram>=3.5.0',
     'jinja2',
     'cachetools>=4.0.0,<6.0.0',
     'magic_filter',
@@ -42,3 +42,8 @@ tools = [
 
 [project.scripts]
 aiogram-dialog-preview = "aiogram_dialog.tools.web_preview:main"
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+include = ["src/**"]

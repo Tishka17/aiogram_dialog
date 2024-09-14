@@ -2,7 +2,7 @@ from aiogram_dialog import (
     Dialog, Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    SwitchTo, Select, Button, Row, Column, Group,
+    Button, Column, Group, Row, Select, SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format
 from . import states

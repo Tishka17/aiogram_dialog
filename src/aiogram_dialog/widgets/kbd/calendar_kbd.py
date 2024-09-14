@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from calendar import MONDAY
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from enum import Enum
-from time import mktime
 from typing import (
-    Any, Callable, Dict, List, Optional, Protocol, TypedDict, Union,
+    Any, Callable, Dict, List, Optional, Protocol, TypedDict, TypeVar, Union,
 )
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
@@ -20,6 +18,8 @@ from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor, WidgetEventProcessor,
 )
 from .base import Keyboard
+
+EPOCH = date(1970, 1, 1)
 
 CALLBACK_NEXT_MONTH = "+"
 CALLBACK_PREV_MONTH = "-"
@@ -64,6 +64,16 @@ class CalendarScope(Enum):
     YEARS = "YEARS"
 
 
+def raw_from_date(d: date) -> int:
+    diff = d - EPOCH
+    raw_date = int(diff.total_seconds())
+    return raw_date
+
+
+def date_from_raw(raw_date: int) -> date:
+    return EPOCH + timedelta(seconds=raw_date)
+
+
 def month_begin(offset: date):
     return offset.replace(day=1)
 
@@ -92,23 +102,52 @@ class OnDateSelected(Protocol):
             widget: ManagedCalendar,
             dialog_manager: DialogManager,
             date: date,
+            /,
     ) -> Any:
         raise NotImplementedError
 
 
-@dataclass
+@dataclass(frozen=True)
 class CalendarUserConfig:
-    firstweekday: int = MONDAY
-    timezone: timezone = datetime.now().astimezone().tzinfo
+    firstweekday: Optional[int] = None
+    timezone: Optional[timezone] = None
+    min_date: Optional[date] = None
+    max_date: Optional[date] = None
+    month_columns: Optional[int] = None
+    years_per_page: Optional[int] = None
+    years_columns: Optional[int] = None
+
+
+T = TypeVar("T")
+
+
+def _coalesce(a: Optional[T], b: T) -> T:
+    if a is None:
+        return b
+    return a
 
 
 @dataclass(frozen=True)
 class CalendarConfig:
+    firstweekday: int = 0
+    timezone: timezone = datetime.now().astimezone().tzinfo
     min_date: date = date(1900, 1, 1)
     max_date: date = date(2100, 12, 31)
     month_columns: int = 3
     years_per_page: int = 20
     years_columns: int = 5
+
+    def merge(self, other: CalendarUserConfig) -> CalendarConfig:
+        return CalendarConfig(
+            firstweekday=_coalesce(other.firstweekday, self.firstweekday),
+            timezone=_coalesce(other.timezone, self.timezone),
+            min_date=_coalesce(other.min_date, self.min_date),
+            max_date=_coalesce(other.max_date, self.max_date),
+            month_columns=_coalesce(other.month_columns, self.month_columns),
+            years_per_page=_coalesce(other.years_per_page,
+                                     self.years_per_page),
+            years_columns=_coalesce(other.years_columns, self.years_columns),
+        )
 
 
 class CalendarScopeView(Protocol):
@@ -120,7 +159,7 @@ class CalendarScopeView(Protocol):
 
     async def render(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -143,7 +182,6 @@ class CalendarDaysView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
-            config: CalendarConfig,
             date_text: Text = DATE_TEXT,
             today_text: Text = TODAY_TEXT,
             weekday_text: Text = WEEK_DAY_TEXT,
@@ -152,7 +190,6 @@ class CalendarDaysView(CalendarScopeView):
             next_month_text: Text = NEXT_MONTH_TEXT,
             prev_month_text: Text = PREV_MONTH_TEXT,
     ):
-        self.config = config
         self.zoom_out_text = zoom_out_text
         self.next_month_text = next_month_text
         self.prev_month_text = prev_month_text
@@ -177,7 +214,9 @@ class CalendarDaysView(CalendarScopeView):
             text = self.today_text
         else:
             text = self.date_text
-        raw_date = int(mktime(selected_date.timetuple()))
+
+        raw_date = raw_from_date(selected_date)
+
         return InlineKeyboardButton(
             text=await text.render_text(
                 current_data, manager,
@@ -187,7 +226,7 @@ class CalendarDaysView(CalendarScopeView):
 
     async def _render_days(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -195,14 +234,14 @@ class CalendarDaysView(CalendarScopeView):
         keyboard = []
         # align beginning
         start_date = offset.replace(day=1)  # month beginning
-        min_date = max(self.config.min_date, start_date)
+        min_date = max(config.min_date, start_date)
         days_since_week_start = start_date.weekday() - config.firstweekday
         if days_since_week_start < 0:
             days_since_week_start += 7
         start_date -= timedelta(days=days_since_week_start)
         end_date = next_month_begin(offset) - timedelta(days=1)
         # align ending
-        max_date = min(self.config.max_date, end_date)
+        max_date = min(config.max_date, end_date)
         days_since_week_start = end_date.weekday() - config.firstweekday
         days_till_week_end = (6 - days_since_week_start) % 7
         end_date += timedelta(days=days_till_week_end)
@@ -224,7 +263,7 @@ class CalendarDaysView(CalendarScopeView):
 
     async def _render_week_header(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             data: Dict,
             manager: DialogManager,
     ) -> List[InlineKeyboardButton]:
@@ -245,7 +284,7 @@ class CalendarDaysView(CalendarScopeView):
 
     async def _render_pager(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -257,8 +296,8 @@ class CalendarDaysView(CalendarScopeView):
         prev_begin = month_begin(prev_end)
         next_begin = next_month_begin(offset)
         if (
-                prev_end < self.config.min_date and
-                next_begin > self.config.max_date
+                prev_end < config.min_date and
+                next_begin > config.max_date
         ):
             return []
 
@@ -277,7 +316,7 @@ class CalendarDaysView(CalendarScopeView):
             "date": next_begin,
             "data": data,
         }
-        if prev_end < self.config.min_date:
+        if prev_end < config.min_date:
             prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
@@ -292,7 +331,7 @@ class CalendarDaysView(CalendarScopeView):
             ),
             callback_data=self.callback_generator(CALLBACK_SCOPE_MONTHS),
         )
-        if next_begin > self.config.max_date:
+        if next_begin > config.max_date:
             next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
@@ -305,7 +344,11 @@ class CalendarDaysView(CalendarScopeView):
         return [prev_button, zoom_button, next_button]
 
     async def _render_header(
-            self, config, offset, data, manager,
+            self,
+            config: CalendarConfig,
+            offset: date,
+            data: Dict,
+            manager: DialogManager,
     ) -> List[InlineKeyboardButton]:
         data = {
             "date": offset,
@@ -318,7 +361,7 @@ class CalendarDaysView(CalendarScopeView):
 
     async def render(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -335,7 +378,6 @@ class CalendarMonthView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
-            config: CalendarConfig,
             month_text: Text = MONTH_TEXT,
             this_month_text: Text = THIS_MONTH_TEXT,
             header_text: Text = MONTHS_HEADER_TEXT,
@@ -343,7 +385,6 @@ class CalendarMonthView(CalendarScopeView):
             next_year_text: Text = NEXT_YEAR_TEXT,
             prev_year_text: Text = PREV_YEAR_TEXT,
     ):
-        self.config = config
         self.callback_generator = callback_generator
         self.month_text = month_text
         self.this_month_text = this_month_text
@@ -354,7 +395,7 @@ class CalendarMonthView(CalendarScopeView):
 
     async def _render_pager(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -364,7 +405,7 @@ class CalendarMonthView(CalendarScopeView):
         prev_year = curr_year - 1
 
         if curr_year not in range(
-                self.config.min_date.year, self.config.max_date.year,
+                config.min_date.year, config.max_date.year,
         ):
             return []
 
@@ -372,7 +413,7 @@ class CalendarMonthView(CalendarScopeView):
             "year": prev_year,
             "date": max(
                 BEARING_DATE.replace(year=prev_year),
-                self.config.min_date,
+                config.min_date,
             ),
             "data": data,
         }
@@ -385,11 +426,11 @@ class CalendarMonthView(CalendarScopeView):
             "year": next_year,
             "date": min(
                 BEARING_DATE.replace(year=next_year),
-                self.config.max_date,
+                config.max_date,
             ),
             "data": data,
         }
-        if prev_year < self.config.min_date.year:
+        if prev_year < config.min_date.year:
             prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
@@ -398,7 +439,7 @@ class CalendarMonthView(CalendarScopeView):
                 ),
                 callback_data=self.callback_generator(CALLBACK_PREV_YEAR),
             )
-        if next_year > self.config.max_date.year:
+        if next_year > config.max_date.year:
             next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
@@ -416,14 +457,11 @@ class CalendarMonthView(CalendarScopeView):
         return [prev_button, zoom_button, next_button]
 
     def _is_month_allowed(
-            self, offset: date, month: int,
+            self, config: CalendarConfig, offset: date, month: int,
     ) -> bool:
         start = date(offset.year, month, 1)
         end = next_month_begin(start) - timedelta(days=1)
-        return (
-            end >= self.config.min_date and
-            start <= self.config.max_date
-        )
+        return end >= config.min_date and start <= config.max_date
 
     async def _render_month_button(
             self,
@@ -431,10 +469,10 @@ class CalendarMonthView(CalendarScopeView):
             this_month: int,
             data: Dict,
             offset: date,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
-        if not self._is_month_allowed(offset, month):
+        if not self._is_month_allowed(config, offset, month):
             return empty_button()
 
         month_data = {
@@ -458,7 +496,7 @@ class CalendarMonthView(CalendarScopeView):
 
     async def _render_months(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -469,9 +507,9 @@ class CalendarMonthView(CalendarScopeView):
             this_month = today.month
         else:
             this_month = -1
-        for row in range(1, 13, self.config.month_columns):
+        for row in range(1, 13, config.month_columns):
             keyboard_row = []
-            for column in range(self.config.month_columns):
+            for column in range(config.month_columns):
                 month = row + column
                 keyboard_row.append(await self._render_month_button(
                     month, this_month, data, offset, config, manager,
@@ -493,7 +531,7 @@ class CalendarMonthView(CalendarScopeView):
 
     async def render(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -509,14 +547,12 @@ class CalendarYearsView(CalendarScopeView):
     def __init__(
             self,
             callback_generator: CallbackGenerator,
-            config: CalendarConfig,
             year_text: Text = YEAR_TEXT,
             this_year_text: Text = THIS_YEAR_TEXT,
             next_page_text: Text = NEXT_YEARS_PAGE_TEXT,
             prev_page_text: Text = PREV_YEARS_PAGE_TEXT,
     ):
         self.callback_generator = callback_generator
-        self.config = config
         self.year_text = year_text
         self.this_year_text = this_year_text
         self.next_page_text = next_page_text
@@ -524,20 +560,20 @@ class CalendarYearsView(CalendarScopeView):
 
     async def _render_pager(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
     ) -> List[InlineKeyboardButton]:
         curr_year = offset.year
-        next_year = curr_year + self.config.years_per_page
-        prev_year = curr_year - self.config.years_per_page
+        next_year = curr_year + config.years_per_page
+        prev_year = curr_year - config.years_per_page
 
         prev_year_data = {
             "year": prev_year,
             "date": max(
                 BEARING_DATE.replace(year=prev_year),
-                self.config.min_date,
+                config.min_date,
             ),
             "data": data,
         }
@@ -545,11 +581,11 @@ class CalendarYearsView(CalendarScopeView):
             "year": next_year,
             "date": min(
                 BEARING_DATE.replace(year=next_year),
-                self.config.max_date,
+                config.max_date,
             ),
             "data": data,
         }
-        if curr_year <= self.config.min_date.year:
+        if curr_year <= config.min_date.year:
             prev_button = empty_button()
         else:
             prev_button = InlineKeyboardButton(
@@ -560,7 +596,7 @@ class CalendarYearsView(CalendarScopeView):
                     CALLBACK_PREV_YEARS_PAGE,
                 ),
             )
-        if next_year > self.config.max_date.year:
+        if next_year > config.max_date.year:
             next_button = empty_button()
         else:
             next_button = InlineKeyboardButton(
@@ -576,18 +612,18 @@ class CalendarYearsView(CalendarScopeView):
             return []
         return [prev_button, next_button]
 
-    def _is_year_allowed(self, year: int) -> bool:
-        return self.config.min_date.year <= year <= self.config.max_date.year
+    def _is_year_allowed(self, config: CalendarConfig, year: int) -> bool:
+        return config.min_date.year <= year <= config.max_date.year
 
     async def _render_year_button(
             self,
             year: int,
             this_year: int,
             data: Dict,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
-        if not self._is_year_allowed(year):
+        if not self._is_year_allowed(config, year):
             return empty_button()
         if year == this_year:
             text = self.this_year_text
@@ -610,15 +646,15 @@ class CalendarYearsView(CalendarScopeView):
 
     async def _render_years(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
     ) -> List[List[InlineKeyboardButton]]:
         keyboard = []
         this_year = get_today(config.timezone).year
-        years_columns = self.config.years_columns
-        years_per_page = self.config.years_per_page
+        years_columns = config.years_columns
+        years_per_page = config.years_per_page
 
         for row in range(0, years_per_page, years_columns):
             keyboard_row = []
@@ -632,7 +668,7 @@ class CalendarYearsView(CalendarScopeView):
 
     async def render(
             self,
-            config: CalendarUserConfig,
+            config: CalendarConfig,
             offset: date,
             data: Dict,
             manager: DialogManager,
@@ -691,12 +727,9 @@ class Calendar(Keyboard):
         create own implementation of views
         """
         return {
-            CalendarScope.DAYS:
-                CalendarDaysView(self._item_callback_data, self.config),
-            CalendarScope.MONTHS:
-                CalendarMonthView(self._item_callback_data, self.config),
-            CalendarScope.YEARS:
-                CalendarYearsView(self._item_callback_data, self.config),
+            CalendarScope.DAYS: CalendarDaysView(self._item_callback_data),
+            CalendarScope.MONTHS: CalendarMonthView(self._item_callback_data),
+            CalendarScope.YEARS: CalendarYearsView(self._item_callback_data),
         }
 
     async def _get_user_config(
@@ -723,7 +756,7 @@ class Calendar(Keyboard):
         scope = self.get_scope(manager)
         view = self.views[scope]
         offset = self.get_offset(manager)
-        config = await self._get_user_config(data, manager)
+        config = self.config.merge(await self._get_user_config(data, manager))
         if offset is None:
             offset = get_today(config.timezone)
             self.set_offset(offset, manager)
@@ -832,12 +865,11 @@ class Calendar(Keyboard):
     async def _handle_click_date(
             self, data: str, manager: DialogManager,
     ) -> None:
-        raw_date = int(data)
         await self.on_click.process_event(
             manager.event,
             self.managed(manager),
             manager,
-            date.fromtimestamp(raw_date),
+            date_from_raw(int(data)),
         )
 
     async def _process_item_callback(

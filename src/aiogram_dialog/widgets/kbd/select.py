@@ -39,6 +39,7 @@ class OnItemStateChanged(Protocol[ManagedT, T]):
             select: ManagedT,  # noqa: F841
             dialog_manager: DialogManager,
             data: T,
+            /,
     ):
         raise NotImplementedError
 
@@ -181,7 +182,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             await self.on_item_click.process_event(
                 callback, select, manager, self.type_factory(item_id),
             )
-        await self._on_click(callback, select, manager, str(item_id))
+        await self._on_click(callback, select, manager, item_id)
 
     @abstractmethod
     async def _on_click(
@@ -192,6 +193,21 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             item_id: str,
     ):
         raise NotImplementedError
+
+    async def _process_item_callback(
+            self,
+            callback: CallbackQuery,
+            data: str,
+            dialog: DialogProtocol,
+            manager: DialogManager,
+    ) -> bool:
+        await self.on_click.process_event(
+            callback,
+            self.managed(manager),
+            manager,
+            data,
+        )
+        return True
 
 
 class Radio(StatefulSelect[T], Generic[T]):
@@ -226,7 +242,7 @@ class Radio(StatefulSelect[T], Generic[T]):
             when=when,
         )
 
-    def get_checked(self, manager: DialogManager) -> Optional[str]:
+    def get_checked(self, manager: DialogManager) -> Optional[T]:
         data = self._get_checked(manager)
         if data is None:
             return None
@@ -236,9 +252,9 @@ class Radio(StatefulSelect[T], Generic[T]):
         return self.get_widget_data(manager, None)
 
     async def set_checked(
-            self, event: ChatEvent, item_id: Optional[T],
+            self, event: ChatEvent, item_id: T,
             manager: DialogManager,
-    ):
+    ) -> None:
         checked = self._get_checked(manager)
         item_id_str = str(item_id)
         self.set_widget_data(manager, item_id_str)
@@ -281,7 +297,7 @@ class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
         """Get an id of selected item."""
         return self.widget.get_checked(self.manager)
 
-    async def set_checked(self, item_id: T):
+    async def set_checked(self, item_id: T) -> None:
         """Get set which item is selected."""
         return await self.widget.set_checked(
             self.manager.event, item_id, self.manager,

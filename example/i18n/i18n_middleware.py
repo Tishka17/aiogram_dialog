@@ -1,9 +1,8 @@
-from typing import Dict, Callable, Any, Awaitable, Union
+from typing import Any, Awaitable, Callable, Dict, Union
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import CallbackQuery, Message
 from fluent.runtime import FluentLocalization
-
 from i18n_format import I18N_FORMAT_KEY
 
 

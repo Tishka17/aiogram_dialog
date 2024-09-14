@@ -11,13 +11,16 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, StartMode, Window, setup_dialogs,
+    Dialog, DialogManager,
+    setup_dialogs, StartMode, Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    CurrentPage, FirstPage, LastPage, Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup, StubScroll, SwitchTo,
+    CurrentPage, FirstPage, LastPage,
+    Multiselect, NextPage, NumberedPager,
+    PrevPage, Row, ScrollingGroup,
+    StubScroll, SwitchTo,
 )
-from aiogram_dialog.widgets.text import Const, Format, ScrollingText, List
+from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
 
 
 class DialogSG(StatesGroup):
@@ -57,7 +60,7 @@ Ea reprehenderit sunt aut voluptas vitae non iure consequatur. Aut repudiandae e
 Eum odit tenetur eum galisum accusamus aut nulla iusto qui eaque illum non voluptatem magni. Ut placeat facere ea voluptatem voluptatem quo quia cumque aut provident cupiditate qui fuga voluptatem. Ad libero voluptatem rem aliquid deserunt est consequuntur pariatur et sequi asperiores et nostrum assumenda. Nam quia voluptatem aut quidem velit At fugit voluptas sit dicta dolores quo ratione delectus nam consectetur temporibus.
 
 Id soluta voluptates a dolor amet est tempore modi et obcaecati dolor aut quae omnis. Qui nihil accusamus aut enim odit et ratione galisum cum assumenda sequi quo asperiores rerum et similique veniam non cumque ratione. Et nobis inventore aut facilis consequatur et commodi placeat eos quasi commodi non quis eligendi sit magnam consequatur et obcaecati Quis! Et expedita distinctio qui dolorum odio ut omnis tempore eos deserunt aspernatur vel sequi facilis.
-"""
+"""  # noqa: E501
 
 
 async def product_getter(**_kwargs):
@@ -80,10 +83,13 @@ MAIN_MENU_BTN = SwitchTo(Const("Main menu"), id="main", state=DialogSG.MAIN)
 dialog = Dialog(
     Window(
         Const("Scrolling variant demo. Please, select an option:"),
-        SwitchTo(Const("Default Pager"), id="default",
-                 state=DialogSG.DEFAULT_PAGER),
+        SwitchTo(
+            Const("Default Pager"),
+            state=DialogSG.DEFAULT_PAGER,
+            id="default",
+        ),
         SwitchTo(Const("Pager options"), id="pagers", state=DialogSG.PAGERS),
-        SwitchTo(Const("Text list scroll"), id="text", state=DialogSG.LIST),
+        SwitchTo(Const("Text list scroll"), id="list", state=DialogSG.LIST),
         SwitchTo(Const("Text scroll"), id="text", state=DialogSG.TEXT),
         SwitchTo(Const("Stub: getter-based"), id="stub", state=DialogSG.STUB),
         state=DialogSG.MAIN,

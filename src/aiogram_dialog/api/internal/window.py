@@ -1,46 +1,26 @@
 from abc import abstractmethod
 from typing import (
     Any,
-    Dict,
     Protocol,
 )
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 
-from aiogram_dialog.api.entities import NewMessage
+from aiogram_dialog.api.entities import Data, NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
 from .manager import DialogManager
-from .widgets import RawKeyboard
 
 
 class WindowProtocol(Protocol):
-    @abstractmethod
-    async def render_text(self, data: Dict,
-                          manager: DialogManager) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def render_kbd(
-            self, data: Dict, manager: DialogManager,
-    ) -> RawKeyboard:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def load_data(
-            self,
-            dialog: "DialogProtocol",
-            manager: DialogManager,
-    ) -> Dict:
-        raise NotImplementedError
-
     @abstractmethod
     async def process_message(
             self,
             message: Message,
             dialog: "DialogProtocol",
             manager: DialogManager,
-    ) -> None:
+    ) -> bool:
+        """Return True if message in handled."""
         raise NotImplementedError
 
     @abstractmethod
@@ -49,6 +29,14 @@ class WindowProtocol(Protocol):
             callback: CallbackQuery,
             dialog: "DialogProtocol",
             manager: DialogManager,
+    ) -> bool:
+        """Return True if callback in handled."""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def process_result(
+            self, start_data: Data, result: Any,
+            manager: "DialogManager",
     ) -> None:
         raise NotImplementedError
 
