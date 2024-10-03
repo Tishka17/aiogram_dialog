@@ -361,6 +361,7 @@ class ManagerImpl(DialogManager):
             self._save_last_message(sent_message)
             if new_message.media:
                 await self.media_id_storage.save_media_id(
+                    bot_id=bot.id,
                     path=new_message.media.path,
                     url=new_message.media.url,
                     type=new_message.media.type,
@@ -375,7 +376,9 @@ class ManagerImpl(DialogManager):
     async def _fix_cached_media_id(self, new_message: NewMessage):
         if not new_message.media or new_message.media.file_id:
             return
+        bot = self._data["bot"]
         new_message.media.file_id = await self.media_id_storage.get_media_id(
+            bot_id=bot.id,
             path=new_message.media.path,
             url=new_message.media.url,
             type=new_message.media.type,

@@ -10,6 +10,7 @@ class MediaIdStorageProtocol(Protocol):
     @abstractmethod
     async def get_media_id(
             self,
+            bot_id: int,
             path: Optional[str],
             url: Optional[str],
             type: ContentType,
@@ -19,6 +20,7 @@ class MediaIdStorageProtocol(Protocol):
     @abstractmethod
     async def save_media_id(
             self,
+            bot_id: int,
             path: Optional[str],
             url: Optional[str],
             type: ContentType,
