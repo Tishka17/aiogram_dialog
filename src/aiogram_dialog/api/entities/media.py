@@ -25,17 +25,23 @@ class MediaAttachment:
             url: Optional[str] = None,
             path: Union[str, Path, None] = None,
             file_id: Optional[MediaId] = None,
+            file_bytes: bytes = None,
+            filename: str = None,
             use_pipe: bool = False,
             **kwargs,
     ):
-        if not (url or path or file_id):
-            raise ValueError("Neither url nor path not file_id are provided")
+        if not (url or path or file_id or file_bytes):
+            raise ValueError("Neither url nor path nor file_id not file_bytes are provided")
+        if file_bytes and not filename:
+            raise ValueError("file_bytes must be given with filename")
         self.type = type
         self.url = url
         self.path = path
         self.file_id = file_id
         self.use_pipe = use_pipe
         self.kwargs = kwargs
+        self.file_bytes = file_bytes
+        self.filename = filename
 
     def __eq__(self, other):
         if type(other) is not type(self):
@@ -46,5 +52,7 @@ class MediaAttachment:
             self.path == other.path and
             self.file_id == other.file_id and
             self.use_pipe == other.use_pipe and
-            self.kwargs == other.kwargs
+            self.kwargs == other.kwargs and
+            self.file_bytes == other.file_bytes and
+            self.filename == other.filename
         )

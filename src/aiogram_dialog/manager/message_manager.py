@@ -17,6 +17,7 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
     URLInputFile,
+    BufferedInputFile,
 )
 
 from aiogram_dialog.api.entities import (
@@ -92,8 +93,10 @@ class MessageManager(MessageManagerProtocol):
             if media.use_pipe:
                 return URLInputFile(media.url, bot=bot)
             return media.url
-        else:
+        if media.path:
             return FSInputFile(media.path)
+        else:
+            return BufferedInputFile(media.file_bytes, media.filename)
 
     def had_media(self, old_message: OldMessage) -> bool:
         return old_message.media_id is not None
