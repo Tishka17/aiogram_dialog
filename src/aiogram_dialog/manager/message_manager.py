@@ -130,13 +130,12 @@ class MessageManager(MessageManagerProtocol):
 
         return False
 
-    def _can_edit(self, new_message: NewMessage,
-                  old_message: OldMessage) -> bool:
+    def _can_edit(self, new_message: NewMessage, old_message: OldMessage) -> bool:
         # we cannot edit message if media appeared or removed
         return (
-            self.had_media(old_message) == self.need_media(new_message) and
-            not self.had_reply_keyboard(old_message) and
-            not self.need_reply_keyboard(new_message)
+            not (self.had_media(old_message) and not self.need_media(new_message))
+            and not self.had_reply_keyboard(old_message)
+            and not self.need_reply_keyboard(new_message)
         )
 
     async def show_message(
@@ -293,7 +292,10 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         if new_message.media:
-            if new_message.media.file_id == old_message.media_id:
+            if (
+                old_message.media_id is not None
+                and new_message.media.file_id == old_message.media_id
+            ):
                 return await self.edit_caption(bot, new_message, old_message)
             return await self.edit_media(bot, new_message, old_message)
         else:
