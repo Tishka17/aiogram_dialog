@@ -132,12 +132,13 @@ class MessageManager(MessageManagerProtocol):
 
     def _can_edit(self, new_message: NewMessage,
                   old_message: OldMessage) -> bool:
-        # we cannot edit message if media appeared or remove
-        return (not (self.had_media(old_message) and
-                not self.need_media(new_message)) and
-                not self.had_reply_keyboard(old_message) and
-                not self.need_reply_keyboard(new_message)
-                )
+        # we cannot edit message if media removed
+        return (
+            not self.had_media(old_message) or self.need_media(new_message)
+        ) and not (
+            self.had_reply_keyboard(old_message) or
+            self.need_reply_keyboard(new_message)
+        )
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
