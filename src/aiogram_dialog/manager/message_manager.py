@@ -133,9 +133,9 @@ class MessageManager(MessageManagerProtocol):
     def _can_edit(self, new_message: NewMessage,
                   old_message: OldMessage) -> bool:
         # we cannot edit message if media removed
-        return (
-            not self.had_media(old_message) or self.need_media(new_message)
-        ) and not (
+        if self.had_media(old_message) and not self.need_media(new_message):
+            return False
+        return not (
             self.had_reply_keyboard(old_message) or
             self.need_reply_keyboard(new_message)
         )
