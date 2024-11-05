@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -31,7 +31,7 @@ async def on_finish(event, button, manager: DialogManager) -> None:
     await manager.done()
 
 
-async def second_getter(user_getter, **kwargs) -> Dict[str, Any]:
+async def second_getter(user_getter, **kwargs) -> dict[str, Any]:
     return {
         "user": user_getter(),
     }

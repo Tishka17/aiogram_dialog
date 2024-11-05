@@ -1,4 +1,0 @@
-sphinx
-sphinx-autodocgen
-furo
-sphinx-copybutton

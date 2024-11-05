@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import (
     Any,
-    Callable,
-    Dict,
     Generic,
-    List,
     Optional,
     Protocol,
     TypeVar,
@@ -17,13 +15,16 @@ from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
+from aiogram_dialog.widgets.common.items import (
+    get_items_getter,
+    ItemsGetterVariant,
+)
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
     WidgetEventProcessor,
 )
 from .base import Keyboard
-from ..common.items import get_items_getter, ItemsGetterVariant
 
 T = TypeVar("T")
 ManagedT = TypeVar("ManagedT")
@@ -79,7 +80,7 @@ class Select(Keyboard, Generic[T]):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         return [
@@ -90,7 +91,7 @@ class Select(Keyboard, Generic[T]):
         ]
 
     async def _render_button(
-            self, pos: int, item: Any, target_item: Any, data: Dict,
+            self, pos: int, item: Any, target_item: Any, data: dict,
             manager: DialogManager,
     ) -> InlineKeyboardButton:
         """
@@ -167,7 +168,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
 
     @abstractmethod
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: dict, case: Case, manager: DialogManager,
     ) -> bool:
         raise NotImplementedError
 
@@ -272,7 +273,7 @@ class Radio(StatefulSelect[T], Generic[T]):
         return self.get_widget_data(manager, item_id)
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: dict, case: Case, manager: DialogManager,
     ) -> bool:
         item_id = self.item_id_getter(data["item"])
         if manager.is_preview():
@@ -344,7 +345,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
         self.max_selected = max_selected
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: dict, case: Case, manager: DialogManager,
     ) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
         if manager.is_preview():
@@ -360,10 +361,10 @@ class Multiselect(StatefulSelect[T], Generic[T]):
         data = self._get_checked(manager)
         return str(item_id) in data
 
-    def _get_checked(self, manager: DialogManager) -> List[str]:
+    def _get_checked(self, manager: DialogManager) -> list[str]:
         return self.get_widget_data(manager, [])
 
-    def get_checked(self, manager: DialogManager) -> List[T]:
+    def get_checked(self, manager: DialogManager) -> list[T]:
         return [self.type_factory(item) for item in self._get_checked(manager)]
 
     async def reset_checked(
@@ -379,18 +380,15 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             manager: DialogManager,
     ) -> None:
         item_id_str = str(item_id)
-        data: List = self._get_checked(manager)
+        data: list = self._get_checked(manager)
         changed = False
         if item_id_str in data:
-            if not checked:
-                if len(data) > self.min_selected:
-                    data.remove(item_id_str)
-                    changed = True
-        else:
-            if checked:
-                if self.max_selected == 0 or self.max_selected > len(data):
-                    data.append(item_id_str)
-                    changed = True
+            if not checked and len(data) > self.min_selected:
+                data.remove(item_id_str)
+                changed = True
+        elif checked and self.max_selected == 0 or self.max_selected > len(data):
+            data.append(item_id_str)
+            changed = True
         if changed:
             self.set_widget_data(manager, data)
             await self._process_on_state_changed(event, item_id_str, manager)
@@ -415,7 +413,7 @@ class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
         """Get if an item identified by ``item_id`` is checked."""
         return self.widget.is_checked(item_id, self.manager)
 
-    def get_checked(self) -> List[T]:
+    def get_checked(self) -> list[T]:
         """Get a list of checked items ids."""
         return self.widget.get_checked(self.manager)
 
@@ -459,7 +457,7 @@ class Toggle(Radio[T], Generic[T]):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         items_it = iter(self.items_getter(data))

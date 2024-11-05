@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=66.0"]
+requires = ["setuptools==75.3.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -17,18 +17,21 @@ authors = [
 ]
 license = { text = "Apache-2.0" }
 description = "Telegram bot UI framework on top of aiogram"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'aiogram>=3.5.0',
-    'jinja2',
-    'cachetools>=4.0.0,<6.0.0',
-    'magic_filter',
+    "aiogram>=3.14.0",
+    "jinja2",
+    "cachetools>=4.0.0,<6.0.0",
 ]
 [project.optional-dependencies]
 tools = [

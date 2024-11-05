@@ -1,6 +1,6 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, cast, Dict, Optional, Union
+from typing import Any, cast, Optional, Union
 
 from aiogram import Router
 from aiogram.enums import ChatType
@@ -55,7 +55,7 @@ class ManagerImpl(DialogManager):
             media_id_storage: MediaIdStorageProtocol,
             registry: DialogRegistryProtocol,
             router: Router,
-            data: Dict,
+            data: dict,
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -81,12 +81,12 @@ class ManagerImpl(DialogManager):
         return self._event
 
     @property
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> dict:
         """Middleware data."""
         return self._data
 
     @property
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> dict:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -103,7 +103,7 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks",
             )
 
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> dict:
         context = self.current_context()
         return {
             "dialog_data": context.dialog_data,
@@ -468,7 +468,7 @@ class ManagerImpl(DialogManager):
 
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)

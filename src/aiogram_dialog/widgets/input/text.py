@@ -2,8 +2,14 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from typing import (
-    Any, Callable, Generic, Optional, Protocol, TypeVar, Union,
+    Any,
+    Generic,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
 )
+from collections.abc import Callable
 
 from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import ContentType, Message

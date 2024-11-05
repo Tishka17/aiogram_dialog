@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import Dict, TypedDict, Union
+from typing import TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -20,7 +20,7 @@ class PageDirection(Enum):
 
 
 class PagerData(TypedDict):
-    data: Dict
+    data: dict
     current_page: int
     current_page1: int
     pages: int
@@ -107,7 +107,7 @@ class SwitchPage(BasePager):
             return min(last_page, current_page)
 
     async def _prepare_data(
-            self, data: Dict,
+            self, data: dict,
             target_page: int,
             current_page: int, pages: int,
     ) -> PagerPageData:
@@ -122,7 +122,7 @@ class SwitchPage(BasePager):
         }
 
     async def render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         scroll = self._find_scroll(manager)
         pages = await scroll.get_page_count(data)
@@ -229,7 +229,7 @@ class NumberedPager(BasePager):
         self.current_page_text = current_page_text
 
     async def _prepare_data(
-            self, data: Dict,
+            self, data: dict,
             current_page: int, pages: int,
     ) -> PagerData:
         return {
@@ -240,7 +240,7 @@ class NumberedPager(BasePager):
         }
 
     async def _prepare_page_data(
-            self, data: Dict, target_page: int,
+            self, data: dict, target_page: int,
     ) -> PagerData:
         data = data.copy()
         data["target_page"] = target_page
@@ -248,7 +248,7 @@ class NumberedPager(BasePager):
         return data
 
     async def render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         scroll = self._find_scroll(manager)
         pages = await scroll.get_page_count(data)

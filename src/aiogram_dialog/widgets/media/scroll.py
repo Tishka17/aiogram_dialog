@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.protocols import DialogManager
@@ -6,7 +6,10 @@ from aiogram_dialog.widgets.common import (
     BaseScroll, OnPageChangedVariants, WhenCondition,
 )
 from .base import Media
-from ..common.items import get_items_getter, ItemsGetterVariant
+from aiogram_dialog.widgets.common.items import (
+    get_items_getter,
+    ItemsGetterVariant,
+)
 
 
 class MediaScroll(Media, BaseScroll):
@@ -44,6 +47,6 @@ class MediaScroll(Media, BaseScroll):
             manager,
         )
 
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         items = self.items_getter(data)
         return len(items)

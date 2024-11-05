@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-from typing import Dict
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
@@ -27,7 +26,7 @@ class DialogSG(StatesGroup):
     greeting = State()
 
 
-def when_checked(data: Dict, widget, manager: SubManager) -> bool:
+def when_checked(data: dict, widget, manager: SubManager) -> bool:
     # manager for our case is already adapted for current ListGroup row
     # so `.find` returns widget adapted for current row
     # if you need to find widgets outside the row, use `.find_in_parent`
@@ -98,5 +97,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

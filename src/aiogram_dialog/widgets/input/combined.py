@@ -1,4 +1,5 @@
-from typing import Any, Callable, Optional
+from typing import Any, Optional
+from collections.abc import Callable
 
 from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import Message

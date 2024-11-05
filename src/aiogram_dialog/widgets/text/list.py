@@ -1,11 +1,15 @@
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Optional
+from collections.abc import Sequence
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
     BaseScroll, OnPageChangedVariants, WhenCondition,
 )
 from .base import Text
-from ..common.items import get_items_getter, ItemsGetterVariant
+from aiogram_dialog.widgets.common.items import (
+    get_items_getter,
+    ItemsGetterVariant,
+)
 
 
 class List(Text, BaseScroll):
@@ -27,7 +31,7 @@ class List(Text, BaseScroll):
         self.page_size = page_size
 
     async def _render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         items = self.items_getter(data)
         pages = self._get_page_count(items)
@@ -57,7 +61,7 @@ class List(Text, BaseScroll):
         ]
         return self.sep.join(filter(None, texts))
 
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         items = self.items_getter(data)
         return self._get_page_count(items)
 

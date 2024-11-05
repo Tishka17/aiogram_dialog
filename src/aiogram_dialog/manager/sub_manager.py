@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from aiogram.fsm.state import State
 from aiogram.types import Message
@@ -33,12 +33,12 @@ class SubManager(DialogManager):
         return self.manager.event
 
     @property
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> dict:
         """Middleware data."""
         return self.manager.middleware_data
 
     @property
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> dict:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -74,7 +74,7 @@ class SubManager(DialogManager):
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         return await self.manager.reset_stack(remove_keyboard)
 
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> dict:
         return await self.manager.load_data()
 
     def find(self, widget_id) -> Optional[Any]:
@@ -133,7 +133,7 @@ class SubManager(DialogManager):
 
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)

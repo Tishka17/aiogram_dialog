@@ -1,4 +1,5 @@
-from typing import Awaitable, Callable, Dict, List, Optional, Union
+from typing import Optional, Union
+from collections.abc import Awaitable, Callable
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
 
@@ -38,7 +39,7 @@ class Button(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         return [
@@ -65,7 +66,7 @@ class Url(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         return [
@@ -80,8 +81,8 @@ class Url(Keyboard):
 
 class WebApp(Url):
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+            self, data: dict, manager: DialogManager,
+    ) -> list[list[InlineKeyboardButton]]:
         text = await self.text.render_text(data, manager)
 
         web_app_url = await self.url.render_text(data, manager)
@@ -104,9 +105,9 @@ class SwitchInlineQuery(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> list[list[InlineKeyboardButton]]:
         return [
             [
                 InlineKeyboardButton(

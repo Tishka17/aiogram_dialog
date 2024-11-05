@@ -1,5 +1,6 @@
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Optional
+from collections.abc import Awaitable, Callable
 
 from aiogram import Router
 from aiogram.dispatcher.event.bases import UNHANDLED
@@ -159,7 +160,7 @@ class IntentMiddlewareFactory:
                 f"Outdated intent id ({intent_id}) "
                 f"for stack ({stack.id})",
             )
-        elif intent_id != stack.last_intent_id():
+        if intent_id != stack.last_intent_id():
             raise OutdatedIntent(
                 stack.id,
                 f"Outdated intent id ({intent_id}) "
@@ -444,7 +445,7 @@ class IntentErrorMiddleware(BaseMiddleware):
         self.access_validator = access_validator
 
     def _is_error_supported(
-            self, event: ErrorEvent, data: Dict[str, Any],
+            self, event: ErrorEvent, data: dict[str, Any],
     ) -> bool:
         if isinstance(event, InvalidStackIdError):
             return False
@@ -487,10 +488,10 @@ class IntentErrorMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [ErrorEvent, Dict[str, Any]], Awaitable[Any],
+                [ErrorEvent, dict[str, Any]], Awaitable[Any],
             ],
             event: ErrorEvent,
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Any:
         error = event.exception
         if not self._is_error_supported(event, data):

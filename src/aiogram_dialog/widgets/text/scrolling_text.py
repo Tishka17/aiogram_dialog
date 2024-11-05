@@ -1,5 +1,3 @@
-from typing import Dict
-
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
     BaseScroll, OnPageChangedVariants, WhenCondition,
@@ -29,7 +27,7 @@ class ScrollingText(Text, BaseScroll):
 
     async def _render_contents(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> str:
         return await self.text.render_text(data, manager)
@@ -44,6 +42,6 @@ class ScrollingText(Text, BaseScroll):
 
         return text[page_offset: page_offset + self.page_size]
 
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         text = await self._render_contents(data, manager)
         return self._get_page_count(text)

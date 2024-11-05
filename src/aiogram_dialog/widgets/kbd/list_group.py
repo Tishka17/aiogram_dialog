@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Optional, Union
+from collections.abc import Callable
 
 from aiogram.types import CallbackQuery
 
@@ -9,7 +10,10 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.manager.sub_manager import SubManager
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from .base import Keyboard
-from ..common.items import get_items_getter, ItemsGetterVariant
+from aiogram_dialog.widgets.common.items import (
+    get_items_getter,
+    ItemsGetterVariant,
+)
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 
@@ -29,7 +33,7 @@ class ListGroup(Keyboard):
         self.items_getter = get_items_getter(items)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         kbd: RawKeyboard = []
         for pos, item in enumerate(self.items_getter(data)):
@@ -40,7 +44,7 @@ class ListGroup(Keyboard):
             self,
             pos: int,
             item: Any,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         kbd: RawKeyboard = []

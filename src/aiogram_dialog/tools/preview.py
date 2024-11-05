@@ -2,18 +2,26 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Optional, Union
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
-    CallbackQuery, Chat, ContentType, InlineKeyboardMarkup, Message,
-    ReplyKeyboardMarkup, User,
+    CallbackQuery,
+    Chat,
+    ContentType,
+    InlineKeyboardMarkup,
+    Message,
+    ReplyKeyboardMarkup,
+    User,
 )
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from aiogram_dialog import (
-    BaseDialogManager, Dialog, DialogManager, DialogProtocol,
+    BaseDialogManager,
+    Dialog,
+    DialogManager,
+    DialogProtocol,
 )
 from aiogram_dialog.api.entities import (
     AccessSettings,
@@ -47,8 +55,8 @@ class RenderWindow:
     message: str
     state: str
     state_name: str
-    keyboard: List[List[RenderButton]]
-    reply_keyboard: List[List[RenderButton]]
+    keyboard: list[list[RenderButton]]
+    reply_keyboard: list[list[RenderButton]]
     photo: Optional[str]
     text_input: Optional[RenderButton]
     attachment_input: Optional[RenderButton]
@@ -57,7 +65,7 @@ class RenderWindow:
 @dataclass
 class RenderDialog:
     state_group: str
-    windows: List[RenderWindow]
+    windows: list[RenderWindow]
 
 
 class FakeManager(DialogManager):
@@ -104,14 +112,14 @@ class FakeManager(DialogManager):
         await self.switch_to(new_state, show_mode)
 
     @property
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> dict:
         return self._data
 
     @property
     def event(self) -> ChatEvent:
         return self._event
 
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> dict:
         return {}
 
     async def close_manager(self) -> None:
@@ -131,7 +139,7 @@ class FakeManager(DialogManager):
         return True
 
     @property
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> dict:
         return self.current_context().dialog_data
 
     def reset_context(self) -> None:
@@ -208,7 +216,7 @@ class FakeManager(DialogManager):
 
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         pass
@@ -408,7 +416,7 @@ async def create_window(
 
 async def render_dialog(
         manager: FakeManager,
-        group: Type[StatesGroup],
+        group: type[StatesGroup],
         dialog: Dialog,
         simulate_events: bool,
 ) -> RenderDialog:

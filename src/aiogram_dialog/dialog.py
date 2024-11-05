@@ -1,12 +1,8 @@
+from collections.abc import Awaitable, Callable
 from logging import getLogger
 from typing import (
     Any,
-    Awaitable,
-    Callable,
-    Dict,
-    List,
     Optional,
-    Type,
     TypeVar,
     Union,
 )
@@ -51,7 +47,7 @@ class Dialog(Router, DialogProtocol):
     ):
         super().__init__(name=name or windows[0].get_state().group.__name__)
         self._states_group = windows[0].get_state().group
-        self._states: List[State] = []
+        self._states: list[State] = []
         for w in windows:
             if w.get_state().group != self._states_group:
                 raise ValueError(
@@ -61,8 +57,8 @@ class Dialog(Router, DialogProtocol):
             if state in self._states:
                 raise ValueError(f"Multiple windows with state {state}")
             self._states.append(state)
-        self.windows: Dict[State, WindowProtocol] = dict(
-            zip(self._states, windows),
+        self.windows: dict[State, WindowProtocol] = dict(
+            zip(self._states, windows, strict=False),
         )
         self.on_start = on_start
         self.on_close = on_close
@@ -79,7 +75,7 @@ class Dialog(Router, DialogProtocol):
     def launch_mode(self) -> LaunchMode:
         return self._launch_mode
 
-    def states(self) -> List[State]:
+    def states(self) -> list[State]:
         return self._states
 
     async def process_start(
@@ -113,7 +109,7 @@ class Dialog(Router, DialogProtocol):
 
     async def load_data(
             self, manager: DialogManager,
-    ) -> Dict:
+    ) -> dict:
         data = await manager.load_data()
         data.update(await self.getter(**manager.middleware_data))
         return data
@@ -188,7 +184,7 @@ class Dialog(Router, DialogProtocol):
         self.callback_query.register(self._callback_handler)
         self.message.register(self._message_handler)
 
-    def states_group(self) -> Type[StatesGroup]:
+    def states_group(self) -> type[StatesGroup]:
         return self._states_group
 
     def states_group_name(self) -> str:

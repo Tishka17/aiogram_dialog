@@ -1,14 +1,10 @@
 import warnings
 from typing import (
     Any,
-    Callable,
-    Dict,
-    Iterable,
-    Mapping,
     Optional,
-    Tuple,
     Union,
 )
+from collections.abc import Callable, Iterable, Mapping
 
 from aiogram import Bot, Dispatcher
 from jinja2 import BaseLoader, Environment
@@ -20,7 +16,7 @@ from .base import Text
 JINJA_ENV_FIELD = "DialogsJinjaEnvironment"
 
 Filter = Callable[..., str]
-Filters = Union[Iterable[Tuple[str, Filter]], Mapping[str, Filter]]
+Filters = Union[Iterable[tuple[str, Filter]], Mapping[str, Filter]]
 
 
 class Jinja(Text):
@@ -29,7 +25,7 @@ class Jinja(Text):
         self.template_text = text
 
     async def _render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         if JINJA_ENV_FIELD in manager.middleware_data:
             env = manager.middleware_data[JINJA_ENV_FIELD]
@@ -58,7 +54,7 @@ def _create_env(
     kwargs.setdefault("trim_blocks", True)
     if "loader" not in kwargs:
         kwargs["loader"] = StubLoader()
-    env = Environment(*args, **kwargs)
+    env = Environment(*args, **kwargs)  # noqa: S701
     if filters is not None:
         env.filters.update(filters)
     return env

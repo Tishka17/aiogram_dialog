@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Dict, Protocol, Union
+from typing import Protocol, Union
 
 from magic_filter import MagicFilter
 
@@ -12,7 +12,7 @@ class Predicate(Protocol):
     @abstractmethod
     def __call__(
             self,
-            data: Dict,
+            data: dict,
             widget: Whenable,
             dialog_manager: DialogManager,
     ) -> bool:
@@ -32,7 +32,7 @@ WhenCondition = Union[str, MagicFilter, Predicate, None]
 
 def new_when_field(fieldname: str) -> Predicate:
     def when_field(
-            data: Dict, widget: "Whenable", manager: DialogManager,
+            data: dict, widget: "Whenable", manager: DialogManager,
     ) -> bool:
         return bool(data.get(fieldname))
 
@@ -41,14 +41,14 @@ def new_when_field(fieldname: str) -> Predicate:
 
 def new_when_magic(f: MagicFilter) -> Predicate:
     def when_magic(
-            data: Dict, widget: "Whenable", manager: DialogManager,
+            data: dict, widget: "Whenable", manager: DialogManager,
     ) -> bool:
         return f.resolve(data)
 
     return when_magic
 
 
-def true_condition(data: Dict, widget: "Whenable", manager: DialogManager):
+def true_condition(data: dict, widget: "Whenable", manager: DialogManager):
     return True
 
 
@@ -64,5 +64,5 @@ class Whenable:
         else:
             self.condition = when
 
-    def is_(self, data: Dict, manager: DialogManager):
+    def is_(self, data: dict, manager: DialogManager):
         return self.condition(data, self, manager)

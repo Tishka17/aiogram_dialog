@@ -1,5 +1,6 @@
 from itertools import chain
-from typing import Dict, Iterable, List, Optional
+from typing import Optional
+from collections.abc import Iterable
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -33,7 +34,7 @@ class Group(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         kbd: RawKeyboard = []
@@ -54,7 +55,7 @@ class Group(Keyboard):
             kbd: Iterable[InlineKeyboardButton],
     ) -> RawKeyboard:
         res: RawKeyboard = []
-        row: List[ButtonVariant] = []
+        row: list[ButtonVariant] = []
         for b in kbd:
             row.append(b)
             if len(row) >= self.width:

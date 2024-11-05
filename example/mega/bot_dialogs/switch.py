@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Back, Checkbox, Next, Radio, Row
@@ -14,7 +14,7 @@ EMOJI_ID = "emoji"
 
 async def data_getter(
         dialog_manager: DialogManager, **_kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "option": dialog_manager.find(CHECKBOX_ID).is_checked(),
         "emoji": dialog_manager.find(EMOJI_ID).get_checked(),

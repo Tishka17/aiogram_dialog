@@ -1,4 +1,4 @@
-from typing import Any, Dict, Protocol
+from typing import Any, Protocol
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
@@ -21,7 +21,7 @@ class I18NFormat(Text):
         super().__init__(when)
         self.text = text
 
-    async def _render_text(self, data: Dict, manager: DialogManager) -> str:
+    async def _render_text(self, data: dict, manager: DialogManager) -> str:
         format_text = manager.middleware_data.get(
             I18N_FORMAT_KEY, default_format_text,
         )

@@ -1,4 +1,5 @@
-from typing import Callable, Dict, Iterable, Optional, Type, Union
+from typing import Optional, Union
+from collections.abc import Callable, Iterable
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
@@ -63,7 +64,7 @@ class DialogRegistry(DialogRegistryProtocol):
                 f" (looking by state `{state}`)",
             ) from e
 
-    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> dict[str, type[StatesGroup]]:
         self._ensure_loaded()
         return self._states_groups
 

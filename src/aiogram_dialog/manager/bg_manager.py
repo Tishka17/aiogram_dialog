@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
@@ -241,7 +241,7 @@ class BgManager(BaseDialogManager):
 
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()

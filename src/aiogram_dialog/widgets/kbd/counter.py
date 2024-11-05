@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Optional, Protocol, Union
+from typing import Optional, Protocol, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -104,7 +104,7 @@ class Counter(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         row = []

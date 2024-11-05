@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, cast, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -46,7 +46,7 @@ class Window(WindowProtocol):
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
-            preview_add_transitions: Optional[List[Keyboard]] = None,
+            preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
         (
@@ -67,18 +67,18 @@ class Window(WindowProtocol):
         self.preview_add_transitions = preview_add_transitions
 
     async def render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         return await self.text.render_text(data, manager)
 
     async def render_media(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if self.media:
             return await self.media.render_media(data, manager)
 
     async def render_kbd(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return await self.markup_factory.render_markup(
@@ -88,7 +88,7 @@ class Window(WindowProtocol):
     async def load_data(
             self, dialog: "DialogProtocol",
             manager: DialogManager,
-    ) -> Dict:
+    ) -> dict:
         data = await dialog.load_data(manager)
         data.update(await self.getter(**manager.middleware_data))
         return data
@@ -153,9 +153,8 @@ class Window(WindowProtocol):
 
     def find(self, widget_id) -> Optional[Widget]:
         for root in (self.text, self.keyboard, self.on_message, self.media):
-            if root:
-                if found := root.find(widget_id):
-                    return found
+            if root and (found := root.find(widget_id)):
+                return found
         return None
 
     def __repr__(self) -> str:

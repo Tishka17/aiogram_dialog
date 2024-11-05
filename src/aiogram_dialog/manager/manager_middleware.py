@@ -1,4 +1,5 @@
-from typing import Any, Awaitable, Callable, Dict, Union
+from typing import Any, Union
+from collections.abc import Awaitable, Callable
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
@@ -27,18 +28,18 @@ class ManagerMiddleware(BaseMiddleware):
         self.router = router
 
     def _is_event_supported(
-            self, event: TelegramObject, data: Dict[str, Any],
+            self, event: TelegramObject, data: dict[str, Any],
     ) -> bool:
         return STORAGE_KEY in data
 
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdateEvent], Dict[str, Any]],
+                [Union[Update, DialogUpdateEvent], dict[str, Any]],
                 Awaitable[Any],
             ],
             event: ChatEvent,
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Any:
         if self._is_event_supported(event, data):
             data[MANAGER_KEY] = self.dialog_manager_factory(
@@ -67,11 +68,11 @@ class BgFactoryMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[TelegramObject, DialogUpdateEvent], Dict[str, Any]],
+                [Union[TelegramObject, DialogUpdateEvent], dict[str, Any]],
                 Awaitable[TelegramObject],
             ],
             event: TelegramObject,
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Any:
         data[BG_FACTORY_KEY] = self.bg_manager_factory
         return await handler(event, data)

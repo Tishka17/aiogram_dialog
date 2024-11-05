@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Awaitable, Callable, Optional, Sequence, Union
+from typing import Any, Optional, Union
+from collections.abc import Awaitable, Callable, Sequence
 
 from aiogram import F
 from aiogram.dispatcher.event.handler import FilterObject
@@ -44,9 +45,8 @@ class MessageInput(BaseInput):
         if isinstance(content_types, str):
             if content_types != ContentType.ANY:
                 filters.append(FilterObject(F.content_type == content_types))
-        else:
-            if ContentType.ANY not in content_types:
-                filters.append(FilterObject(F.content_type.in_(content_types)))
+        elif ContentType.ANY not in content_types:
+            filters.append(FilterObject(F.content_type.in_(content_types)))
         if filter is not None:
             filters.append(FilterObject(filter))
         self.filters = filters

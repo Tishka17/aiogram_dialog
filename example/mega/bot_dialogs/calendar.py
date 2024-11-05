@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Dict
 
 from aiogram import F
 from babel.dates import get_day_names, get_month_names
@@ -25,7 +24,7 @@ class WeekDay(Text):
         selected_date: date = data["date"]
         locale = manager.event.from_user.language_code
         return get_day_names(
-            width="short", context='stand-alone', locale=locale,
+            width="short", context="stand-alone", locale=locale,
         )[selected_date.weekday()].title()
 
 
@@ -49,12 +48,12 @@ class Month(Text):
         selected_date: date = data["date"]
         locale = manager.event.from_user.language_code
         return get_month_names(
-            'wide', context='stand-alone', locale=locale,
+            "wide", context="stand-alone", locale=locale,
         )[selected_date.month].title()
 
 
 class CustomCalendar(Calendar):
-    def _init_views(self) -> Dict[CalendarScope, CalendarScopeView]:
+    def _init_views(self) -> dict[CalendarScope, CalendarScopeView]:
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data,

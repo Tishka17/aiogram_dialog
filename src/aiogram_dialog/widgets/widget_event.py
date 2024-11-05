@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Callable, Union
+from typing import Any, Union
+from collections.abc import Callable
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager

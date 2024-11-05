@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -70,7 +70,7 @@ def join_reply_callback(text: str, callback_data: str) -> str:
 
 def split_reply_callback(
         data: Optional[str],
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str]]:
     if not data:
         return None, None
     text = data.rstrip(REPLY_CALLBACK_SYMBOLS)
@@ -103,8 +103,8 @@ def _transform_to_reply_button(
 
 
 def transform_to_reply_keyboard(
-        keyboard: List[List[Union[InlineKeyboardButton, KeyboardButton]]],
-) -> List[List[KeyboardButton]]:
+        keyboard: list[list[Union[InlineKeyboardButton, KeyboardButton]]],
+) -> list[list[KeyboardButton]]:
     new_kdb = []
     for row in keyboard:
         new_row = []
@@ -186,7 +186,7 @@ def add_intent_id(keyboard: RawKeyboard, intent_id: str):
                 )
 
 
-def remove_intent_id(callback_data: str) -> Tuple[Optional[str], str]:
+def remove_intent_id(callback_data: str) -> tuple[Optional[str], str]:
     if CB_SEP in callback_data:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data

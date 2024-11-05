@@ -1,6 +1,6 @@
 from contextlib import AsyncExitStack
 from copy import copy
-from typing import Dict, Optional, Type
+from typing import Optional
 
 from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
@@ -24,7 +24,7 @@ class StorageProxy:
             thread_id: Optional[int],
             business_connection_id: Optional[str],
             bot: Bot,
-            state_groups: Dict[str, Type[StatesGroup]],
+            state_groups: dict[str, type[StatesGroup]],
     ):
         self.storage = storage
         self.events_isolation = events_isolation
@@ -164,7 +164,7 @@ class StorageProxy:
         raise UnknownState(f"Unknown state {state}")
 
     def _parse_access_settings(
-            self, raw: Optional[Dict],
+            self, raw: Optional[dict],
     ) -> Optional[AccessSettings]:
         if not raw:
             return None
@@ -175,7 +175,7 @@ class StorageProxy:
 
     def _dump_access_settings(
             self, access_settings: Optional[AccessSettings],
-    ) -> Optional[Dict]:
+    ) -> Optional[dict]:
         if not access_settings:
             return None
         return {

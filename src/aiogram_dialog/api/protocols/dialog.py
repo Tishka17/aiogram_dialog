@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable, Type
+from typing import Any, Optional, Protocol, runtime_checkable
 
 from aiogram.fsm.state import State, StatesGroup
 
@@ -24,11 +24,11 @@ class DialogProtocol(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def states(self) -> List[State]:
+    def states(self) -> list[State]:
         raise NotImplementedError
 
     @abstractmethod
-    def states_group(self) -> Type[StatesGroup]:
+    def states_group(self) -> type[StatesGroup]:
         raise NotImplementedError
 
     @abstractmethod
@@ -60,7 +60,7 @@ class DialogProtocol(Protocol):
     @abstractmethod
     async def load_data(
             self, manager: DialogManager,
-    ) -> Dict:
+    ) -> dict:
         raise NotImplementedError
 
     @abstractmethod

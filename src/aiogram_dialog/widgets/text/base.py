@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
@@ -13,7 +13,7 @@ class Text(Whenable, BaseWidget, TextWidget):
         super().__init__(when=when)
 
     async def render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         """
         Create text.
@@ -69,7 +69,7 @@ class Const(Text):
         self.text = text
 
     async def _render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         return self.text
 
@@ -81,7 +81,7 @@ class Multi(Text):
         self.sep = sep
 
     async def _render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))
@@ -123,7 +123,7 @@ class Or(Text):
         self.texts = texts
 
     async def _render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         for text in self.texts:
             res = await text.render_text(data, manager)
