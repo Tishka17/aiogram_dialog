@@ -6,9 +6,9 @@ from aiogram.fsm.state import State
 from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
     AccessSettings,
     Data,
-    DEFAULT_STACK_ID,
     DialogAction,
     DialogStartEvent,
     DialogSwitchEvent,
@@ -19,10 +19,13 @@ from aiogram_dialog.api.entities import (
     StartMode,
 )
 from aiogram_dialog.api.internal import (
-    FakeChat, FakeUser,
+    FakeChat,
+    FakeUser,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, BgManagerFactory, UnsetId,
+    BaseDialogManager,
+    BgManagerFactory,
+    UnsetId,
 )
 from aiogram_dialog.manager.updater import Updater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded

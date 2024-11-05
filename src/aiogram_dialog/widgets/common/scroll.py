@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Protocol, Union
 from collections.abc import Awaitable, Callable, Sequence
+from typing import Protocol, Union
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor, WidgetEventProcessor,
+    WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .action import Actionable
 from .managed import ManagedWidget
 

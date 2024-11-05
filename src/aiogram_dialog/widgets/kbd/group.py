@@ -1,12 +1,13 @@
+from collections.abc import Iterable
 from itertools import chain
 from typing import Optional
-from collections.abc import Iterable
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.internal import ButtonVariant, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
+
 from .base import Keyboard
 
 

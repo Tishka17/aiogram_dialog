@@ -46,7 +46,10 @@ __all__ = [
 from .base import Keyboard
 from .button import Button, SwitchInlineQuery, Url, WebApp
 from .calendar_kbd import (
-    Calendar, CalendarConfig, CalendarScope, CalendarUserConfig,
+    Calendar,
+    CalendarConfig,
+    CalendarScope,
+    CalendarUserConfig,
     ManagedCalendar,
 )
 from .checkbox import Checkbox, ManagedCheckbox

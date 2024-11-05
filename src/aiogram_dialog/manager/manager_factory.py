@@ -3,9 +3,12 @@ from aiogram import Router
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol,
+    DialogManager,
+    DialogRegistryProtocol,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
 )
+
 from .manager import ManagerImpl
 
 

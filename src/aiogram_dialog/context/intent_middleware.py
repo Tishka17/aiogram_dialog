@@ -1,6 +1,6 @@
+from collections.abc import Awaitable, Callable
 from logging import getLogger
 from typing import Any, Optional
-from collections.abc import Awaitable, Callable
 
 from aiogram import Router
 from aiogram.dispatcher.event.bases import UNHANDLED
@@ -10,30 +10,40 @@ from aiogram.types import (
     CallbackQuery,
     ChatJoinRequest,
     ChatMemberUpdated,
-    InaccessibleMessage, Message,
+    InaccessibleMessage,
+    Message,
 )
 from aiogram.types.error_event import ErrorEvent
 
 from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
     ChatEvent,
     Context,
-    DEFAULT_STACK_ID,
     DialogUpdateEvent,
-    EVENT_CONTEXT_KEY,
     EventContext,
     Stack,
 )
 from aiogram_dialog.api.exceptions import (
-    InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
+    InvalidStackIdError,
+    OutdatedIntent,
+    UnknownIntent,
+    UnknownState,
 )
 from aiogram_dialog.api.internal import (
-    CALLBACK_DATA_KEY, CONTEXT_KEY, EVENT_SIMULATED,
-    ReplyCallbackQuery, STACK_KEY, STORAGE_KEY,
+    CALLBACK_DATA_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    ReplyCallbackQuery,
 )
 from aiogram_dialog.api.protocols import (
-    DialogRegistryProtocol, StackAccessValidator,
+    DialogRegistryProtocol,
+    StackAccessValidator,
 )
 from aiogram_dialog.utils import remove_intent_id, split_reply_callback
+
 from .storage import StorageProxy
 
 logger = getLogger(__name__)

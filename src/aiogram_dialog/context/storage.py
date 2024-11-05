@@ -5,11 +5,16 @@ from typing import Optional
 from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import (
-    BaseEventIsolation, BaseStorage, StorageKey,
+    BaseEventIsolation,
+    BaseStorage,
+    StorageKey,
 )
 
 from aiogram_dialog.api.entities import (
-    AccessSettings, Context, DEFAULT_STACK_ID, Stack,
+    DEFAULT_STACK_ID,
+    AccessSettings,
+    Context,
+    Stack,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 

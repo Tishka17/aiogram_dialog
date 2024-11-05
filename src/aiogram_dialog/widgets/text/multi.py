@@ -1,10 +1,11 @@
-from typing import Any, Optional, Union
 from collections.abc import Callable, Hashable
+from typing import Any, Optional, Union
 
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
+
 from .base import Text
 
 Selector = Callable[[dict, "Case", DialogManager], Hashable]

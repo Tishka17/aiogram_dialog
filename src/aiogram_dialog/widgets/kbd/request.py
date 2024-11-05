@@ -1,11 +1,12 @@
-from typing import Union
 from collections.abc import Callable
+from typing import Union
 
 from aiogram.types import KeyboardButton
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text
+
 from .base import Keyboard
 
 

@@ -16,14 +16,15 @@ from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.common.items import (
-    get_items_getter,
     ItemsGetterVariant,
+    get_items_getter,
 )
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .base import Keyboard
 
 T = TypeVar("T")

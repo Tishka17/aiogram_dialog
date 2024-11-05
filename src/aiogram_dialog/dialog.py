@@ -18,12 +18,15 @@ from aiogram_dialog.api.exceptions import (
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from aiogram_dialog.api.protocols import (
-    CancelEventProcessing, DialogManager, DialogProtocol,
+    CancelEventProcessing,
+    DialogManager,
+    DialogProtocol,
 )
+
 from .context.intent_filter import IntentFilter
 from .utils import remove_intent_id
 from .widgets.data import PreviewAwareGetter
-from .widgets.utils import ensure_data_getter, GetterVariant
+from .widgets.utils import GetterVariant, ensure_data_getter
 
 logger = getLogger(__name__)
 

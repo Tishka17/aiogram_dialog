@@ -1,12 +1,18 @@
 from abc import abstractmethod
-from typing import (
-    Any, Optional, Protocol,
-    runtime_checkable, Union,
-)
 from collections.abc import Awaitable, Callable
+from typing import (
+    Any,
+    Optional,
+    Protocol,
+    Union,
+    runtime_checkable,
+)
 
 from aiogram.types import (
-    CallbackQuery, InlineKeyboardButton, KeyboardButton, Message,
+    CallbackQuery,
+    InlineKeyboardButton,
+    KeyboardButton,
+    Message,
 )
 
 from aiogram_dialog import DialogManager

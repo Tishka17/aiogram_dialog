@@ -5,9 +5,9 @@ Originally developed in aiogram-dialog-extras project
 https://github.com/SamWarden/aiogram_dialog_extras
 """
 
+from collections.abc import Callable
 from operator import itemgetter
 from typing import Optional, Union
-from collections.abc import Callable
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment

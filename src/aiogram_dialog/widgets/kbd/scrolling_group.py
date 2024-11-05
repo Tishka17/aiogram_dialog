@@ -5,8 +5,11 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
-    BaseScroll, OnPageChangedVariants, WhenCondition,
+    BaseScroll,
+    OnPageChangedVariants,
+    WhenCondition,
 )
+
 from .base import Keyboard
 from .group import Group
 

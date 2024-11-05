@@ -14,7 +14,9 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, DialogUpdateEvent, MediaId,
+    ChatEvent,
+    DialogUpdateEvent,
+    MediaId,
 )
 from aiogram_dialog.api.internal import RawKeyboard
 

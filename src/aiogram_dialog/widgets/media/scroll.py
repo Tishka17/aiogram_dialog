@@ -3,13 +3,16 @@ from typing import Optional
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    BaseScroll, OnPageChangedVariants, WhenCondition,
+    BaseScroll,
+    OnPageChangedVariants,
+    WhenCondition,
 )
-from .base import Media
 from aiogram_dialog.widgets.common.items import (
-    get_items_getter,
     ItemsGetterVariant,
+    get_items_getter,
 )
+
+from .base import Media
 
 
 class MediaScroll(Media, BaseScroll):

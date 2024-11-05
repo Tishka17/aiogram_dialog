@@ -6,12 +6,18 @@ from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
     AccessSettings,
-    ChatEvent, Data, ShowMode, StartMode,
+    ChatEvent,
+    Context,
+    Data,
+    ShowMode,
+    Stack,
+    StartMode,
 )
-from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogManager, UnsetId,
+    BaseDialogManager,
+    DialogManager,
+    UnsetId,
 )
 
 

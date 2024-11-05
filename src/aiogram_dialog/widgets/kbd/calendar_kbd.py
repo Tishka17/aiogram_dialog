@@ -21,8 +21,10 @@ from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor, WidgetEventProcessor,
+    WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .base import Keyboard
 
 EPOCH = date(1970, 1, 1)

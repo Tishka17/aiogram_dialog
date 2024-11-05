@@ -1,14 +1,16 @@
-from typing import Any, Union
 from collections.abc import Awaitable, Callable
+from typing import Any, Union
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import TelegramObject, Update
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
-from aiogram_dialog.api.internal import DialogManagerFactory, STORAGE_KEY
+from aiogram_dialog.api.internal import STORAGE_KEY, DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    BgManagerFactory, DialogManager, DialogRegistryProtocol,
+    BgManagerFactory,
+    DialogManager,
+    DialogRegistryProtocol,
 )
 
 MANAGER_KEY = "dialog_manager"

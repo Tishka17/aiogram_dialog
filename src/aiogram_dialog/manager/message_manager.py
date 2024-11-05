@@ -20,10 +20,15 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    MediaAttachment, MediaId, NewMessage, OldMessage, ShowMode,
+    MediaAttachment,
+    MediaId,
+    NewMessage,
+    OldMessage,
+    ShowMode,
 )
 from aiogram_dialog.api.protocols import (
-    MessageManagerProtocol, MessageNotModified,
+    MessageManagerProtocol,
+    MessageNotModified,
 )
 from aiogram_dialog.utils import get_media_id
 

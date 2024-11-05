@@ -1,7 +1,10 @@
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    BaseScroll, OnPageChangedVariants, WhenCondition,
+    BaseScroll,
+    OnPageChangedVariants,
+    WhenCondition,
 )
+
 from .base import Text
 
 

@@ -6,7 +6,6 @@ from typing import Any, Dict, Optional, Union
 from aiogram.fsm.state import State
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
-
 StateType = Optional[Union[str, State]]
 
 

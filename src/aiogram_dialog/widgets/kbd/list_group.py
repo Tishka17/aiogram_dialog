@@ -1,19 +1,21 @@
-from typing import Any, Optional, Union
 from collections.abc import Callable
+from typing import Any, Optional, Union
 
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.internal import RawKeyboard, Widget
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol,
+    DialogManager,
+    DialogProtocol,
 )
 from aiogram_dialog.manager.sub_manager import SubManager
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from .base import Keyboard
 from aiogram_dialog.widgets.common.items import (
-    get_items_getter,
     ItemsGetterVariant,
+    get_items_getter,
 )
+
+from .base import Keyboard
 
 ItemIdGetter = Callable[[Any], Union[str, int]]
 

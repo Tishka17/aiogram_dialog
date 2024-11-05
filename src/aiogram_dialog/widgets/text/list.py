@@ -1,15 +1,18 @@
-from typing import Any, Optional
 from collections.abc import Sequence
+from typing import Any, Optional
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    BaseScroll, OnPageChangedVariants, WhenCondition,
+    BaseScroll,
+    OnPageChangedVariants,
+    WhenCondition,
 )
-from .base import Text
 from aiogram_dialog.widgets.common.items import (
-    get_items_getter,
     ItemsGetterVariant,
+    get_items_getter,
 )
+
+from .base import Text
 
 
 class List(Text, BaseScroll):

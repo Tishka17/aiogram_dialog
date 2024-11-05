@@ -1,6 +1,6 @@
+from collections.abc import Callable, Sequence
 from operator import itemgetter
 from typing import Union
-from collections.abc import Callable, Sequence
 
 from magic_filter import MagicFilter
 

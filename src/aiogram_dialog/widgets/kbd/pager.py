@@ -8,6 +8,7 @@ from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedScroll, Scroll, WhenCondition
 from aiogram_dialog.widgets.text import Const, Format, Text
+
 from .base import Keyboard
 
 

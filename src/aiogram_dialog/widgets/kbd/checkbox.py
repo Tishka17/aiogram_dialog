@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union
 from collections.abc import Awaitable, Callable
+from typing import Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -10,9 +10,10 @@ from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .base import Keyboard
 
 OnStateChanged = Callable[

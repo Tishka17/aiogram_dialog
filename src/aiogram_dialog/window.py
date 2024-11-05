@@ -1,11 +1,11 @@
 from logging import getLogger
-from typing import Any, cast, Optional
+from typing import Any, Optional, cast
 
 from aiogram.fsm.state import State
 from aiogram.types import (
+    UNSET_PARSE_MODE,
     CallbackQuery,
     Message,
-    UNSET_PARSE_MODE,
 )
 from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
@@ -17,6 +17,7 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -25,10 +26,10 @@ from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
-    ensure_data_getter,
-    ensure_widgets,
     GetterVariant,
     WidgetSrc,
+    ensure_data_getter,
+    ensure_widgets,
 )
 
 logger = getLogger(__name__)

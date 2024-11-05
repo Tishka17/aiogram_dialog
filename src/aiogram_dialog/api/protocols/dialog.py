@@ -4,8 +4,11 @@ from typing import Any, Optional, Protocol, runtime_checkable
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog.api.entities import (
-    Data, LaunchMode, NewMessage,
+    Data,
+    LaunchMode,
+    NewMessage,
 )
+
 from .manager import DialogManager
 
 

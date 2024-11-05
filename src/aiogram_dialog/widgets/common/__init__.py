@@ -24,4 +24,4 @@ from .scroll import (
     Scroll,
     sync_scroll,
 )
-from .when import true_condition, Whenable, WhenCondition
+from .when import Whenable, WhenCondition, true_condition

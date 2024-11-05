@@ -1,49 +1,68 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, cast, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
 from aiogram.fsm.state import State
 from aiogram.types import (
-    CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
+    CallbackQuery,
+    Chat,
+    ErrorEvent,
+    Message,
+    ReplyKeyboardMarkup,
+    User,
 )
 
 from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
     AccessSettings,
     ChatEvent,
     Context,
     Data,
-    DEFAULT_STACK_ID,
-    EVENT_CONTEXT_KEY,
     EventContext,
     LaunchMode,
     MediaId,
     NewMessage,
+    OldMessage,
     ShowMode,
     Stack,
     StartMode,
+    UnknownText,
 )
-from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
-    IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
+    IncorrectBackgroundError,
+    InvalidKeyboardType,
+    NoContextError,
 )
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, EVENT_SIMULATED, FakeChat, FakeUser,
-    STACK_KEY, STORAGE_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    FakeChat,
+    FakeUser,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
+    BaseDialogManager,
+    DialogManager,
+    DialogProtocol,
+    DialogRegistryProtocol,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
+    MessageNotModified,
     UnsetId,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
+
 from .bg_manager import (
     BgManager,
     coalesce_business_connection_id,
     coalesce_thread_id,
 )
+
 logger = getLogger(__name__)
 
 

@@ -5,14 +5,20 @@ from uuid import uuid4
 
 from aiogram import Bot
 from aiogram.types import (
-    Audio, CallbackQuery, Document, Message, PhotoSize, ReplyKeyboardMarkup,
+    Audio,
+    CallbackQuery,
+    Document,
+    Message,
+    PhotoSize,
+    ReplyKeyboardMarkup,
     Video,
 )
 
 from aiogram_dialog import ShowMode
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
 from aiogram_dialog.api.protocols import (
-    MessageManagerProtocol, MessageNotModified,
+    MessageManagerProtocol,
+    MessageNotModified,
 )
 
 

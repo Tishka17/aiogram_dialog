@@ -1,16 +1,17 @@
 import warnings
+from collections.abc import Callable, Iterable, Mapping
 from typing import (
     Any,
     Optional,
     Union,
 )
-from collections.abc import Callable, Iterable, Mapping
 
 from aiogram import Bot, Dispatcher
 from jinja2 import BaseLoader, Environment
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
+
 from .base import Text
 
 JINJA_ENV_FIELD = "DialogsJinjaEnvironment"

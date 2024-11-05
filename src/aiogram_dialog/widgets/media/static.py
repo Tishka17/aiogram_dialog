@@ -7,6 +7,7 @@ from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const, Text
+
 from .base import Media
 
 

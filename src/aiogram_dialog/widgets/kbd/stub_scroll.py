@@ -1,15 +1,16 @@
-from typing import Union
 from collections.abc import Callable
+from typing import Union
 
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
-from .base import Keyboard
 from aiogram_dialog.widgets.common.scroll import (
     BaseScroll,
     OnPageChangedVariants,
 )
+
+from .base import Keyboard
 
 PagesGetter = Callable[[dict, "StubScroll", DialogManager], int]
 

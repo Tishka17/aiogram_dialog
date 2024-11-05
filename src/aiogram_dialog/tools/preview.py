@@ -24,13 +24,13 @@ from aiogram_dialog import (
     DialogProtocol,
 )
 from aiogram_dialog.api.entities import (
+    EVENT_CONTEXT_KEY,
     AccessSettings,
     ChatEvent,
     Context,
     Data,
     DialogAction,
     DialogUpdateEvent,
-    EVENT_CONTEXT_KEY,
     EventContext,
     MediaAttachment,
     NewMessage,

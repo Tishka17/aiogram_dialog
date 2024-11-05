@@ -4,7 +4,10 @@ from typing import Optional, Union
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
-    BaseWidget, true_condition, Whenable, WhenCondition,
+    BaseWidget,
+    Whenable,
+    WhenCondition,
+    true_condition,
 )
 
 
