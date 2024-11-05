@@ -387,7 +387,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             if not checked and len(data) > self.min_selected:
                 data.remove(item_id_str)
                 changed = True
-        elif checked and self.max_selected == 0 or self.max_selected > len(data):
+        elif checked and self.max_selected == 0 or self.max_selected > len(data):  # noqa: E501
             data.append(item_id_str)
             changed = True
         if changed:

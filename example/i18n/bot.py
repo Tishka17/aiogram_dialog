@@ -18,7 +18,11 @@ from i18n_format import I18NFormat
 from i18n_middleware import I18nMiddleware
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import Button, Cancel, Row
 

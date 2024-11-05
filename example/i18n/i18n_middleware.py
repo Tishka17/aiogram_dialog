@@ -1,5 +1,5 @@
-from typing import Any, Union
 from collections.abc import Awaitable, Callable
+from typing import Any, Union
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import CallbackQuery, Message
@@ -24,7 +24,7 @@ class I18nMiddleware(BaseMiddleware):
                 Awaitable[Any],
             ],
             event: Union[Message, CallbackQuery],
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Any:
         # some language/locale retrieving logic
         if event.from_user:

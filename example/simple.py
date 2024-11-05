@@ -11,9 +11,13 @@ from aiogram.types import CallbackQuery, ContentType, Message
 from redis.asyncio.client import Redis
 
 from aiogram_dialog import (
-    ChatEvent, Dialog, DialogManager,
-    setup_dialogs, ShowMode,
-    StartMode, Window,
+    ChatEvent,
+    Dialog,
+    DialogManager,
+    ShowMode,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 from aiogram_dialog.widgets.input import MessageInput

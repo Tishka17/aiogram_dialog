@@ -18,7 +18,7 @@ from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
 
-from aiogram_dialog import DialogManager, setup_dialogs, ShowMode, StartMode
+from aiogram_dialog import DialogManager, ShowMode, StartMode, setup_dialogs
 from aiogram_dialog.api.exceptions import UnknownIntent
 
 

@@ -9,8 +9,12 @@ from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    BaseDialogManager, Dialog, DialogManager,
-    setup_dialogs, StartMode, Window,
+    BaseDialogManager,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Const, Multi, Progress

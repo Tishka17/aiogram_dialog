@@ -8,7 +8,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Checkbox, Next, SwitchTo

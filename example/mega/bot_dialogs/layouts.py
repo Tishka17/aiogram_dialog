@@ -1,10 +1,17 @@
 from aiogram_dialog import (
-    Dialog, Window,
+    Dialog,
+    Window,
 )
 from aiogram_dialog.widgets.kbd import (
-    Button, Column, Group, Row, Select, SwitchTo,
+    Button,
+    Column,
+    Group,
+    Row,
+    Select,
+    SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 

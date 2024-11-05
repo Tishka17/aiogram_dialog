@@ -10,14 +10,23 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog import (
-    Data, Dialog, DialogManager,
-    setup_dialogs, StartMode, Window,
+    Data,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.tools import render_preview, render_transitions
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
-    Back, Button, Cancel,
-    Group, Next, Row, Start,
+    Back,
+    Button,
+    Cancel,
+    Group,
+    Next,
+    Row,
+    Start,
 )
 from aiogram_dialog.widgets.text import Const, Format, Multi
 

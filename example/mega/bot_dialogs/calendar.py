@@ -5,14 +5,21 @@ from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
-    Calendar, CalendarScope, ManagedCalendar, SwitchTo,
+    Calendar,
+    CalendarScope,
+    ManagedCalendar,
+    SwitchTo,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
-    CalendarDaysView, CalendarMonthView,
-    CalendarScopeView, CalendarYearsView,
-    DATE_TEXT, TODAY_TEXT,
+    DATE_TEXT,
+    TODAY_TEXT,
+    CalendarDaysView,
+    CalendarMonthView,
+    CalendarScopeView,
+    CalendarYearsView,
 )
 from aiogram_dialog.widgets.text import Const, Format, Text
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 

@@ -3,6 +3,7 @@ from typing import Any
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Back, Checkbox, Next, Radio, Row
 from aiogram_dialog.widgets.text import Case, Const, Format
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 

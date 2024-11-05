@@ -11,14 +11,24 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager,
-    setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import (
-    CurrentPage, FirstPage, LastPage,
-    Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup,
-    StubScroll, SwitchTo,
+    CurrentPage,
+    FirstPage,
+    LastPage,
+    Multiselect,
+    NextPage,
+    NumberedPager,
+    PrevPage,
+    Row,
+    ScrollingGroup,
+    StubScroll,
+    SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
 

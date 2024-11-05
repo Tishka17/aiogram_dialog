@@ -4,13 +4,21 @@ from operator import itemgetter
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.common import sync_scroll
 from aiogram_dialog.widgets.kbd import (
-    CurrentPage, FirstPage, LastPage,
-    Multiselect, NextPage, NumberedPager,
-    PrevPage, Row, ScrollingGroup,
-    StubScroll, SwitchTo,
+    CurrentPage,
+    FirstPage,
+    LastPage,
+    Multiselect,
+    NextPage,
+    NumberedPager,
+    PrevPage,
+    Row,
+    ScrollingGroup,
+    StubScroll,
+    SwitchTo,
 )
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 
