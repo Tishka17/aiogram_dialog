@@ -1,5 +1,5 @@
 import os.path
-from typing import Iterable, List, Sequence, Tuple
+from collections.abc import Iterable, Sequence
 
 from aiogram import Router
 from aiogram.fsm.state import State
@@ -46,7 +46,7 @@ def widget_edges(nodes, dialog, starts, current_state, kbd):
 def walk_keyboard(
         nodes,
         dialog,
-        starts: List[Tuple[State, State]],
+        starts: list[tuple[State, State]],
         current_state: State,
         keyboards: Sequence,
 ):
@@ -59,7 +59,7 @@ def walk_keyboard(
 
 def find_starts(
         current_state, keyboards: Sequence,
-) -> Iterable[Tuple[State, State]]:
+) -> Iterable[tuple[State, State]]:
     for kbd in keyboards:
         if isinstance(kbd, Group):
             yield from find_starts(current_state, kbd.buttons)
@@ -68,7 +68,7 @@ def find_starts(
 
 
 def render_window(
-        nodes: dict, dialog: Dialog, starts: List[Tuple[State, State]],
+        nodes: dict, dialog: Dialog, starts: list[tuple[State, State]],
         window: WindowProtocol,
 ):
     walk_keyboard(

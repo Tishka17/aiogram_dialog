@@ -1,18 +1,24 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import Optional, Set
+from typing import Optional
 from uuid import uuid4
 
 from aiogram import Bot
 from aiogram.types import (
-    Audio, CallbackQuery, Document, Message, PhotoSize, ReplyKeyboardMarkup,
+    Audio,
+    CallbackQuery,
+    Document,
+    Message,
+    PhotoSize,
+    ReplyKeyboardMarkup,
     Video,
 )
 
 from aiogram_dialog import ShowMode
 from aiogram_dialog.api.entities import MediaAttachment, NewMessage, OldMessage
 from aiogram_dialog.api.protocols import (
-    MessageManagerProtocol, MessageNotModified,
+    MessageManagerProtocol,
+    MessageNotModified,
 )
 
 
@@ -51,7 +57,7 @@ MEDIA_CLASSES = {
 
 class MockMessageManager(MessageManagerProtocol):
     def __init__(self):
-        self.answered_callbacks: Set[str] = set()
+        self.answered_callbacks: set[str] = set()
         self.sent_messages = []
         self.last_message_id = 0
 
@@ -79,9 +85,9 @@ class MockMessageManager(MessageManagerProtocol):
             old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
-            return
+            return None
         if show_mode in (ShowMode.DELETE_AND_SEND, ShowMode.NO_UPDATE):
-            return
+            return None
         assert isinstance(old_message, OldMessage)
 
         message = Message(

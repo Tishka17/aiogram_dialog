@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -8,7 +8,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
@@ -31,7 +35,7 @@ async def on_finish(event, button, manager: DialogManager) -> None:
     await manager.done()
 
 
-async def second_getter(user_getter, **kwargs) -> Dict[str, Any]:
+async def second_getter(user_getter, **kwargs) -> dict[str, Any]:
     return {
         "user": user_getter(),
     }

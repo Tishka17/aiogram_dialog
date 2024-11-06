@@ -4,24 +4,24 @@ import os.path
 from io import BytesIO
 from typing import Union
 
-
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import BufferedInputFile, ContentType, InputFile, Message
 from PIL import Image, ImageDraw, ImageFont
 
-
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs,
-    StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.manager.message_manager import MessageManager
 from aiogram_dialog.widgets.kbd import Back, Next, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const
-
 
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
@@ -115,5 +115,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

@@ -1,5 +1,6 @@
+from collections.abc import Awaitable, Callable
 from logging import getLogger
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Optional
 
 from aiogram import Router
 from aiogram.dispatcher.event.bases import UNHANDLED
@@ -9,30 +10,40 @@ from aiogram.types import (
     CallbackQuery,
     ChatJoinRequest,
     ChatMemberUpdated,
-    InaccessibleMessage, Message,
+    InaccessibleMessage,
+    Message,
 )
 from aiogram.types.error_event import ErrorEvent
 
 from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
     ChatEvent,
     Context,
-    DEFAULT_STACK_ID,
     DialogUpdateEvent,
-    EVENT_CONTEXT_KEY,
     EventContext,
     Stack,
 )
 from aiogram_dialog.api.exceptions import (
-    InvalidStackIdError, OutdatedIntent, UnknownIntent, UnknownState,
+    InvalidStackIdError,
+    OutdatedIntent,
+    UnknownIntent,
+    UnknownState,
 )
 from aiogram_dialog.api.internal import (
-    CALLBACK_DATA_KEY, CONTEXT_KEY, EVENT_SIMULATED,
-    ReplyCallbackQuery, STACK_KEY, STORAGE_KEY,
+    CALLBACK_DATA_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    ReplyCallbackQuery,
 )
 from aiogram_dialog.api.protocols import (
-    DialogRegistryProtocol, StackAccessValidator,
+    DialogRegistryProtocol,
+    StackAccessValidator,
 )
 from aiogram_dialog.utils import remove_intent_id, split_reply_callback
+
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
@@ -118,6 +129,7 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_chat_join(event.update.chat_join_request)
     elif event.update.callback_query:
         return event_context_from_callback(event.update.callback_query)
+    raise ValueError("Unsupported event type in ErrorEvent.update")
 
 
 class InaccessibleBusinessMessage(InaccessibleMessage):
@@ -139,7 +151,7 @@ class IntentMiddlewareFactory:
     def storage_proxy(
             self, event_context: EventContext, fsm_storage: BaseStorage,
     ) -> StorageProxy:
-        proxy = StorageProxy(
+        return StorageProxy(
             bot=event_context.bot,
             storage=fsm_storage,
             events_isolation=self.events_isolation,
@@ -149,7 +161,6 @@ class IntentMiddlewareFactory:
             thread_id=event_context.thread_id,
             business_connection_id=event_context.business_connection_id,
         )
-        return proxy
 
     def _check_outdated(self, intent_id: str, stack: Stack):
         """Check if intent id is outdated for stack."""
@@ -159,7 +170,7 @@ class IntentMiddlewareFactory:
                 f"Outdated intent id ({intent_id}) "
                 f"for stack ({stack.id})",
             )
-        elif intent_id != stack.last_intent_id():
+        if intent_id != stack.last_intent_id():
             raise OutdatedIntent(
                 stack.id,
                 f"Outdated intent id ({intent_id}) "
@@ -175,8 +186,7 @@ class IntentMiddlewareFactory:
     ) -> Optional[Stack]:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
-        stack = await proxy.load_stack(stack_id)
-        return stack
+        return await proxy.load_stack(stack_id)
 
     async def _load_context_by_stack(
             self,
@@ -198,7 +208,7 @@ class IntentMiddlewareFactory:
         else:
             try:
                 context = await proxy.load_context(stack.last_intent_id())
-            except:  # noqa: B001,B901,E722
+            except:
                 await proxy.unlock()
                 raise
 
@@ -233,7 +243,7 @@ class IntentMiddlewareFactory:
             return
         try:
             self._check_outdated(intent_id, stack)
-        except:  # noqa: B001,B901,E722
+        except:
             await proxy.unlock()
             raise
 
@@ -444,7 +454,7 @@ class IntentErrorMiddleware(BaseMiddleware):
         self.access_validator = access_validator
 
     def _is_error_supported(
-            self, event: ErrorEvent, data: Dict[str, Any],
+            self, event: ErrorEvent, data: dict[str, Any],
     ) -> bool:
         if isinstance(event, InvalidStackIdError):
             return False
@@ -487,10 +497,10 @@ class IntentErrorMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [ErrorEvent, Dict[str, Any]], Awaitable[Any],
+                [ErrorEvent, dict[str, Any]], Awaitable[Any],
             ],
             event: ErrorEvent,
-            data: Dict[str, Any],
+            data: dict[str, Any],
     ) -> Any:
         error = event.exception
         if not self._is_error_supported(event, data):

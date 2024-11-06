@@ -22,12 +22,21 @@ __all__ = [
 import importlib.metadata as _metadata
 
 from .api.entities import (
-    AccessSettings, ChatEvent, Data, DEFAULT_STACK_ID, GROUP_STACK_ID,
-    LaunchMode, ShowMode, StartMode,
+    DEFAULT_STACK_ID,
+    GROUP_STACK_ID,
+    AccessSettings,
+    ChatEvent,
+    Data,
+    LaunchMode,
+    ShowMode,
+    StartMode,
 )
 from .api.protocols import (
-    BaseDialogManager, BgManagerFactory, CancelEventProcessing,
-    DialogManager, DialogProtocol,
+    BaseDialogManager,
+    BgManagerFactory,
+    CancelEventProcessing,
+    DialogManager,
+    DialogProtocol,
     UnsetId,
 )
 from .dialog import Dialog

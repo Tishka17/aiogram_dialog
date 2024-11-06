@@ -1,19 +1,25 @@
 from datetime import date
-from typing import Dict
 
 from aiogram import F
 from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
-    Calendar, CalendarScope, ManagedCalendar, SwitchTo,
+    Calendar,
+    CalendarScope,
+    ManagedCalendar,
+    SwitchTo,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
-    CalendarDaysView, CalendarMonthView,
-    CalendarScopeView, CalendarYearsView,
-    DATE_TEXT, TODAY_TEXT,
+    DATE_TEXT,
+    TODAY_TEXT,
+    CalendarDaysView,
+    CalendarMonthView,
+    CalendarScopeView,
+    CalendarYearsView,
 )
 from aiogram_dialog.widgets.text import Const, Format, Text
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -25,7 +31,7 @@ class WeekDay(Text):
         selected_date: date = data["date"]
         locale = manager.event.from_user.language_code
         return get_day_names(
-            width="short", context='stand-alone', locale=locale,
+            width="short", context="stand-alone", locale=locale,
         )[selected_date.weekday()].title()
 
 
@@ -49,12 +55,12 @@ class Month(Text):
         selected_date: date = data["date"]
         locale = manager.event.from_user.language_code
         return get_month_names(
-            'wide', context='stand-alone', locale=locale,
+            "wide", context="stand-alone", locale=locale,
         )[selected_date.month].title()
 
 
 class CustomCalendar(Calendar):
-    def _init_views(self) -> Dict[CalendarScope, CalendarScopeView]:
+    def _init_views(self) -> dict[CalendarScope, CalendarScopeView]:
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data,

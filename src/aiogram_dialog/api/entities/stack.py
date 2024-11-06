@@ -2,11 +2,12 @@ import random
 import string
 import time
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
+
 from .access import AccessSettings
 from .context import Context, Data
 
@@ -38,7 +39,7 @@ def new_id():
 @dataclass(unsafe_hash=True)
 class Stack:
     _id: str = field(compare=True, default_factory=new_id)
-    intents: List[str] = field(compare=False, default_factory=list)
+    intents: list[str] = field(compare=False, default_factory=list)
     last_message_id: Optional[int] = field(compare=False, default=None)
     last_reply_keyboard: bool = field(compare=False, default=False)
     last_media_id: Optional[str] = field(compare=False, default=None)

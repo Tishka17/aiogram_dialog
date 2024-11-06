@@ -1,8 +1,14 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from collections.abc import Callable
 from typing import (
-    Any, Callable, Generic, Optional, Protocol, TypeVar, Union,
+    Any,
+    Generic,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
 )
 
 from aiogram.dispatcher.event.handler import FilterObject
@@ -11,9 +17,10 @@ from aiogram.types import ContentType, Message
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .base import BaseInput
 
 T = TypeVar("T")

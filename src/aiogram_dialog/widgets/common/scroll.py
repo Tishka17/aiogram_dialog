@@ -1,19 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable, Dict, Protocol, Sequence, Union
+from collections.abc import Awaitable, Callable, Sequence
+from typing import Protocol, Union
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor, WidgetEventProcessor,
+    WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .action import Actionable
 from .managed import ManagedWidget
 
 
 class Scroll(Widget, Protocol):
     @abstractmethod
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         raise NotImplementedError
 
     @abstractmethod
@@ -32,7 +35,7 @@ class Scroll(Widget, Protocol):
 
 
 class ManagedScroll(ManagedWidget[Scroll]):
-    async def get_page_count(self, data: Dict) -> int:
+    async def get_page_count(self, data: dict) -> int:
         return await self.widget.get_page_count(data, self.manager)
 
     async def get_page(self) -> int:

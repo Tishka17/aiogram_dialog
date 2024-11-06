@@ -1,17 +1,19 @@
-from typing import Any, Callable, Dict, Hashable, Optional, Union
+from collections.abc import Callable, Hashable
+from typing import Any, Optional, Union
 
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
+
 from .base import Text
 
-Selector = Callable[[Dict, "Case", DialogManager], Hashable]
+Selector = Callable[[dict, "Case", DialogManager], Hashable]
 
 
 def new_case_field(fieldname: str) -> Selector:
     def case_field(
-            data: Dict, widget: "Case", manager: DialogManager,
+            data: dict, widget: "Case", manager: DialogManager,
     ) -> Hashable:
         return data.get(fieldname)
 
@@ -20,7 +22,7 @@ def new_case_field(fieldname: str) -> Selector:
 
 def new_magic_selector(f: MagicFilter) -> Selector:
     def when_magic(
-            data: Dict, widget: "Case", manager: DialogManager,
+            data: dict, widget: "Case", manager: DialogManager,
     ) -> bool:
         return f.resolve(data)
 
@@ -30,7 +32,7 @@ def new_magic_selector(f: MagicFilter) -> Selector:
 class Case(Text):
     def __init__(
             self,
-            texts: Dict[Any, Text],
+            texts: dict[Any, Text],
             selector: Union[str, Selector, MagicFilter],
             when: WhenCondition = None,
     ):

@@ -1,9 +1,10 @@
+from collections.abc import Callable, Sequence
 from operator import itemgetter
-from typing import Callable, Dict, Sequence, Union
+from typing import Union
 
 from magic_filter import MagicFilter
 
-ItemsGetter = Callable[[Dict], Sequence]
+ItemsGetter = Callable[[dict], Sequence]
 ItemsGetterVariant = Union[str, ItemsGetter, MagicFilter, Sequence]
 
 
@@ -15,7 +16,7 @@ def _get_identity(items: Sequence) -> ItemsGetter:
 
 
 def _get_magic_getter(f: MagicFilter) -> ItemsGetter:
-    def items_magic(data: Dict) -> Sequence:
+    def items_magic(data: dict) -> Sequence:
         items = f.resolve(data)
         if isinstance(items, Sequence):
             return items

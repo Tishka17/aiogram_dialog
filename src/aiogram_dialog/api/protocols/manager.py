@@ -1,13 +1,18 @@
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, Dict, Optional, Protocol, Union
+from typing import Any, Optional, Protocol, Union
 
 from aiogram import Bot
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.entities import (
     AccessSettings,
-    ChatEvent, Context, Data, ShowMode, Stack, StartMode,
+    ChatEvent,
+    Context,
+    Data,
+    ShowMode,
+    Stack,
+    StartMode,
 )
 
 
@@ -46,7 +51,7 @@ class BaseDialogManager(Protocol):
     @abstractmethod
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
@@ -91,13 +96,13 @@ class DialogManager(BaseDialogManager, Protocol):
 
     @property
     @abstractmethod
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> dict:
         """Middleware data."""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> dict:
         """Dialog data for current context."""
         raise NotImplementedError
 
@@ -183,7 +188,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> dict:
         """Load data for current state."""
         raise NotImplementedError
 

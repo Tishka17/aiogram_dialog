@@ -1,11 +1,11 @@
 from logging import getLogger
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, Optional, cast
 
 from aiogram.fsm.state import State
 from aiogram.types import (
+    UNSET_PARSE_MODE,
     CallbackQuery,
     Message,
-    UNSET_PARSE_MODE,
 )
 from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
@@ -17,6 +17,7 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -25,10 +26,10 @@ from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
 from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
-    ensure_data_getter,
-    ensure_widgets,
     GetterVariant,
     WidgetSrc,
+    ensure_data_getter,
+    ensure_widgets,
 )
 
 logger = getLogger(__name__)
@@ -46,7 +47,7 @@ class Window(WindowProtocol):
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
-            preview_add_transitions: Optional[List[Keyboard]] = None,
+            preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
         (
@@ -67,18 +68,19 @@ class Window(WindowProtocol):
         self.preview_add_transitions = preview_add_transitions
 
     async def render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         return await self.text.render_text(data, manager)
 
     async def render_media(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> Optional[MediaAttachment]:
         if self.media:
             return await self.media.render_media(data, manager)
+        return None
 
     async def render_kbd(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
         return await self.markup_factory.render_markup(
@@ -88,7 +90,7 @@ class Window(WindowProtocol):
     async def load_data(
             self, dialog: "DialogProtocol",
             manager: DialogManager,
-    ) -> Dict:
+    ) -> dict:
         data = await dialog.load_data(manager)
         data.update(await self.getter(**manager.middleware_data))
         return data
@@ -127,7 +129,7 @@ class Window(WindowProtocol):
         chat = manager.middleware_data["event_chat"]
         try:
             current_data = await self.load_data(dialog, manager)
-        except Exception:  # noqa: B902
+        except Exception:
             logger.error("Cannot get window data for state %s", self.state)
             raise
         try:
@@ -144,7 +146,7 @@ class Window(WindowProtocol):
                 disable_web_page_preview=self.disable_web_page_preview,
                 media=await self.render_media(current_data, manager),
             )
-        except Exception:  # noqa: B902
+        except Exception:
             logger.error("Cannot render window for state %s", self.state)
             raise
 
@@ -153,9 +155,8 @@ class Window(WindowProtocol):
 
     def find(self, widget_id) -> Optional[Widget]:
         for root in (self.text, self.keyboard, self.on_message, self.media):
-            if root:
-                if found := root.find(widget_id):
-                    return found
+            if root and (found := root.find(widget_id)):
+                return found
         return None
 
     def __repr__(self) -> str:

@@ -1,11 +1,14 @@
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any, Optional
 
 from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import Message
 
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol,
+    DialogManager,
+    DialogProtocol,
 )
+
 from .base import BaseInput
 
 

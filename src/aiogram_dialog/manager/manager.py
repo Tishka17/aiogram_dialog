@@ -1,49 +1,68 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, cast, Dict, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
 from aiogram.fsm.state import State
 from aiogram.types import (
-    CallbackQuery, Chat, ErrorEvent, Message, ReplyKeyboardMarkup, User,
+    CallbackQuery,
+    Chat,
+    ErrorEvent,
+    Message,
+    ReplyKeyboardMarkup,
+    User,
 )
 
 from aiogram_dialog.api.entities import (
+    DEFAULT_STACK_ID,
+    EVENT_CONTEXT_KEY,
     AccessSettings,
     ChatEvent,
     Context,
     Data,
-    DEFAULT_STACK_ID,
-    EVENT_CONTEXT_KEY,
     EventContext,
     LaunchMode,
     MediaId,
     NewMessage,
+    OldMessage,
     ShowMode,
     Stack,
     StartMode,
+    UnknownText,
 )
-from aiogram_dialog.api.entities import OldMessage, UnknownText
 from aiogram_dialog.api.exceptions import (
-    IncorrectBackgroundError, InvalidKeyboardType, NoContextError,
+    IncorrectBackgroundError,
+    InvalidKeyboardType,
+    NoContextError,
 )
 from aiogram_dialog.api.internal import (
-    CONTEXT_KEY, EVENT_SIMULATED, FakeChat, FakeUser,
-    STACK_KEY, STORAGE_KEY,
+    CONTEXT_KEY,
+    EVENT_SIMULATED,
+    STACK_KEY,
+    STORAGE_KEY,
+    FakeChat,
+    FakeUser,
 )
 from aiogram_dialog.api.protocols import (
-    BaseDialogManager, DialogManager, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, MessageNotModified,
+    BaseDialogManager,
+    DialogManager,
+    DialogProtocol,
+    DialogRegistryProtocol,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
+    MessageNotModified,
     UnsetId,
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
+
 from .bg_manager import (
     BgManager,
     coalesce_business_connection_id,
     coalesce_thread_id,
 )
+
 logger = getLogger(__name__)
 
 
@@ -55,7 +74,7 @@ class ManagerImpl(DialogManager):
             media_id_storage: MediaIdStorageProtocol,
             registry: DialogRegistryProtocol,
             router: Router,
-            data: Dict,
+            data: dict,
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -81,12 +100,12 @@ class ManagerImpl(DialogManager):
         return self._event
 
     @property
-    def middleware_data(self) -> Dict:
+    def middleware_data(self) -> dict:
         """Middleware data."""
         return self._data
 
     @property
-    def dialog_data(self) -> Dict:
+    def dialog_data(self) -> dict:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -103,7 +122,7 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks",
             )
 
-    async def load_data(self) -> Dict:
+    async def load_data(self) -> dict:
         context = self.current_context()
         return {
             "dialog_data": context.dialog_data,
@@ -188,9 +207,9 @@ class ManagerImpl(DialogManager):
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
-            return
+            return None
         if self.is_event_simulated():
-            return
+            return None
         return await self.message_manager.answer_callback(
             bot=self._data["bot"],
             callback_query=self.event,
@@ -289,7 +308,7 @@ class ManagerImpl(DialogManager):
     ):
         if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
-        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:
+        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:  # noqa: SIM102
             if new_dialog is old_dialog:
                 await self.storage().remove_context(self.current_stack().pop())
                 self._data[CONTEXT_KEY] = None
@@ -447,7 +466,7 @@ class ManagerImpl(DialogManager):
         stack.last_media_unique_id = message.media_uniq_id
         stack.last_reply_keyboard = message.has_reply_keyboard
 
-    def _calc_show_mode(self) -> ShowMode:
+    def _calc_show_mode(self) -> ShowMode:  # noqa: PLR0911
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
         if self.middleware_data["event_chat"].type != ChatType.PRIVATE:
@@ -468,7 +487,7 @@ class ManagerImpl(DialogManager):
 
     async def update(
             self,
-            data: Dict,
+            data: dict,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)

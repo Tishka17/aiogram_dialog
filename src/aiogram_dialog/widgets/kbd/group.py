@@ -1,11 +1,13 @@
+from collections.abc import Iterable
 from itertools import chain
-from typing import Dict, Iterable, List, Optional
+from typing import Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.internal import ButtonVariant, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
+
 from .base import Keyboard
 
 
@@ -14,7 +16,7 @@ class Group(Keyboard):
             self,
             *buttons: Keyboard,
             id: Optional[str] = None,
-            width: int = None,
+            width: Optional[int] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -22,7 +24,7 @@ class Group(Keyboard):
         self.width = width
 
     def find(self, widget_id):
-        widget = super(Group, self).find(widget_id)
+        widget = super().find(widget_id)
         if widget:
             return widget
         for btn in self.buttons:
@@ -33,7 +35,7 @@ class Group(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         kbd: RawKeyboard = []
@@ -54,7 +56,7 @@ class Group(Keyboard):
             kbd: Iterable[InlineKeyboardButton],
     ) -> RawKeyboard:
         res: RawKeyboard = []
-        row: List[ButtonVariant] = []
+        row: list[ButtonVariant] = []
         for b in kbd:
             row.append(b)
             if len(row) >= self.width:

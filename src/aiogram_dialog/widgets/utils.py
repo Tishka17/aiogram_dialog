@@ -1,7 +1,9 @@
-from typing import Callable, Dict, List, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
+from typing import Union
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
 from aiogram_dialog.api.internal import DataGetter
+
 from .data.data_context import CompositeGetter, StaticGetter
 from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
@@ -11,12 +13,12 @@ from .widget_event import WidgetEventProcessor
 
 WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
 
-SingleGetterBase = Union[DataGetter, Dict]
+SingleGetterBase = Union[DataGetter, dict]
 GetterVariant = Union[
     None,
     SingleGetterBase,
-    List[SingleGetterBase],
-    Tuple[SingleGetterBase, ...],
+    list[SingleGetterBase],
+    tuple[SingleGetterBase, ...],
 ]
 
 
@@ -71,7 +73,7 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
-) -> Tuple[Text, Keyboard, Union[BaseInput, None], Media]:
+) -> tuple[Text, Keyboard, Union[BaseInput, None], Media]:
     texts = []
     keyboards = []
     inputs = []

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-from typing import Dict
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
@@ -10,13 +9,20 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, LaunchMode,
-    setup_dialogs, StartMode, SubManager,
+    Dialog,
+    DialogManager,
+    LaunchMode,
+    StartMode,
+    SubManager,
     Window,
+    setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import (
-    Checkbox, ListGroup,
-    ManagedCheckbox, Radio, Row,
+    Checkbox,
+    ListGroup,
+    ManagedCheckbox,
+    Radio,
+    Row,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -27,7 +33,7 @@ class DialogSG(StatesGroup):
     greeting = State()
 
 
-def when_checked(data: Dict, widget, manager: SubManager) -> bool:
+def when_checked(data: dict, widget, manager: SubManager) -> bool:
     # manager for our case is already adapted for current ListGroup row
     # so `.find` returns widget adapted for current row
     # if you need to find widgets outside the row, use `.find_in_parent`
@@ -61,8 +67,8 @@ dialog = Dialog(
                     item_id_getter=str,
                     items=["black", "white"],
                     # Alternatives:
-                    # items=F["data"]["colors"],  # noqa: E800
-                    # items=lambda d: d["data"]["colors"],  # noqa: E800
+                    # items=F["data"]["colors"],
+                    # items=lambda d: d["data"]["colors"],
                     when=when_checked,
                 ),
             ),
@@ -70,8 +76,8 @@ dialog = Dialog(
             item_id_getter=str,
             items=["apple", "orange", "pear"],
             # Alternatives:
-            # items=F["fruits"],  # noqa: E800
-            # items=lambda d: d["fruits"],  # noqa: E800
+            # items=F["fruits"],
+            # items=lambda d: d["fruits"],
         ),
         state=DialogSG.greeting,
         getter=data_getter,
@@ -98,5 +104,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

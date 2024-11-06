@@ -5,10 +5,20 @@ from typing import Any, Optional, Union
 from aiogram import Bot, Dispatcher
 from aiogram.methods import AnswerCallbackQuery, TelegramMethod
 from aiogram.types import (
-    CallbackQuery, Chat, ChatJoinRequest,
-    ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft,
-    ChatMemberMember, ChatMemberOwner, ChatMemberRestricted, ChatMemberUpdated,
-    InlineKeyboardButton, Message, Update, User,
+    CallbackQuery,
+    Chat,
+    ChatJoinRequest,
+    ChatMemberAdministrator,
+    ChatMemberBanned,
+    ChatMemberLeft,
+    ChatMemberMember,
+    ChatMemberOwner,
+    ChatMemberRestricted,
+    ChatMemberUpdated,
+    InlineKeyboardButton,
+    Message,
+    Update,
+    User,
 )
 
 from .keyboard import InlineButtonLocator

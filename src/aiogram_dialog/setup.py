@@ -1,8 +1,9 @@
-from typing import Callable, Dict, Iterable, Optional, Type, Union
+from collections.abc import Callable, Iterable
+from typing import Optional, Union
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
-from aiogram.fsm.state import any_state, State, StatesGroup
+from aiogram.fsm.state import State, StatesGroup, any_state
 from aiogram.fsm.storage.base import BaseEventIsolation
 from aiogram.fsm.storage.memory import SimpleEventIsolation
 
@@ -10,23 +11,29 @@ from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
 from aiogram_dialog.api.internal import DialogManagerFactory
 from aiogram_dialog.api.protocols import (
-    BgManagerFactory, DialogProtocol, DialogRegistryProtocol,
-    MediaIdStorageProtocol, MessageManagerProtocol, StackAccessValidator,
+    BgManagerFactory,
+    DialogProtocol,
+    DialogRegistryProtocol,
+    MediaIdStorageProtocol,
+    MessageManagerProtocol,
+    StackAccessValidator,
 )
 from aiogram_dialog.context.intent_middleware import (
-    context_saver_middleware,
-    context_unlocker_middleware,
     IntentErrorMiddleware,
     IntentMiddlewareFactory,
+    context_saver_middleware,
+    context_unlocker_middleware,
 )
 from aiogram_dialog.context.media_storage import MediaIdStorage
 from aiogram_dialog.manager.bg_manager import BgManagerFactoryImpl
 from aiogram_dialog.manager.manager_factory import DefaultManagerFactory
 from aiogram_dialog.manager.manager_middleware import (
-    BgFactoryMiddleware, ManagerMiddleware,
+    BgFactoryMiddleware,
+    ManagerMiddleware,
 )
 from aiogram_dialog.manager.message_manager import MessageManager
 from aiogram_dialog.manager.update_handler import handle_update
+
 from .about import about_dialog
 from .context.access_validator import DefaultAccessValidator
 
@@ -63,7 +70,7 @@ class DialogRegistry(DialogRegistryProtocol):
                 f" (looking by state `{state}`)",
             ) from e
 
-    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> dict[str, type[StatesGroup]]:
         self._ensure_loaded()
         return self._states_groups
 

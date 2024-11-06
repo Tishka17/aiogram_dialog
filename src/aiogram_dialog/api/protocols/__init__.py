@@ -9,7 +9,10 @@ __all__ = [
 
 from .dialog import CancelEventProcessing, DialogProtocol
 from .manager import (
-    BaseDialogManager, BgManagerFactory, DialogManager, UnsetId,
+    BaseDialogManager,
+    BgManagerFactory,
+    DialogManager,
+    UnsetId,
 )
 from .media import MediaIdStorageProtocol
 from .message_manager import MessageManagerProtocol, MessageNotModified
