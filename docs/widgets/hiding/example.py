@@ -1,11 +1,9 @@
-from typing import Dict
-
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters.state import State, StatesGroup
 from magic_filter import F
 
-from aiogram_dialog import Window, DialogManager
+from aiogram_dialog import DialogManager, Window
 from aiogram_dialog.widgets.common import Whenable
-from aiogram_dialog.widgets.kbd import Button, Row, Group
+from aiogram_dialog.widgets.kbd import Button, Group, Row
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 
@@ -20,7 +18,7 @@ async def get_data(**kwargs):
     }
 
 
-def is_tishka17(data: Dict, widget: Whenable, manager: DialogManager):
+def is_tishka17(data: dict, widget: Whenable, manager: DialogManager):
     return data.get("name") == "Tishka17"
 
 
@@ -28,7 +26,7 @@ window = Window(
     Multi(
         Const("Hello"),
         Format("{name}", when="extended"),
-        sep=" "
+        sep=" ",
     ),
     Group(
         Row(
