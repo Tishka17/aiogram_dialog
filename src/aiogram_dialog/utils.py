@@ -83,7 +83,7 @@ def split_reply_callback(
 def decode_reply_callback(data: str) -> str:
     bytes_data = bytes(
         _decode_reply_callback_byte(little, big)
-        for little, big in zip(data[::2], data[1::2], strict=False)
+        for little, big in zip(data[::2], data[1::2])
     )
     return bytes_data.decode("utf-8")
 
