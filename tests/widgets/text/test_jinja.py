@@ -4,7 +4,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.text import Jinja
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_manager(mock_manager) -> DialogManager:
     mock_manager.middleware_data = {}
     return mock_manager
