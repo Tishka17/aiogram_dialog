@@ -41,7 +41,7 @@ __all__ = [
     "ListGroup",
     "ManagedListGroup",
     "StubScroll",
-    "CopyText"
+    "CopyText",
 ]
 
 from .base import Keyboard
