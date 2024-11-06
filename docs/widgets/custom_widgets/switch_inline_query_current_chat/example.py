@@ -1,9 +1,7 @@
-from typing import Dict, List
-
-from aiogram.filters.state import StatesGroup, State
+from aiogram.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton
-from aiogram_dialog import Dialog, Window
-from aiogram_dialog import DialogManager
+
+from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import SwitchInlineQuery
 from aiogram_dialog.widgets.text import Const
 
@@ -11,9 +9,9 @@ from aiogram_dialog.widgets.text import Const
 class SwitchInlineQueryCurrentChat(SwitchInlineQuery):
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
-    ) -> List[List[InlineKeyboardButton]]:
+    ) -> list[list[InlineKeyboardButton]]:
         return [
             [
                 InlineKeyboardButton(
@@ -34,8 +32,8 @@ dialog = Dialog(
     Window(
         SwitchInlineQueryCurrentChat(
             Const("Some search"),  # Button text
-            Const("query")  # additional query. Optional
+            Const("query"),  # additional query. Optional
         ),
-        state=MySG.main
-    )
+        state=MySG.main,
+    ),
 )

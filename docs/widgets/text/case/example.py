@@ -1,11 +1,11 @@
-from typing import Any, Dict
+from typing import Any
 
+from aiogram.filters.state import State, StatesGroup
 from magic_filter import F
 
-from aiogram.filters.state import StatesGroup, State
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.text import Case, Const, Format
 
-from aiogram_dialog import Window, DialogManager, Dialog
-from aiogram_dialog.widgets.text import Const, Format, Case
 
 class MySG(StatesGroup):
     window1 = State()
@@ -35,7 +35,7 @@ text = Case(
 # The result of this function will be used to select wich option of ``Case`` widget to show.
 #
 # `text2` will produce text `42 is even!`
-def parity_selector(data: Dict, case: Case, manager: DialogManager):
+def parity_selector(data: dict, case: Case, manager: DialogManager):
     return data["number"] % 2
 
 
@@ -63,8 +63,8 @@ text3 = Case(
 
 
 async def on_dialog_start(start_data: Any, manager: DialogManager):
-    manager.dialog_data['user'] = {
-        'test_result': True,
+    manager.dialog_data["user"] = {
+        "test_result": True,
     }
 
 
@@ -74,7 +74,7 @@ dialog = Dialog(
         text2,
         text3,
         state=MySG.window1,
-        getter=get_data
+        getter=get_data,
     ),
-    on_start=on_dialog_start
+    on_start=on_dialog_start,
 )
