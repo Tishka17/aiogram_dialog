@@ -352,7 +352,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
         if manager.is_preview():
             return (
                 # just stupid way to make it differ in preview
-                ord(item_id[-1]) % 2 == 1
+                    ord(item_id[-1]) % 2 == 1
             )
         return self.is_checked(item_id, manager)
 
@@ -387,9 +387,11 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             if not checked and len(data) > self.min_selected:
                 data.remove(item_id_str)
                 changed = True
-        elif checked and self.max_selected == 0 or self.max_selected > len(data):  # noqa: E501
-            data.append(item_id_str)
-            changed = True
+        else:  # noqa: PLR5501
+            if checked:  # noqa: SIM102
+                if self.max_selected == 0 or self.max_selected > len(data):
+                    data.append(item_id_str)
+                    changed = True
         if changed:
             self.set_widget_data(manager, data)
             await self._process_on_state_changed(event, item_id_str, manager)
