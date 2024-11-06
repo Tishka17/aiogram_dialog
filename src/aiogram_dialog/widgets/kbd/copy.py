@@ -16,9 +16,9 @@ class CopyText(Keyboard):
         copy_text: Text,
         when: WhenCondition = None,
     ) -> None:
+        super().__init__(when=when)
         self._text = text
         self._copy_text = copy_text
-        super().__init__(when=when)
 
     async def _render_keyboard(
         self,
