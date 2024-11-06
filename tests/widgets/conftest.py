@@ -7,7 +7,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import Context
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_manager() -> DialogManager:
     manager = MagicMock()
     context = Context(

@@ -167,7 +167,7 @@ class StorageProxy:
                 if real_state.state == state:
                     return real_state
         except KeyError:
-            raise UnknownState(f"Unknown state group {group}")
+            raise UnknownState(f"Unknown state group {group}") from None
         raise UnknownState(f"Unknown state {state}")
 
     def _parse_access_settings(

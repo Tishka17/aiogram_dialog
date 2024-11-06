@@ -31,17 +31,17 @@ async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager() -> MockMessageManager:
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp) -> BotClient:
     return BotClient(dp)
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager: MockMessageManager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.message.register(start, CommandStart())

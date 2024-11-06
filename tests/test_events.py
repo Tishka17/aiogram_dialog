@@ -32,12 +32,12 @@ async def start(event: Any, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager():
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
@@ -45,7 +45,7 @@ def dp(message_manager):
     return dp
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp):
     return BotClient(dp)
 

@@ -47,12 +47,12 @@ async def add_shared(event: Any, dialog_manager: DialogManager):
     ))
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager():
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
@@ -60,12 +60,12 @@ def dp(message_manager):
     return dp
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp):
     return BotClient(dp, chat_id=-1, user_id=1, chat_type="group")
 
 
-@pytest.fixture()
+@pytest.fixture
 def second_client(dp):
     return BotClient(dp, chat_id=-1, user_id=2, chat_type="group")
 
