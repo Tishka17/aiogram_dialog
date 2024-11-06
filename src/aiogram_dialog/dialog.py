@@ -61,7 +61,7 @@ class Dialog(Router, DialogProtocol):
                 raise ValueError(f"Multiple windows with state {state}")
             self._states.append(state)
         self.windows: dict[State, WindowProtocol] = dict(
-            zip(self._states, windows, strict=False),
+            zip(self._states, windows),
         )
         self.on_start = on_start
         self.on_close = on_close
