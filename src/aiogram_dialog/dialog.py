@@ -120,8 +120,7 @@ class Dialog(Router, DialogProtocol):
     async def render(self, manager: DialogManager) -> NewMessage:
         logger.debug("Dialog render (%s)", self)
         window = await self._current_window(manager)
-        new_message = await window.render(self, manager)
-        return new_message
+        return await window.render(self, manager)
 
     async def _message_handler(
             self, message: Message, dialog_manager: DialogManager,

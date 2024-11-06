@@ -20,7 +20,7 @@ class OnCounterEvent(Protocol):
     async def __call__(
             self,
             event: ChatEvent,
-            counter: "ManagedCounter",  # noqa: F841
+            counter: "ManagedCounter",  # noqa: F841, RUF100
             dialog_manager: DialogManager,
     ):
         raise NotImplementedError

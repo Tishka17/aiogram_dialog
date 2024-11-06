@@ -40,7 +40,7 @@ async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
             "Redirecting to main menu.",
         )
         if event.update.callback_query.message:
-            try:
+            try:  # noqa: SIM105
                 await event.update.callback_query.message.delete()
             except TelegramBadRequest:
                 pass  # whatever

@@ -207,9 +207,9 @@ class ManagerImpl(DialogManager):
 
     async def answer_callback(self) -> None:
         if not isinstance(self.event, CallbackQuery):
-            return
+            return None
         if self.is_event_simulated():
-            return
+            return None
         return await self.message_manager.answer_callback(
             bot=self._data["bot"],
             callback_query=self.event,
@@ -308,7 +308,7 @@ class ManagerImpl(DialogManager):
     ):
         if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
-        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:
+        if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:  # noqa: SIM102
             if new_dialog is old_dialog:
                 await self.storage().remove_context(self.current_stack().pop())
                 self._data[CONTEXT_KEY] = None
@@ -466,7 +466,7 @@ class ManagerImpl(DialogManager):
         stack.last_media_unique_id = message.media_uniq_id
         stack.last_reply_keyboard = message.has_reply_keyboard
 
-    def _calc_show_mode(self) -> ShowMode:
+    def _calc_show_mode(self) -> ShowMode:  # noqa: PLR0911
         if self.show_mode is not ShowMode.AUTO:
             return self.show_mode
         if self.middleware_data["event_chat"].type != ChatType.PRIVATE:

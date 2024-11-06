@@ -67,8 +67,8 @@ dialog = Dialog(
                     item_id_getter=str,
                     items=["black", "white"],
                     # Alternatives:
-                    # items=F["data"]["colors"],  # noqa: E800
-                    # items=lambda d: d["data"]["colors"],  # noqa: E800
+                    # items=F["data"]["colors"],
+                    # items=lambda d: d["data"]["colors"],
                     when=when_checked,
                 ),
             ),
@@ -76,8 +76,8 @@ dialog = Dialog(
             item_id_getter=str,
             items=["apple", "orange", "pear"],
             # Alternatives:
-            # items=F["fruits"],  # noqa: E800
-            # items=lambda d: d["fruits"],  # noqa: E800
+            # items=F["fruits"],
+            # items=lambda d: d["fruits"],
         ),
         state=DialogSG.greeting,
         getter=data_getter,

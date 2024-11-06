@@ -200,7 +200,7 @@ class MessageManager(MessageManagerProtocol):
             old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if show_mode is ShowMode.NO_UPDATE:
-            return
+            return None
         if show_mode is ShowMode.DELETE_AND_SEND and old_message:
             return await self.remove_message_safe(bot, old_message, None)
         return await self._remove_kbd(bot, old_message, None)
@@ -214,6 +214,7 @@ class MessageManager(MessageManagerProtocol):
         if self.had_reply_keyboard(old_message):
             if not self.need_reply_keyboard(new_message):
                 return await self.remove_reply_kbd(bot, old_message)
+            return None
         else:
             return await self.remove_inline_kbd(bot, old_message)
 
@@ -221,7 +222,7 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
-            return
+            return None
         logger.debug("remove_inline_kbd in %s", old_message.chat)
         try:
             return await bot.edit_message_reply_markup(
@@ -243,7 +244,7 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
-            return
+            return None
         logger.debug("remove_reply_kbd in %s", old_message.chat)
         return await self.send_text(
             bot=bot,

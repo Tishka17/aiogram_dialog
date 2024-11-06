@@ -29,5 +29,5 @@ class MediaIdStorage(MediaIdStorageProtocol):
             media_id: MediaId,
     ) -> None:
         if not path and not url:
-            return None
+            return
         self.cache[(path, url, type)] = media_id

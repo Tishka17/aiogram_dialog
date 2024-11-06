@@ -61,7 +61,7 @@ async def getter(dialog_manager: DialogManager, **kwargs) -> dict:
         )
     else:
         media = MediaAttachment(
-            url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/800px-Image_not_available.png?20210219185637",  # noqa: E501
+            url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Image_not_available.png/800px-Image_not_available.png?20210219185637",
             type=ContentType.PHOTO,
         )
     return {
@@ -109,5 +109,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

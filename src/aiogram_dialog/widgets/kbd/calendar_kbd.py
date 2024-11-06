@@ -254,7 +254,7 @@ class CalendarDaysView(CalendarScopeView):
         end_date += timedelta(days=days_till_week_end)
         # add days
         today = get_today(config.timezone)
-        for offset in range(0, (end_date - start_date).days, 7):
+        for offset in range(0, (end_date - start_date).days, 7):  # noqa: PLR1704
             row = []
             for row_offset in range(7):
                 days_offset = timedelta(days=(offset + row_offset))

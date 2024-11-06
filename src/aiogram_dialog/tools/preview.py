@@ -269,7 +269,7 @@ async def create_button(
     manager.set_state(state)
     try:
         await dialog._callback_handler(callback_query, dialog_manager=manager)
-    except Exception:  # noqa: B902
+    except Exception:
         logging.debug("Click %s", callback)
     state = manager.current_context().state
     return RenderButton(title=title, state=state.state)
@@ -297,7 +297,7 @@ async def render_input(
     manager.set_state(state)
     try:
         await dialog._message_handler(message, dialog_manager=manager)
-    except Exception:  # noqa: B902
+    except Exception:
         logging.debug("Input %s", content_type)
 
     if state == manager.current_context().state:
@@ -319,22 +319,20 @@ async def render_inline_keyboard(
         dialog: Dialog,
         simulate_events: bool,
 ):
-    keyboard = []
-    for row in reply_markup.inline_keyboard:
-        keyboard_row = []
-        for button in row:
-            keyboard_row.append(
-                await create_button(
-                    title=button.text,
-                    callback=button.callback_data,
-                    manager=manager,
-                    dialog=dialog,
-                    state=state,
-                    simulate_events=simulate_events,
-                ),
+    return [
+        [
+            await create_button(
+                title=button.text,
+                callback=button.callback_data,
+                manager=manager,
+                dialog=dialog,
+                state=state,
+                simulate_events=simulate_events,
             )
-        keyboard.append(keyboard_row)
-    return keyboard
+            for button in row
+        ]
+        for row in reply_markup.inline_keyboard
+    ]
 
 
 async def render_reply_keyboard(

@@ -129,6 +129,7 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_chat_join(event.update.chat_join_request)
     elif event.update.callback_query:
         return event_context_from_callback(event.update.callback_query)
+    raise ValueError("Unsupported event type in ErrorEvent.update")
 
 
 class InaccessibleBusinessMessage(InaccessibleMessage):
@@ -150,7 +151,7 @@ class IntentMiddlewareFactory:
     def storage_proxy(
             self, event_context: EventContext, fsm_storage: BaseStorage,
     ) -> StorageProxy:
-        proxy = StorageProxy(
+        return StorageProxy(
             bot=event_context.bot,
             storage=fsm_storage,
             events_isolation=self.events_isolation,
@@ -160,7 +161,6 @@ class IntentMiddlewareFactory:
             thread_id=event_context.thread_id,
             business_connection_id=event_context.business_connection_id,
         )
-        return proxy
 
     def _check_outdated(self, intent_id: str, stack: Stack):
         """Check if intent id is outdated for stack."""
@@ -186,8 +186,7 @@ class IntentMiddlewareFactory:
     ) -> Optional[Stack]:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
-        stack = await proxy.load_stack(stack_id)
-        return stack
+        return await proxy.load_stack(stack_id)
 
     async def _load_context_by_stack(
             self,
@@ -209,7 +208,7 @@ class IntentMiddlewareFactory:
         else:
             try:
                 context = await proxy.load_context(stack.last_intent_id())
-            except:  # noqa: B001,B901,E722
+            except:
                 await proxy.unlock()
                 raise
 
@@ -244,7 +243,7 @@ class IntentMiddlewareFactory:
             return
         try:
             self._check_outdated(intent_id, stack)
-        except:  # noqa: B001,B901,E722
+        except:
             await proxy.unlock()
             raise
 

@@ -83,7 +83,7 @@ def split_reply_callback(
 def decode_reply_callback(data: str) -> str:
     bytes_data = bytes(
         _decode_reply_callback_byte(little, big)
-        for little, big in zip(data[::2], data[1::2])
+        for little, big in zip(data[::2], data[1::2], strict=False)
     )
     return bytes_data.decode("utf-8")
 
@@ -107,13 +107,10 @@ def _transform_to_reply_button(
 def transform_to_reply_keyboard(
         keyboard: list[list[Union[InlineKeyboardButton, KeyboardButton]]],
 ) -> list[list[KeyboardButton]]:
-    new_kdb = []
-    for row in keyboard:
-        new_row = []
-        new_kdb.append(new_row)
-        for button in row:
-            new_row.append(_transform_to_reply_button(button))
-    return new_kdb
+    return [
+        [_transform_to_reply_button(button) for button in row]
+        for row in keyboard
+    ]
 
 
 def get_chat(event: ChatEvent) -> Chat:
@@ -126,6 +123,8 @@ def get_chat(event: ChatEvent) -> Chat:
         if not event.message:
             return Chat(id=event.from_user.id, type="")
         return event.message.chat
+    else:
+        raise TypeError
 
 
 def is_chat_loaded(chat: Chat) -> bool:

@@ -95,7 +95,7 @@ class ListGroup(Keyboard):
             widget_id=self.widget_id,
             item_id=item_id,
         )
-        for b in self.buttons:
+        for b in self.buttons:  # noqa: RET503
             if await b.process_callback(callback, dialog, sub_manager):
                 return True
 

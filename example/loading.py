@@ -57,7 +57,7 @@ async def start_bg(
     manager: DialogManager,
 ):
     await manager.start(Bg.progress)
-    asyncio.create_task(background(callback, manager.bg()))
+    asyncio.create_task(background(callback, manager.bg()))  # noqa: RUF006
 
 
 async def background(callback: CallbackQuery, manager: BaseDialogManager):
@@ -99,5 +99,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

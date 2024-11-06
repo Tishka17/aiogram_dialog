@@ -19,7 +19,7 @@ class StaticMedia(Media):
             url: Union[Text, str, None] = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
-            media_params: dict = None,
+            media_params: Optional[dict] = None,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)

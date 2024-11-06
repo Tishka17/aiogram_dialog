@@ -77,6 +77,7 @@ class Window(WindowProtocol):
     ) -> Optional[MediaAttachment]:
         if self.media:
             return await self.media.render_media(data, manager)
+        return None
 
     async def render_kbd(
             self, data: dict, manager: DialogManager,
@@ -128,7 +129,7 @@ class Window(WindowProtocol):
         chat = manager.middleware_data["event_chat"]
         try:
             current_data = await self.load_data(dialog, manager)
-        except Exception:  # noqa: B902
+        except Exception:
             logger.error("Cannot get window data for state %s", self.state)
             raise
         try:
@@ -145,7 +146,7 @@ class Window(WindowProtocol):
                 disable_web_page_preview=self.disable_web_page_preview,
                 media=await self.render_media(current_data, manager),
             )
-        except Exception:  # noqa: B902
+        except Exception:
             logger.error("Cannot render window for state %s", self.state)
             raise
 

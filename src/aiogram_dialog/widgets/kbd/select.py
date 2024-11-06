@@ -38,7 +38,7 @@ class OnItemStateChanged(Protocol[ManagedT, T]):
     async def __call__(
             self,
             event: ChatEvent,
-            select: ManagedT,  # noqa: F841
+            select: ManagedT,
             dialog_manager: DialogManager,
             data: T,
             /,
@@ -51,7 +51,7 @@ class OnItemClick(Protocol[ManagedT, T]):
     async def __call__(
             self,
             event: CallbackQuery,
-            select: ManagedT,  # noqa: F841
+            select: ManagedT,
             dialog_manager: DialogManager,
             data: T,
             /,
@@ -143,7 +143,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             on_state_changed: Union[
                 OnItemStateChanged[ManagedT, T], WidgetEventProcessor, None,
             ] = None,
-            when: Union[str, Callable] = None,
+            when: Optional[Union[str, Callable]] = None,
     ):
         text = Case(
             {True: checked_text, False: unchecked_text},
@@ -229,7 +229,7 @@ class Radio(StatefulSelect[T], Generic[T]):
                 OnItemStateChanged["ManagedRadio[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Union[str, Callable] = None,
+            when: Optional[Union[str, Callable]] = None,
     ):
 
         super().__init__(
@@ -331,7 +331,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
                 OnItemStateChanged["ManagedMultiselect[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Union[str, Callable] = None,
+            when: Optional[Union[str, Callable]] = None,
     ):
         super().__init__(
             checked_text=checked_text,
@@ -447,7 +447,7 @@ class Toggle(Radio[T], Generic[T]):
                 OnItemStateChanged["ManagedToggle[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Union[str, Callable] = None,
+            when: Optional[Union[str, Callable]] = None,
     ):
         super().__init__(
             checked_text=text, unchecked_text=text,

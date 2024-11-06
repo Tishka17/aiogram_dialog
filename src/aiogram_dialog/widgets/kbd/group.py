@@ -16,7 +16,7 @@ class Group(Keyboard):
             self,
             *buttons: Keyboard,
             id: Optional[str] = None,
-            width: int = None,
+            width: Optional[int] = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -24,7 +24,7 @@ class Group(Keyboard):
         self.width = width
 
     def find(self, widget_id):
-        widget = super(Group, self).find(widget_id)
+        widget = super().find(widget_id)
         if widget:
             return widget
         for btn in self.buttons:
