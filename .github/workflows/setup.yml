@@ -38,8 +38,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install . -r requirements_dev.txt
-          uv pip install diagrams
+          uv pip install . -r requirements_dev.txt --system
+          uv pip install diagrams --system
 
       - name: Run Ruff
         run: ruff check src/aiogram_dialog tests example
