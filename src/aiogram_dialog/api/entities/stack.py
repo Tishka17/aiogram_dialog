@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
+from aiogram.enums import ContentType
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
@@ -47,6 +48,7 @@ class Stack:
     last_income_media_group_id: Optional[str] = field(
         compare=False, default=None,
     )
+    content_type: Optional[ContentType] = field(compare=False, default=None)
     access_settings: Optional[AccessSettings] = None
 
     @property

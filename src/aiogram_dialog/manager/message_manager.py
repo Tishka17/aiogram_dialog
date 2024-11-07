@@ -71,6 +71,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         media_uniq_id=(media_id.file_unique_id if media_id else None),
         media_id=(media_id.file_id if media_id else None),
         business_connection_id=message_result.business_connection_id,
+        content_type=message_result.content_type,
     )
 
 
@@ -116,6 +117,9 @@ class MessageManager(MessageManagerProtocol):
             return False
         return isinstance(new_message.reply_markup, ReplyKeyboardMarkup)
 
+    def had_voice(self, old_message: OldMessage) -> bool:
+        return old_message.content_type == ContentType.VOICE
+
     def _message_changed(
             self, new_message: NewMessage, old_message: OldMessage,
     ) -> bool:
@@ -140,9 +144,12 @@ class MessageManager(MessageManagerProtocol):
         # we cannot edit message if media removed
         if self.had_media(old_message) and not self.need_media(new_message):
             return False
+        # we cannot edit a message if there was voice
+        if self.had_voice(old_message):
+            return False
         return not (
-            self.had_reply_keyboard(old_message) or
-            self.need_reply_keyboard(new_message)
+            self.had_reply_keyboard(old_message)
+            or self.need_reply_keyboard(new_message)
         )
 
     async def show_message(
