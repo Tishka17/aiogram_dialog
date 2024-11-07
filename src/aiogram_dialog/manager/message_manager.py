@@ -238,6 +238,8 @@ class MessageManager(MessageManagerProtocol):
                 pass
             elif "message to edit not found" in err.message:
                 pass
+            elif "MESSAGE_ID_INVALID" in err.message:
+                pass
             else:
                 raise err
 
