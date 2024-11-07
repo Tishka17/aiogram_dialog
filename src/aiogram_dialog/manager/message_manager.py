@@ -120,6 +120,12 @@ class MessageManager(MessageManagerProtocol):
     def had_voice(self, old_message: OldMessage) -> bool:
         return old_message.content_type == ContentType.VOICE
 
+    def need_voice(self, new_message: NewMessage) -> bool:
+        return (
+            new_message.media is not None
+            and new_message.media.type == ContentType.VOICE
+        )
+
     def _message_changed(
             self, new_message: NewMessage, old_message: OldMessage,
     ) -> bool:
@@ -145,7 +151,7 @@ class MessageManager(MessageManagerProtocol):
         if self.had_media(old_message) and not self.need_media(new_message):
             return False
         # we cannot edit a message if there was voice
-        if self.had_voice(old_message):
+        if self.had_voice(old_message) or self.need_voice(new_message):
             return False
         return not (
             self.had_reply_keyboard(old_message)
