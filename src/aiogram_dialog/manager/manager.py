@@ -421,6 +421,7 @@ class ManagerImpl(DialogManager):
                 chat=event_context.chat,
                 message_id=current_message.message_id,
                 business_connection_id=event_context.business_connection_id,
+                content_type=current_message.content_type,
             )
         elif not stack or not stack.last_message_id:
             return None
@@ -433,6 +434,7 @@ class ManagerImpl(DialogManager):
                 chat=event_context.chat,
                 message_id=stack.last_message_id,
                 business_connection_id=event_context.business_connection_id,
+                content_type=stack.content_type,
             )
 
     def _get_last_message(self) -> Optional[OldMessage]:
@@ -457,14 +459,16 @@ class ManagerImpl(DialogManager):
             chat=event_context.chat,
             message_id=stack.last_message_id,
             business_connection_id=event_context.business_connection_id,
+            content_type=stack.content_type,
         )
 
-    def _save_last_message(self, message: OldMessage):
+    def _save_last_message(self, message: OldMessage) -> None:
         stack = self.current_stack()
         stack.last_message_id = message.message_id
         stack.last_media_id = message.media_id
         stack.last_media_unique_id = message.media_uniq_id
         stack.last_reply_keyboard = message.has_reply_keyboard
+        stack.content_type = message.content_type
 
     def _calc_show_mode(self) -> ShowMode:  # noqa: PLR0911
         if self.show_mode is not ShowMode.AUTO:
