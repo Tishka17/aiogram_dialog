@@ -33,7 +33,6 @@ dependencies = [
     "aiogram>=3.14.0",
     "jinja2",
     "cachetools>=4.0.0,<6.0.0",
-    "diagrams>=0.24.1",
 ]
 [project.optional-dependencies]
 tools = [
