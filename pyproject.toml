@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
@@ -32,6 +33,7 @@ dependencies = [
     "aiogram>=3.14.0",
     "jinja2",
     "cachetools>=4.0.0,<6.0.0",
+    "diagrams>=0.24.1",
 ]
 [project.optional-dependencies]
 tools = [
