@@ -5,6 +5,7 @@ from aiogram.fsm.state import State
 from aiogram.types import (
     UNSET_PARSE_MODE,
     CallbackQuery,
+    LinkPreviewOptions,
     Message,
 )
 from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
@@ -55,6 +56,7 @@ class Window(WindowProtocol):
             self.keyboard,
             self.on_message,
             self.media,
+            self.link_preview,
         ) = ensure_widgets(widgets)
         self.getter = PreviewAwareGetter(
             ensure_data_getter(getter),
@@ -86,6 +88,13 @@ class Window(WindowProtocol):
         return await self.markup_factory.render_markup(
             data, manager, keyboard,
         )
+
+    async def render_link_preview(
+            self, data: dict, manager: DialogManager,
+    ) -> Optional[LinkPreviewOptions]:
+        if self.link_preview:
+            return await self.link_preview.render_link_preview(data, manager)
+        return None
 
     async def load_data(
             self, dialog: "DialogProtocol",
@@ -145,6 +154,9 @@ class Window(WindowProtocol):
                 parse_mode=self.parse_mode,
                 disable_web_page_preview=self.disable_web_page_preview,
                 media=await self.render_media(current_data, manager),
+                link_preview_options=await self.render_link_preview(
+                    current_data, manager,
+                ),
             )
         except Exception:
             logger.error("Cannot render window for state %s", self.state)

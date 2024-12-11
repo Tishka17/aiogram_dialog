@@ -12,6 +12,7 @@ from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
     KeyboardButton,
+    LinkPreviewOptions,
     Message,
 )
 
@@ -38,6 +39,16 @@ class TextWidget(Widget, Protocol):
             self, data: dict, manager: DialogManager,
     ) -> str:
         """Create text."""
+        raise NotImplementedError
+
+
+@runtime_checkable
+class LinkPreviewWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_link_preview(
+            self, data: dict, manager: DialogManager,
+    ) -> Optional[LinkPreviewOptions]:
+        """Create link preview."""
         raise NotImplementedError
 
 

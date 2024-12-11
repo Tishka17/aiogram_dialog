@@ -129,10 +129,13 @@ class MessageManager(MessageManagerProtocol):
     def _message_changed(
             self, new_message: NewMessage, old_message: OldMessage,
     ) -> bool:
-        if new_message.text != old_message.text:
-            return True
-        # we cannot actually compare reply keyboards
-        if new_message.reply_markup or old_message.has_reply_keyboard:
+        if (
+            (new_message.text != old_message.text) or
+            # we cannot actually compare reply keyboards
+            (new_message.reply_markup or old_message.has_reply_keyboard) or
+            # we do not know if link preview changed
+            new_message.link_preview_options
+        ):
             return True
 
         if self.had_media(old_message) != self.need_media(new_message):
@@ -349,6 +352,7 @@ class MessageManager(MessageManagerProtocol):
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             disable_web_page_preview=new_message.disable_web_page_preview,
+            link_preview_options=new_message.link_preview_options,
         )
 
     async def edit_media(
@@ -395,6 +399,7 @@ class MessageManager(MessageManagerProtocol):
             disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            link_preview_options=new_message.link_preview_options,
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:
