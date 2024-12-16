@@ -11,6 +11,7 @@ from bot_dialogs import states
 from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.counter import counter_dialog
 from bot_dialogs.layouts import layouts_dialog
+from bot_dialogs.link_preview import link_preview_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.mutltiwidget import multiwidget_dialog
 from bot_dialogs.reply_buttons import reply_kbd_dialog
@@ -68,6 +69,7 @@ dialog_router.include_routers(
     multiwidget_dialog,
     switch_dialog,
     reply_kbd_dialog,
+    link_preview_dialog,
 )
 
 

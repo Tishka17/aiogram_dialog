@@ -4,7 +4,7 @@ __all__ = [
     "CALLBACK_DATA_KEY", "CONTEXT_KEY", "EVENT_SIMULATED",
     "STACK_KEY", "STORAGE_KEY",
     "ButtonVariant", "DataGetter", "InputWidget", "KeyboardWidget",
-    "MediaWidget", "RawKeyboard", "TextWidget", "Widget",
+    "LinkPreviewWidget", "MediaWidget", "RawKeyboard", "TextWidget", "Widget",
     "WindowProtocol",
 ]
 
@@ -24,6 +24,7 @@ from .widgets import (
     DataGetter,
     InputWidget,
     KeyboardWidget,
+    LinkPreviewWidget,
     MediaWidget,
     RawKeyboard,
     TextWidget,

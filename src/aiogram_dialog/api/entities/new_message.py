@@ -7,6 +7,7 @@ from aiogram.types import (
     Chat,
     ForceReply,
     InlineKeyboardMarkup,
+    LinkPreviewOptions,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
@@ -43,5 +44,5 @@ class NewMessage:
     reply_markup: Optional[MarkupVariant] = None
     parse_mode: Optional[str] = None
     show_mode: ShowMode = ShowMode.AUTO
-    disable_web_page_preview: Optional[bool] = None
     media: Optional[MediaAttachment] = None
+    link_preview_options: Optional[LinkPreviewOptions] = None

@@ -1,3 +1,4 @@
+import warnings
 from logging import getLogger
 from typing import Any, Optional, cast
 
@@ -5,9 +6,9 @@ from aiogram.fsm.state import State
 from aiogram.types import (
     UNSET_PARSE_MODE,
     CallbackQuery,
+    LinkPreviewOptions,
     Message,
 )
-from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
 from aiogram_dialog.api.entities import (
     EVENT_CONTEXT_KEY,
@@ -24,6 +25,7 @@ from .api.protocols import DialogManager, DialogProtocol
 from .dialog import OnResultEvent
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
+from .widgets.link_preview import LinkPreview
 from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
     GetterVariant,
@@ -46,7 +48,7 @@ class Window(WindowProtocol):
             on_process_result: Optional[OnResultEvent] = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
+            disable_web_page_preview: Optional[bool] = None,
             preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
@@ -55,6 +57,7 @@ class Window(WindowProtocol):
             self.keyboard,
             self.on_message,
             self.media,
+            self.link_preview,
         ) = ensure_widgets(widgets)
         self.getter = PreviewAwareGetter(
             ensure_data_getter(getter),
@@ -64,8 +67,20 @@ class Window(WindowProtocol):
         self.on_process_result = on_process_result
         self.markup_factory = markup_factory
         self.parse_mode = parse_mode
-        self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
+        if disable_web_page_preview is not None:
+            if self.link_preview:
+                raise ValueError(
+                    "Cannot use LinkPreview widget "
+                    "together with disable_web_page_preview",
+                )
+            warnings.warn(
+                "disable_web_page_preview is deprecated, "
+                "use `LinkPreview` widget instead",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            self.link_preview = LinkPreview(is_disabled=True)
 
     async def render_text(
             self, data: dict, manager: DialogManager,
@@ -86,6 +101,13 @@ class Window(WindowProtocol):
         return await self.markup_factory.render_markup(
             data, manager, keyboard,
         )
+
+    async def render_link_preview(
+            self, data: dict, manager: DialogManager,
+    ) -> Optional[LinkPreviewOptions]:
+        if self.link_preview:
+            return await self.link_preview.render_link_preview(data, manager)
+        return None
 
     async def load_data(
             self, dialog: "DialogProtocol",
@@ -143,8 +165,10 @@ class Window(WindowProtocol):
                 text=await self.render_text(current_data, manager),
                 reply_markup=await self.render_kbd(current_data, manager),
                 parse_mode=self.parse_mode,
-                disable_web_page_preview=self.disable_web_page_preview,
                 media=await self.render_media(current_data, manager),
+                link_preview_options=await self.render_link_preview(
+                    current_data, manager,
+                ),
             )
         except Exception:
             logger.error("Cannot render window for state %s", self.state)

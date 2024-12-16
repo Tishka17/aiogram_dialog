@@ -17,6 +17,7 @@ from aiogram_dialog import (
     setup_dialogs,
 )
 from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.link_preview import LinkPreview
 from aiogram_dialog.widgets.text import Const, Multi, Progress
 
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -75,6 +76,7 @@ main_menu = Dialog(
     Window(
         Const("Press button to start processing"),
         Button(Const("Start"), id="start", on_click=start_bg),
+        LinkPreview(url=Const("http://ya.ru")),
         state=MainSG.main,
     ),
 )

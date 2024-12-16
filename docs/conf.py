@@ -13,13 +13,10 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath("."))
-
-import datetime
-
 # -- Project information -----------------------------------------------------
 
 project = "aiogram-dialog"
-copyright = f"{datetime.date.today().year}, Tishka17"
+copyright = "%Y, Tishka17"
 author = "Tishka17"
 master_doc = "index"
 
