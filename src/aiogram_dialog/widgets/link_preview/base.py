@@ -52,7 +52,11 @@ class LinkPreview(LinkPreviewBase):
             self, data: dict, manager: DialogManager,
     ) -> Optional[LinkPreviewOptions]:
         return LinkPreviewOptions(
-            url=await self.url.render_text(data, manager) if self.url else None,
+            url=(
+                await self.url.render_text(data, manager)
+                if self.url
+                else None
+            ),
             is_disabled=self.is_disabled,
             prefer_small_media=self.prefer_small_media,
             prefer_large_media=self.prefer_large_media,

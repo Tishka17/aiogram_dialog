@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Union, Optional
+from typing import Optional, Union
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
 from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget

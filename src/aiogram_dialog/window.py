@@ -9,7 +9,6 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
-from aiogram.types.base import UNSET_DISABLE_WEB_PAGE_PREVIEW
 
 from aiogram_dialog.api.entities import (
     EVENT_CONTEXT_KEY,
@@ -49,7 +48,7 @@ class Window(WindowProtocol):
             on_process_result: Optional[OnResultEvent] = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = None,  # noqa: E501
+            disable_web_page_preview: Optional[bool] = None,
             preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
@@ -79,6 +78,7 @@ class Window(WindowProtocol):
                 "disable_web_page_preview is deprecated, "
                 "use `LinkPreview` widget instead",
                 category=DeprecationWarning,
+                stacklevel=2,
             )
             self.link_preview = LinkPreview(is_disabled=True)
 

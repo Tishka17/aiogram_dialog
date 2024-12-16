@@ -5,6 +5,7 @@ from aiogram_dialog import (
 from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.link_preview import LinkPreview
 from aiogram_dialog.widgets.text import Const, Format
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 
