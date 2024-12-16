@@ -351,7 +351,6 @@ class MessageManager(MessageManagerProtocol):
             text=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            disable_web_page_preview=new_message.disable_web_page_preview,
             link_preview_options=new_message.link_preview_options,
         )
 
@@ -367,7 +366,6 @@ class MessageManager(MessageManagerProtocol):
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            disable_web_page_preview=new_message.disable_web_page_preview,
             media=await self.get_media_source(new_message.media, bot),
             **new_message.media.kwargs,
         )
@@ -396,7 +394,6 @@ class MessageManager(MessageManagerProtocol):
             text=new_message.text,
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
-            disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             link_preview_options=new_message.link_preview_options,

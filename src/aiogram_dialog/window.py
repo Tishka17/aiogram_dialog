@@ -1,3 +1,4 @@
+import warnings
 from logging import getLogger
 from typing import Any, Optional, cast
 
@@ -25,6 +26,7 @@ from .api.protocols import DialogManager, DialogProtocol
 from .dialog import OnResultEvent
 from .widgets.data import PreviewAwareGetter
 from .widgets.kbd import Keyboard
+from .widgets.link_preview import LinkPreview
 from .widgets.markup.inline_keyboard import InlineKeyboardFactory
 from .widgets.utils import (
     GetterVariant,
@@ -47,7 +49,7 @@ class Window(WindowProtocol):
             on_process_result: Optional[OnResultEvent] = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = UNSET_DISABLE_WEB_PAGE_PREVIEW,  # noqa: E501
+            disable_web_page_preview: Optional[bool] = None,  # noqa: E501
             preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
@@ -66,8 +68,19 @@ class Window(WindowProtocol):
         self.on_process_result = on_process_result
         self.markup_factory = markup_factory
         self.parse_mode = parse_mode
-        self.disable_web_page_preview = disable_web_page_preview
         self.preview_add_transitions = preview_add_transitions
+        if disable_web_page_preview is not None:
+            if self.link_preview:
+                raise ValueError(
+                    "Cannot use LinkPreview widget "
+                    "together with disable_web_page_preview",
+                )
+            warnings.warn(
+                "disable_web_page_preview is deprecated, "
+                "use `LinkPreview` widget instead",
+                category=DeprecationWarning,
+            )
+            self.link_preview = LinkPreview(is_disabled=True)
 
     async def render_text(
             self, data: dict, manager: DialogManager,
@@ -152,7 +165,6 @@ class Window(WindowProtocol):
                 text=await self.render_text(current_data, manager),
                 reply_markup=await self.render_kbd(current_data, manager),
                 parse_mode=self.parse_mode,
-                disable_web_page_preview=self.disable_web_page_preview,
                 media=await self.render_media(current_data, manager),
                 link_preview_options=await self.render_link_preview(
                     current_data, manager,

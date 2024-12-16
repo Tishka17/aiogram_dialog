@@ -45,6 +45,11 @@ main_dialog = Dialog(
             state=states.Switch.MAIN,
         ),
         Start(
+            text=Const("🔗 Link Preview"),
+            id="linkpreview",
+            state=states.LinkPreview.MAIN,
+        ),
+        Start(
             text=Const("⌨️ Reply keyboard"),
             id="reply",
             state=states.ReplyKeyboard.MAIN,
