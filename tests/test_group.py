@@ -7,9 +7,13 @@ from aiogram.filters import Command, CommandStart
 from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
-from aiogram_dialog.api.entities import AccessSettings, GROUP_STACK_ID
+from aiogram_dialog.api.entities import GROUP_STACK_ID, AccessSettings
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
@@ -43,12 +47,12 @@ async def add_shared(event: Any, dialog_manager: DialogManager):
     ))
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager():
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
@@ -56,12 +60,12 @@ def dp(message_manager):
     return dp
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp):
     return BotClient(dp, chat_id=-1, user_id=1, chat_type="group")
 
 
-@pytest.fixture()
+@pytest.fixture
 def second_client(dp):
     return BotClient(dp, chat_id=-1, user_id=2, chat_type="group")
 
@@ -159,7 +163,8 @@ async def test_same_user(dp, client, message_manager):
 async def test_shared_stack(dp, client, second_client, message_manager):
     dp.message.register(start_shared, CommandStart())
     await client.send("/start")
-    await asyncio.sleep(0.01)  # synchronization workaround, fixme
+    await asyncio.sleep(0.02)  # synchronization workaround, fixme
+
     first_message = message_manager.one_message()
     assert first_message.text == "stub"
     message_manager.reset_history()

@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
+
 from .manager import DialogManager
 
 

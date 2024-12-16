@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from aiogram.fsm.state import State
 
 from .access import AccessSettings
 
-Data = Union[Dict, List, int, str, float, None]
-DataDict = Dict[str, Data]
+Data = Union[dict, list, int, str, float, None]
+DataDict = dict[str, Data]
 
 
 @dataclass(unsafe_hash=True)

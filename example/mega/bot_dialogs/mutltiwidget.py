@@ -1,6 +1,7 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Checkbox, Counter, Multiselect, Radio
 from aiogram_dialog.widgets.text import Const, Format
+
 from . import states
 from .common import MAIN_MENU_BUTTON
 

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 
 @dataclass
 class AccessSettings:
-    user_ids: List[int]
+    user_ids: list[int]
     custom: Any = None

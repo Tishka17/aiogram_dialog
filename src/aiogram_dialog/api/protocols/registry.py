@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Protocol, Type, Union
+from typing import Protocol, Union
 
 from aiogram.fsm.state import State, StatesGroup
 
@@ -12,5 +12,5 @@ class DialogRegistryProtocol(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def states_groups(self) -> Dict[str, Type[StatesGroup]]:
+    def states_groups(self) -> dict[str, type[StatesGroup]]:
         raise NotImplementedError

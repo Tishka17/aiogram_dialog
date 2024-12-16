@@ -1,18 +1,23 @@
-from typing import Callable, Dict, Union
+from collections.abc import Callable
+from typing import Union
 
 from magic_filter import MagicFilter
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
-from .base import Keyboard
-from ..common.scroll import BaseScroll, OnPageChangedVariants
+from aiogram_dialog.widgets.common.scroll import (
+    BaseScroll,
+    OnPageChangedVariants,
+)
 
-PagesGetter = Callable[[Dict, "StubScroll", DialogManager], int]
+from .base import Keyboard
+
+PagesGetter = Callable[[dict, "StubScroll", DialogManager], int]
 
 
 def new_pages_field(fieldname: str) -> PagesGetter:
     def pages_field(
-            data: Dict, widget: "StubScroll", manager: DialogManager,
+            data: dict, widget: "StubScroll", manager: DialogManager,
     ) -> int:
         return data.get(fieldname)
 
@@ -21,7 +26,7 @@ def new_pages_field(fieldname: str) -> PagesGetter:
 
 def new_pages_magic(f: MagicFilter) -> PagesGetter:
     def pages_magic(
-            data: Dict, widget: "StubScroll", manager: DialogManager,
+            data: dict, widget: "StubScroll", manager: DialogManager,
     ) -> int:
         return f.resolve(data)
 
@@ -30,7 +35,7 @@ def new_pages_magic(f: MagicFilter) -> PagesGetter:
 
 def new_pages_fixed(pages: int) -> PagesGetter:
     def pages_fixed(
-            data: Dict, widget: "StubScroll", manager: DialogManager,
+            data: dict, widget: "StubScroll", manager: DialogManager,
     ) -> int:
         return pages
 
@@ -55,10 +60,10 @@ class StubScroll(Keyboard, BaseScroll):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         return [[]]
 
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         return self._pages(data, self, manager)

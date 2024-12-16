@@ -1,11 +1,19 @@
 from abc import abstractmethod
+from collections.abc import Awaitable, Callable
 from typing import (
-    Any, Awaitable, Callable, Dict, List, Optional, Protocol,
-    runtime_checkable, Union,
+    Any,
+    Optional,
+    Protocol,
+    Union,
+    runtime_checkable,
 )
 
 from aiogram.types import (
-    CallbackQuery, InlineKeyboardButton, KeyboardButton, Message,
+    CallbackQuery,
+    InlineKeyboardButton,
+    KeyboardButton,
+    LinkPreviewOptions,
+    Message,
 )
 
 from aiogram_dialog import DialogManager
@@ -28,21 +36,31 @@ class Widget(Protocol):
 class TextWidget(Widget, Protocol):
     @abstractmethod
     async def render_text(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> str:
         """Create text."""
         raise NotImplementedError
 
 
+@runtime_checkable
+class LinkPreviewWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_link_preview(
+            self, data: dict, manager: DialogManager,
+    ) -> Optional[LinkPreviewOptions]:
+        """Create link preview."""
+        raise NotImplementedError
+
+
 ButtonVariant = Union[InlineKeyboardButton, KeyboardButton]
-RawKeyboard = List[List[ButtonVariant]]
+RawKeyboard = list[list[ButtonVariant]]
 
 
 @runtime_checkable
 class KeyboardWidget(Widget, Protocol):
     @abstractmethod
     async def render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         """Create Inline keyboard contents."""
         raise NotImplementedError
@@ -89,7 +107,7 @@ class InputWidget(Widget, Protocol):
         raise NotImplementedError
 
 
-DataGetter = Callable[..., Awaitable[Dict]]
+DataGetter = Callable[..., Awaitable[dict]]
 
 
 @runtime_checkable

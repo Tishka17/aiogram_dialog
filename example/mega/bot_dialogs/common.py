@@ -1,5 +1,6 @@
 from aiogram_dialog.widgets.kbd import Start
 from aiogram_dialog.widgets.text import Const
+
 from . import states
 
 MAIN_MENU_BUTTON = Start(

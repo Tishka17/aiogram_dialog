@@ -1,0 +1,68 @@
+line-length = 79
+target-version="py39"
+src = ["src"]
+
+include = ["src/**.py", "tests/**.py", "example/**.py"]
+exclude = ["docs"]
+
+lint.select = ["ALL"]
+lint.ignore = [
+   "ANN",
+   "ARG",
+   "D",
+   "DTZ",
+   "TD",
+   "A002",
+   "ASYNC230",
+   "BLE001",
+   "EM101",
+   "EM102",
+   "FA100",
+   "FBT001",
+   "FBT002",
+   "FIX002",
+   "ISC002",
+   "ISC003",
+   "N818",
+   "PLR0913",
+   "PLW2901",
+   "PYI034",
+   "RET505",
+   "S311",
+   "SIM103",
+   "SIM108",
+   "SIM114",
+   "TCH001",
+   "TCH002",
+   "TCH003",
+   "TRY003",
+   "TRY201",
+   "TRY400",
+   "UP007",
+   "UP038",
+]
+
+
+[lint.per-file-ignores]
+"src/aiogram_dialog/tools/**" = [
+   "S101",
+   "SLF001",
+   "PTH",
+]
+"src/aiogram_dialog/test_tools/**"= [
+   "S101",
+   "PTH"
+]
+"tests/**" = [
+   "TID252",
+   "PLR2004",
+   "S101",
+   "INP001",
+   "FBT003",
+]
+"example/**" = [
+   "INP001",
+   "ERA001",
+   "RUF001",
+   "PTH",
+]

@@ -7,7 +7,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ChatMemberMember, ChatMemberOwner
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
@@ -28,12 +32,12 @@ async def start(event: Any, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager():
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.include_router(Dialog(window))
@@ -41,7 +45,7 @@ def dp(message_manager):
     return dp
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp):
     return BotClient(dp)
 

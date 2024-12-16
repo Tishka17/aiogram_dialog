@@ -1,12 +1,10 @@
-from typing import Dict, List
-
 from aiogram_dialog.api.internal.widgets import DataGetter
 from aiogram_dialog.api.protocols import DialogManager
 
 
 class CompositeGetter:
     def __init__(self, *getters: DataGetter):
-        self.getters: List[DataGetter] = list(getters)
+        self.getters: list[DataGetter] = list(getters)
 
     async def __call__(self, **kwargs):
         data = {}
@@ -16,7 +14,7 @@ class CompositeGetter:
 
 
 class StaticGetter:
-    def __init__(self, data: Dict):
+    def __init__(self, data: dict):
         self.data = data
 
     async def __call__(self, **kwargs):

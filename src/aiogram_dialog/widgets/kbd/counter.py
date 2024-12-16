@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Optional, Protocol, Union
+from typing import Optional, Protocol, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -10,8 +10,8 @@ from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd.base import Keyboard
 from aiogram_dialog.widgets.text import Const, Format, Text
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
 
 
@@ -20,7 +20,7 @@ class OnCounterEvent(Protocol):
     async def __call__(
             self,
             event: ChatEvent,
-            counter: "ManagedCounter",  # noqa: F841
+            counter: "ManagedCounter",  # noqa: F841, RUF100
             dialog_manager: DialogManager,
     ):
         raise NotImplementedError
@@ -104,7 +104,7 @@ class Counter(Keyboard):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         row = []

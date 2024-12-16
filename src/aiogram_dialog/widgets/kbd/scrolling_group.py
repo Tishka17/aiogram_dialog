@@ -1,12 +1,15 @@
-from typing import Dict, List, Optional
+from typing import Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import (
-    BaseScroll, OnPageChangedVariants, WhenCondition,
+    BaseScroll,
+    OnPageChangedVariants,
+    WhenCondition,
 )
+
 from .base import Keyboard
 from .group import Group
 
@@ -37,7 +40,7 @@ class ScrollingGroup(Group, BaseScroll):
 
     async def _render_contents(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         return await super()._render_keyboard(data, manager)
@@ -84,8 +87,8 @@ class ScrollingGroup(Group, BaseScroll):
     async def _render_page(
             self,
             page: int,
-            keyboard: List[List[InlineKeyboardButton]],
-    ) -> List[List[InlineKeyboardButton]]:
+            keyboard: list[list[InlineKeyboardButton]],
+    ) -> list[list[InlineKeyboardButton]]:
         pages = self._get_page_count(keyboard)
         last_page = pages - 1
         current_page = min(last_page, page)
@@ -95,7 +98,7 @@ class ScrollingGroup(Group, BaseScroll):
 
     async def _render_keyboard(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
         keyboard = await self._render_contents(data, manager)
@@ -119,6 +122,6 @@ class ScrollingGroup(Group, BaseScroll):
         await self.set_page(callback, int(data), manager)
         return True
 
-    async def get_page_count(self, data: Dict, manager: DialogManager) -> int:
+    async def get_page_count(self, data: dict, manager: DialogManager) -> int:
         keyboard = await self._render_contents(data, manager)
         return self._get_page_count(keyboard=keyboard)

@@ -41,15 +41,20 @@ __all__ = [
     "ListGroup",
     "ManagedListGroup",
     "StubScroll",
+    "CopyText",
 ]
 
 from .base import Keyboard
 from .button import Button, SwitchInlineQuery, Url, WebApp
 from .calendar_kbd import (
-    Calendar, CalendarConfig, CalendarScope, CalendarUserConfig,
+    Calendar,
+    CalendarConfig,
+    CalendarScope,
+    CalendarUserConfig,
     ManagedCalendar,
 )
 from .checkbox import Checkbox, ManagedCheckbox
+from .copy import CopyText
 from .counter import Counter, ManagedCounter
 from .group import Column, Group, Row
 from .list_group import ListGroup, ManagedListGroup

@@ -4,13 +4,14 @@ Widgets and Rendering
 Base information
 ********************
 
-Currently there are 4 kinds of widgets: :ref:`texts <text_widgets>`, :ref:`keyboards <keyboard_widgets>`,
-:ref:`input <input_widgets>`, :ref:`media<media_widgets>` and you can create your own :ref:`widgets<custom_widgets>`.
+Currently there are 5 kinds of widgets: :ref:`texts <text_widgets>`, :ref:`keyboards <keyboard_widgets>`,
+:ref:`input <input_widgets>`, :ref:`media<media_widgets>`, :ref:`link preview<link_preview>` and you can create your own :ref:`widgets<custom_widgets>`.
 
 * **Texts** used to render text anywhere in dialog. It can be message text, button title and so on.
 * **Keyboards** represent parts of ``InlineKeyboard``
 * **Media** represent media attachment to message
 * **Input** allows to process incoming messages from user. Is has no representation.
+* **Link Preview** used to manage link previews in messages.
 
 Widgets can display static (e.g. ``Const``) and dynamic (e.g. ``Format``) content. To use dynamic data you have to set it. See :ref:`passing data <passing_data>`.
 
@@ -37,5 +38,6 @@ Also there are 2 general types:
     keyboard/index
     input/index
     media/index
+    link_preview/index
     hiding/index
     custom_widgets/index

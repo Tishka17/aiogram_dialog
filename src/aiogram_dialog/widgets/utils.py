@@ -1,22 +1,27 @@
-from typing import Callable, Dict, List, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
+from typing import Optional, Union
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
-from aiogram_dialog.api.internal import DataGetter
+from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget
+
 from .data.data_context import CompositeGetter, StaticGetter
 from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
+from .link_preview import LinkPreviewBase
 from .media import Media
 from .text import Format, Multi, Text
 from .widget_event import WidgetEventProcessor
 
-WidgetSrc = Union[str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput]
+WidgetSrc = Union[
+    str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput, LinkPreviewBase,
+]
 
-SingleGetterBase = Union[DataGetter, Dict]
+SingleGetterBase = Union[DataGetter, dict]
 GetterVariant = Union[
     None,
     SingleGetterBase,
-    List[SingleGetterBase],
-    Tuple[SingleGetterBase, ...],
+    list[SingleGetterBase],
+    tuple[SingleGetterBase, ...],
 ]
 
 
@@ -69,13 +74,32 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
     return Media()
 
 
+def ensure_link_preview(
+        widget: Union[LinkPreviewWidget, Sequence[LinkPreviewWidget]],
+) -> Optional[LinkPreviewWidget]:
+    if isinstance(widget, LinkPreviewWidget):
+        return widget
+    if len(widget) > 1:
+        raise ValueError("Only one link preview widget is supported")
+    if len(widget) == 1:
+        return widget[0]
+    return None
+
+
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
-) -> Tuple[Text, Keyboard, Union[BaseInput, None], Media]:
+) -> tuple[
+    Text,
+    Keyboard,
+    Optional[BaseInput],
+    Media,
+    Optional[LinkPreviewWidget],
+]:
     texts = []
     keyboards = []
     inputs = []
     media = []
+    link_preview = []
 
     for w in widgets:
         if isinstance(w, (str, Text)):
@@ -86,6 +110,8 @@ def ensure_widgets(
             inputs.append(ensure_input(w))
         elif isinstance(w, Media):
             media.append(ensure_media(w))
+        elif isinstance(w, LinkPreviewBase):
+            link_preview.append(ensure_link_preview(w))
         else:
             raise InvalidWidgetType(
                 f"Cannot add widget of type {type(w)}. "
@@ -97,6 +123,7 @@ def ensure_widgets(
         ensure_keyboard(keyboards),
         ensure_input(inputs),
         ensure_media(media),
+        ensure_link_preview(link_preview),
     )
 
 

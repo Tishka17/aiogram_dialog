@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -14,7 +14,9 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    ChatEvent, DialogUpdateEvent, MediaId,
+    ChatEvent,
+    DialogUpdateEvent,
+    MediaId,
 )
 from aiogram_dialog.api.internal import RawKeyboard
 
@@ -70,7 +72,7 @@ def join_reply_callback(text: str, callback_data: str) -> str:
 
 def split_reply_callback(
         data: Optional[str],
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str]]:
     if not data:
         return None, None
     text = data.rstrip(REPLY_CALLBACK_SYMBOLS)
@@ -103,15 +105,12 @@ def _transform_to_reply_button(
 
 
 def transform_to_reply_keyboard(
-        keyboard: List[List[Union[InlineKeyboardButton, KeyboardButton]]],
-) -> List[List[KeyboardButton]]:
-    new_kdb = []
-    for row in keyboard:
-        new_row = []
-        new_kdb.append(new_row)
-        for button in row:
-            new_row.append(_transform_to_reply_button(button))
-    return new_kdb
+        keyboard: list[list[Union[InlineKeyboardButton, KeyboardButton]]],
+) -> list[list[KeyboardButton]]:
+    return [
+        [_transform_to_reply_button(button) for button in row]
+        for row in keyboard
+    ]
 
 
 def get_chat(event: ChatEvent) -> Chat:
@@ -124,6 +123,8 @@ def get_chat(event: ChatEvent) -> Chat:
         if not event.message:
             return Chat(id=event.from_user.id, type="")
         return event.message.chat
+    else:
+        raise TypeError
 
 
 def is_chat_loaded(chat: Chat) -> bool:
@@ -186,7 +187,7 @@ def add_intent_id(keyboard: RawKeyboard, intent_id: str):
                 )
 
 
-def remove_intent_id(callback_data: str) -> Tuple[Optional[str], str]:
+def remove_intent_id(callback_data: str) -> tuple[Optional[str], str]:
     if CB_SEP in callback_data:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data

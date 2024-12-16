@@ -11,6 +11,7 @@ from bot_dialogs import states
 from bot_dialogs.calendar import calendar_dialog
 from bot_dialogs.counter import counter_dialog
 from bot_dialogs.layouts import layouts_dialog
+from bot_dialogs.link_preview import link_preview_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.mutltiwidget import multiwidget_dialog
 from bot_dialogs.reply_buttons import reply_kbd_dialog
@@ -18,7 +19,7 @@ from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
 
-from aiogram_dialog import DialogManager, setup_dialogs, ShowMode, StartMode
+from aiogram_dialog import DialogManager, ShowMode, StartMode, setup_dialogs
 from aiogram_dialog.api.exceptions import UnknownIntent
 
 
@@ -40,7 +41,7 @@ async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
             "Redirecting to main menu.",
         )
         if event.update.callback_query.message:
-            try:
+            try:  # noqa: SIM105
                 await event.update.callback_query.message.delete()
             except TelegramBadRequest:
                 pass  # whatever
@@ -68,6 +69,7 @@ dialog_router.include_routers(
     multiwidget_dialog,
     switch_dialog,
     reply_kbd_dialog,
+    link_preview_dialog,
 )
 
 
@@ -93,5 +95,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

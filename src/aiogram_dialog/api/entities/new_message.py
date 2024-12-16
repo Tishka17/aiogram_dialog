@@ -2,8 +2,13 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Union
 
+from aiogram.enums import ContentType
 from aiogram.types import (
-    Chat, ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup,
+    Chat,
+    ForceReply,
+    InlineKeyboardMarkup,
+    LinkPreviewOptions,
+    ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
 
@@ -27,6 +32,7 @@ class OldMessage:
     text: Union[str, None, UnknownText] = None
     has_reply_keyboard: bool = False
     business_connection_id: Optional[str] = None
+    content_type: Optional[ContentType] = None
 
 
 @dataclass
@@ -38,5 +44,5 @@ class NewMessage:
     reply_markup: Optional[MarkupVariant] = None
     parse_mode: Optional[str] = None
     show_mode: ShowMode = ShowMode.AUTO
-    disable_web_page_preview: Optional[bool] = None
     media: Optional[MediaAttachment] = None
+    link_preview_options: Optional[LinkPreviewOptions] = None

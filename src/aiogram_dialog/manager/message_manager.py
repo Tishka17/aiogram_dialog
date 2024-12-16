@@ -20,10 +20,15 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
-    MediaAttachment, MediaId, NewMessage, OldMessage, ShowMode,
+    MediaAttachment,
+    MediaId,
+    NewMessage,
+    OldMessage,
+    ShowMode,
 )
 from aiogram_dialog.api.protocols import (
-    MessageManagerProtocol, MessageNotModified,
+    MessageManagerProtocol,
+    MessageNotModified,
 )
 from aiogram_dialog.utils import get_media_id
 
@@ -66,6 +71,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         media_uniq_id=(media_id.file_unique_id if media_id else None),
         media_id=(media_id.file_id if media_id else None),
         business_connection_id=message_result.business_connection_id,
+        content_type=message_result.content_type,
     )
 
 
@@ -111,13 +117,25 @@ class MessageManager(MessageManagerProtocol):
             return False
         return isinstance(new_message.reply_markup, ReplyKeyboardMarkup)
 
+    def had_voice(self, old_message: OldMessage) -> bool:
+        return old_message.content_type == ContentType.VOICE
+
+    def need_voice(self, new_message: NewMessage) -> bool:
+        return (
+            new_message.media is not None
+            and new_message.media.type == ContentType.VOICE
+        )
+
     def _message_changed(
             self, new_message: NewMessage, old_message: OldMessage,
     ) -> bool:
-        if new_message.text != old_message.text:
-            return True
-        # we cannot actually compare reply keyboards
-        if new_message.reply_markup or old_message.has_reply_keyboard:
+        if (
+            (new_message.text != old_message.text) or
+            # we cannot actually compare reply keyboards
+            (new_message.reply_markup or old_message.has_reply_keyboard) or
+            # we do not know if link preview changed
+            new_message.link_preview_options
+        ):
             return True
 
         if self.had_media(old_message) != self.need_media(new_message):
@@ -132,11 +150,15 @@ class MessageManager(MessageManagerProtocol):
 
     def _can_edit(self, new_message: NewMessage,
                   old_message: OldMessage) -> bool:
-        # we cannot edit message if media appeared or removed
-        return (
-            self.had_media(old_message) == self.need_media(new_message) and
-            not self.had_reply_keyboard(old_message) and
-            not self.need_reply_keyboard(new_message)
+        # we cannot edit message if media removed
+        if self.had_media(old_message) and not self.need_media(new_message):
+            return False
+        # we cannot edit a message if there was voice
+        if self.had_voice(old_message) or self.need_voice(new_message):
+            return False
+        return not (
+            self.had_reply_keyboard(old_message)
+            or self.need_reply_keyboard(new_message)
         )
 
     async def show_message(
@@ -195,7 +217,7 @@ class MessageManager(MessageManagerProtocol):
             old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if show_mode is ShowMode.NO_UPDATE:
-            return
+            return None
         if show_mode is ShowMode.DELETE_AND_SEND and old_message:
             return await self.remove_message_safe(bot, old_message, None)
         return await self._remove_kbd(bot, old_message, None)
@@ -209,6 +231,7 @@ class MessageManager(MessageManagerProtocol):
         if self.had_reply_keyboard(old_message):
             if not self.need_reply_keyboard(new_message):
                 return await self.remove_reply_kbd(bot, old_message)
+            return None
         else:
             return await self.remove_inline_kbd(bot, old_message)
 
@@ -216,7 +239,7 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
-            return
+            return None
         logger.debug("remove_inline_kbd in %s", old_message.chat)
         try:
             return await bot.edit_message_reply_markup(
@@ -231,6 +254,8 @@ class MessageManager(MessageManagerProtocol):
                 pass
             elif "message to edit not found" in err.message:
                 pass
+            elif "MESSAGE_ID_INVALID" in err.message:
+                pass
             else:
                 raise err
 
@@ -238,7 +263,7 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
-            return
+            return None
         logger.debug("remove_reply_kbd in %s", old_message.chat)
         return await self.send_text(
             bot=bot,
@@ -293,7 +318,10 @@ class MessageManager(MessageManagerProtocol):
             self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
         if new_message.media:
-            if new_message.media.file_id == old_message.media_id:
+            if (
+                old_message.media_id is not None and
+                new_message.media.file_id == old_message.media_id
+            ):
                 return await self.edit_caption(bot, new_message, old_message)
             return await self.edit_media(bot, new_message, old_message)
         else:
@@ -323,7 +351,7 @@ class MessageManager(MessageManagerProtocol):
             text=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            disable_web_page_preview=new_message.disable_web_page_preview,
+            link_preview_options=new_message.link_preview_options,
         )
 
     async def edit_media(
@@ -338,7 +366,6 @@ class MessageManager(MessageManagerProtocol):
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            disable_web_page_preview=new_message.disable_web_page_preview,
             media=await self.get_media_source(new_message.media, bot),
             **new_message.media.kwargs,
         )
@@ -367,9 +394,9 @@ class MessageManager(MessageManagerProtocol):
             text=new_message.text,
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
-            disable_web_page_preview=new_message.disable_web_page_preview,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            link_preview_options=new_message.link_preview_options,
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:

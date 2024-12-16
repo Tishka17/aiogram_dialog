@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable, Dict, Optional, Union
+from collections.abc import Awaitable, Callable
+from typing import Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -9,9 +10,10 @@ from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
+
 from .base import Keyboard
 
 OnStateChanged = Callable[
@@ -41,7 +43,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.on_state_changed = ensure_event_processor(on_state_changed)
 
     async def _render_keyboard(
-            self, data: Dict, manager: DialogManager,
+            self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
@@ -70,7 +72,7 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(
-            self, data: Dict, case: Case, manager: DialogManager,
+            self, data: dict, case: Case, manager: DialogManager,
     ) -> bool:
         del data  # unused
         del case  # unused

@@ -16,7 +16,7 @@ class Updater:
 
     async def notify(self, bot: Bot, update: DialogUpdate) -> None:
         def callback():
-            asyncio.create_task(
+            asyncio.create_task(  # noqa: RUF006
                 self._process_update(bot, update),
             )
 

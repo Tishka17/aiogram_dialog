@@ -1,17 +1,20 @@
-from typing import Dict
-
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import (
-    Calendar, CalendarScope, CalendarUserConfig,
+    Calendar,
+    CalendarScope,
+    CalendarUserConfig,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
-    CalendarDaysView, CalendarMonthView, CalendarScopeView, CalendarYearsView,
+    CalendarDaysView,
+    CalendarMonthView,
+    CalendarScopeView,
+    CalendarYearsView,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
 
 class CustomCalendar(Calendar):
-    def _init_views(self) -> Dict[CalendarScope, CalendarScopeView]:
+    def _init_views(self) -> dict[CalendarScope, CalendarScopeView]:
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data, self.config,
@@ -28,7 +31,7 @@ class CustomCalendar(Calendar):
 
     async def _get_user_config(
             self,
-            data: Dict,
+            data: dict,
             manager: DialogManager,
     ) -> CalendarUserConfig:
         return CalendarUserConfig(

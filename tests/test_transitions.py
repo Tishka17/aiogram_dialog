@@ -5,7 +5,11 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
 from aiogram_dialog import (
-    Dialog, DialogManager, setup_dialogs, StartMode, Window,
+    Dialog,
+    DialogManager,
+    StartMode,
+    Window,
+    setup_dialogs,
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
@@ -27,17 +31,17 @@ async def start(message: Message, dialog_manager: DialogManager):
     await dialog_manager.start(MainSG.start, mode=StartMode.RESET_STACK)
 
 
-@pytest.fixture()
+@pytest.fixture
 def message_manager() -> MockMessageManager:
     return MockMessageManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(dp) -> BotClient:
     return BotClient(dp)
 
 
-@pytest.fixture()
+@pytest.fixture
 def dp(message_manager: MockMessageManager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.message.register(start, CommandStart())

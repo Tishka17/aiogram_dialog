@@ -52,3 +52,11 @@ class Switch(StatesGroup):
     MAIN = State()
     INPUT = State()
     LAST = State()
+
+
+class LinkPreview(StatesGroup):
+    MAIN = State()
+    IS_DISABLED = State()
+    SMALL_MEDIA = State()
+    LARGE_MEDIA = State()
+    SHOW_ABOVE_TEXT = State()

@@ -33,7 +33,7 @@ def about_dialog():
                 "<b>Author:</b> {{metadata['Author-email']}}\n"
                 "\n"
                 "{% for name, url in urls%}"
-                "<b>{{name}}:</b> <a href=\"{{url}}\">{{url}}</a>\n"
+                '<b>{{name}}:</b> <a href="{{url}}">{{url}}</a>\n'
                 "{% endfor %}"
                 "",
             ),

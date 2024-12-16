@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Awaitable, Callable, Optional, Sequence, Union
+from collections.abc import Awaitable, Callable, Sequence
+from typing import Any, Optional, Union
 
 from aiogram import F
 from aiogram.dispatcher.event.handler import FilterObject
@@ -7,12 +8,13 @@ from aiogram.types import ContentType, Message
 
 from aiogram_dialog.api.internal import InputWidget
 from aiogram_dialog.api.protocols import (
-    DialogManager, DialogProtocol,
+    DialogManager,
+    DialogProtocol,
 )
 from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.widget_event import (
-    ensure_event_processor,
     WidgetEventProcessor,
+    ensure_event_processor,
 )
 
 MessageHandlerFunc = Callable[
@@ -44,9 +46,8 @@ class MessageInput(BaseInput):
         if isinstance(content_types, str):
             if content_types != ContentType.ANY:
                 filters.append(FilterObject(F.content_type == content_types))
-        else:
-            if ContentType.ANY not in content_types:
-                filters.append(FilterObject(F.content_type.in_(content_types)))
+        elif ContentType.ANY not in content_types:
+            filters.append(FilterObject(F.content_type.in_(content_types)))
         if filter is not None:
             filters.append(FilterObject(filter))
         self.filters = filters

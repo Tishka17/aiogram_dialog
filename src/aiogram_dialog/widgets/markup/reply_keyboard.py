@@ -4,7 +4,9 @@ from aiogram.types import ReplyKeyboardMarkup
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal.widgets import (
-    MarkupFactory, MarkupVariant, RawKeyboard,
+    MarkupFactory,
+    MarkupVariant,
+    RawKeyboard,
 )
 from aiogram_dialog.utils import add_intent_id, transform_to_reply_keyboard
 from aiogram_dialog.widgets.text import Text
