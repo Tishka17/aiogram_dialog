@@ -42,6 +42,9 @@ __all__ = [
     "ManagedListGroup",
     "StubScroll",
     "CopyText",
+    "RequestChat",
+    "RequestUser",
+    "RequestUsers",
 ]
 
 from .base import Keyboard
@@ -67,7 +70,13 @@ from .pager import (
     PrevPage,
     SwitchPage,
 )
-from .request import RequestContact, RequestLocation
+from .request import (
+    RequestChat,
+    RequestContact,
+    RequestLocation,
+    RequestUser,
+    RequestUsers,
+)
 from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiselect,
