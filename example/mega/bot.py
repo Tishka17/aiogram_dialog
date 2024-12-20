@@ -14,7 +14,7 @@ from bot_dialogs.layouts import layouts_dialog
 from bot_dialogs.link_preview import link_preview_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.mutltiwidget import multiwidget_dialog
-from bot_dialogs.reply_buttons import reply_kbd_dialog
+from bot_dialogs.reply_buttons import reply_kbd_dialog, reply_kbd_router
 from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
@@ -60,6 +60,7 @@ async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
 
 dialog_router = Router()
 dialog_router.include_routers(
+    reply_kbd_router,
     layouts_dialog,
     scroll_dialog,
     main_dialog,
