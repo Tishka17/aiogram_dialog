@@ -34,7 +34,7 @@ For more details see [documentation](https://aiogram-dialog.readthedocs.io) and 
 * Stateful widgets: `Checkbox`, `Multiselect`, `Counter`, `TextInput`. They record user actions and allow you to retrieve this data later. 
 * Multiple buttons layouts including simple grouping (`Group`, `Column`), page scrolling (`ScrollingGroup`), repeating of same buttons for list of data (`ListGroup`). 
 * Sending media (like photo or video) with fileid caching and handling switching to/from message with no media. 
-* Different rules of transitions between windows/dialogs like keeping only one dialog on top of stack or force sending enw message instead of updating one. 
+* Different rules of transitions between windows/dialogs like keeping only one dialog on top of stack or force sending new message instead of updating one. 
 * Offline HTML-preview for messages and transitions diagram. They can be used to check all states without emulating real use cases or exported for demonstration purposes. 
 
 
