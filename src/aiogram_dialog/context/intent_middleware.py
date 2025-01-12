@@ -385,11 +385,11 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
-        event_context = event_context_from_callback(event)
-        data[EVENT_CONTEXT_KEY] = event_context
-
         if "event_chat" not in data:
             return await handler(event, data)
+
+        event_context = event_context_from_callback(event)
+        data[EVENT_CONTEXT_KEY] = event_context
         original_data = event.data
         if event.data:
             intent_id, callback_data = remove_intent_id(event.data)

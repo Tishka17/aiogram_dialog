@@ -4,6 +4,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.widgets.kbd import Cancel, Keyboard, Start
+from aiogram_dialog.widgets.link_preview import LinkPreview
 from aiogram_dialog.widgets.text import Const, Jinja, Text
 from aiogram_dialog.window import Window
 
@@ -37,12 +38,12 @@ def about_dialog():
                 "{% endfor %}"
                 "",
             ),
+            LinkPreview(is_disabled=True),
             Cancel(Const("Ok")),
             getter=metadata_getter,
             preview_data=metadata_getter,
             state=AiogramDialogStates.ABOUT,
             parse_mode="html",
-            disable_web_page_preview=True,
         ),
     )
 
