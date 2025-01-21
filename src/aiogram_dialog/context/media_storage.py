@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 from aiogram.types import ContentType
@@ -19,7 +20,15 @@ class MediaIdStorage(MediaIdStorageProtocol):
     ) -> Optional[MediaId]:
         if not path and not url:
             return None
-        return self.cache.get((path, url, type))
+        return self.cache.get((path, url, type, self._get_file_mtime(path)))
+
+    def _get_file_mtime(self, path: Optional[str]) -> Optional[float]:
+        if not path:
+            return None
+        p = Path(path)
+        if p.exists():
+            return None
+        return Path(path).stat().st_mtime
 
     async def save_media_id(
             self,
