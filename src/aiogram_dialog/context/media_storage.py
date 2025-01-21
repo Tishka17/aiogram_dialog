@@ -1,4 +1,4 @@
-from pathlib import Path
+import os
 from typing import Optional
 
 from aiogram.types import ContentType
@@ -20,15 +20,19 @@ class MediaIdStorage(MediaIdStorageProtocol):
     ) -> Optional[MediaId]:
         if not path and not url:
             return None
-        return self.cache.get((path, url, type, self._get_file_mtime(path)))
+        cached = self.cache.get((path, url, type))
+        if cached[1] is not None:
+            mtime = self._get_file_mtime(path)
+            if mtime is not None and mtime > cached[1]:
+                return None
+        return cached[0]
 
     def _get_file_mtime(self, path: Optional[str]) -> Optional[float]:
         if not path:
             return None
-        p = Path(path)
-        if not p.exists():
+        if not os.path.exists(path):  # noqa: PTH110
             return None
-        return Path(path).stat().st_mtime
+        return os.path.getmtime(path)  # noqa: PTH204
 
     async def save_media_id(
             self,
@@ -39,4 +43,4 @@ class MediaIdStorage(MediaIdStorageProtocol):
     ) -> None:
         if not path and not url:
             return
-        self.cache[(path, url, type, self._get_file_mtime(path))] = media_id
+        self.cache[(path, url, type)] = (media_id, self._get_file_mtime(path))
