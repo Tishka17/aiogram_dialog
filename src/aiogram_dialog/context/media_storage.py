@@ -26,7 +26,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
         if not path:
             return None
         p = Path(path)
-        if p.exists():
+        if not p.exists():
             return None
         return Path(path).stat().st_mtime
 
