@@ -39,4 +39,4 @@ class MediaIdStorage(MediaIdStorageProtocol):
     ) -> None:
         if not path and not url:
             return
-        self.cache[(path, url, type)] = media_id
+        self.cache[(path, url, type, self._get_file_mtime(path))] = media_id
