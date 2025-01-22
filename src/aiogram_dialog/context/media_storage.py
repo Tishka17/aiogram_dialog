@@ -25,7 +25,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
             return None
         if cached[1] is not None:
             mtime = self._get_file_mtime(path)
-            if mtime is not None and mtime > cached[1]:
+            if mtime is not None and mtime != cached[1]:
                 return None
         return cached[0]
 
