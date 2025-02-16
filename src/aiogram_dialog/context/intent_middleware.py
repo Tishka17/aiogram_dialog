@@ -23,6 +23,7 @@ from aiogram_dialog.api.entities import (
     DialogUpdateEvent,
     EventContext,
     Stack,
+    DialogUpdate,
 )
 from aiogram_dialog.api.exceptions import (
     InvalidStackIdError,
@@ -129,6 +130,8 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_chat_join(event.update.chat_join_request)
     elif event.update.callback_query:
         return event_context_from_callback(event.update.callback_query)
+    elif isinstance(event.update, DialogUpdate) and event.update.aiogd_update:
+        return event_context_from_aiogd(event.update.aiogd_update)
     raise ValueError("Unsupported event type in ErrorEvent.update")
 
 
