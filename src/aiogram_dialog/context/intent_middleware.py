@@ -20,10 +20,10 @@ from aiogram_dialog.api.entities import (
     EVENT_CONTEXT_KEY,
     ChatEvent,
     Context,
+    DialogUpdate,
     DialogUpdateEvent,
     EventContext,
     Stack,
-    DialogUpdate,
 )
 from aiogram_dialog.api.exceptions import (
     InvalidStackIdError,
