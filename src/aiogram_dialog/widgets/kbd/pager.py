@@ -268,27 +268,6 @@ class NumberedPager(BasePager):
         buttons = []
         pages = data["pages"]
         current_page = data["current_page"]
-        for target_page in range(pages):
-            button_data = await self._prepare_page_data(
-                data=data, target_page=target_page,
-            )
-            if target_page == current_page:
-                text_widget = self.current_page_text
-            else:
-                text_widget = self.page_text
-            text = await text_widget.render_text(button_data, manager)
-            buttons.append(InlineKeyboardButton(
-                text=text,
-                callback_data=self._item_callback_data(target_page),
-            ))
-        return [buttons]
-
-    async def _render_keyboard(
-            self, data: PagerData, manager: DialogManager,
-    ) -> RawKeyboard:
-        buttons = []
-        pages = data["pages"]
-        current_page = data["current_page"]
         final_buttons = []
         for target_page in range(pages):
             if len(buttons) >= DEFAULT_PAGER_ROW_LENGTH:
