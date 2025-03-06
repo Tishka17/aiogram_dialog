@@ -44,6 +44,7 @@ DEFAULT_CURRENT_PAGE_TEXT = Format("[ {current_page1} ]")
 
 DEFAULT_PAGER_ROW_LENGTH = 8
 
+
 class BasePager(Keyboard, ABC):
     def __init__(
             self,
