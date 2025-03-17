@@ -3,5 +3,3 @@ __pycache__
 /build
 .idea/
 /dist
-.venv/
-.vscode/

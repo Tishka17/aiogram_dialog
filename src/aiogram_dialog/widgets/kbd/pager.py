@@ -225,11 +225,13 @@ class NumberedPager(BasePager):
             id: str = DEFAULT_PAGER_ID,
             page_text: Text = DEFAULT_PAGE_TEXT,
             current_page_text: Text = DEFAULT_CURRENT_PAGE_TEXT,
+            length: int = DEFAULT_PAGER_ROW_LENGTH,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, scroll=scroll, when=when)
         self.page_text = page_text
         self.current_page_text = current_page_text
+        self.length = length
 
     async def _prepare_data(
             self, data: dict,
@@ -271,7 +273,7 @@ class NumberedPager(BasePager):
         current_page = data["current_page"]
         final_buttons = []
         for target_page in range(pages):
-            if len(buttons) >= DEFAULT_PAGER_ROW_LENGTH:
+            if len(buttons) >= self.length:
                 final_buttons.append(buttons[:])
                 buttons = []
             button_data = await self._prepare_page_data(
