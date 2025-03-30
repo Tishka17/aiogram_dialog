@@ -185,6 +185,7 @@ class Dialog(Router, DialogProtocol):
     def _register_handlers(self) -> None:
         self.callback_query.register(self._callback_handler)
         self.message.register(self._message_handler)
+        self.business_message.register(self._message_handler)
 
     def states_group(self) -> type[StatesGroup]:
         return self._states_group
