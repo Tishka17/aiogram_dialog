@@ -20,6 +20,7 @@ from aiogram_dialog.api.entities import (
     EVENT_CONTEXT_KEY,
     ChatEvent,
     Context,
+    DialogUpdate,
     DialogUpdateEvent,
     EventContext,
     Stack,
@@ -129,6 +130,8 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
         return event_context_from_chat_join(event.update.chat_join_request)
     elif event.update.callback_query:
         return event_context_from_callback(event.update.callback_query)
+    elif isinstance(event.update, DialogUpdate) and event.update.aiogd_update:
+        return event_context_from_aiogd(event.update.aiogd_update)
     raise ValueError("Unsupported event type in ErrorEvent.update")
 
 
@@ -385,11 +388,11 @@ class IntentMiddlewareFactory:
             event: CallbackQuery,
             data: dict,
     ):
-        event_context = event_context_from_callback(event)
-        data[EVENT_CONTEXT_KEY] = event_context
-
         if "event_chat" not in data:
             return await handler(event, data)
+
+        event_context = event_context_from_callback(event)
+        data[EVENT_CONTEXT_KEY] = event_context
         original_data = event.data
         if event.data:
             intent_id, callback_data = remove_intent_id(event.data)
