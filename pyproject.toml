@@ -46,8 +46,3 @@ tools = [
 
 [project.scripts]
 aiogram-dialog-preview = "aiogram_dialog.tools.web_preview:main"
-
-[tool.coverage.run]
-branch = true
-relative_files = true
-include = ["src/**"]
