@@ -15,6 +15,7 @@ class Predicate(Protocol):
             data: dict,
             widget: Whenable,
             dialog_manager: DialogManager,
+            /,
     ) -> bool:
         """
         Check if widget should be shown.
