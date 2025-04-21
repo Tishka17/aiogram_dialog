@@ -31,6 +31,7 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
+from magic_filter import F
 
 
 class DialogSG(StatesGroup):
@@ -76,6 +77,8 @@ Id soluta voluptates a dolor amet est tempore modi et obcaecati dolor aut quae o
 async def product_getter(**_kwargs):
     return {
         "products": [(f"Product {i}", i) for i in range(1, 30)],
+        "show_hidden_prev_page": False,
+        "show_hidden_next_page": False,
     }
 
 
@@ -126,7 +129,7 @@ dialog = Dialog(
         Const("Scrolling group with external paging controls"),
         NumberedPager(
             scroll="scroll_no_pager",
-            page_text=Format("{target_page1}\uFE0F\u20E3"),
+            page_text=Format("{target_page1}\ufe0f\u20e3"),
             current_page_text=Format("{current_page1}"),
         ),
         NumberedPager(
@@ -146,21 +149,38 @@ dialog = Dialog(
             id="scroll_no_pager",
         ),
         Row(
-
             FirstPage(
-                scroll="scroll_no_pager", text=Format("⏮️ {target_page1}"),
+                scroll="scroll_no_pager",
+                text=Format("⏮️ {target_page1}"),
             ),
             PrevPage(
-                scroll="scroll_no_pager", text=Format("◀️"),
+                scroll="scroll_no_pager",
+                text=Format("◀️"),
             ),
             CurrentPage(
-                scroll="scroll_no_pager", text=Format("{current_page1}"),
+                scroll="scroll_no_pager",
+                text=Format("{current_page1}"),
             ),
             NextPage(
-                scroll="scroll_no_pager", text=Format("▶️"),
+                scroll="scroll_no_pager",
+                text=Format("▶️"),
             ),
             LastPage(
-                scroll="scroll_no_pager", text=Format("{target_page1} ⏭️"),
+                scroll="scroll_no_pager",
+                text=Format("{target_page1} ⏭️"),
+            ),
+        ),
+        # example of using data from getter in pager widgets
+        Row(
+            PrevPage(
+                text=Const("Hidden prev page"),
+                scroll="scroll_no_pager",
+                when=F["data"]["show_hidden_prev_page"],
+            ),
+            NextPage(
+                text=Const("Hidden next page"),
+                scroll="scroll_no_pager",
+                when=F["data"]["show_hidden_next_page"],
             ),
         ),
         Row(
