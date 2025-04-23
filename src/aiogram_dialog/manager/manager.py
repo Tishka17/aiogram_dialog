@@ -5,7 +5,6 @@ from typing import Any, Optional, Union, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
