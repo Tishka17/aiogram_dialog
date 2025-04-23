@@ -1,9 +1,11 @@
+import sys
 from copy import deepcopy
 from logging import getLogger
 from typing import Any, Optional, Union, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
@@ -376,6 +378,10 @@ class ManagerImpl(DialogManager):
             # nothing changed so nothing to save
             # we do not have the actual version of message
             logger.debug("MessageNotModified, not storing ids")
+        except TelegramBadRequest as e:
+            # execute only on version >= 3.11
+            if sys.version_info >= (3, 11):
+                e.add_note(f"State: {self.current_context().state}")
         else:
             self._save_last_message(sent_message)
             if new_message.media:
