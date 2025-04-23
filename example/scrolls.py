@@ -9,6 +9,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
+from magic_filter import F
 
 from aiogram_dialog import (
     Dialog,
@@ -31,7 +32,6 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
-from magic_filter import F
 
 
 class DialogSG(StatesGroup):
