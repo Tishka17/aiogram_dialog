@@ -77,3 +77,23 @@ Input - pass via ``dialog_manager.start(..., data="here")``, read using ``dialog
 Output - pass via ``dialog_manager.done(result="here")``, read as a parameter to ``on_process_result`` of parent dialog
 
 More details: :ref:`start-dialog`, :ref:`close-dialog`.
+
+
+How can I can use "when" condition in pager widget?
+========================================================
+
+Pager widgets like ListGroup, PrevPage, NextPage, etc. use separate data, unlike other widgets like Button, Select.
+To use pass some information from the original data, which our getter returns - you need to use magic_filter to first access data and then the key of the desired data.
+For example
+
+.. code-block:: python
+    from aiogram_dialog.widgets.kbd import NextPage
+    from aiogram_dialog.widgets.text import Const
+    from magic_filter import F
+
+
+    next_page = NextPage(
+            text=Const("Next page"),
+            scroll="some_scroll",
+            when=F["data"]["show_next_page"],
+        )
