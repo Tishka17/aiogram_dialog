@@ -378,7 +378,7 @@ class ManagerImpl(DialogManager):
             # nothing changed so nothing to save
             # we do not have the actual version of message
             logger.debug("MessageNotModified, not storing ids")
-        except TelegramBadRequest as e:
+        except Exception as e:
             # execute only on version >= 3.11
             if sys.version_info >= (3, 11):
                 e.add_note(f"State: {self.current_context().state}")
