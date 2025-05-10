@@ -395,7 +395,8 @@ class ManagerImpl(DialogManager):
         except Exception as e:
             # execute only on version >= 3.11
             if sys.version_info >= (3, 11):
-                e.add_note(f"aiogram-dialog state: {self.current_context().state}")
+                current_state = self.current_context().state
+                e.add_note(f"aiogram-dialog state: {current_state}")
             raise
 
 
