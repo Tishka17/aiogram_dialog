@@ -3,7 +3,7 @@ from logging import getLogger
 from typing import Any, Optional, Union, cast
 
 from aiogram import Router
-from aiogram.enums import ChatType
+from aiogram.enums import ChatType, ContentType
 from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
@@ -74,7 +74,7 @@ class ManagerImpl(DialogManager):
             media_id_storage: MediaIdStorageProtocol,
             registry: DialogRegistryProtocol,
             router: Router,
-            data: dict,
+            data: dict[str, Any],
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -100,12 +100,12 @@ class ManagerImpl(DialogManager):
         return self._event
 
     @property
-    def middleware_data(self) -> dict:
+    def middleware_data(self) -> dict[str, Any]:
         """Middleware data."""
         return self._data
 
     @property
-    def dialog_data(self) -> dict:
+    def dialog_data(self) -> dict[str, Any]:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -114,7 +114,7 @@ class ManagerImpl(DialogManager):
         """Start data for current context."""
         return self.current_context().start_data
 
-    def check_disabled(self):
+    def check_disabled(self) -> None:
         if self.disabled:
             raise IncorrectBackgroundError(
                 "Detected background access to dialog manager. "
@@ -122,7 +122,7 @@ class ManagerImpl(DialogManager):
                 "method to access methods from background tasks",
             )
 
-    async def load_data(self) -> dict:
+    async def load_data(self) -> dict[str, Any]:
         context = self.current_context()
         return {
             "dialog_data": context.dialog_data,
@@ -144,7 +144,7 @@ class ManagerImpl(DialogManager):
     def current_context(self) -> Context:
         self.check_disabled()
         context = self._current_context_unsafe()
-        if not context:
+        if context is None:
             logger.warning(
                 "Trying to access current context, while no dialog is opened",
             )
@@ -152,7 +152,7 @@ class ManagerImpl(DialogManager):
         return context
 
     def _current_context_unsafe(self) -> Optional[Context]:
-        return self._data[CONTEXT_KEY]
+        return cast(Optional[Context], self._data.get(CONTEXT_KEY))
 
     def has_context(self) -> bool:
         self.check_disabled()
@@ -160,10 +160,10 @@ class ManagerImpl(DialogManager):
 
     def current_stack(self) -> Stack:
         self.check_disabled()
-        return self._data[STACK_KEY]
+        return cast(Stack, self._data[STACK_KEY])
 
     def storage(self) -> StorageProxy:
-        return self._data[STORAGE_KEY]
+        return cast(StorageProxy, self._data[STORAGE_KEY])
 
     async def _remove_kbd(self) -> None:
         if self.current_stack().last_message_id is None:
@@ -259,7 +259,9 @@ class ManagerImpl(DialogManager):
         self._data[CONTEXT_KEY] = None
 
     async def _start_new_stack(
-            self, state: State, data: Data,
+            self,
+            state: State,
+            data: Data,
             access_settings: Optional[AccessSettings],
     ) -> None:
         stack = Stack()
@@ -271,7 +273,9 @@ class ManagerImpl(DialogManager):
         )
 
     async def _start_normal(
-            self, state: State, data: Data,
+            self,
+            state: State,
+            data: Data,
             access_settings: Optional[AccessSettings],
     ) -> None:
         stack = self.current_stack()
@@ -305,7 +309,7 @@ class ManagerImpl(DialogManager):
         self,
         old_dialog: Optional[DialogProtocol],
         new_dialog: DialogProtocol,
-    ):
+    ) -> None:
         if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
             await self.reset_stack(remove_keyboard=False)
         if new_dialog.launch_mode is LaunchMode.SINGLE_TOP:  # noqa: SIM102
@@ -384,14 +388,14 @@ class ManagerImpl(DialogManager):
                     url=new_message.media.url,
                     type=new_message.media.type,
                     media_id=MediaId(
-                        sent_message.media_id,
+                        cast(str, sent_message.media_id),
                         sent_message.media_uniq_id,
                     ),
                 )
         if isinstance(self.event, Message):
             stack.last_income_media_group_id = self.event.media_group_id
 
-    async def _fix_cached_media_id(self, new_message: NewMessage):
+    async def _fix_cached_media_id(self, new_message: NewMessage) -> None:
         if not new_message.media or new_message.media.file_id:
             return
         new_message.media.file_id = await self.media_id_storage.get_media_id(
@@ -400,7 +404,7 @@ class ManagerImpl(DialogManager):
             type=new_message.media.type,
         )
 
-    def is_event_simulated(self):
+    def is_event_simulated(self) -> bool:
         return bool(self.middleware_data.get(EVENT_SIMULATED))
 
     def _get_message_from_callback(
@@ -421,7 +425,7 @@ class ManagerImpl(DialogManager):
                 chat=event_context.chat,
                 message_id=current_message.message_id,
                 business_connection_id=event_context.business_connection_id,
-                content_type=current_message.content_type,
+                content_type=cast(ContentType, current_message.content_type),
             )
         elif not stack or not stack.last_message_id:
             return None
@@ -491,13 +495,13 @@ class ManagerImpl(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict[str, Any],
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id: str) -> Optional[Any]:
         widget = self.dialog().find(widget_id)
         if not widget:
             return None
@@ -505,7 +509,7 @@ class ManagerImpl(DialogManager):
 
     def _get_fake_user(self, user_id: Optional[int] = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
-        current_user = self.event.from_user
+        current_user = cast(User, self.event.from_user)
         if user_id in (None, current_user.id):
             return current_user
         return FakeUser(id=user_id, is_bot=False, first_name="")
@@ -513,7 +517,7 @@ class ManagerImpl(DialogManager):
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
         if "event_chat" in self._data:
-            current_chat = self._data["event_chat"]
+            current_chat: Chat = self._data["event_chat"]
             if chat_id in (None, current_chat.id):
                 return current_chat
         elif chat_id is None:

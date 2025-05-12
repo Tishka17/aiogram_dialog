@@ -1,9 +1,9 @@
 from collections.abc import Awaitable, Callable
-from typing import Any, Union
+from typing import Any, Final, Union, cast
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from aiogram.types import TelegramObject, Update
+from aiogram.types import TelegramObject
 
 from aiogram_dialog.api.entities import ChatEvent, DialogUpdateEvent
 from aiogram_dialog.api.internal import STORAGE_KEY, DialogManagerFactory
@@ -13,8 +13,8 @@ from aiogram_dialog.api.protocols import (
     DialogRegistryProtocol,
 )
 
-MANAGER_KEY = "dialog_manager"
-BG_FACTORY_KEY = "dialog_bg_factory"
+MANAGER_KEY: Final = "dialog_manager"
+BG_FACTORY_KEY: Final = "dialog_bg_factory"
 
 
 class ManagerMiddleware(BaseMiddleware):
@@ -24,7 +24,6 @@ class ManagerMiddleware(BaseMiddleware):
             registry: DialogRegistryProtocol,
             router: Router,
     ) -> None:
-        super().__init__()
         self.dialog_manager_factory = dialog_manager_factory
         self.registry = registry
         self.router = router
@@ -37,15 +36,15 @@ class ManagerMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdateEvent], dict[str, Any]],
+                [TelegramObject, dict[str, Any]],
                 Awaitable[Any],
             ],
-            event: ChatEvent,
+            event: TelegramObject,
             data: dict[str, Any],
     ) -> Any:
         if self._is_event_supported(event, data):
             data[MANAGER_KEY] = self.dialog_manager_factory(
-                event=event,
+                event=cast(ChatEvent, event),
                 data=data,
                 registry=self.registry,
                 router=self.router,
@@ -64,7 +63,6 @@ class BgFactoryMiddleware(BaseMiddleware):
             self,
             bg_manager_factory: BgManagerFactory,
     ) -> None:
-        super().__init__()
         self.bg_manager_factory = bg_manager_factory
 
     async def __call__(

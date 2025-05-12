@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Optional, Union
+from typing import Final, Optional, Union, cast
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
@@ -7,6 +7,7 @@ from aiogram.types import (
     CallbackQuery,
     ContentType,
     FSInputFile,
+    InlineKeyboardMarkup,
     InputFile,
     InputMediaAnimation,
     InputMediaAudio,
@@ -34,7 +35,7 @@ from aiogram_dialog.utils import get_media_id
 
 logger = getLogger(__name__)
 
-SEND_METHODS = {
+SEND_METHODS: Final = {
     ContentType.ANIMATION: "send_animation",
     ContentType.AUDIO: "send_audio",
     ContentType.DOCUMENT: "send_document",
@@ -46,7 +47,7 @@ SEND_METHODS = {
     ContentType.VOICE: "send_voice",
 }
 
-INPUT_MEDIA_TYPES = {
+INPUT_MEDIA_TYPES: Final = {
     ContentType.ANIMATION: InputMediaAnimation,
     ContentType.DOCUMENT: InputMediaDocument,
     ContentType.AUDIO: InputMediaAudio,
@@ -54,7 +55,7 @@ INPUT_MEDIA_TYPES = {
     ContentType.VIDEO: InputMediaVideo,
 }
 
-_INVALID_QUERY_ID_MSG = (
+_INVALID_QUERY_ID_MSG: Final = (
     "query is too old and response timeout expired or query id is invalid"
 )
 
@@ -68,10 +69,10 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
             sent_message.reply_markup, ReplyKeyboardMarkup,
         ),
         text=message_result.text,
-        media_uniq_id=(media_id.file_unique_id if media_id else None),
-        media_id=(media_id.file_id if media_id else None),
+        media_uniq_id=media_id.file_unique_id if media_id else None,
+        media_id=media_id.file_id if media_id else None,
         business_connection_id=message_result.business_connection_id,
-        content_type=message_result.content_type,
+        content_type=ContentType(message_result.content_type),
     )
 
 
@@ -98,8 +99,10 @@ class MessageManager(MessageManagerProtocol):
             if media.use_pipe:
                 return URLInputFile(media.url, bot=bot)
             return media.url
-        else:
+        if media.path:
             return FSInputFile(media.path)
+        else:
+            raise ValueError("Not found media source")
 
     def had_media(self, old_message: OldMessage) -> bool:
         return old_message.media_id is not None
@@ -142,8 +145,16 @@ class MessageManager(MessageManagerProtocol):
             return True
         if not self.need_media(new_message):
             return False
-        old_media_id = MediaId(old_message.media_id, old_message.media_uniq_id)
-        if new_message.media.file_id != old_media_id:
+        new_media_id = cast(
+            MediaAttachment,
+            new_message.media,
+        ).file_id
+        old_media_id = MediaId(
+            cast(str, old_message.media_id),
+            old_message.media_uniq_id,
+        )
+
+        if new_media_id != old_media_id:
             return True
 
         return False
@@ -160,6 +171,14 @@ class MessageManager(MessageManagerProtocol):
             self.had_reply_keyboard(old_message)
             or self.need_reply_keyboard(new_message)
         )
+
+    def _get_inline_keyboard_markup(
+            self,
+            new_message: NewMessage,
+    ) -> InlineKeyboardMarkup:
+        if isinstance(new_message.reply_markup, InlineKeyboardMarkup):
+            return new_message.reply_markup
+        raise ValueError("Reply markup variant not supported")
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
@@ -219,7 +238,8 @@ class MessageManager(MessageManagerProtocol):
         if show_mode is ShowMode.NO_UPDATE:
             return None
         if show_mode is ShowMode.DELETE_AND_SEND and old_message:
-            return await self.remove_message_safe(bot, old_message, None)
+            await self.remove_message_safe(bot, old_message, None)
+            return None
         return await self._remove_kbd(bot, old_message, None)
 
     async def _remove_kbd(
@@ -236,26 +256,29 @@ class MessageManager(MessageManagerProtocol):
             return await self.remove_inline_kbd(bot, old_message)
 
     async def remove_inline_kbd(
-            self, bot: Bot, old_message: Optional[OldMessage],
+            self,
+            bot: Bot,
+            old_message: Optional[OldMessage],
     ) -> Optional[Message]:
         if not old_message:
             return None
         logger.debug("remove_inline_kbd in %s", old_message.chat)
         try:
-            return await bot.edit_message_reply_markup(
+            result = await bot.edit_message_reply_markup(
                 message_id=old_message.message_id,
                 chat_id=old_message.chat.id,
                 business_connection_id=old_message.business_connection_id,
             )
+            return cast(Message, result)
         except TelegramBadRequest as err:
             if "message is not modified" in err.message:
-                pass  # nothing to remove
+                return None  # nothing to remove
             elif "message can't be edited" in err.message:
-                pass
+                return None
             elif "message to edit not found" in err.message:
-                pass
+                return None
             elif "MESSAGE_ID_INVALID" in err.message:
-                pass
+                return None
             else:
                 raise err
 
@@ -328,53 +351,66 @@ class MessageManager(MessageManagerProtocol):
             return await self.edit_text(bot, new_message, old_message)
 
     async def edit_caption(
-            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
+            self,
+            bot: Bot,
+            new_message: NewMessage,
+            old_message: OldMessage,
     ) -> Message:
         logger.debug("edit_caption to %s", new_message.chat)
-        return await bot.edit_message_caption(
+        result = await bot.edit_message_caption(
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
             caption=new_message.text,
-            reply_markup=new_message.reply_markup,
+            reply_markup=self._get_inline_keyboard_markup(new_message),
             parse_mode=new_message.parse_mode,
         )
+        return cast(Message, result)
 
     async def edit_text(
-            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
+            self,
+            bot: Bot,
+            new_message: NewMessage,
+            old_message: OldMessage,
     ) -> Message:
         logger.debug("edit_text to %s", new_message.chat)
-        return await bot.edit_message_text(
+        result = await bot.edit_message_text(
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
-            text=new_message.text,
-            reply_markup=new_message.reply_markup,
+            text=cast(str, new_message.text),
+            reply_markup=self._get_inline_keyboard_markup(new_message),
             parse_mode=new_message.parse_mode,
             link_preview_options=new_message.link_preview_options,
         )
+        return cast(Message, result)
 
     async def edit_media(
-            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
+            self,
+            bot: Bot,
+            new_message: NewMessage,
+            old_message: OldMessage,
     ) -> Message:
+        media = cast(MediaAttachment, new_message.media)
         logger.debug(
             "edit_media to %s, media_id: %s",
             new_message.chat,
-            new_message.media.file_id,
+            media.file_id,
         )
-        media = INPUT_MEDIA_TYPES[new_message.media.type](
+        edit_media = INPUT_MEDIA_TYPES[media.type](
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            media=await self.get_media_source(new_message.media, bot),
-            **new_message.media.kwargs,
+            media=await self.get_media_source(media, bot),
+            **media.kwargs,
         )
-        return await bot.edit_message_media(
+        result = await bot.edit_message_media(
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
-            media=media,
-            reply_markup=new_message.reply_markup,
+            media=edit_media,
+            reply_markup=self._get_inline_keyboard_markup(new_message),
         )
+        return cast(Message, result)
 
     # Send
     async def send_message(self, bot: Bot, new_message: NewMessage) -> Message:
@@ -391,7 +427,7 @@ class MessageManager(MessageManagerProtocol):
         )
         return await bot.send_message(
             new_message.chat.id,
-            text=new_message.text,
+            text=cast(str, new_message.text),
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
@@ -400,23 +436,25 @@ class MessageManager(MessageManagerProtocol):
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:
+        media = cast(MediaAttachment, new_message.media)
         logger.debug(
             "send_media to %s, media_id: %s",
             new_message.chat,
-            new_message.media.file_id,
+            media.file_id,
         )
-        method = getattr(bot, SEND_METHODS[new_message.media.type], None)
+        method = getattr(bot, SEND_METHODS[media.type], None)
         if not method:
             raise ValueError(
-                f"ContentType {new_message.media.type} is not supported",
+                f"ContentType {media.type} is not supported",
             )
-        return await method(
+        result = await method(
             new_message.chat.id,
-            await self.get_media_source(new_message.media, bot),
+            await self.get_media_source(media, bot),
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
-            **new_message.media.kwargs,
+            **media.kwargs,
         )
+        return cast(Message, result)

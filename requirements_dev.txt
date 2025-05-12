@@ -3,3 +3,4 @@ ruff==0.7.2
 pytest
 pytest-asyncio
 pytest-repeat
+mypy==1.15.0

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Final, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -10,13 +10,14 @@ from aiogram.types import (
 )
 from pydantic import ConfigDict
 
+from aiogram_dialog.api.entities.access import AccessSettings
+
 from .modes import (
     ShowMode,
     StartMode,
 )
-from .stack import AccessSettings
 
-DIALOG_EVENT_NAME = "aiogd_update"
+DIALOG_EVENT_NAME: Final = "aiogd_update"
 
 
 class DialogAction(Enum):

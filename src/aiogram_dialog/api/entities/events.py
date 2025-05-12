@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Final, Optional, Union
 
 from aiogram import Bot
 from aiogram.types import (
@@ -31,4 +31,4 @@ class EventContext:
     business_connection_id: Optional[str]
 
 
-EVENT_CONTEXT_KEY = "aiogd_event_context"
+EVENT_CONTEXT_KEY: Final = "aiogd_event_context"
