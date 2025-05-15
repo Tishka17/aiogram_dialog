@@ -4,13 +4,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
-from aiogram_dialog import (
-    Dialog,
-    DialogManager,
-    StartMode,
-    Window,
-    setup_dialogs,
-)
+from aiogram_dialog import Dialog, DialogManager, StartMode, Window, setup_dialogs
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
 from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
@@ -61,29 +55,35 @@ def dp(message_manager: MockMessageManager):
     dp = Dispatcher(storage=JsonMemoryStorage())
     dp.message.register(start, CommandStart())
 
-    dp.include_router(Dialog(
-        Window(
-            Const("First"),
-            state=MainSG.start,
-        ),
-        on_start=on_start_main,
-    ))
-    dp.include_router(Dialog(
-        Window(
-            Format("Subdialog"),
-            Cancel(),
-            state=SecondarySG.start,
-        ),
-        on_process_result=on_process_result_sub,
-        on_start=on_start_sub,
-    ))
-    dp.include_router(Dialog(
-        Window(
-            Format("Third"),
-            Cancel(),
-            state=ThirdSG.start,
-        ),
-    ))
+    dp.include_router(
+        Dialog(
+            Window(
+                Const("First"),
+                state=MainSG.start,
+            ),
+            on_start=on_start_main,
+        )
+    )
+    dp.include_router(
+        Dialog(
+            Window(
+                Format("Subdialog"),
+                Cancel(),
+                state=SecondarySG.start,
+            ),
+            on_process_result=on_process_result_sub,
+            on_start=on_start_sub,
+        )
+    )
+    dp.include_router(
+        Dialog(
+            Window(
+                Format("Third"),
+                Cancel(),
+                state=ThirdSG.start,
+            ),
+        )
+    )
     setup_dialogs(dp, message_manager=message_manager)
     return dp
 
@@ -100,4 +100,4 @@ async def test_start(dp, message_manager, client):
     await client.click(first_message, InlineButtonTextLocator("Cancel"))
     second_message = message_manager.one_message()
     assert second_message.text == "First"
-    assert second_message.reply_markup
+    assert second_message.reply_markup is None
