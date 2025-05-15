@@ -58,11 +58,7 @@ from aiogram_dialog.api.protocols import (
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
 
-from .bg_manager import (
-    BgManager,
-    coalesce_business_connection_id,
-    coalesce_thread_id,
-)
+from .bg_manager import BgManager, coalesce_business_connection_id, coalesce_thread_id
 
 logger = getLogger(__name__)
 
@@ -70,12 +66,13 @@ logger = getLogger(__name__)
 class ManagerImpl(DialogManager):
 
     def __init__(
-            self, event: ChatEvent,
-            message_manager: MessageManagerProtocol,
-            media_id_storage: MediaIdStorageProtocol,
-            registry: DialogRegistryProtocol,
-            router: Router,
-            data: dict,
+        self,
+        event: ChatEvent,
+        message_manager: MessageManagerProtocol,
+        media_id_storage: MediaIdStorageProtocol,
+        registry: DialogRegistryProtocol,
+        router: Router,
+        data: dict,
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -177,17 +174,17 @@ class ManagerImpl(DialogManager):
         self.current_stack().last_message_id = None
 
     async def _process_last_dialog_result(
-            self,
-            start_data: Data,
-            result: Any,
+        self,
+        start_data: Data,
+        result: Any,
     ) -> None:
         """Process closing last dialog in stack."""
         await self._remove_kbd()
 
     async def done(
-            self,
-            result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        result: Any = None,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
         await self.dialog().process_close(result, self)
@@ -229,12 +226,12 @@ class ManagerImpl(DialogManager):
         await storage.save_stack(stack)
 
     async def start(
-            self,
-            state: State,
-            data: Data = None,
-            mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
-            access_settings: Optional[AccessSettings] = None,
+        self,
+        state: State,
+        data: Data = None,
+        mode: StartMode = StartMode.NORMAL,
+        show_mode: Optional[ShowMode] = None,
+        access_settings: Optional[AccessSettings] = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
@@ -260,20 +257,25 @@ class ManagerImpl(DialogManager):
         self._data[CONTEXT_KEY] = None
 
     async def _start_new_stack(
-            self, state: State, data: Data,
-            access_settings: Optional[AccessSettings],
+        self,
+        state: State,
+        data: Data,
+        access_settings: Optional[AccessSettings],
     ) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(
-            state, data,
+            state,
+            data,
             mode=StartMode.NORMAL,
             show_mode=self.show_mode,
             access_settings=access_settings,
         )
 
     async def _start_normal(
-            self, state: State, data: Data,
-            access_settings: Optional[AccessSettings],
+        self,
+        state: State,
+        data: Data,
+        access_settings: Optional[AccessSettings],
     ) -> None:
         stack = self.current_stack()
         old_dialog: Optional[DialogProtocol] = None
@@ -281,8 +283,7 @@ class ManagerImpl(DialogManager):
             old_dialog = self.dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
                 raise ValueError(
-                    "Cannot start dialog on top "
-                    "of one with launch_mode==SINGLE",
+                    "Cannot start dialog on top of one with launch_mode==SINGLE",
                 )
 
         new_dialog = self._registry.find_dialog(state)
@@ -329,9 +330,9 @@ class ManagerImpl(DialogManager):
         await self.switch_to(new_state, show_mode)
 
     async def switch_to(
-            self,
-            state: State,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        state: State,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
         context = self.current_context()
@@ -344,7 +345,9 @@ class ManagerImpl(DialogManager):
         context.state = state
 
     def _ensure_stack_compatible(
-            self, stack: Stack, new_message: NewMessage,
+        self,
+        stack: Stack,
+        new_message: NewMessage,
     ) -> None:
         if stack.id == DEFAULT_STACK_ID:
             return  # no limitations for default stack
@@ -357,48 +360,92 @@ class ManagerImpl(DialogManager):
         try:
             stack = self.current_stack()
             bot = self._data["bot"]
-            old_message = self._get_last_message()
+            old_message_for_first_render = self._get_last_message()
+
             if self.show_mode is ShowMode.NO_UPDATE:
                 logger.debug("ShowMode is NO_UPDATE, skip rendering")
                 return
 
-            new_message = await self.dialog().render(self)
-            new_message.show_mode = show_mode or self.show_mode
-            if new_message.show_mode is ShowMode.AUTO:
-                new_message.show_mode = self._calc_show_mode()
-            await self._fix_cached_media_id(new_message)
+            new_messages_to_render = await self.dialog().render(self)
+            effective_show_mode = show_mode or self.show_mode
 
-            self._ensure_stack_compatible(stack, new_message)
+            last_sent_message_obj: Optional[OldMessage] = None
 
-            try:
-                sent_message = await self.message_manager.show_message(
-                    bot, new_message, old_message,
-                )
-            except MessageNotModified:
-                # nothing changed so nothing to save
-                # we do not have the actual version of message
-                logger.debug("MessageNotModified, not storing ids")
-            else:
-                self._save_last_message(sent_message)
-                if new_message.media:
-                    await self.media_id_storage.save_media_id(
-                        path=new_message.media.path,
-                        url=new_message.media.url,
-                        type=new_message.media.type,
-                        media_id=MediaId(
-                            sent_message.media_id,
-                            sent_message.media_uniq_id,
-                        ),
+            for idx, current_new_msg in enumerate(new_messages_to_render):
+                current_new_msg.show_mode = effective_show_mode
+                await self._fix_cached_media_id(current_new_msg)
+
+                message_to_edit = None
+                if idx == 0:
+                    message_to_edit = old_message_for_first_render
+
+                try:
+                    sent_msg_obj = await self.message_manager.show_message(
+                        bot=bot,
+                        new_message=current_new_msg,
+                        old_message=message_to_edit,
                     )
+                    last_sent_message_obj = sent_msg_obj
+
+                    if current_new_msg.media:
+                        await self.media_id_storage.save_media_id(
+                            path=current_new_msg.media.path,
+                            url=current_new_msg.media.url,
+                            type=current_new_msg.media.type,
+                            media_id=MediaId(
+                                file_id=sent_msg_obj.media_id,
+                                file_unique_id=sent_msg_obj.media_uniq_id,
+                            ),
+                        )
+                except MessageNotModified:
+                    logger.debug(
+                        "Message %d of %d (or part of a multi-message window) did not change. ID: %s",
+                        idx + 1,
+                        (
+                            len(new_messages_to_render)
+                            if isinstance(new_messages_to_render, list)
+                            else "N/A"
+                        ),
+                        message_to_edit.message_id if message_to_edit else "new",
+                    )
+                    if message_to_edit:
+                        last_sent_message_obj = message_to_edit
+                except Exception:
+                    logger.exception(
+                        "Failed to send message %d of %d in a multi-message window. Content: %s",
+                        idx + 1,
+                        (
+                            len(new_messages_to_render)
+                            if isinstance(new_messages_to_render, list)
+                            else "N/A"
+                        ),
+                        current_new_msg,
+                    )
+                    raise
+
+            if last_sent_message_obj:
+                self._save_last_message(last_sent_message_obj)
+                stack.last_message_id = last_sent_message_obj.message_id
+                stack.last_media_id = last_sent_message_obj.media_id
+                stack.last_media_unique_id = last_sent_message_obj.media_uniq_id
+                await self.storage().save_stack(stack)
+
             if isinstance(self.event, Message):
                 stack.last_income_media_group_id = self.event.media_group_id
-        except Exception as e:
-            # execute only on version >= 3.11
-            if sys.version_info >= (3, 11):
-                current_state = self.current_context().state
-                e.add_note(f"aiogram-dialog state: {current_state}")
-            raise
+                await self.storage().save_stack(stack)
 
+        except MessageNotModified:
+            logger.debug(
+                "Overall window show resulted in no net change after processing all messages.",
+            )
+        except Exception as e:
+            if sys.version_info >= (3, 11) and self.has_context():
+                try:
+                    current_state = self.current_context().state
+                    e.add_note(f"aiogram-dialog state: {current_state}")
+                except NoContextError:
+                    e.add_note("aiogram-dialog state: NoContextError")
+            raise
 
     async def _fix_cached_media_id(self, new_message: NewMessage):
         if not new_message.media or new_message.media.file_id:
@@ -413,12 +460,14 @@ class ManagerImpl(DialogManager):
         return bool(self.middleware_data.get(EVENT_SIMULATED))
 
     def _get_message_from_callback(
-            self, event: CallbackQuery,
+        self,
+        event: CallbackQuery,
     ) -> Optional[OldMessage]:
         current_message = event.message
         stack = self.current_stack()
         event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+            "EventContext",
+            self.middleware_data.get(EVENT_CONTEXT_KEY),
         )
         if isinstance(current_message, Message):
             media_id = get_media_id(current_message)
@@ -458,7 +507,8 @@ class ManagerImpl(DialogManager):
         if not stack or not stack.last_message_id:
             return None
         event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+            "EventContext",
+            self.middleware_data.get(EVENT_CONTEXT_KEY),
         )
         return OldMessage(
             media_id=stack.last_media_id,
@@ -491,17 +541,19 @@ class ManagerImpl(DialogManager):
         if isinstance(self.event, Message):
             if self.event.media_group_id is None:
                 return ShowMode.SEND
-            elif self.event.media_group_id == \
-                    self.current_stack().last_income_media_group_id:
+            elif (
+                self.event.media_group_id
+                == self.current_stack().last_income_media_group_id
+            ):
                 return ShowMode.EDIT
             else:
                 return ShowMode.SEND
         return ShowMode.EDIT
 
     async def update(
-            self,
-            data: dict,
-            show_mode: Optional[ShowMode] = None,
+        self,
+        data: dict,
+        show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
@@ -527,25 +579,25 @@ class ManagerImpl(DialogManager):
                 return current_chat
         elif chat_id is None:
             raise ValueError(
-                "Explicit `chat_id` is required "
-                "for events without current chat",
+                "Explicit `chat_id` is required for events without current chat",
             )
         return FakeChat(id=chat_id, type="")
 
     def bg(
-            self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
-            load: bool = False,
+        self,
+        user_id: Optional[int] = None,
+        chat_id: Optional[int] = None,
+        stack_id: Optional[str] = None,
+        thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
+        business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+        load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
         event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
+            "EventContext",
+            self.middleware_data.get(EVENT_CONTEXT_KEY),
         )
         new_event_context = EventContext(
             bot=event_context.bot,

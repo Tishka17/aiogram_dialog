@@ -1,8 +1,5 @@
 from abc import abstractmethod
-from typing import (
-    Any,
-    Protocol,
-)
+from typing import Any, Protocol
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
@@ -16,37 +13,39 @@ from .manager import DialogManager
 class WindowProtocol(Protocol):
     @abstractmethod
     async def process_message(
-            self,
-            message: Message,
-            dialog: "DialogProtocol",
-            manager: DialogManager,
+        self,
+        message: Message,
+        dialog: "DialogProtocol",
+        manager: DialogManager,
     ) -> bool:
         """Return True if message in handled."""
         raise NotImplementedError
 
     @abstractmethod
     async def process_callback(
-            self,
-            callback: CallbackQuery,
-            dialog: "DialogProtocol",
-            manager: DialogManager,
+        self,
+        callback: CallbackQuery,
+        dialog: "DialogProtocol",
+        manager: DialogManager,
     ) -> bool:
         """Return True if callback in handled."""
         raise NotImplementedError
 
     @abstractmethod
     async def process_result(
-            self, start_data: Data, result: Any,
-            manager: "DialogManager",
+        self,
+        start_data: Data,
+        result: Any,
+        manager: "DialogManager",
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def render(
-            self,
-            dialog: "DialogProtocol",
-            manager: DialogManager,
-    ) -> NewMessage:
+        self,
+        dialog: "DialogProtocol",
+        manager: DialogManager,
+    ) -> list[NewMessage]:
         raise NotImplementedError
 
     @abstractmethod
