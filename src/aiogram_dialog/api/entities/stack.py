@@ -4,13 +4,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
-from aiogram.enums import ContentType
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
 
 from .access import AccessSettings
 from .context import Context, Data
+from .new_message import OldMessage
 
 DEFAULT_STACK_ID = ""
 GROUP_STACK_ID = "<->"
@@ -41,14 +41,11 @@ def new_id():
 class Stack:
     _id: str = field(compare=True, default_factory=new_id)
     intents: list[str] = field(compare=False, default_factory=list)
-    last_message_id: Optional[int] = field(compare=False, default=None)
-    last_reply_keyboard: bool = field(compare=False, default=False)
-    last_media_id: Optional[str] = field(compare=False, default=None)
-    last_media_unique_id: Optional[str] = field(compare=False, default=None)
+    sent_messages: list[OldMessage] = field(compare=False, default_factory=list)
     last_income_media_group_id: Optional[str] = field(
-        compare=False, default=None,
+        compare=False,
+        default=None,
     )
-    content_type: Optional[ContentType] = field(compare=False, default=None)
     access_settings: Optional[AccessSettings] = None
 
     @property

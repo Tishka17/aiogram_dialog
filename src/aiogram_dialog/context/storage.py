@@ -1,35 +1,37 @@
+import logging
 from contextlib import AsyncExitStack
 from copy import copy
 from typing import Optional
 
 from aiogram import Bot
+from aiogram.enums import ChatType, ContentType
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.base import (
-    BaseEventIsolation,
-    BaseStorage,
-    StorageKey,
-)
+from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage, StorageKey
+from aiogram.types import Chat
 
 from aiogram_dialog.api.entities import (
     DEFAULT_STACK_ID,
     AccessSettings,
     Context,
+    OldMessage,
     Stack,
 )
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
+logger = logging.getLogger(__name__)
+
 
 class StorageProxy:
     def __init__(
-            self,
-            storage: BaseStorage,
-            events_isolation: BaseEventIsolation,
-            user_id: Optional[int],
-            chat_id: int,
-            thread_id: Optional[int],
-            business_connection_id: Optional[str],
-            bot: Bot,
-            state_groups: dict[str, type[StatesGroup]],
+        self,
+        storage: BaseStorage,
+        events_isolation: BaseEventIsolation,
+        user_id: Optional[int],
+        chat_id: int,
+        thread_id: Optional[int],
+        business_connection_id: Optional[str],
+        bot: Bot,
+        state_groups: dict[str, type[StatesGroup]],
     ):
         self.storage = storage
         self.events_isolation = events_isolation
@@ -74,11 +76,50 @@ class StorageProxy:
         key = self._stack_key(fixed_stack_id)
         await self.lock(key)
         data = await self.storage.get_data(key)
-        data.pop("access_settings", None)  # compat with 2.2a5
+
+        access_settings_data = data.pop("access_settings", None)
         access_settings = self._default_access_settings(stack_id)
+        if access_settings_data:
+            access_settings = (
+                self._parse_access_settings(access_settings_data) or access_settings
+            )
+
         if not data:
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
-        return Stack(access_settings=access_settings, **data)
+
+        loaded_sent_messages = []
+        if data.get("sent_messages"):
+            for msg_data in data["sent_messages"]:
+                chat_type_enum_val = msg_data.get("chat_type")
+                chat_type_obj = (
+                    ChatType(chat_type_enum_val) if chat_type_enum_val else None
+                )
+                chat_obj = Chat(id=msg_data["chat_id"], type=chat_type_obj)
+
+                content_type_enum_val = msg_data.get("content_type")
+                content_type_obj = (
+                    ContentType(content_type_enum_val)
+                    if content_type_enum_val
+                    else None
+                )
+                loaded_sent_messages.append(
+                    OldMessage(
+                        message_id=msg_data["message_id"],
+                        chat=chat_obj,
+                        has_reply_keyboard=msg_data["has_reply_keyboard"],
+                        text=msg_data.get("text"),
+                        media_uniq_id=msg_data.get("media_uniq_id"),
+                        media_id=msg_data.get("media_id"),
+                        business_connection_id=msg_data.get("business_connection_id"),
+                        content_type=content_type_obj,
+                    ),
+                )
+        data["sent_messages"] = loaded_sent_messages
+
+        valid_stack_fields = {f_name for f_name in Stack.__dataclass_fields__.keys()}
+        filtered_data = {k: v for k, v in data.items() if k in valid_stack_fields}
+
+        return Stack(access_settings=access_settings, **filtered_data)
 
     async def save_context(self, context: Optional[Context]) -> None:
         if not context:
@@ -108,24 +149,61 @@ class StorageProxy:
     async def save_stack(self, stack: Optional[Stack]) -> None:
         if not stack:
             return
-        if stack.empty() and not stack.last_message_id:
+        if stack.empty() and not stack.sent_messages:
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
                 data={},
             )
         else:
-            data = {
+            serializable_sent_messages = []
+            for om in stack.sent_messages:
+                chat_type_to_save = None
+                if om.chat.type:
+                    if isinstance(om.chat.type, ChatType):
+                        chat_type_to_save = om.chat.type.value
+                    elif isinstance(om.chat.type, str):
+                        chat_type_to_save = om.chat.type
+                    else:
+                        logger.warning(
+                            f"Unexpected type for chat.type: {type(om.chat.type)}",
+                        )
+                        chat_type_to_save = str(om.chat.type)
+
+                content_type_to_save = None
+                if om.content_type:
+                    if isinstance(om.content_type, ContentType):
+                        content_type_to_save = om.content_type.value
+                    elif isinstance(om.content_type, str):
+                        content_type_to_save = om.content_type
+                    else:
+                        logger.warning(
+                            f"Unexpected type for content_type: {type(om.content_type)}",
+                        )
+                        content_type_to_save = str(om.content_type)
+
+                serializable_sent_messages.append(
+                    {
+                        "message_id": om.message_id,
+                        "chat_id": om.chat.id,
+                        "chat_type": chat_type_to_save,
+                        "has_reply_keyboard": om.has_reply_keyboard,
+                        "text": om.text,
+                        "media_uniq_id": om.media_uniq_id,
+                        "media_id": om.media_id,
+                        "business_connection_id": om.business_connection_id,
+                        "content_type": content_type_to_save,
+                    },
+                )
+
+            data_to_save = {
                 "_id": stack.id,
                 "intents": stack.intents,
-                "last_message_id": stack.last_message_id,
-                "last_reply_keyboard": stack.last_reply_keyboard,
-                "last_media_id": stack.last_media_id,
-                "last_media_unique_id": stack.last_media_unique_id,
+                "sent_messages": serializable_sent_messages,
                 "last_income_media_group_id": stack.last_income_media_group_id,
             }
             await self.storage.set_data(
                 key=self._stack_key(stack.id),
-                data=data,
+                data=data_to_save,
             )
 
     def _context_key(self, intent_id: str) -> StorageKey:
@@ -142,10 +220,7 @@ class StorageProxy:
         if stack_id != DEFAULT_STACK_ID:
             return stack_id
         # private chat has chat_id=user_id and no business connection
-        if (
-                self.user_id in (None, self.chat_id) and
-                self.business_connection_id is None
-        ):
+        if self.user_id in (None, self.chat_id) and self.business_connection_id is None:
             return stack_id
         return f"<{self.user_id}>"
 
@@ -171,7 +246,8 @@ class StorageProxy:
         raise UnknownState(f"Unknown state {state}")
 
     def _parse_access_settings(
-            self, raw: Optional[dict],
+        self,
+        raw: Optional[dict],
     ) -> Optional[AccessSettings]:
         if not raw:
             return None
@@ -181,7 +257,8 @@ class StorageProxy:
         )
 
     def _dump_access_settings(
-            self, access_settings: Optional[AccessSettings],
+        self,
+        access_settings: Optional[AccessSettings],
     ) -> Optional[dict]:
         if not access_settings:
             return None

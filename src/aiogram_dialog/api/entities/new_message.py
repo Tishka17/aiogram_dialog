@@ -12,10 +12,14 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-from aiogram_dialog.api.entities import MediaAttachment, ShowMode
+from .media import MediaAttachment
+from .modes import ShowMode
 
 MarkupVariant = Union[
-    ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove,
+    ForceReply,
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
 ]
 
 
@@ -37,7 +41,7 @@ class OldMessage:
 
 @dataclass
 class NewMessage:
-    chat: Chat
+    chat: "Chat"
     thread_id: Optional[int] = None
     business_connection_id: Optional[str] = None
     text: Optional[str] = None
