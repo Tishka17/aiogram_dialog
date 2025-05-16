@@ -250,6 +250,7 @@ class Window(WindowProtocol):
         )
 
         messages_to_send: list[NewMessage] = []
+        current_data: dict
 
         try:
             current_data = await self.load_data(dialog, manager)
@@ -258,75 +259,131 @@ class Window(WindowProtocol):
             raise
 
         try:
-            # Primary message content
-            text, media, reply_markup, link_preview_options_from_widget = (
-                await self._render_single_message_content(
-                    self.text,
-                    self.media,
-                    self.keyboard,
-                    self.link_preview,
-                    current_data,
-                    manager,
+            add_main_message = True
+
+            # 1. Render main window content
+            (
+                main_text_content,
+                main_media_content,
+                main_reply_markup_content,
+                main_link_preview_content,  # This is already LinkPreviewOptions or None
+            ) = await self._render_single_message_content(
+                self.text,
+                self.media,
+                self.keyboard,
+                self.link_preview,  # This widget handles disable_web_page_preview
+                current_data,
+                manager,
+            )
+
+            if not main_text_content and not main_media_content:
+                if main_reply_markup_content or main_link_preview_content:
+                    main_text_content = "\u200b"  # Zero-width space
+                    logger.debug(
+                        "Main message text is empty with no media, but markup or link preview exists. "
+                        "Using ZWS for text. Window: %s",
+                        self,
+                    )
+                elif self.slot_definitions:
+                    add_main_message = False
+                    logger.debug(
+                        "Main message is completely empty (no text, media, markup, link preview) "
+                        "and slots are present. Skipping main message. Window: %s",
+                        self,
+                    )
+                else:  # Completely empty, no slots
+                    main_text_content = "\u200b"  # Use ZWS to prevent downstream errors
+                    logger.warning(
+                        "Window %s main content is completely empty (no text, media, markup, link preview) "
+                        "and no slots are defined. Rendering with ZWS text to avoid send errors.",
+                        self,
+                    )
+
+            if add_main_message:
+                message = NewMessage(
+                    chat=chat,
+                    thread_id=event_context.thread_id if event_context else None,
+                    business_connection_id=(
+                        event_context.business_connection_id if event_context else None
+                    ),
+                    text=main_text_content,
+                    reply_markup=main_reply_markup_content,
+                    parse_mode=self.parse_mode,
+                    media=main_media_content,
+                    link_preview_options=main_link_preview_content,
                 )
-            )
+                messages_to_send.append(message)
 
-            link_preview_options_for_primary: Optional[LinkPreviewOptions] = None
-            if link_preview_options_from_widget:
-                link_preview_options_for_primary = link_preview_options_from_widget
-            elif self.disable_web_page_preview is True:
-                link_preview_options_for_primary = LinkPreviewOptions(is_disabled=True)
-
-            message = NewMessage(
-                chat=chat,
-                thread_id=event_context.thread_id,
-                business_connection_id=event_context.business_connection_id,
-                text=text,
-                reply_markup=reply_markup,
-                parse_mode=self.parse_mode,
-                media=media,
-                link_preview_options=link_preview_options_for_primary,
-            )
-            messages_to_send.append(message)
-
+            # 2. Render slot contents
             for slot_def in self.slot_definitions:
                 s_text_widget = slot_def["text"]
                 s_media_widget = slot_def["media"]
                 s_kbd_widget = slot_def["keyboard"]
-                s_link_prev_widget = slot_def["link_preview"]
+                s_link_preview_widget = slot_def["link_preview"]
 
-                s_text, s_media, s_reply_markup, s_link_preview_options_from_widget = (
-                    await self._render_single_message_content(
-                        s_text_widget,
-                        s_media_widget,
-                        s_kbd_widget,
-                        s_link_prev_widget,
-                        current_data,
-                        manager,
-                    )
+                if not (
+                    s_text_widget
+                    or s_media_widget
+                    or s_kbd_widget
+                    or s_link_preview_widget
+                ):
+                    logger.debug("Skipping completely undefined slot: %s", slot_def)
+                    continue
+
+                (
+                    s_text_content,
+                    s_media_content,
+                    s_reply_markup_content,
+                    s_link_preview_options_content,  # This is already LinkPreviewOptions or None
+                ) = await self._render_single_message_content(
+                    s_text_widget,
+                    s_media_widget,
+                    s_kbd_widget,
+                    s_link_preview_widget,  # This widget handles disable_web_page_preview
+                    current_data,
+                    manager,
                 )
 
-                link_preview_options_for_slot: Optional[LinkPreviewOptions] = None
-                if s_link_preview_options_from_widget:
-                    link_preview_options_for_slot = s_link_preview_options_from_widget
-                elif (
-                    self.disable_web_page_preview is True
-                ):  # Window-level flag as fallback
-                    link_preview_options_for_slot = LinkPreviewOptions(is_disabled=True)
+                if not s_text_content and not s_media_content:
+                    if s_reply_markup_content or s_link_preview_options_content:
+                        s_text_content = "\u200b"  # Zero-width space
+                        logger.debug(
+                            "Slot message text is empty with no media, but markup or link preview exists. "
+                            "Using ZWS for text. Slot definition: %s",
+                            slot_def,
+                        )
+                    else:
+                        logger.debug(
+                            "Skipping slot message as it is completely empty "
+                            "(no text, media, markup, link preview). Slot definition: %s",
+                            slot_def,
+                        )
+                        continue
 
                 slot_message = NewMessage(
                     chat=chat,
-                    thread_id=event_context.thread_id,
-                    business_connection_id=event_context.business_connection_id,
-                    text=s_text,
-                    reply_markup=s_reply_markup,
+                    thread_id=event_context.thread_id if event_context else None,
+                    business_connection_id=(
+                        event_context.business_connection_id if event_context else None
+                    ),
+                    text=s_text_content,
+                    reply_markup=s_reply_markup_content,
                     parse_mode=self.parse_mode,
-                    media=s_media,
-                    link_preview_options=link_preview_options_for_slot,
+                    media=s_media_content,
+                    link_preview_options=s_link_preview_options_content,
                 )
                 messages_to_send.append(slot_message)
+
         except Exception:
             logger.error("Cannot render window for state %s", self.state)
             raise
+
+        if not messages_to_send:  # This check is outside the try-except for rendering
+            logger.warning(
+                "Window %s produced no messages after processing main content and all slots. "
+                "This might indicate an issue with window/slot definitions.",
+                self,
+            )
 
         return messages_to_send
 
