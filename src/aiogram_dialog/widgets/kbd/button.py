@@ -150,16 +150,29 @@ class LoginURLButton(Keyboard):
             data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
+        text = await self.text.render_text(data, manager)
+        url = await self.url.render_text(data, manager)
+
+        forward_text = None
+        if self.forward_text:
+            forward_text = await self.forward_text.render_text(data, manager)
+
+        bot_username = None
+        if self.bot_username:
+            bot_username = await self.bot_username.render_text(data, manager)
+
+        login_url = LoginUrl(
+            url=url,
+            forward_text=forward_text,
+            bot_username=bot_username,
+            request_write_access=self.request_write_access,
+        )
+
         return [
             [
                 InlineKeyboardButton(
-                    text=await self.text.render_text(data, manager),
-                    login_url=LoginUrl(
-                        url=await self.url.render_text(data, manager),
-                        forward_text=await self.forward_text.render_text(data, manager) if self.forward_text else None,
-                        bot_username=await self.bot_username.render_text(data, manager) if self.bot_username else None,
-                        request_write_access=self.request_write_access,
-                    ),
+                    text=text,
+                    login_url=login_url,
                 ),
             ],
         ]
@@ -175,18 +188,25 @@ class SwitchInlineQueryCurrentChat(Keyboard):
     ):
         super().__init__(id=id, when=when)
         self.text = text
-        self.switch_inline_query_current_chat = switch_inline_query_current_chat
+        self.switch_inline_query_current_chat = (
+            switch_inline_query_current_chat
+        )
 
     async def _render_keyboard(
             self,
             data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
+        text = await self.text.render_text(data, manager)
+        query = await self.switch_inline_query_current_chat.render_text(
+            data, manager,
+        )
+
         return [
             [
                 InlineKeyboardButton(
-                    text=await self.text.render_text(data, manager),
-                    switch_inline_query_current_chat=await self.switch_inline_query_current_chat.render_text(data, manager),
+                    text=text,
+                    switch_inline_query_current_chat=query,
                 ),
             ],
         ]
@@ -217,17 +237,22 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
         data: dict,
         manager: DialogManager,
     ) -> RawKeyboard:
+        text = await self.text.render_text(data, manager)
+        query = await self.query.render_text(data, manager)
+
+        switch_inline_query_chosen_chat = SwitchInlineQueryChosenChat(
+            query=query,
+            allow_user_chats=self.allow_user_chats,
+            allow_bot_chats=self.allow_bot_chats,
+            allow_group_chats=self.allow_group_chats,
+            allow_channel_chats=self.allow_channel_chats,
+        )
+
         return [
             [
                 InlineKeyboardButton(
-                    text=await self.text.render_text(data, manager),
-                    switch_inline_query_chosen_chat=SwitchInlineQueryChosenChat(
-                        query=await self.query.render_text(data, manager),
-                        allow_user_chats=self.allow_user_chats,
-                        allow_bot_chats=self.allow_bot_chats,
-                        allow_group_chats=self.allow_group_chats,
-                        allow_channel_chats=self.allow_channel_chats,
-                    ),
+                    text=text,
+                    switch_inline_query_chosen_chat=switch_inline_query_chosen_chat,
                 ),
             ],
         ]

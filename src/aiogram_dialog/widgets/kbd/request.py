@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Union, Optional
+from typing import Optional, Union
 
 from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
@@ -74,11 +74,14 @@ class RequestPoll(Keyboard):
             data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
+        text = await self.text.render_text(data, manager)
+        request_poll = KeyboardButtonPollType(type=self.poll_type)
+
         return [
             [
                 KeyboardButton(
-                    text=await self.text.render_text(data, manager),
-                    request_poll=KeyboardButtonPollType(type=self.poll_type),
+                    text=text,
+                    request_poll=request_poll,
                 ),
             ],
         ]
