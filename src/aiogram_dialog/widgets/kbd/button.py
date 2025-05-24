@@ -1,7 +1,13 @@
 from collections.abc import Awaitable, Callable
 from typing import Optional, Union
 
-from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    LoginUrl,
+    SwitchInlineQueryChosenChat,
+    WebAppInfo,
+)
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
@@ -115,6 +121,112 @@ class SwitchInlineQuery(Keyboard):
                     text=await self.text.render_text(data, manager),
                     switch_inline_query=await self.switch_inline.render_text(
                         data, manager,
+                    ),
+                ),
+            ],
+        ]
+
+
+class LoginURLButton(Keyboard):
+    def __init__(
+            self,
+            text: Text,
+            url: Text,
+            forward_text: Optional[Text] = None,
+            bot_username: Optional[Text] = None,
+            request_write_access: Optional[bool] = None,
+            id: Optional[str] = None,
+            when: WhenCondition = None,
+    ):
+        super().__init__(id=id, when=when)
+        self.text = text
+        self.url = url
+        self.forward_text = forward_text
+        self.bot_username = bot_username
+        self.request_write_access = request_write_access
+
+    async def _render_keyboard(
+            self,
+            data: dict,
+            manager: DialogManager,
+    ) -> RawKeyboard:
+        return [
+            [
+                InlineKeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    login_url=LoginUrl(
+                        url=await self.url.render_text(data, manager),
+                        forward_text=await self.forward_text.render_text(data, manager) if self.forward_text else None,
+                        bot_username=await self.bot_username.render_text(data, manager) if self.bot_username else None,
+                        request_write_access=self.request_write_access,
+                    ),
+                ),
+            ],
+        ]
+
+
+class SwitchInlineQueryCurrentChat(Keyboard):
+    def __init__(
+            self,
+            text: Text,
+            switch_inline_query_current_chat: Text,
+            id: Optional[str] = None,
+            when: WhenCondition = None,
+    ):
+        super().__init__(id=id, when=when)
+        self.text = text
+        self.switch_inline_query_current_chat = switch_inline_query_current_chat
+
+    async def _render_keyboard(
+            self,
+            data: dict,
+            manager: DialogManager,
+    ) -> RawKeyboard:
+        return [
+            [
+                InlineKeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    switch_inline_query_current_chat=await self.switch_inline_query_current_chat.render_text(data, manager),
+                ),
+            ],
+        ]
+
+
+class SwitchInlineQueryChosenChatButton(Keyboard):
+    def __init__(
+            self,
+            text: Text,
+            query: Text,
+            allow_user_chats: Optional[bool] = None,
+            allow_bot_chats: Optional[bool] = None,
+            allow_group_chats: Optional[bool] = None,
+            allow_channel_chats: Optional[bool] = None,
+            id: Optional[str] = None,
+            when: WhenCondition = None,
+    ):
+        super().__init__(id=id, when=when)
+        self.text = text
+        self.query = query
+        self.allow_user_chats = allow_user_chats
+        self.allow_bot_chats = allow_bot_chats
+        self.allow_group_chats = allow_group_chats
+        self.allow_channel_chats = allow_channel_chats
+
+    async def _render_keyboard(
+        self,
+        data: dict,
+        manager: DialogManager,
+    ) -> RawKeyboard:
+        return [
+            [
+                InlineKeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    switch_inline_query_chosen_chat=SwitchInlineQueryChosenChat(
+                        query=await self.query.render_text(data, manager),
+                        allow_user_chats=self.allow_user_chats,
+                        allow_bot_chats=self.allow_bot_chats,
+                        allow_group_chats=self.allow_group_chats,
+                        allow_channel_chats=self.allow_channel_chats,
                     ),
                 ),
             ],

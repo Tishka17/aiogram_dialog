@@ -1,7 +1,7 @@
 from collections.abc import Callable
-from typing import Union
+from typing import Union, Optional
 
-from aiogram.types import KeyboardButton
+from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
@@ -53,6 +53,32 @@ class RequestLocation(Keyboard):
                 KeyboardButton(
                     text=await self.text.render_text(data, manager),
                     request_location=True,
+                ),
+            ],
+        ]
+
+
+class RequestPoll(Keyboard):
+    def __init__(
+            self,
+            text: Text,
+            poll_type: Optional[str] = None,
+            when: Union[str, Callable, None] = None,
+    ):
+        super().__init__(when=when)
+        self.text = text
+        self.poll_type = poll_type
+
+    async def _render_keyboard(
+            self,
+            data: dict,
+            manager: DialogManager,
+    ) -> RawKeyboard:
+        return [
+            [
+                KeyboardButton(
+                    text=await self.text.render_text(data, manager),
+                    request_poll=KeyboardButtonPollType(type=self.poll_type),
                 ),
             ],
         ]

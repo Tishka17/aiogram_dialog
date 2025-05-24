@@ -4,6 +4,9 @@ __all__ = [
     "Url",
     "WebApp",
     "SwitchInlineQuery",
+    "LoginURLButton",
+    "SwitchInlineQueryCurrentChat",
+    "SwitchInlineQueryChosenChatButton",
     "Calendar",
     "CalendarConfig",
     "CalendarScope",
@@ -29,6 +32,7 @@ __all__ = [
     "ScrollingGroup",
     "RequestContact",
     "RequestLocation",
+    "RequestPoll",
     "Checkbox",
     "ManagedCheckbox",
     "Select",
@@ -45,7 +49,15 @@ __all__ = [
 ]
 
 from .base import Keyboard
-from .button import Button, SwitchInlineQuery, Url, WebApp
+from .button import (
+    Button,
+    LoginURLButton,
+    SwitchInlineQuery,
+    SwitchInlineQueryChosenChatButton,
+    SwitchInlineQueryCurrentChat,
+    Url,
+    WebApp,
+)
 from .calendar_kbd import (
     Calendar,
     CalendarConfig,
@@ -67,7 +79,7 @@ from .pager import (
     PrevPage,
     SwitchPage,
 )
-from .request import RequestContact, RequestLocation
+from .request import RequestContact, RequestLocation, RequestPoll
 from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiselect,
