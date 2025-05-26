@@ -3,7 +3,7 @@
 RequestPoll
 ***********
 
-**RequestPoll** is a single reply keyboard button that asks the user to create a poll and send it to the bot when.
+**RequestPoll** is a single reply keyboard button that asks the user to create a poll and send it to the bot.
 
 The button requires a text label. Optional parameter includes ``poll_type`` to specify type of the poll.
 

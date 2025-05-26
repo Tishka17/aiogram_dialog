@@ -9,7 +9,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * :ref:`Url<url>` - single inline button with url
 * :ref:`LoginURLButton<login_url>` - a single inline button with HTTPS URL used to automatically authorize the user
 * :ref:`SwitchInlineQuery<switch_inline_query>` - single inline button to switch inline mode
-* :ref:`SwitchInlineQueryCurrentChat<switch_inline_query_current_chat>` - a single inline button that inserts the bot's username and specified inline query into the current chat's input
+* :ref:`SwitchInlineQueryCurrentChat<switch_inline_query_current_chat>` - a single inline button that inserts the bot's username and specified inline query into the current chat's input field
 * :ref:`SwitchInlineQueryChosenChatButton<switch_inline_query_chosen_chat>` - a single inline button that prompts the user to select one of their chats based on the specified scopes, opens the selected chat, and inserts the bot's username and the given inline query into the input field
 * :ref:`Group<group>` - any group of keyboards one above another or rearranging buttons.
 * :ref:`Row<row>` - simplified version of group. All buttons placed in single row.
@@ -27,7 +27,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * :ref:`Next and Back<next_and_back>` - switches state forward or backward
 * :ref:`Start<start>` - starts a new dialog with no params
 * :ref:`Cancel<cancel>` - closes the current dialog with no result. An underlying dialog is shown
-* :ref:`RequestPoll<request_poll>` - a single inline button that asks the user to create a poll and send it to the bot
+* :ref:`RequestPoll<request_poll>` - a single reply keyboard button that asks the user to create a poll and send it to the bot
 
 .. toctree::
     :hidden:
