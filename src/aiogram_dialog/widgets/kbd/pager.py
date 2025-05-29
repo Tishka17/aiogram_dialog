@@ -272,7 +272,7 @@ class NumberedPager(BasePager):
         final_buttons = []
         for target_page in range(pages):
             if self.length is not None and len(buttons) >= self.length:
-                final_buttons.append(buttons[:])
+                final_buttons.append(buttons)
                 buttons = []
             button_data = await self._prepare_page_data(
                 data=data, target_page=target_page,
