@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import TypedDict, Union
+from typing import TypedDict, Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -224,7 +224,7 @@ class NumberedPager(BasePager):
             page_text: Text = DEFAULT_PAGE_TEXT,
             current_page_text: Text = DEFAULT_CURRENT_PAGE_TEXT,
             when: WhenCondition = None,
-            length: int | None = None,
+            length: Optional[int] = None,
     ):
         super().__init__(id=id, scroll=scroll, when=when)
         self.page_text = page_text
