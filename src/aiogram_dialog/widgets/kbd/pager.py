@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import TypedDict, Optional, Union
+from typing import Optional, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
