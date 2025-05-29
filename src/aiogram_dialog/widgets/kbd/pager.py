@@ -42,8 +42,6 @@ DEFAULT_CURRENT_BUTTON_TEXT = Format("{current_page1}")
 DEFAULT_PAGE_TEXT = Format("{target_page1}")
 DEFAULT_CURRENT_PAGE_TEXT = Format("[ {current_page1} ]")
 
-DEFAULT_PAGER_ROW_LENGTH = 8
-
 
 class BasePager(Keyboard, ABC):
     def __init__(
@@ -225,8 +223,8 @@ class NumberedPager(BasePager):
             id: str = DEFAULT_PAGER_ID,
             page_text: Text = DEFAULT_PAGE_TEXT,
             current_page_text: Text = DEFAULT_CURRENT_PAGE_TEXT,
-            length: int = DEFAULT_PAGER_ROW_LENGTH,
             when: WhenCondition = None,
+            length: int | None = None,
     ):
         super().__init__(id=id, scroll=scroll, when=when)
         self.page_text = page_text
@@ -273,7 +271,7 @@ class NumberedPager(BasePager):
         current_page = data["current_page"]
         final_buttons = []
         for target_page in range(pages):
-            if len(buttons) >= self.length:
+            if self.length is not None and len(buttons) >= self.length:
                 final_buttons.append(buttons[:])
                 buttons = []
             button_data = await self._prepare_page_data(
