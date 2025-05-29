@@ -38,7 +38,7 @@ class MessageInput(BaseInput):
             func: Union[MessageHandlerFunc, WidgetEventProcessor, None],
             content_types: Union[Sequence[str], str] = ContentType.ANY,
             filter: Optional[Callable[..., Any]] = None,
-            id: Optional[str] = None
+            id: Optional[str] = None,
     ):
         super().__init__(id=id)
         self.func = ensure_event_processor(func)
