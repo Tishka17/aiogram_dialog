@@ -105,7 +105,9 @@ class FakeManager(DialogManager):
         if current_index + 1 >= len(states):
             raise ValueError(
                 f"Cannot go to a non-existent state."
-                f"The state of {current_index + 1} idx is requested, but there are only {len(states)} states"
+                f"The state of {current_index + 1} idx is requested, "
+                f"but there are only {len(states)} states"
+                f"current state is {self.current_context().state}",
             )
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
@@ -116,7 +118,9 @@ class FakeManager(DialogManager):
         if current_index - 1 < 0:
             raise ValueError(
                 f"Cannot go to a non-existent state."
-                f"The state of {current_index + 1} idx is requested, but states idx should be positive"
+                f"The state of {current_index - 1} idx is requested, "
+                f"but states idx should be positive"
+                f"current state is {self.current_context().state}",
             )
         new_state = states[current_index - 1]
         await self.switch_to(new_state, show_mode)
