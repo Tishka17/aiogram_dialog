@@ -102,14 +102,25 @@ class FakeManager(DialogManager):
     async def next(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
+        if current_index + 1 >= len(states):
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index + 1} idx is requested, but there are only {len(states)} states"
+            )
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
 
     async def back(self, show_mode: Optional[ShowMode] = None) -> None:
         states = self._dialog.states()
         current_index = states.index(self.current_context().state)
+        if current_index - 1 < 0:
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index + 1} idx is requested, but states idx should be positive"
+            )
         new_state = states[current_index - 1]
         await self.switch_to(new_state, show_mode)
+
 
     @property
     def middleware_data(self) -> dict:
