@@ -50,8 +50,9 @@ class Dialog(Router, DialogProtocol):
     ):
         if len(windows) < 1:
             raise ValueError(
-                "Dialog must have at least one window"
+                "Dialog must have at least one window",
             )
+
         super().__init__(name=name or windows[0].get_state().group.__name__)
         self._states_group = windows[0].get_state().group
         self._states: list[State] = []
