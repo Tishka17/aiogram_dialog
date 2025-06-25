@@ -48,7 +48,7 @@ class Dialog(Router, DialogProtocol):
             preview_data: GetterVariant = None,
             name: Optional[str] = None,
     ):
-        if len(windows) < 1:
+        if not windows:
             raise ValueError(
                 "Dialog must have at least one window",
             )
