@@ -189,8 +189,8 @@ class ManagerImpl(DialogManager):
             result: Any = None,
             show_mode: Optional[ShowMode] = None,
     ) -> None:
-        self.show_mode = show_mode or self.show_mode
         self.check_disabled()
+        self.show_mode = show_mode or self.show_mode
         await self.dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
