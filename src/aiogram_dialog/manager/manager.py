@@ -1,3 +1,4 @@
+import sys
 from copy import deepcopy
 from logging import getLogger
 from typing import Any, Optional, Union, cast
@@ -189,6 +190,7 @@ class ManagerImpl(DialogManager):
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
+        self.show_mode = show_mode or self.show_mode
         await self.dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
@@ -317,6 +319,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index + 1 >= len(states):
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index + 1} idx is requested, "
+                f"but there are only {len(states)} states,"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
 
@@ -324,6 +333,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index - 1 < 0:
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index - 1} idx is requested, "
+                f"but states idx should be positive"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index - 1]
         await self.switch_to(new_state, show_mode)
 
@@ -353,43 +369,51 @@ class ManagerImpl(DialogManager):
             )
 
     async def show(self, show_mode: Optional[ShowMode] = None) -> None:
-        stack = self.current_stack()
-        bot = self._data["bot"]
-        old_message = self._get_last_message()
-        if self.show_mode is ShowMode.NO_UPDATE:
-            logger.debug("ShowMode is NO_UPDATE, skip rendering")
-            return
-
-        new_message = await self.dialog().render(self)
-        new_message.show_mode = show_mode or self.show_mode
-        if new_message.show_mode is ShowMode.AUTO:
-            new_message.show_mode = self._calc_show_mode()
-        await self._fix_cached_media_id(new_message)
-
-        self._ensure_stack_compatible(stack, new_message)
-
         try:
-            sent_message = await self.message_manager.show_message(
-                bot, new_message, old_message,
-            )
-        except MessageNotModified:
-            # nothing changed so nothing to save
-            # we do not have the actual version of message
-            logger.debug("MessageNotModified, not storing ids")
-        else:
-            self._save_last_message(sent_message)
-            if new_message.media:
-                await self.media_id_storage.save_media_id(
-                    path=new_message.media.path,
-                    url=new_message.media.url,
-                    type=new_message.media.type,
-                    media_id=MediaId(
-                        sent_message.media_id,
-                        sent_message.media_uniq_id,
-                    ),
+            stack = self.current_stack()
+            bot = self._data["bot"]
+            old_message = self._get_last_message()
+            if self.show_mode is ShowMode.NO_UPDATE:
+                logger.debug("ShowMode is NO_UPDATE, skip rendering")
+                return
+
+            new_message = await self.dialog().render(self)
+            new_message.show_mode = show_mode or self.show_mode
+            if new_message.show_mode is ShowMode.AUTO:
+                new_message.show_mode = self._calc_show_mode()
+            await self._fix_cached_media_id(new_message)
+
+            self._ensure_stack_compatible(stack, new_message)
+
+            try:
+                sent_message = await self.message_manager.show_message(
+                    bot, new_message, old_message,
                 )
-        if isinstance(self.event, Message):
-            stack.last_income_media_group_id = self.event.media_group_id
+            except MessageNotModified:
+                # nothing changed so nothing to save
+                # we do not have the actual version of message
+                logger.debug("MessageNotModified, not storing ids")
+            else:
+                self._save_last_message(sent_message)
+                if new_message.media:
+                    await self.media_id_storage.save_media_id(
+                        path=new_message.media.path,
+                        url=new_message.media.url,
+                        type=new_message.media.type,
+                        media_id=MediaId(
+                            sent_message.media_id,
+                            sent_message.media_uniq_id,
+                        ),
+                    )
+            if isinstance(self.event, Message):
+                stack.last_income_media_group_id = self.event.media_group_id
+        except Exception as e:
+            # execute only on version >= 3.11
+            if sys.version_info >= (3, 11):
+                current_state = self.current_context().state
+                e.add_note(f"aiogram-dialog state: {current_state}")
+            raise
+
 
     async def _fix_cached_media_id(self, new_message: NewMessage):
         if not new_message.media or new_message.media.file_id:

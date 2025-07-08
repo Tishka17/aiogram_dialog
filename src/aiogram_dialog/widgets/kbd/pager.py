@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -224,10 +224,12 @@ class NumberedPager(BasePager):
             page_text: Text = DEFAULT_PAGE_TEXT,
             current_page_text: Text = DEFAULT_CURRENT_PAGE_TEXT,
             when: WhenCondition = None,
+            length: Optional[int] = None,
     ):
         super().__init__(id=id, scroll=scroll, when=when)
         self.page_text = page_text
         self.current_page_text = current_page_text
+        self.length = length
 
     async def _prepare_data(
             self, data: dict,
@@ -267,7 +269,11 @@ class NumberedPager(BasePager):
         buttons = []
         pages = data["pages"]
         current_page = data["current_page"]
+        final_buttons = []
         for target_page in range(pages):
+            if self.length is not None and len(buttons) >= self.length:
+                final_buttons.append(buttons)
+                buttons = []
             button_data = await self._prepare_page_data(
                 data=data, target_page=target_page,
             )
@@ -280,4 +286,6 @@ class NumberedPager(BasePager):
                 text=text,
                 callback_data=self._item_callback_data(target_page),
             ))
-        return [buttons]
+        if buttons:
+            final_buttons.append(buttons)
+        return final_buttons

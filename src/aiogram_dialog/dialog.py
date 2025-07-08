@@ -48,6 +48,11 @@ class Dialog(Router, DialogProtocol):
             preview_data: GetterVariant = None,
             name: Optional[str] = None,
     ):
+        if not windows:
+            raise ValueError(
+                "Dialog must have at least one window",
+            )
+
         super().__init__(name=name or windows[0].get_state().group.__name__)
         self._states_group = windows[0].get_state().group
         self._states: list[State] = []
@@ -185,6 +190,7 @@ class Dialog(Router, DialogProtocol):
     def _register_handlers(self) -> None:
         self.callback_query.register(self._callback_handler)
         self.message.register(self._message_handler)
+        self.business_message.register(self._message_handler)
 
     def states_group(self) -> type[StatesGroup]:
         return self._states_group
