@@ -319,6 +319,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index + 1 >= len(states):
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index + 1} idx is requested, "
+                f"but there are only {len(states)} states,"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
 
@@ -326,6 +333,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index - 1 < 0:
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index - 1} idx is requested, "
+                f"but states idx should be positive"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index - 1]
         await self.switch_to(new_state, show_mode)
 
