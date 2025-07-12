@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union, cast
 
 from aiogram.types import ContentType
 
@@ -10,7 +10,7 @@ class MediaId:
     file_id: str
     file_unique_id: Optional[str] = None
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if type(other) is not MediaId:
             return False
         if self.file_unique_id is None or other.file_unique_id is None:
@@ -23,11 +23,11 @@ class MediaAttachment:
             self,
             type: ContentType,
             url: Optional[str] = None,
-            path: Union[str, Path, None] = None,
+            path: Optional[Union[str, Path]] = None,
             file_id: Optional[MediaId] = None,
             use_pipe: bool = False,
-            **kwargs,
-    ):
+            **kwargs: Any,
+    ) -> None:
         if not (url or path or file_id):
             raise ValueError("Neither url nor path not file_id are provided")
         self.type = type
@@ -37,9 +37,10 @@ class MediaAttachment:
         self.use_pipe = use_pipe
         self.kwargs = kwargs
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if type(other) is not type(self):
             return False
+        other = cast(MediaAttachment, other)
         return (
             self.type == other.type and
             self.url == other.url and

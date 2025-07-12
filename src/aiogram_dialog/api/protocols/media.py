@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Optional, Protocol
+from pathlib import Path
+from typing import Optional, Protocol, Union
 
 from aiogram.types import ContentType
 
@@ -10,7 +11,7 @@ class MediaIdStorageProtocol(Protocol):
     @abstractmethod
     async def get_media_id(
             self,
-            path: Optional[str],
+            path: Optional[Union[str, Path]],
             url: Optional[str],
             type: ContentType,
     ) -> Optional[MediaId]:
@@ -19,7 +20,7 @@ class MediaIdStorageProtocol(Protocol):
     @abstractmethod
     async def save_media_id(
             self,
-            path: Optional[str],
+            path: Optional[Union[str, Path]],
             url: Optional[str],
             type: ContentType,
             media_id: MediaId,

@@ -1,8 +1,7 @@
 import dataclasses
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from aiogram.fsm.state import State
-from aiogram.types import Message
 
 from aiogram_dialog.api.entities import (
     AccessSettings,
@@ -28,7 +27,7 @@ class SubManager(DialogManager):
             manager: DialogManager,
             widget_id: str,
             item_id: str,
-    ):
+    ) -> None:
         self.widget = widget
         self.manager = manager
         self.widget_id = widget_id
@@ -39,12 +38,12 @@ class SubManager(DialogManager):
         return self.manager.event
 
     @property
-    def middleware_data(self) -> dict:
+    def middleware_data(self) -> dict[str, Any]:
         """Middleware data."""
         return self.manager.middleware_data
 
     @property
-    def dialog_data(self) -> dict:
+    def dialog_data(self) -> dict[str, Any]:
         """Dialog data for current context."""
         return self.current_context().dialog_data
 
@@ -55,7 +54,10 @@ class SubManager(DialogManager):
 
     def current_context(self) -> Context:
         context = self.manager.current_context()
-        data = context.widget_data.setdefault(self.widget_id, {})
+        data = cast(
+            dict[str, Any],
+            context.widget_data.setdefault(self.widget_id, {}),
+        )
         row_data = data.setdefault(self.item_id, {})
         return dataclasses.replace(context, widget_data=row_data)
 
@@ -71,8 +73,8 @@ class SubManager(DialogManager):
     async def close_manager(self) -> None:
         return await self.manager.close_manager()
 
-    async def show(self, show_mode: Optional[ShowMode] = None) -> Message:
-        return await self.manager.show(show_mode)
+    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
+        await self.manager.show(show_mode)
 
     async def answer_callback(self) -> None:
         return await self.manager.answer_callback()
@@ -80,16 +82,16 @@ class SubManager(DialogManager):
     async def reset_stack(self, remove_keyboard: bool = True) -> None:
         return await self.manager.reset_stack(remove_keyboard)
 
-    async def load_data(self) -> dict:
+    async def load_data(self) -> dict[str, Any]:
         return await self.manager.load_data()
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id: str) -> Optional[Any]:
         widget = self.widget.find(widget_id)
         if not widget:
             return None
         return widget.managed(self)
 
-    def find_in_parent(self, widget_id) -> Optional[Any]:
+    def find_in_parent(self, widget_id: str) -> Optional[Any]:
         return self.manager.find(widget_id)
 
     @property
@@ -139,7 +141,7 @@ class SubManager(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict[str, Any],
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.current_context().dialog_data.update(data)

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Protocol
+from typing import Any, Optional, Protocol
 
 from aiogram_dialog import ChatEvent
 from aiogram_dialog.api.entities import Context, Stack
@@ -12,7 +12,7 @@ class StackAccessValidator(Protocol):
             stack: Stack,
             context: Optional[Context],
             event: ChatEvent,
-            data: dict,
+            data: dict[str, Any],
     ) -> bool:
         """Check if current user is allowed to interactor with dialog."""
         raise NotImplementedError

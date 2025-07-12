@@ -8,8 +8,7 @@ from aiogram_dialog.api.entities import (
     LaunchMode,
     NewMessage,
 )
-
-from .manager import DialogManager
+from aiogram_dialog.api.protocols.manager import DialogManager
 
 
 class CancelEventProcessing(Exception):
@@ -43,7 +42,7 @@ class DialogProtocol(Protocol):
     @abstractmethod
     async def process_start(
             self,
-            manager: "DialogManager",
+            manager: DialogManager,
             start_data: Data,
             state: Optional[State] = None,
     ) -> None:
@@ -51,19 +50,19 @@ class DialogProtocol(Protocol):
 
     @abstractmethod
     async def process_result(
-            self, start_data: Data, result: Any,
-            manager: "DialogManager",
+            self,
+            start_data: Data,
+            result: Any,
+            manager: DialogManager,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Any:
+    def find(self, widget_id: str) -> Optional[Any]:
         raise NotImplementedError
 
     @abstractmethod
-    async def load_data(
-            self, manager: DialogManager,
-    ) -> dict:
+    async def load_data(self, manager: DialogManager) -> dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod

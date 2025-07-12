@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Optional, Union
+from typing import Any, Optional, TypedDict, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
@@ -53,9 +53,9 @@ def coalesce_thread_id(
         *,
         user: User,
         chat: Chat,
-        thread_id: Union[str, None, UnsetId],
+        thread_id: Optional[Union[int, UnsetId]],
         event_context: EventContext,
-) -> Optional[str]:
+) -> Optional[int]:
     if thread_id is not UnsetId.UNSET:
         return thread_id
     if user.id != event_context.user.id:
@@ -63,6 +63,15 @@ def coalesce_thread_id(
     if chat.id != event_context.chat.id:
         return None
     return None
+
+
+class BaseEventParams(TypedDict):
+    from_user: User
+    chat: Chat
+    intent_id: Optional[str]
+    stack_id: Optional[str]
+    thread_id: Optional[int]
+    business_connection_id: Optional[str]
 
 
 class BgManager(BaseDialogManager):
@@ -154,7 +163,7 @@ class BgManager(BaseDialogManager):
             load=load,
         )
 
-    def _base_event_params(self):
+    def _base_event_params(self) -> BaseEventParams:
         return {
             "from_user": self._event_context.user,
             "chat": self._event_context.chat,
@@ -165,12 +174,12 @@ class BgManager(BaseDialogManager):
                 self._event_context.business_connection_id,
         }
 
-    async def _notify(self, event: DialogUpdateEvent):
+    async def _notify(self, event: DialogUpdateEvent) -> None:
         bot = self._event_context.bot
         update = DialogUpdate(aiogd_update=event.as_(bot)).as_(bot)
         await self._updater.notify(bot=bot, update=update)
 
-    async def _load(self):
+    async def _load(self) -> None:
         if self.load:
             bot = self._event_context.bot
             if not is_chat_loaded(self._event_context.chat):
@@ -244,7 +253,7 @@ class BgManager(BaseDialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict[str, Any],
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         await self._load()

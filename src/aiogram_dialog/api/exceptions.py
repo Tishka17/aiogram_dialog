@@ -12,7 +12,7 @@ class UnknownIntent(DialogsError):
 
 
 class OutdatedIntent(DialogsError):
-    def __init__(self, stack_id, text):
+    def __init__(self, stack_id: str, text: str) -> None:
         super().__init__(text)
         self.stack_id = stack_id
 

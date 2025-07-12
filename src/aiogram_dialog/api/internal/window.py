@@ -9,8 +9,7 @@ from aiogram.types import CallbackQuery, Message
 
 from aiogram_dialog.api.entities import Data, NewMessage
 from aiogram_dialog.api.protocols import DialogProtocol
-
-from .manager import DialogManager
+from aiogram_dialog.api.protocols.manager import DialogManager
 
 
 class WindowProtocol(Protocol):
@@ -18,7 +17,7 @@ class WindowProtocol(Protocol):
     async def process_message(
             self,
             message: Message,
-            dialog: "DialogProtocol",
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         """Return True if message in handled."""
@@ -28,7 +27,7 @@ class WindowProtocol(Protocol):
     async def process_callback(
             self,
             callback: CallbackQuery,
-            dialog: "DialogProtocol",
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> bool:
         """Return True if callback in handled."""
@@ -36,15 +35,17 @@ class WindowProtocol(Protocol):
 
     @abstractmethod
     async def process_result(
-            self, start_data: Data, result: Any,
-            manager: "DialogManager",
+            self,
+            start_data: Data,
+            result: Any,
+            manager: DialogManager,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     async def render(
             self,
-            dialog: "DialogProtocol",
+            dialog: DialogProtocol,
             manager: DialogManager,
     ) -> NewMessage:
         raise NotImplementedError
@@ -54,5 +55,5 @@ class WindowProtocol(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Any:
+    def find(self, widget_id: str) -> Any:
         raise NotImplementedError

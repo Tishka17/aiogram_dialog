@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram import Router
 
 from aiogram_dialog.api.entities import ChatEvent
@@ -22,7 +24,9 @@ class DefaultManagerFactory(DialogManagerFactory):
         self.media_id_storage = media_id_storage
 
     def __call__(
-            self, event: ChatEvent, data: dict,
+            self,
+            event: ChatEvent,
+            data: dict[str, Any],
             registry: DialogRegistryProtocol,
             router: Router,
     ) -> DialogManager:
