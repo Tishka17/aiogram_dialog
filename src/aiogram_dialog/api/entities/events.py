@@ -7,9 +7,9 @@ from aiogram.types import (
     Chat,
     ChatJoinRequest,
     ChatMemberUpdated,
+    ErrorEvent,
     Message,
     User,
-    ErrorEvent,
 )
 
 from .update_event import DialogUpdateEvent
@@ -19,8 +19,8 @@ ChatEvent = Union[
     ChatJoinRequest,
     ChatMemberUpdated,
     DialogUpdateEvent,
-    Message,
     ErrorEvent,
+    Message,
 ]
 
 

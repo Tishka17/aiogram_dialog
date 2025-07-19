@@ -6,6 +6,7 @@ from aiogram.types import (
     Chat,
     ChatJoinRequest,
     ChatMemberUpdated,
+    ErrorEvent,
     InaccessibleMessage,
     InlineKeyboardButton,
     KeyboardButton,
@@ -123,6 +124,13 @@ def get_chat(event: ChatEvent) -> Chat:
         if not event.message:
             return Chat(id=event.from_user.id, type="")
         return event.message.chat
+    elif isinstance(event, ErrorEvent):
+        upd_event = event.update.event
+        if hasattr(upd_event, "chat"):
+            return upd_event.chat
+        elif hasattr(upd_event, "user"):
+            return upd_event.user.id
+        return upd_event.from_user.id
     else:
         raise TypeError
 
