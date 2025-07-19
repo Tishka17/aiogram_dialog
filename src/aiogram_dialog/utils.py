@@ -129,8 +129,8 @@ def get_chat(event: ChatEvent) -> Chat:
         if hasattr(upd_event, "chat"):
             return upd_event.chat
         elif hasattr(upd_event, "user"):
-            return upd_event.user.id
-        return upd_event.from_user.id
+            return Chat(id=upd_event.user.id, type="")
+        return Chat(id=event.from_user.id, type="")
     else:
         raise TypeError
 
