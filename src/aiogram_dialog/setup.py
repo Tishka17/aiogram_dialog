@@ -75,8 +75,17 @@ class DialogRegistry(DialogRegistryProtocol):
         return self._states_groups
 
     def refresh(self):
-        dialogs = collect_dialogs(self.router)
-        self._dialogs = {d.states_group(): d for d in dialogs}
+        for dialog in collect_dialogs(self.router):
+            states_group = dialog.states_group()
+            if states_group in self._dialogs:
+                existing_dialog = self._dialogs[states_group]
+                raise ValueError(
+                    f"StatesGroup '{states_group.__name__}' "
+                    f"is used in multiple dialogs: "
+                    f"'{existing_dialog}' and '{dialog}'",
+                )
+            self._dialogs[states_group] = dialog
+
         self._states_groups = {
             d.states_group_name(): d.states_group()
             for d in self._dialogs.values()
