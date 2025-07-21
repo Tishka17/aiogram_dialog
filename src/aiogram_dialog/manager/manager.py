@@ -190,6 +190,7 @@ class ManagerImpl(DialogManager):
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         self.check_disabled()
+        self.show_mode = show_mode or self.show_mode
         await self.dialog().process_close(result, self)
         old_context = self.current_context()
         await self.mark_closed()
@@ -322,6 +323,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index + 1 >= len(states):
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index + 1} idx is requested, "
+                f"but there are only {len(states)} states,"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
 
@@ -329,6 +337,13 @@ class ManagerImpl(DialogManager):
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
+        if current_index - 1 < 0:
+            raise ValueError(
+                f"Cannot go to a non-existent state."
+                f"The state of {current_index - 1} idx is requested, "
+                f"but states idx should be positive"
+                f"current state is {context.state}",
+            )
         new_state = states[current_index - 1]
         await self.switch_to(new_state, show_mode)
 
