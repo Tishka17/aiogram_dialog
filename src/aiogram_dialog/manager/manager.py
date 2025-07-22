@@ -436,9 +436,7 @@ class ManagerImpl(DialogManager):
     ) -> Optional[OldMessage]:
         current_message = event.message
         stack = self.current_stack()
-        event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
-        )
+        event_context: EventContext = self.middleware_data[EVENT_CONTEXT_KEY]
         if isinstance(current_message, Message):
             media_id = get_media_id(current_message)
             return OldMessage(
@@ -476,9 +474,8 @@ class ManagerImpl(DialogManager):
         stack = self.current_stack()
         if not stack or not stack.last_message_id:
             return None
-        event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
-        )
+
+        event_context: EventContext = self.middleware_data[EVENT_CONTEXT_KEY]
         return OldMessage(
             media_id=stack.last_media_id,
             media_uniq_id=stack.last_media_unique_id,
@@ -533,10 +530,15 @@ class ManagerImpl(DialogManager):
 
     def _get_fake_user(self, user_id: Optional[int] = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
-        current_user = cast(User, self.event.from_user)
-        if user_id in (None, current_user.id):
+        current_user: Optional[User] = self._data.get("event_from_user")
+        if current_user and (user_id in (None, current_user.id)):
             return current_user
-        return FakeUser(id=user_id, is_bot=False, first_name="")
+        if user_id is not None:
+            return FakeUser(id=user_id, is_bot=False, first_name="")
+        raise ValueError(
+            "Explicit `user_id` is required "
+            "for events without current user",
+        )
 
     def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
@@ -563,9 +565,7 @@ class ManagerImpl(DialogManager):
         user = self._get_fake_user(user_id)
         chat = self._get_fake_chat(chat_id)
         intent_id = None
-        event_context = cast(
-            EventContext, self.middleware_data.get(EVENT_CONTEXT_KEY),
-        )
+        event_context: EventContext = self.middleware_data[EVENT_CONTEXT_KEY]
         new_event_context = EventContext(
             bot=event_context.bot,
             chat=chat,

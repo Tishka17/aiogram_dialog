@@ -101,14 +101,13 @@ class MessageManager(MessageManagerProtocol):
             return media.url
         if media.path:
             return FSInputFile(media.path)
-        else:
-            raise ValueError("Not found media source")
+        raise ValueError("Not found media source")
 
     def had_media(self, old_message: OldMessage) -> bool:
         return old_message.media_id is not None
 
     def need_media(self, new_message: NewMessage) -> bool:
-        return bool(new_message.media)
+        return new_message.media is not None
 
     def had_reply_keyboard(self, old_message: Optional[OldMessage]) -> bool:
         if not old_message:
@@ -145,19 +144,20 @@ class MessageManager(MessageManagerProtocol):
             return True
         if not self.need_media(new_message):
             return False
+        # typing.cast, use it as above is check
+        # `if not self.need_media(new_message):`
         new_media_id = cast(
             MediaAttachment,
             new_message.media,
         ).file_id
+
+        # typing.cast, use it as above is check
+        # `if self.had_media(old_message) != ...`
         old_media_id = MediaId(
             cast(str, old_message.media_id),
             old_message.media_uniq_id,
         )
-
-        if new_media_id != old_media_id:
-            return True
-
-        return False
+        return new_media_id != old_media_id
 
     def _can_edit(self, new_message: NewMessage,
                   old_message: OldMessage) -> bool:
@@ -280,7 +280,7 @@ class MessageManager(MessageManagerProtocol):
             elif "MESSAGE_ID_INVALID" in err.message:
                 return None
             else:
-                raise err
+                raise
 
     async def remove_reply_kbd(
             self, bot: Bot, old_message: Optional[OldMessage],

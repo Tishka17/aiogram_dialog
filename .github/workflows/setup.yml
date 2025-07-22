@@ -46,7 +46,7 @@ jobs:
         run: ruff check src/aiogram_dialog tests example
 
       - name: Run mypy
-        run: mypy
+        run: mypy --config-file .mypy.ini
 
       - name: Run tests
         run: |

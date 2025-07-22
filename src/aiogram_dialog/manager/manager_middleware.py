@@ -24,6 +24,8 @@ class ManagerMiddleware(BaseMiddleware):
             registry: DialogRegistryProtocol,
             router: Router,
     ) -> None:
+        super().__init__()
+
         self.dialog_manager_factory = dialog_manager_factory
         self.registry = registry
         self.router = router
