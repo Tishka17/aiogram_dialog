@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Protocol
+from typing import Any, Protocol
 
 from aiogram import Router
 
@@ -13,7 +13,9 @@ from aiogram_dialog.api.protocols import (
 class DialogManagerFactory(Protocol):
     @abstractmethod
     def __call__(
-            self, event: ChatEvent, data: dict,
+            self,
+            event: ChatEvent,
+            data: dict[str, Any],
             registry: DialogRegistryProtocol,
             router: Router,
     ) -> DialogManager:

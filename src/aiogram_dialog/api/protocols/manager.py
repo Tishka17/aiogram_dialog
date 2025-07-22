@@ -51,7 +51,7 @@ class BaseDialogManager(Protocol):
     @abstractmethod
     async def update(
             self,
-            data: dict,
+            data: dict[str, Any],
             show_mode: Optional[ShowMode] = None,
     ) -> None:
         raise NotImplementedError
@@ -80,7 +80,7 @@ class BgManagerFactory(Protocol):
             thread_id: Optional[int] = None,
             business_connection_id: Optional[str] = None,
             load: bool = False,  # load chat and user
-    ) -> "BaseDialogManager":
+    ) -> BaseDialogManager:
         raise NotImplementedError
 
 
@@ -96,13 +96,13 @@ class DialogManager(BaseDialogManager, Protocol):
 
     @property
     @abstractmethod
-    def middleware_data(self) -> dict:
+    def middleware_data(self) -> dict[str, Any]:
         """Middleware data."""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def dialog_data(self) -> dict:
+    def dialog_data(self) -> dict[str, Any]:
         """Dialog data for current context."""
         raise NotImplementedError
 
@@ -169,7 +169,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id: str) -> Optional[Any]:
         """
         Find a widget in current dialog by its id.
 
@@ -188,7 +188,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def load_data(self) -> dict:
+    async def load_data(self) -> dict[str, Any]:
         """Load data for current state."""
         raise NotImplementedError
 

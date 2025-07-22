@@ -1,6 +1,6 @@
 import warnings
 from logging import getLogger
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -154,10 +154,11 @@ class Window(WindowProtocol):
         except Exception:
             logger.error("Cannot get window data for state %s", self.state)
             raise
+
+        event_context: EventContext = (
+            manager.middleware_data[EVENT_CONTEXT_KEY]
+        )
         try:
-            event_context = cast(
-                EventContext, manager.middleware_data.get(EVENT_CONTEXT_KEY),
-            )
             return NewMessage(
                 chat=chat,
                 thread_id=event_context.thread_id,
