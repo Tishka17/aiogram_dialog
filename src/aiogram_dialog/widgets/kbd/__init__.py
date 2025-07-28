@@ -30,9 +30,11 @@ __all__ = [
     "PrevPage",
     "SwitchPage",
     "ScrollingGroup",
+    "RequestChat",
     "RequestContact",
     "RequestLocation",
     "RequestPoll",
+    "RequestUsers",
     "Checkbox",
     "ManagedCheckbox",
     "Select",
@@ -79,7 +81,7 @@ from .pager import (
     PrevPage,
     SwitchPage,
 )
-from .request import RequestContact, RequestLocation, RequestPoll
+from .request import RequestContact, RequestUsers, RequestChat, RequestLocation, RequestPoll
 from .scrolling_group import ScrollingGroup
 from .select import (
     ManagedMultiselect,
