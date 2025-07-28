@@ -1,5 +1,4 @@
-from collections.abc import Callable
-from typing import Optional, Union
+from typing import Optional
 
 from aiogram.types import (
     ChatAdministratorRights,
@@ -11,6 +10,7 @@ from aiogram.types import (
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Text
 
 from .base import Keyboard
@@ -20,7 +20,7 @@ class RequestContact(Keyboard):
     def __init__(
             self,
             text: Text,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -51,7 +51,7 @@ class RequestUsers(Keyboard):
         request_name: bool = None,
         request_username: bool | None = None,
         request_photo: bool | None = None,
-        when: Union[str, Callable, None] = None,
+        when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -95,7 +95,7 @@ class RequestChat(Keyboard):
             request_title: Optional[bool] = None,
             request_username: Optional[bool] = None,
             request_photo: Optional[bool] = None,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -132,7 +132,7 @@ class RequestLocation(Keyboard):
     def __init__(
             self,
             text: Text,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -157,7 +157,7 @@ class RequestPoll(Keyboard):
             self,
             text: Text,
             poll_type: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.text = text
