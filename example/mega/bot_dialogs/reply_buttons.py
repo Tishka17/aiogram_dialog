@@ -2,8 +2,10 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import (
     Checkbox,
     Radio,
+    RequestChat,
     RequestContact,
     RequestLocation,
+    RequestUsers,
     Row,
 )
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
@@ -17,7 +19,9 @@ reply_kbd_dialog = Dialog(
         Const("Reply keyboard with multiple widgets.\n"),
         Row(
             RequestContact(Const("👤 Send contact")),
+            RequestChat(Const("💬 Send chat"), request_id=1),
             RequestLocation(Const("📍 Send location")),
+            RequestUsers(Const("👥 Send user"), request_id=2, max_quantity=1),
         ),
         Checkbox(
             checked_text=Const("✓ Checkbox"),
