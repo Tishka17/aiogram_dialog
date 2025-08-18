@@ -64,6 +64,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
     return OldMessage(
         message_id=message_result.message_id,
         chat=message_result.chat,
+        has_protected_content=message_result.has_protected_content,
         has_reply_keyboard=isinstance(
             sent_message.reply_markup, ReplyKeyboardMarkup,
         ),
@@ -134,7 +135,11 @@ class MessageManager(MessageManagerProtocol):
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
             # we do not know if link preview changed
-            new_message.link_preview_options
+            new_message.link_preview_options or
+            (
+                bool(new_message.protect_content)
+                != bool(old_message.has_protected_content)
+            )
         ):
             return True
 
@@ -317,6 +322,11 @@ class MessageManager(MessageManagerProtocol):
     async def edit_message(
             self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
+        if bool(old_message.has_protected_content) != \
+           bool(new_message.protect_content):
+            await self.remove_message_safe(bot, old_message, new_message)
+            return await self.send_message(bot, new_message)
+
         if new_message.media:
             if (
                 old_message.media_id is not None and
@@ -396,6 +406,7 @@ class MessageManager(MessageManagerProtocol):
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            protect_content=new_message.protect_content,
             link_preview_options=new_message.link_preview_options,
         )
 
@@ -418,5 +429,6 @@ class MessageManager(MessageManagerProtocol):
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            protect_content=new_message.protect_content,
             **new_message.media.kwargs,
         )

@@ -49,6 +49,7 @@ class Window(WindowProtocol):
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
             parse_mode: Optional[str] = UNSET_PARSE_MODE,
             disable_web_page_preview: Optional[bool] = None,
+            protect_content: Optional[bool] = None,
             preview_add_transitions: Optional[list[Keyboard]] = None,
             preview_data: GetterVariant = None,
     ):
@@ -67,6 +68,7 @@ class Window(WindowProtocol):
         self.on_process_result = on_process_result
         self.markup_factory = markup_factory
         self.parse_mode = parse_mode
+        self.protect_content = protect_content
         self.preview_add_transitions = preview_add_transitions
         if disable_web_page_preview is not None:
             if self.link_preview:
@@ -165,6 +167,7 @@ class Window(WindowProtocol):
                 text=await self.render_text(current_data, manager),
                 reply_markup=await self.render_kbd(current_data, manager),
                 parse_mode=self.parse_mode,
+                protect_content=self.protect_content,
                 media=await self.render_media(current_data, manager),
                 link_preview_options=await self.render_link_preview(
                     current_data, manager,

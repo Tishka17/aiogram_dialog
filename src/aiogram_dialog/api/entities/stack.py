@@ -50,6 +50,7 @@ class Stack:
     )
     content_type: Optional[ContentType] = field(compare=False, default=None)
     access_settings: Optional[AccessSettings] = None
+    has_protected_content: Optional[bool] = field(compare=False, default=None)
 
     @property
     def id(self):
