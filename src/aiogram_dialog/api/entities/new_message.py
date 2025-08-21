@@ -30,6 +30,7 @@ class OldMessage:
     media_id: Optional[str]
     media_uniq_id: Optional[str]
     text: Union[str, None, UnknownText] = None
+    has_protected_content: Optional[bool] = None
     has_reply_keyboard: bool = False
     business_connection_id: Optional[str] = None
     content_type: Optional[ContentType] = None
@@ -43,6 +44,7 @@ class NewMessage:
     text: Optional[str] = None
     reply_markup: Optional[MarkupVariant] = None
     parse_mode: Optional[str] = None
+    protect_content: Optional[bool] = None
     show_mode: ShowMode = ShowMode.AUTO
     media: Optional[MediaAttachment] = None
     link_preview_options: Optional[LinkPreviewOptions] = None

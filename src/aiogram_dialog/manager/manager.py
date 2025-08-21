@@ -441,6 +441,7 @@ class ManagerImpl(DialogManager):
                 media_id=(media_id.file_id if media_id else None),
                 media_uniq_id=(media_id.file_unique_id if media_id else None),
                 text=current_message.text,
+                has_protected_content=current_message.has_protected_content,
                 has_reply_keyboard=self.is_event_simulated(),
                 chat=event_context.chat,
                 message_id=current_message.message_id,
@@ -454,6 +455,7 @@ class ManagerImpl(DialogManager):
                 media_id=None,
                 media_uniq_id=None,
                 text=UnknownText.UNKNOWN,
+                has_protected_content=stack.has_protected_content,
                 has_reply_keyboard=self.is_event_simulated(),
                 chat=event_context.chat,
                 message_id=stack.last_message_id,
@@ -479,6 +481,7 @@ class ManagerImpl(DialogManager):
             media_id=stack.last_media_id,
             media_uniq_id=stack.last_media_unique_id,
             text=UnknownText.UNKNOWN,
+            has_protected_content=stack.has_protected_content,
             has_reply_keyboard=stack.last_reply_keyboard,
             chat=event_context.chat,
             message_id=stack.last_message_id,
@@ -493,6 +496,7 @@ class ManagerImpl(DialogManager):
         stack.last_media_unique_id = message.media_uniq_id
         stack.last_reply_keyboard = message.has_reply_keyboard
         stack.content_type = message.content_type
+        stack.has_protected_content = message.has_protected_content
 
     def _calc_show_mode(self) -> ShowMode:  # noqa: PLR0911
         if self.show_mode is not ShowMode.AUTO:
