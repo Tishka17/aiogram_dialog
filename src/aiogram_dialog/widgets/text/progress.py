@@ -9,6 +9,7 @@ class Progress(Text):
             self,
             field: str,
             width: int = 10,
+            total: int = 100,
             filled="🟥",
             empty="⬜",
             when: WhenCondition = None,
@@ -16,6 +17,7 @@ class Progress(Text):
         super().__init__(when)
         self.field = field
         self.width = width
+        self.total = total
         self.filled = filled
         self.empty = empty
 
@@ -23,9 +25,10 @@ class Progress(Text):
             self, data: dict, manager: DialogManager,
     ) -> str:
         if manager.is_preview():
-            percent = 15
+            value = 15
         else:
-            percent = data.get(self.field)
+            value = data.get(self.field)
+        percent = (value / self.total) * 100
         done = round((self.width * percent) / 100)
         rest = self.width - done
 
