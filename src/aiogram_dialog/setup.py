@@ -226,6 +226,7 @@ def setup_dialogs(
         media_id_storage: Optional[MediaIdStorageProtocol] = None,
         stack_access_validator: Optional[StackAccessValidator] = None,
         events_isolation: Optional[BaseEventIsolation] = None,
+        bg_manager_factory: Optional[BgManagerFactory] = None,
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
@@ -240,7 +241,8 @@ def setup_dialogs(
         stack_access_validator,
     )
     events_isolation = _prepare_events_isolation(events_isolation)
-    bg_manager_factory = BgManagerFactoryImpl(router)
+    if bg_manager_factory is None:
+        bg_manager_factory = BgManagerFactoryImpl(router)
     _register_middleware(
         router=router,
         dialog_manager_factory=dialog_manager_factory,
