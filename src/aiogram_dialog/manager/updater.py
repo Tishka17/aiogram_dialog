@@ -1,12 +1,12 @@
-import asyncio
-from contextvars import copy_context
+from abc import ABC, abstractmethod
+from typing import Any
 
 from aiogram import Bot, Dispatcher, Router
 
 from aiogram_dialog.api.entities import DialogUpdate
 
 
-class Updater:
+class Updater(ABC):
     def __init__(self, dp: Router):
         while dp.parent_router:
             dp = dp.parent_router
@@ -14,17 +14,13 @@ class Updater:
             raise TypeError("Root router must be Dispatcher.")
         self.dp = dp
 
-    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
-        def callback():
-            asyncio.create_task(  # noqa: RUF006
-                self._process_update(bot, update),
-            )
+    @abstractmethod
+    async def notify(self, bot: Bot, update: DialogUpdate) -> Any:
+        pass
 
-        asyncio.get_running_loop().call_soon(callback, context=copy_context())
-
-    async def _process_update(self, bot: Bot, update: DialogUpdate) -> None:
+    async def _process_update(self, bot: Bot, update: DialogUpdate) -> Any:
         event = update.event
-        await self.dp.propagate_event(
+        return await self.dp.propagate_event(
             update_type="update",
             event=update,
             bot=bot,

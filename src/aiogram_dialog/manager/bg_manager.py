@@ -27,7 +27,7 @@ from aiogram_dialog.api.protocols import (
     BgManagerFactory,
     UnsetId,
 )
-from aiogram_dialog.manager.updater import Updater
+from aiogram_dialog.manager.bg_updater import BgUpdater
 from aiogram_dialog.utils import is_chat_loaded, is_user_loaded
 
 logger = getLogger(__name__)
@@ -86,7 +86,7 @@ class BgManager(BaseDialogManager):
             business_connection_id=business_connection_id,
         )
         self._router = router
-        self._updater = Updater(router)
+        self._updater = BgUpdater(router)
         self.intent_id = intent_id
         self.stack_id = stack_id
         self.load = load
