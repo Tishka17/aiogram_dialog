@@ -4,7 +4,6 @@ from aiogram import Bot, Router
 from aiogram.types import Chat, User
 
 from aiogram_dialog.api.entities import DEFAULT_STACK_ID
-
 from aiogram_dialog.api.internal import FakeChat, FakeUser
 from aiogram_dialog.api.protocols import BaseDialogManager
 from aiogram_dialog.manager.bg_manager import BgManager, BgManagerFactoryImpl
