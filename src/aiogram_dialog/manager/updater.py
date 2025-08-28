@@ -15,7 +15,7 @@ class Updater(ABC):
         self.dp = dp
 
     @abstractmethod
-    async def notify(self, bot: Bot, update: DialogUpdate) -> Any:
+    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
         pass
 
     async def _process_update(self, bot: Bot, update: DialogUpdate) -> Any:
