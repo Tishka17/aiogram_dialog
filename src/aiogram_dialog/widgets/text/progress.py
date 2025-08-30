@@ -28,8 +28,9 @@ class Progress(Text):
             value = 15
         else:
             value = data.get(self.field)
-        percent = (value / self.total) * 100
-        done = round((self.width * percent) / 100)
+
+        done = round((self.width * value) / self.total)
         rest = self.width - done
+        percent = (value / self.total) * 100
 
         return self.filled * done + self.empty * rest + f" {percent: 2.0f}%"
