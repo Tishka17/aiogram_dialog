@@ -1,7 +1,7 @@
-import random
 import string
 import time
 from dataclasses import dataclass, field
+from itertools import cycle
 from typing import Optional
 
 from aiogram.enums import ContentType
@@ -16,10 +16,11 @@ DEFAULT_STACK_ID = ""
 GROUP_STACK_ID = "<->"
 _STACK_LIMIT = 100
 _ID_SYMS = string.digits + string.ascii_letters
+_CYCLE = cycle(range(100))
 
 
 def new_int_id() -> int:
-    return int(time.time()) % 100000000 + random.randint(0, 99) * 100000000
+    return int(time.time_ns()) % 100000000 + next(_CYCLE) * 100000000
 
 
 def id_to_str(int_id: int) -> str:
