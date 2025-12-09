@@ -8,7 +8,6 @@ from aiogram_dialog.api.protocols import (
     MediaIdStorageProtocol,
     MessageManagerProtocol,
 )
-
 from .manager import ManagerImpl
 
 

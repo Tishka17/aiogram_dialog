@@ -13,7 +13,6 @@ from aiogram_dialog.widgets.kbd import (
     Toggle,
 )
 from aiogram_dialog.widgets.text import Const, Format, List
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 

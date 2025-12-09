@@ -8,7 +8,6 @@ from aiogram_dialog.api.protocols import (
     DialogManager,
     DialogProtocol,
 )
-
 from .base import BaseInput
 
 

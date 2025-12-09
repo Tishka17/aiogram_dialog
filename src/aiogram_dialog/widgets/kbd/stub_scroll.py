@@ -9,7 +9,6 @@ from aiogram_dialog.widgets.common.scroll import (
     BaseScroll,
     OnPageChangedVariants,
 )
-
 from .base import Keyboard
 
 PagesGetter = Callable[[dict, "StubScroll", DialogManager], int]

@@ -6,7 +6,6 @@ from aiogram.types import KeyboardButton, KeyboardButtonPollType
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text
-
 from .base import Keyboard
 
 

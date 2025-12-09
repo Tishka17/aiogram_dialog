@@ -18,7 +18,6 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 

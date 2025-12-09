@@ -69,3 +69,6 @@ lint.ignore = [
     "RUF001",
     "PTH",
 ]
+
+[lint.isort]
+no-lines-before = ["local-folder"]

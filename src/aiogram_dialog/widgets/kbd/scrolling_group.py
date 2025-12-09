@@ -8,7 +8,6 @@ from aiogram_dialog.widgets.common import (
     OnPageChangedVariants,
     WhenCondition,
 )
-
 from .base import Keyboard
 from .group import Group
 

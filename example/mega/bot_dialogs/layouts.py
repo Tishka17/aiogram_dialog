@@ -11,7 +11,6 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
 )
 from aiogram_dialog.widgets.text import Const, Format
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 

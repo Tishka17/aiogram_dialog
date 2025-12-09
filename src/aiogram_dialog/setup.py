@@ -33,7 +33,6 @@ from aiogram_dialog.manager.manager_middleware import (
 )
 from aiogram_dialog.manager.message_manager import MessageManager
 from aiogram_dialog.manager.update_handler import handle_update
-
 from .about import about_dialog
 from .context.access_validator import DefaultAccessValidator
 

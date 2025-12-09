@@ -7,7 +7,6 @@ from aiogram.enums import ContentType
 from aiogram.fsm.state import State
 
 from aiogram_dialog.api.exceptions import DialogStackOverflow
-
 from .access import AccessSettings
 from .context import Context, Data
 

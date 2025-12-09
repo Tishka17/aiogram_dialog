@@ -8,7 +8,6 @@ from aiogram_dialog.api.entities import (
     LaunchMode,
     NewMessage,
 )
-
 from .manager import DialogManager
 
 

@@ -11,7 +11,6 @@ from aiogram_dialog.widgets.common.items import (
     ItemsGetterVariant,
     get_items_getter,
 )
-
 from .base import Text
 
 

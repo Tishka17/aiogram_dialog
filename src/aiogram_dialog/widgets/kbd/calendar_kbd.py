@@ -23,7 +23,6 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import Keyboard
 
 EPOCH = date(1970, 1, 1)

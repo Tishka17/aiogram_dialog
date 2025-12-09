@@ -21,7 +21,6 @@ from aiogram_dialog.api.protocols import (
     DialogManager,
     DialogProtocol,
 )
-
 from .context.intent_filter import IntentFilter
 from .utils import remove_intent_id
 from .widgets.data import PreviewAwareGetter

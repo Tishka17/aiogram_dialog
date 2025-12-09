@@ -44,7 +44,6 @@ from aiogram_dialog.api.protocols import (
     StackAccessValidator,
 )
 from aiogram_dialog.utils import remove_intent_id, split_reply_callback
-
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
