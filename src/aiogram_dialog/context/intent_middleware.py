@@ -51,7 +51,7 @@ logger = getLogger(__name__)
 FORBIDDEN_STACK_KEY = "aiogd_stack_forbidden"
 
 
-def get_thread_id(message: Message) -> str | None:
+def get_thread_id(message: Message) -> int | None:
     if not message.is_topic_message:
         return None
     return message.message_thread_id
