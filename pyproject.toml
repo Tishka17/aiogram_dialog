@@ -15,7 +15,8 @@ readme = "README.md"
 authors = [
     { name = "Andrey Tikhonov", email = "17@itishka.org" },
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 description = "Telegram bot UI framework on top of aiogram"
 requires-python = ">=3.10"
 classifiers = [
@@ -32,7 +33,7 @@ classifiers = [
 dependencies = [
     "aiogram>=3.14.0",
     "jinja2",
-    "cachetools>=4.0.0,<6.0.0",
+    "cachebox==5.1.0",
 ]
 [project.optional-dependencies]
 tools = [
@@ -48,7 +49,7 @@ tools = [
 aiogram-dialog-preview = "aiogram_dialog.tools.web_preview:main"
 
 [tool.setuptools_scm]
-version_file = "src/dishka/_version.py"
+version_file = "src/aiogram_dialog/_version.py"
 version_file_template = """\
 # This file auto generated!
 # DO NOT EDIT MANUALLY!

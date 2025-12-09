@@ -2,7 +2,7 @@ import os
 from typing import NamedTuple, cast
 
 from aiogram.types import ContentType
-from cachetools import LRUCache
+from cachebox import LRUCache
 
 from aiogram_dialog.api.entities import MediaId
 from aiogram_dialog.api.protocols import MediaIdStorageProtocol

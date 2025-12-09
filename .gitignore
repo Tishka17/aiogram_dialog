@@ -3,4 +3,4 @@ __pycache__
 /build
 .idea/
 /dist
-src/dishka/_version.py
+src/aiogram_dialog/_version.py
