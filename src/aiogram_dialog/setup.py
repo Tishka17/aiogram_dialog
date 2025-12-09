@@ -1,5 +1,4 @@
 from collections.abc import Callable, Iterable
-from typing import Union
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
@@ -59,7 +58,7 @@ class DialogRegistry(DialogRegistryProtocol):
         if not self._loaded:
             self.refresh()
 
-    def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
+    def find_dialog(self, state: State | str) -> DialogProtocol:
         self._ensure_loaded()
         try:
             return self._dialogs[state.group]

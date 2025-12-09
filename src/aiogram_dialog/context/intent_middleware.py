@@ -398,8 +398,10 @@ class IntentMiddlewareFactory:
             if intent_id:
                 await self._load_context_by_intent(
                     event=event,
-                    proxy=self.storage_proxy(event_context,
-                                             data["fsm_storage"]),
+                    proxy=self.storage_proxy(
+                        event_context,
+                        data["fsm_storage"],
+                    ),
                     intent_id=intent_id,
                     data=data,
                 )
@@ -464,9 +466,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             return False
         if "event_chat" not in data:
             return False
-        if "event_from_user" not in data:
-            return False
-        return True
+        return "event_from_user" in data
 
     async def _fix_broken_stack(
             self, storage: StorageProxy, stack: Stack,

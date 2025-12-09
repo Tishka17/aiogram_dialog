@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 
 from aiogram import Bot, Dispatcher
 from aiogram.methods import AnswerCallbackQuery, TelegramMethod
@@ -48,15 +48,14 @@ class FakeBot(Bot):
         return self is other
 
 
-ChatMember = Union[
-    ChatMemberOwner,
-    ChatMemberAdministrator,
-    ChatMemberMember,
-    ChatMemberRestricted,
-    ChatMemberLeft,
-    ChatMemberBanned,
-]
-
+ChatMember = (
+    ChatMemberOwner |
+    ChatMemberAdministrator |
+    ChatMemberMember |
+    ChatMemberRestricted |
+    ChatMemberLeft |
+    ChatMemberBanned
+)
 
 class BotClient:
     def __init__(

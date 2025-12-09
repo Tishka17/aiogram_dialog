@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
 
 from aiogram.enums import ContentType
 from aiogram.types import (
@@ -14,9 +13,9 @@ from aiogram.types import (
 
 from aiogram_dialog.api.entities import MediaAttachment, ShowMode
 
-MarkupVariant = Union[
-    ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove,
-]
+MarkupVariant = (
+    ForceReply | InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove
+)
 
 
 class UnknownText(Enum):
@@ -29,7 +28,7 @@ class OldMessage:
     message_id: int
     media_id: str | None
     media_uniq_id: str | None
-    text: Union[str, None, UnknownText] = None
+    text: str | UnknownText | None = None
     has_protected_content: bool | None = None
     has_reply_keyboard: bool = False
     business_connection_id: str | None = None

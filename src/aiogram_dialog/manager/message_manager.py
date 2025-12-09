@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Union
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
@@ -92,7 +91,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def get_media_source(
             self, media: MediaAttachment, bot: Bot,
-    ) -> Union[InputFile, str]:
+    ) -> InputFile | str:
         if media.file_id:
             return media.file_id.file_id
         if media.url:

@@ -4,7 +4,6 @@ from typing import (
     Any,
     Optional,
     Protocol,
-    Union,
     runtime_checkable,
 )
 
@@ -52,7 +51,7 @@ class LinkPreviewWidget(Widget, Protocol):
         raise NotImplementedError
 
 
-ButtonVariant = Union[InlineKeyboardButton, KeyboardButton]
+ButtonVariant = InlineKeyboardButton | KeyboardButton
 RawKeyboard = list[list[ButtonVariant]]
 
 

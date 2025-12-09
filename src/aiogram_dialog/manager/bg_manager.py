@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Union
+from typing import Any
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
@@ -37,7 +37,7 @@ def coalesce_business_connection_id(
         *,
         user: User,
         chat: Chat,
-        business_connection_id: Union[str, None, UnsetId],
+        business_connection_id: str | UnsetId | None,
         event_context: EventContext,
 ) -> str | None:
     if business_connection_id is not UnsetId.UNSET:
@@ -53,7 +53,7 @@ def coalesce_thread_id(
         *,
         user: User,
         chat: Chat,
-        thread_id: Union[str, None, UnsetId],
+        thread_id: str | UnsetId | None,
         event_context: EventContext,
 ) -> str | None:
     if thread_id is not UnsetId.UNSET:
@@ -108,8 +108,8 @@ class BgManager(BaseDialogManager):
             user_id: int | None = None,
             chat_id: int | None = None,
             stack_id: str | None = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            thread_id: str | UnsetId | None = UnsetId.UNSET,
+            business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,
     ) -> "BaseDialogManager":
         chat = self._get_fake_chat(chat_id)

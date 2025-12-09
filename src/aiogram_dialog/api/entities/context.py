@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
-from typing import Union
 
 from aiogram.fsm.state import State
 
 from .access import AccessSettings
 
-Data = Union[dict, list, int, str, float, None]
+Data = dict | list | int | str | float | None
 DataDict = dict[str, Data]
 
 

@@ -19,7 +19,6 @@ __all__ = [
     "setup_dialogs",
 ]
 
-import importlib.metadata as _metadata
 
 from .api.entities import (
     DEFAULT_STACK_ID,
@@ -43,5 +42,3 @@ from .dialog import Dialog
 from .manager.sub_manager import SubManager
 from .setup import setup_dialogs
 from .window import Window
-
-__version__ = _metadata.version("aiogram-dialog")

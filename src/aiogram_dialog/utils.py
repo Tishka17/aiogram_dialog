@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -106,7 +105,7 @@ def _transform_to_reply_button(
 
 
 def transform_to_reply_keyboard(
-        keyboard: list[list[Union[InlineKeyboardButton, KeyboardButton]]],
+        keyboard: list[list[InlineKeyboardButton | KeyboardButton]],
 ) -> list[list[KeyboardButton]]:
     return [
         [_transform_to_reply_button(button) for button in row]
@@ -157,7 +156,7 @@ def is_user_loaded(user: User) -> bool:
 
 
 def get_media_id(
-    message: Union[Message, InaccessibleMessage],
+    message: Message | InaccessibleMessage,
 ) -> MediaId | None:
     if isinstance(message, InaccessibleMessage):
         return None

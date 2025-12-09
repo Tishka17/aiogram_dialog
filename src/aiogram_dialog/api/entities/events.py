@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Union
 
 from aiogram import Bot
 from aiogram.types import (
@@ -14,14 +13,14 @@ from aiogram.types import (
 
 from .update_event import DialogUpdateEvent
 
-ChatEvent = Union[
-    CallbackQuery,
-    ChatJoinRequest,
-    ChatMemberUpdated,
-    DialogUpdateEvent,
-    ErrorEvent,
-    Message,
-]
+ChatEvent = (
+    CallbackQuery
+    | ChatJoinRequest
+    | ChatMemberUpdated
+    | DialogUpdateEvent
+    | ErrorEvent
+    | Message
+)
 
 
 @dataclass

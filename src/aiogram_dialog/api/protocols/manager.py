@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, Protocol, Union
+from typing import Any, Protocol
 
 from aiogram import Bot
 from aiogram.fsm.state import State
@@ -62,8 +62,8 @@ class BaseDialogManager(Protocol):
             user_id: int | None = None,
             chat_id: int | None = None,
             stack_id: str | None = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            thread_id: int | UnsetId | None = UnsetId.UNSET,
+            business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError

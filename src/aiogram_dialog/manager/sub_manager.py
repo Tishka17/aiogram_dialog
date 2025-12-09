@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, Union
+from typing import Any
 
 from aiogram.fsm.state import State
 from aiogram.types import Message
@@ -150,8 +150,8 @@ class SubManager(DialogManager):
             user_id: int | None = None,
             chat_id: int | None = None,
             stack_id: str | None = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            thread_id: int | UnsetId | None = UnsetId.UNSET,
+            business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         return self.manager.bg(

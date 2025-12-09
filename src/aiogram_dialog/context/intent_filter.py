@@ -1,5 +1,4 @@
-
-from aiogram.filters import BaseFilter
+from aiogram.filters import Filter
 from aiogram.fsm.state import StatesGroup
 from aiogram.types import TelegramObject
 
@@ -7,7 +6,7 @@ from aiogram_dialog.api.entities import Context
 from aiogram_dialog.api.internal import CONTEXT_KEY
 
 
-class IntentFilter(BaseFilter):
+class IntentFilter(Filter):
     def __init__(self, aiogd_intent_state_group: type[StatesGroup] | None):
         self.aiogd_intent_state_group = aiogd_intent_state_group
 
