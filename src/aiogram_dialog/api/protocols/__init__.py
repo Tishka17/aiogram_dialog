@@ -4,7 +4,7 @@ __all__ = [
     "CancelEventProcessing",
     "DialogManager",
     "DialogProtocol",
-    "DialogProtocol",
+    "DialogRegistryProtocol",
     "DialogRegistryProtocol",
     "MediaIdStorageProtocol",
     "MessageManagerProtocol",
