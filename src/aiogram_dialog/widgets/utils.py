@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Optional, Union
+from typing import Union
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
 from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget
@@ -76,7 +76,7 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 def ensure_link_preview(
         widget: Union[LinkPreviewWidget, Sequence[LinkPreviewWidget]],
-) -> Optional[LinkPreviewWidget]:
+) -> LinkPreviewWidget | None:
     if isinstance(widget, LinkPreviewWidget):
         return widget
     if len(widget) > 1:
@@ -91,9 +91,9 @@ def ensure_widgets(
 ) -> tuple[
     Text,
     Keyboard,
-    Optional[BaseInput],
+    BaseInput | None,
     Media,
-    Optional[LinkPreviewWidget],
+    LinkPreviewWidget | None,
 ]:
     texts = []
     keyboards = []

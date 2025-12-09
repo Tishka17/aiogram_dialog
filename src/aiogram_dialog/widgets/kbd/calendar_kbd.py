@@ -6,7 +6,6 @@ from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from typing import (
     Any,
-    Optional,
     Protocol,
     TypedDict,
     TypeVar,
@@ -116,19 +115,19 @@ class OnDateSelected(Protocol):
 
 @dataclass(frozen=True)
 class CalendarUserConfig:
-    firstweekday: Optional[int] = None
-    timezone: Optional[timezone] = None
-    min_date: Optional[date] = None
-    max_date: Optional[date] = None
-    month_columns: Optional[int] = None
-    years_per_page: Optional[int] = None
-    years_columns: Optional[int] = None
+    firstweekday: int | None = None
+    timezone: timezone | None = None
+    min_date: date | None = None
+    max_date: date | None = None
+    month_columns: int | None = None
+    years_per_page: int | None = None
+    years_columns: int | None = None
 
 
 T = TypeVar("T")
 
 
-def _coalesce(a: Optional[T], b: T) -> T:
+def _coalesce(a: T | None, b: T) -> T:
     if a is None:
         return b
     return a
@@ -697,7 +696,7 @@ class Calendar(Keyboard):
             self,
             id: str,
             on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
-            config: Optional[CalendarConfig] = None,
+            config: CalendarConfig | None = None,
             when: WhenCondition = None,
     ) -> None:
         """
@@ -780,7 +779,7 @@ class Calendar(Keyboard):
             # LOG
             return CalendarScope.DAYS
 
-    def get_offset(self, manager: DialogManager) -> Optional[date]:
+    def get_offset(self, manager: DialogManager) -> date | None:
         calendar_data: CalendarData = self.get_widget_data(manager, {})
         current_offset = calendar_data.get("current_offset")
         if current_offset is None:
@@ -903,7 +902,7 @@ class ManagedCalendar(ManagedWidget[Calendar]):
         """Get current scope showing in calendar."""
         return self.widget.get_scope(self.manager)
 
-    def get_offset(self) -> Optional[date]:
+    def get_offset(self) -> date | None:
         """Get current offset from which calendar is shown."""
         return self.widget.get_offset(self.manager)
 

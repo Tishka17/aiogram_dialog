@@ -25,6 +25,8 @@ from aiogram_dialog.widgets.kbd import Back, Button, Row, Select, SwitchTo
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
+logger = logging.getLogger(__name__)
+
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -136,17 +138,21 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 async def on_unknown_intent(event, dialog_manager: DialogManager):
     # Example of handling UnknownIntent Error and starting new dialog.
-    logging.error("Restarting dialog: %s", event.exception)
+    logger.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
-        DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
+        DialogSG.greeting,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.SEND,
     )
 
 
 async def on_unknown_state(event, dialog_manager: DialogManager):
     # Example of handling UnknownState Error and starting new dialog.
-    logging.error("Restarting dialog: %s", event.exception)
+    logger.error("Restarting dialog: %s", event.exception)
     await dialog_manager.start(
-        DialogSG.greeting, mode=StartMode.RESET_STACK, show_mode=ShowMode.SEND,
+        DialogSG.greeting,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.SEND,
     )
 
 

@@ -23,6 +23,8 @@ from aiogram_dialog.widgets.kbd import Back, Next, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const
 
+logger = logging.getLogger(__name__)
+
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -30,7 +32,7 @@ CUSTOM_URL_PREFIX = "my://"
 
 
 def draw(text) -> bytes:
-    logging.info("Draw image")
+    logger.info("Draw image")
     img = Image.new("RGB", (200, 100), 0x800000)
     draw = ImageDraw.Draw(img)
 

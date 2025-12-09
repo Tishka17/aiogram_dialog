@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.fsm.state import State
 
@@ -17,7 +17,7 @@ class Context:
     start_data: Data = field(compare=False)
     dialog_data: DataDict = field(compare=False, default_factory=dict)
     widget_data: DataDict = field(compare=False, default_factory=dict)
-    access_settings: Optional[AccessSettings] = field(
+    access_settings: AccessSettings | None = field(
         compare=False, default=None,
     )
 

@@ -3,7 +3,6 @@ from collections.abc import Callable
 from typing import (
     Any,
     Generic,
-    Optional,
     Protocol,
     TypeVar,
     Union,
@@ -143,7 +142,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             on_state_changed: Union[
                 OnItemStateChanged[ManagedT, T], WidgetEventProcessor, None,
             ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            when: Union[str, Callable] | None = None,
     ):
         text = Case(
             {True: checked_text, False: unchecked_text},
@@ -229,7 +228,7 @@ class Radio(StatefulSelect[T], Generic[T]):
                 OnItemStateChanged["ManagedRadio[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            when: Union[str, Callable] | None = None,
     ):
 
         super().__init__(
@@ -244,13 +243,13 @@ class Radio(StatefulSelect[T], Generic[T]):
             when=when,
         )
 
-    def get_checked(self, manager: DialogManager) -> Optional[T]:
+    def get_checked(self, manager: DialogManager) -> T | None:
         data = self._get_checked(manager)
         if data is None:
             return None
         return self.type_factory(data)
 
-    def _get_checked(self, manager: DialogManager) -> Optional[str]:
+    def _get_checked(self, manager: DialogManager) -> str | None:
         return self.get_widget_data(manager, None)
 
     async def set_checked(
@@ -295,7 +294,7 @@ class Radio(StatefulSelect[T], Generic[T]):
 
 
 class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
-    def get_checked(self) -> Optional[T]:
+    def get_checked(self) -> T | None:
         """Get an id of selected item."""
         return self.widget.get_checked(self.manager)
 
@@ -331,7 +330,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
                 OnItemStateChanged["ManagedMultiselect[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            when: Union[str, Callable] | None = None,
     ):
         super().__init__(
             checked_text=checked_text,
@@ -449,7 +448,7 @@ class Toggle(Radio[T], Generic[T]):
                 OnItemStateChanged["ManagedToggle[T]", T],
                 WidgetEventProcessor, None,
             ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            when: Union[str, Callable] | None = None,
     ):
         super().__init__(
             checked_text=text, unchecked_text=text,

@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Optional
 
 from aiogram.enums import ChatType
 
@@ -17,7 +16,7 @@ class DefaultAccessValidator(StackAccessValidator):
     async def is_allowed(
             self,
             stack: Stack,
-            context: Optional[Context],
+            context: Context | None,
             event: ChatEvent,
             data: dict,
     ) -> bool:

@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
@@ -62,7 +62,7 @@ class RequestPoll(Keyboard):
     def __init__(
             self,
             text: Text,
-            poll_type: Optional[str] = None,
+            poll_type: str | None = None,
             when: Union[str, Callable, None] = None,
     ):
         super().__init__(when=when)

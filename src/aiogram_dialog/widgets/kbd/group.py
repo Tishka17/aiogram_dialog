@@ -1,6 +1,5 @@
 from collections.abc import Iterable
 from itertools import chain
-from typing import Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -15,8 +14,8 @@ class Group(Keyboard):
     def __init__(
             self,
             *buttons: Keyboard,
-            id: Optional[str] = None,
-            width: Optional[int] = None,
+            id: str | None = None,
+            width: int | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -82,7 +81,7 @@ class Row(Group):
     def __init__(
             self,
             *buttons: Keyboard,
-            id: Optional[str] = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -94,7 +93,7 @@ class Column(Group):
     def __init__(
             self,
             *buttons: Keyboard,
-            id: Optional[str] = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(*buttons, id=id, when=when, width=1)

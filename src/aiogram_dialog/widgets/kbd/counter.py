@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Protocol, Union
+from typing import Protocol, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -44,9 +44,9 @@ class Counter(Keyboard):
     def __init__(
             self,
             id: str,
-            plus: Optional[Text] = PLUS_TEXT,
-            minus: Optional[Text] = MINUS_TEXT,
-            text: Optional[Text] = DEFAULT_COUNTER_TEXT,
+            plus: Text | None = PLUS_TEXT,
+            minus: Text | None = MINUS_TEXT,
+            text: Text | None = DEFAULT_COUNTER_TEXT,
             min_value: float = 0,
             max_value: float = 999999,
             increment: float = 1,

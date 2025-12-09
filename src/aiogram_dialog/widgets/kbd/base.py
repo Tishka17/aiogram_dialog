@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import CallbackQuery
 
@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.common import (
 
 
 class Keyboard(Actionable, Whenable, KeyboardWidget):
-    def __init__(self, id: Optional[str] = None, when: WhenCondition = None):
+    def __init__(self, id: str | None = None, when: WhenCondition = None):
         Actionable.__init__(self, id=id)
         Whenable.__init__(self, when=when)
 
@@ -160,7 +160,7 @@ class Or(Keyboard):
         # reduce nesting
         return Or(other, *self.widgets)
 
-    def find(self, widget_id: str) -> Optional[Keyboard]:
+    def find(self, widget_id: str) -> Keyboard | None:
         for text in self.widgets:
             if found := text.find(widget_id):
                 return found

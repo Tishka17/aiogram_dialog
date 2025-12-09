@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import ContentType
 
@@ -19,7 +19,7 @@ class StaticMedia(Media):
             url: Union[Text, str, None] = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
-            media_params: Optional[dict] = None,
+            media_params: dict | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)
@@ -39,7 +39,7 @@ class StaticMedia(Media):
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         if self.url:
             url = await self.url.render_text(data, manager)
         else:

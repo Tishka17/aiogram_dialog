@@ -2,7 +2,6 @@ import warnings
 from collections.abc import Callable, Iterable, Mapping
 from typing import (
     Any,
-    Optional,
     Union,
 )
 
@@ -48,7 +47,7 @@ class StubLoader(BaseLoader):
 
 
 def _create_env(
-        *args: Any, filters: Optional[Filters] = None, **kwargs: Any,
+        *args: Any, filters: Filters | None = None, **kwargs: Any,
 ) -> Environment:
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)
@@ -64,7 +63,7 @@ def _create_env(
 def setup_jinja(
         dp: Union[Bot, Dispatcher],
         *args: Any,
-        filters: Optional[Filters] = None,
+        filters: Filters | None = None,
         **kwargs: Any,
 ) -> Environment:
     env = _create_env(*args, filters=filters, **kwargs)

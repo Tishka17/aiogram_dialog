@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.protocols import DialogManager
@@ -31,7 +30,7 @@ class MediaScroll(Media, BaseScroll):
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         items = self.items_getter(data)
         pages = len(items)
         current_page = min(await self.get_page(manager), pages)

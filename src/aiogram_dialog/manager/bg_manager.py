@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from aiogram import Bot, Router
 from aiogram.fsm.state import State
@@ -39,7 +39,7 @@ def coalesce_business_connection_id(
         chat: Chat,
         business_connection_id: Union[str, None, UnsetId],
         event_context: EventContext,
-) -> Optional[str]:
+) -> str | None:
     if business_connection_id is not UnsetId.UNSET:
         return business_connection_id
     if user.id != event_context.user.id:
@@ -55,7 +55,7 @@ def coalesce_thread_id(
         chat: Chat,
         thread_id: Union[str, None, UnsetId],
         event_context: EventContext,
-) -> Optional[str]:
+) -> str | None:
     if thread_id is not UnsetId.UNSET:
         return thread_id
     if user.id != event_context.user.id:
@@ -72,10 +72,10 @@ class BgManager(BaseDialogManager):
             chat: Chat,
             bot: Bot,
             router: Router,
-            intent_id: Optional[str],
-            stack_id: Optional[str],
-            thread_id: Optional[int] = None,
-            business_connection_id: Optional[str] = None,
+            intent_id: str | None,
+            stack_id: str | None,
+            thread_id: int | None = None,
+            business_connection_id: str | None = None,
             load: bool = False,
     ):
         self._event_context = EventContext(
@@ -91,13 +91,13 @@ class BgManager(BaseDialogManager):
         self.stack_id = stack_id
         self.load = load
 
-    def _get_fake_user(self, user_id: Optional[int] = None) -> User:
+    def _get_fake_user(self, user_id: int | None = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
         if user_id in (None, self._event_context.user.id):
             return self._event_context.user
         return FakeUser(id=user_id, is_bot=False, first_name="")
 
-    def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
+    def _get_fake_chat(self, chat_id: int | None = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
         if chat_id in (None, self._event_context.chat.id):
             return self._event_context.chat
@@ -105,9 +105,9 @@ class BgManager(BaseDialogManager):
 
     def bg(
             self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
+            user_id: int | None = None,
+            chat_id: int | None = None,
+            stack_id: str | None = None,
             thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
             business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
             load: bool = False,
@@ -193,7 +193,7 @@ class BgManager(BaseDialogManager):
     async def done(
             self,
             result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -210,8 +210,8 @@ class BgManager(BaseDialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
-            access_settings: Optional[AccessSettings] = None,
+            show_mode: ShowMode | None = None,
+            access_settings: AccessSettings | None = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -229,7 +229,7 @@ class BgManager(BaseDialogManager):
     async def switch_to(
             self,
             state: State,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -245,7 +245,7 @@ class BgManager(BaseDialogManager):
     async def update(
             self,
             data: dict,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         await self._load()
         await self._notify(
@@ -265,9 +265,9 @@ class BgManagerFactoryImpl(BgManagerFactory):
             bot: Bot,
             user_id: int,
             chat_id: int,
-            stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
-            business_connection_id: Optional[str] = None,
+            stack_id: str | None = None,
+            thread_id: int | None = None,
+            business_connection_id: str | None = None,
             load: bool = False,
     ) -> "BaseDialogManager":
         chat = FakeChat(id=chat_id, type="")

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Union
 
 from aiogram import Bot
 from aiogram.types import (
@@ -29,8 +29,8 @@ class EventContext:
     bot: Bot
     chat: Chat
     user: User
-    thread_id: Optional[int]
-    business_connection_id: Optional[str]
+    thread_id: int | None
+    business_connection_id: str | None
 
 
 EVENT_CONTEXT_KEY = "aiogd_event_context"

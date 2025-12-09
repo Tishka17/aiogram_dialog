@@ -47,7 +47,7 @@ class LinkPreviewWidget(Widget, Protocol):
     @abstractmethod
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         """Create link preview."""
         raise NotImplementedError
 
@@ -85,7 +85,7 @@ class MediaWidget(Widget, Protocol):
     @abstractmethod
     async def render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         """Create media attachment."""
         raise NotImplementedError
 

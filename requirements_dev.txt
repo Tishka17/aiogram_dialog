@@ -1,5 +1,5 @@
-vulture
-ruff==0.7.2
-pytest
-pytest-asyncio
-pytest-repeat
+vulture==2.14
+ruff==0.14.8
+pytest==9.0.2
+pytest-asyncio==1.3.0
+pytest-repeat==0.9.4

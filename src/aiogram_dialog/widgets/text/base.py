@@ -113,7 +113,7 @@ class Multi(Text):
         else:
             return Multi(other, self, sep="")
 
-    def find(self, widget_id: str) -> Optional[Text]:
+    def find(self, widget_id: str) -> Text | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found
@@ -152,7 +152,7 @@ class Or(Text):
         # reduce nesting
         return Or(other, *self.texts)
 
-    def find(self, widget_id: str) -> Optional[Text]:
+    def find(self, widget_id: str) -> Text | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found

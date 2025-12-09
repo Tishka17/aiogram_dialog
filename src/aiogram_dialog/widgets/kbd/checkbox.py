@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -97,7 +97,7 @@ class Checkbox(BaseCheckbox):
             unchecked_text: Text,
             id: str,
             on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
-            on_state_changed: Optional[OnStateChanged] = None,
+            on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
     ):

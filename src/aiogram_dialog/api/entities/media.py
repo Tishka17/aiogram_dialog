@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import ContentType
 
@@ -8,7 +8,7 @@ from aiogram.types import ContentType
 @dataclass
 class MediaId:
     file_id: str
-    file_unique_id: Optional[str] = None
+    file_unique_id: str | None = None
 
     def __eq__(self, other):
         if type(other) is not MediaId:
@@ -22,9 +22,9 @@ class MediaAttachment:
     def __init__(
             self,
             type: ContentType,
-            url: Optional[str] = None,
+            url: str | None = None,
             path: Union[str, Path, None] = None,
-            file_id: Optional[MediaId] = None,
+            file_id: MediaId | None = None,
             use_pipe: bool = False,
             **kwargs,
     ):

@@ -22,6 +22,8 @@ from bot_dialogs.switch import switch_dialog
 from aiogram_dialog import DialogManager, ShowMode, StartMode, setup_dialogs
 from aiogram_dialog.api.exceptions import UnknownIntent
 
+logger = logging.getLogger(__name__)
+
 
 async def start(message: Message, dialog_manager: DialogManager):
     # it is important to reset stack because user wants to restart everything
@@ -34,7 +36,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 
 async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
     # Example of handling UnknownIntent Error and starting new dialog.
-    logging.error("Restarting dialog: %s", event.exception)
+    logger.error("Restarting dialog: %s", event.exception)
     if event.update.callback_query:
         await event.update.callback_query.answer(
             "Bot process was restarted due to maintenance.\n"

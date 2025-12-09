@@ -7,7 +7,7 @@ https://github.com/SamWarden/aiogram_dialog_extras
 
 from collections.abc import Callable
 from operator import itemgetter
-from typing import Optional, Union
+from typing import Union
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment
@@ -31,6 +31,6 @@ class DynamicMedia(Media):
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
-        media: Optional[MediaAttachment] = self.selector(data)
+    ) -> MediaAttachment | None:
+        media: MediaAttachment | None = self.selector(data)
         return media

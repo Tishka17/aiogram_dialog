@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram.types import LinkPreviewOptions
 
@@ -13,21 +12,21 @@ class LinkPreviewBase(Whenable, BaseWidget, LinkPreviewWidget):
 
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         if not self.is_(data, manager):
             return None
         return await self._render_link_preview(data, manager)
 
     async def _render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         return None
 
 
 class LinkPreview(LinkPreviewBase):
     def __init__(
             self,
-            url: Optional[TextWidget] = None,
+            url: TextWidget | None = None,
             is_disabled: bool = False,
             prefer_small_media: bool = False,
             prefer_large_media: bool = False,
@@ -43,14 +42,14 @@ class LinkPreview(LinkPreviewBase):
 
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         if not self.is_(data, manager):
             return None
         return await self._render_link_preview(data, manager)
 
     async def _render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         return LinkPreviewOptions(
             url=(
                 await self.url.render_text(data, manager)

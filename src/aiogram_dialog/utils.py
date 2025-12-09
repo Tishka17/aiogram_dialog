@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Optional, Union
+from typing import Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -72,8 +72,8 @@ def join_reply_callback(text: str, callback_data: str) -> str:
 
 
 def split_reply_callback(
-        data: Optional[str],
-) -> tuple[Optional[str], Optional[str]]:
+        data: str | None,
+) -> tuple[str | None, str | None]:
     if not data:
         return None, None
     text = data.rstrip(REPLY_CALLBACK_SYMBOLS)
@@ -84,13 +84,13 @@ def split_reply_callback(
 def decode_reply_callback(data: str) -> str:
     bytes_data = bytes(
         _decode_reply_callback_byte(little, big)
-        for little, big in zip(data[::2], data[1::2])
+        for little, big in zip(data[::2], data[1::2], strict=False)
     )
     return bytes_data.decode("utf-8")
 
 
 def _transform_to_reply_button(
-        button: Union[InlineKeyboardButton, KeyboardButton],
+        button: InlineKeyboardButton | KeyboardButton,
 ) -> KeyboardButton:
     if isinstance(button, KeyboardButton):
         return button
@@ -158,7 +158,7 @@ def is_user_loaded(user: User) -> bool:
 
 def get_media_id(
     message: Union[Message, InaccessibleMessage],
-) -> Optional[MediaId]:
+) -> MediaId | None:
     if isinstance(message, InaccessibleMessage):
         return None
 
@@ -179,8 +179,8 @@ def get_media_id(
 
 
 def intent_callback_data(
-        intent_id: str, callback_data: Optional[str],
-) -> Optional[str]:
+        intent_id: str, callback_data: str | None,
+) -> str | None:
     if callback_data is None:
         return None
     prefix = intent_id + CB_SEP
@@ -198,7 +198,7 @@ def add_intent_id(keyboard: RawKeyboard, intent_id: str):
                 )
 
 
-def remove_intent_id(callback_data: str) -> tuple[Optional[str], str]:
+def remove_intent_id(callback_data: str) -> tuple[str | None, str]:
     if CB_SEP in callback_data:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data

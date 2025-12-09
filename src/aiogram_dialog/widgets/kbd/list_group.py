@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from aiogram.types import CallbackQuery
 
@@ -69,7 +69,7 @@ class ListGroup(Keyboard):
             kbd.extend(b_kbd)
         return kbd
 
-    def find(self, widget_id: str) -> Optional[Widget]:
+    def find(self, widget_id: str) -> Widget | None:
         if widget_id == self.widget_id:
             return self
         for btn in self.buttons:
@@ -95,16 +95,17 @@ class ListGroup(Keyboard):
             widget_id=self.widget_id,
             item_id=item_id,
         )
-        for b in self.buttons:  # noqa: RET503
+        for b in self.buttons:
             if await b.process_callback(callback, dialog, sub_manager):
                 return True
+        return False
 
     def managed(self, manager: DialogManager) -> "ManagedListGroup":
         return ManagedListGroup(self, manager)
 
 
 class ManagedListGroup(ManagedWidget[ListGroup]):
-    def find_for_item(self, widget_id: str, item_id: str) -> Optional[Any]:
+    def find_for_item(self, widget_id: str, item_id: str) -> Any | None:
         """Find widget for specific item_id."""
         widget = self.widget.find(widget_id)
         if widget:
