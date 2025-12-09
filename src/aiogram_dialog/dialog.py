@@ -3,7 +3,6 @@ from logging import getLogger
 from typing import (
     Any,
     TypeVar,
-    Union,
 )
 
 from aiogram import Router
@@ -28,7 +27,7 @@ from .widgets.utils import GetterVariant, ensure_data_getter
 
 logger = getLogger(__name__)
 
-ChatEvent = Union[CallbackQuery, Message]
+ChatEvent = CallbackQuery | Message
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Widget)

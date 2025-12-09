@@ -2,7 +2,6 @@ import warnings
 from collections.abc import Callable, Iterable, Mapping
 from typing import (
     Any,
-    Union,
 )
 
 from aiogram import Bot, Dispatcher
@@ -15,7 +14,10 @@ from .base import Text
 JINJA_ENV_FIELD = "DialogsJinjaEnvironment"
 
 Filter = Callable[..., str]
-Filters = Union[Iterable[tuple[str, Filter]], Mapping[str, Filter]]
+Filters = (
+    Iterable[tuple[str, Filter]]
+    | Mapping[str, Filter]
+)
 
 
 class Jinja(Text):
@@ -60,7 +62,7 @@ def _create_env(
 
 
 def setup_jinja(
-        dp: Union[Bot, Dispatcher],
+        dp: Bot | Dispatcher,
         *args: Any,
         filters: Filters | None = None,
         **kwargs: Any,

@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os.path
 from io import BytesIO
-from typing import Union
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
@@ -59,7 +58,7 @@ class DialogSG(StatesGroup):
 class CustomMessageManager(MessageManager):
     async def get_media_source(
         self, media: MediaAttachment, bot: Bot,
-    ) -> Union[InputFile, str]:
+    ) -> InputFile | str:
         if media.file_id:
             return await super().get_media_source(media, bot)
         if media.url and media.url.startswith(CUSTOM_URL_PREFIX):

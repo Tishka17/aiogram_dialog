@@ -7,7 +7,6 @@ https://github.com/SamWarden/aiogram_dialog_extras
 
 from collections.abc import Callable
 from operator import itemgetter
-from typing import Union
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment
@@ -20,7 +19,7 @@ MediaSelector = Callable[[dict], MediaAttachment]
 class DynamicMedia(Media):
     def __init__(
             self,
-            selector: Union[str, MediaSelector],
+            selector: str | MediaSelector,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)

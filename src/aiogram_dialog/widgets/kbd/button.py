@@ -1,5 +1,4 @@
 from collections.abc import Awaitable, Callable
-from typing import Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -27,7 +26,7 @@ class Button(Keyboard):
             self,
             text: Text,
             id: str,
-            on_click: Union[OnClick, WidgetEventProcessor, None] = None,
+            on_click: OnClick | WidgetEventProcessor | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)

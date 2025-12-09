@@ -9,7 +9,6 @@ from typing import (
     Protocol,
     TypedDict,
     TypeVar,
-    Union,
 )
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
@@ -694,7 +693,7 @@ class Calendar(Keyboard):
     def __init__(
             self,
             id: str,
-            on_click: Union[OnDateSelected, WidgetEventProcessor, None] = None,
+            on_click: OnDateSelected | WidgetEventProcessor | None = None,
             config: CalendarConfig | None = None,
             when: WhenCondition = None,
     ) -> None:

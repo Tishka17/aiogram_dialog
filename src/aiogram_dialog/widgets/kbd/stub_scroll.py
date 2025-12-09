@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Union
 
 from magic_filter import MagicFilter
 
@@ -45,7 +44,7 @@ class StubScroll(Keyboard, BaseScroll):
     def __init__(
             self,
             id: str,
-            pages: Union[str, int, PagesGetter, MagicFilter],
+            pages: str | int | PagesGetter | MagicFilter,
             on_page_changed: OnPageChangedVariants = None,
     ):
         Keyboard.__init__(self, id=id, when=None)

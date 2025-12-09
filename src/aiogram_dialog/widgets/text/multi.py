@@ -1,5 +1,5 @@
 from collections.abc import Callable, Hashable
-from typing import Any, Union
+from typing import Any
 
 from magic_filter import MagicFilter
 
@@ -32,7 +32,7 @@ class Case(Text):
     def __init__(
             self,
             texts: dict[Any, Text],
-            selector: Union[str, Selector, MagicFilter],
+            selector: str | Selector | MagicFilter,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)

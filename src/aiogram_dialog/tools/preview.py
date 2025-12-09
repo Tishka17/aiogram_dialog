@@ -2,7 +2,7 @@ import html
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
@@ -243,8 +243,8 @@ class FakeManager(DialogManager):
             user_id: int | None = None,
             chat_id: int | None = None,
             stack_id: str | None = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            thread_id: int | None | UnsetId = UnsetId.UNSET,
+            business_connection_id: str | None | UnsetId = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         return self

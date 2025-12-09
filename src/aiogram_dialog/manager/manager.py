@@ -1,7 +1,7 @@
 import sys
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
@@ -555,8 +555,8 @@ class ManagerImpl(DialogManager):
             user_id: int | None = None,
             chat_id: int | None = None,
             stack_id: str | None = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            thread_id: int | None | UnsetId = UnsetId.UNSET,
+            business_connection_id: str | None | UnsetId = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)

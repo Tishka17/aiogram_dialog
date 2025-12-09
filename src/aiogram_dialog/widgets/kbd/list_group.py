@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Union
+from typing import Any
 
 from aiogram.types import CallbackQuery
 
@@ -16,7 +16,7 @@ from aiogram_dialog.widgets.common.items import (
 )
 from .base import Keyboard
 
-ItemIdGetter = Callable[[Any], Union[str, int]]
+ItemIdGetter = Callable[[Any], str | int]
 
 
 class ListGroup(Keyboard):

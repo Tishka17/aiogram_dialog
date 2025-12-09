@@ -7,7 +7,6 @@ from typing import (
     Generic,
     Protocol,
     TypeVar,
-    Union,
 )
 
 from aiogram.dispatcher.event.handler import FilterObject
@@ -56,8 +55,8 @@ class TextInput(BaseInput, Generic[T]):
             self,
             id: str,
             type_factory: TypeFactory[T] = str,
-            on_success: Union[OnSuccess[T], WidgetEventProcessor, None] = None,
-            on_error: Union[OnError, WidgetEventProcessor, None] = None,
+            on_success: OnSuccess[T] | WidgetEventProcessor | None = None,
+            on_error: OnError | WidgetEventProcessor | None = None,
             filter: Callable[..., Any] | None = None,
     ):
         super().__init__(id=id)

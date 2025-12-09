@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 from aiogram.types import ContentType
 
@@ -14,8 +13,8 @@ class StaticMedia(Media):
     def __init__(
             self,
             *,
-            path: Union[Text, str, Path, None] = None,
-            url: Union[Text, str, None] = None,
+            path: Text | str | Path | None = None,
+            url: Text | str | None = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
             media_params: dict | None = None,

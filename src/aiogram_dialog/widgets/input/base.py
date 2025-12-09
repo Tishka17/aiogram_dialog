@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
-from typing import Any, Union
+from typing import Any
 
 from aiogram import F
 from aiogram.dispatcher.event.handler import FilterObject
@@ -35,8 +35,8 @@ class BaseInput(Actionable, InputWidget):
 class MessageInput(BaseInput):
     def __init__(
             self,
-            func: Union[MessageHandlerFunc, WidgetEventProcessor, None],
-            content_types: Union[Sequence[str], str] = ContentType.ANY,
+            func: MessageHandlerFunc | WidgetEventProcessor | None,
+            content_types: Sequence[str] | str = ContentType.ANY,
             filter: Callable[..., Any] | None = None,
             id: str | None = None,
     ):

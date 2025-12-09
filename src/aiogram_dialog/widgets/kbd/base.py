@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Union
 
 from aiogram.types import CallbackQuery
 
@@ -50,11 +49,11 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             return None
         return f"{self.widget_id}:"
 
-    def _own_callback_data(self) -> Union[str, None]:
+    def _own_callback_data(self) -> str | None:
         """Create callback data for only button in widget."""
         return self.widget_id
 
-    def _item_callback_data(self, data: Union[str, int]):
+    def _item_callback_data(self, data: str | int):
         """Create callback data for widgets button if multiple."""
         return f"{self.callback_prefix()}{data}"
 

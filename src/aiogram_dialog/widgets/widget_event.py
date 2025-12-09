@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from collections.abc import Callable
-from typing import Any, Union
+from typing import Any
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.protocols import DialogManager
@@ -36,7 +36,7 @@ class SimpleEventProcessor(WidgetEventProcessor):
 
 
 def ensure_event_processor(
-        processor: Union[Callable, WidgetEventProcessor, None],
+        processor: Callable | WidgetEventProcessor | None,
 ) -> WidgetEventProcessor:
     if isinstance(processor, WidgetEventProcessor):
         return processor

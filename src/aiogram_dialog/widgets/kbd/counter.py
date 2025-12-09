@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Protocol, Union
+from typing import Protocol
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -26,7 +26,7 @@ class OnCounterEvent(Protocol):
         raise NotImplementedError
 
 
-OnCounterEventVariant = Union[OnCounterEvent, WidgetEventProcessor, None]
+OnCounterEventVariant = OnCounterEvent | WidgetEventProcessor | None
 
 PLUS_TEXT = Const("+")
 MINUS_TEXT = Const("-")
