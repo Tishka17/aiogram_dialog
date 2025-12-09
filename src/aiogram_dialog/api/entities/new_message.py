@@ -14,7 +14,10 @@ from aiogram.types import (
 from aiogram_dialog.api.entities import MediaAttachment, ShowMode
 
 MarkupVariant = (
-    ForceReply | InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove
+    ForceReply
+    | InlineKeyboardMarkup
+    | ReplyKeyboardMarkup
+    | ReplyKeyboardRemove
 )
 
 
