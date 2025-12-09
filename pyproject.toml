@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
     "aiogram>=3.14.0",
     "jinja2",
-    "cachebox==5.1.0",
+    "cachetools>=4.0.0,<6.0.0",
 ]
 
 [project.optional-dependencies]
