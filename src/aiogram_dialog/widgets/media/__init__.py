@@ -1,6 +1,6 @@
 __all__ = [
-    "Media",
     "DynamicMedia",
+    "Media",
     "MediaScroll",
     "StaticMedia",
 ]

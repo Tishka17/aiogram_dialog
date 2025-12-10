@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Protocol
+from typing import Protocol
 
 from aiogram import Bot
 from aiogram.types import CallbackQuery, Message
@@ -19,14 +19,14 @@ class MessageManagerProtocol(Protocol):
             self,
             bot: Bot,
             show_mode: ShowMode,
-            old_message: Optional[OldMessage],
-    ) -> Optional[Message]:
+            old_message: OldMessage | None,
+    ) -> Message | None:
         raise NotImplementedError
 
     @abstractmethod
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[OldMessage],
+            old_message: OldMessage | None,
     ) -> OldMessage:
         raise NotImplementedError
 

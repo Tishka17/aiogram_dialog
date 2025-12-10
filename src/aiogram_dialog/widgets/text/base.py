@@ -89,13 +89,13 @@ class Multi(Text):
         texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))
 
-    def __iadd__(self, other: Union[Text, str]) -> "Multi":
+    def __iadd__(self, other: Text | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         self.texts += (other,)
         return self
 
-    def __add__(self, other: Union[Text, str]) -> "Multi":
+    def __add__(self, other: Text | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -104,7 +104,7 @@ class Multi(Text):
         else:
             return Multi(self, other, sep="")
 
-    def __radd__(self, other: Union[Text, str]) -> "Multi":
+    def __radd__(self, other: Text | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -113,7 +113,7 @@ class Multi(Text):
         else:
             return Multi(other, self, sep="")
 
-    def find(self, widget_id: str) -> Optional[Text]:
+    def find(self, widget_id: str) -> Text | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found
@@ -134,25 +134,25 @@ class Or(Text):
                 return res
         return ""
 
-    def __ior__(self, other: Union[Text, str]) -> "Or":
+    def __ior__(self, other: Text | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         self.texts += (other,)
         return self
 
-    def __or__(self, other: Union[Text, str]) -> "Or":
+    def __or__(self, other: Text | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         # reduce nesting
         return Or(*self.texts, other)
 
-    def __ror__(self, other: Union[Text, str]) -> "Or":
+    def __ror__(self, other: Text | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         # reduce nesting
         return Or(other, *self.texts)
 
-    def find(self, widget_id: str) -> Optional[Text]:
+    def find(self, widget_id: str) -> Text | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found

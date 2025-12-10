@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, Optional, Union
+from typing import Any
 
 from aiogram.fsm.state import State
 from aiogram.types import Message
@@ -71,7 +71,7 @@ class SubManager(DialogManager):
     async def close_manager(self) -> None:
         return await self.manager.close_manager()
 
-    async def show(self, show_mode: Optional[ShowMode] = None) -> Message:
+    async def show(self, show_mode: ShowMode | None = None) -> Message:
         return await self.manager.show(show_mode)
 
     async def answer_callback(self) -> None:
@@ -83,13 +83,13 @@ class SubManager(DialogManager):
     async def load_data(self) -> dict:
         return await self.manager.load_data()
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id) -> Any | None:
         widget = self.widget.find(widget_id)
         if not widget:
             return None
         return widget.managed(self)
 
-    def find_in_parent(self, widget_id) -> Optional[Any]:
+    def find_in_parent(self, widget_id) -> Any | None:
         return self.manager.find(widget_id)
 
     @property
@@ -100,16 +100,16 @@ class SubManager(DialogManager):
     def show_mode(self, show_mode: ShowMode) -> None:
         self.manager.show_mode = show_mode
 
-    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def next(self, show_mode: ShowMode | None = None) -> None:
         await self.manager.next(show_mode)
 
-    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def back(self, show_mode: ShowMode | None = None) -> None:
         await self.manager.back(show_mode)
 
     async def done(
             self,
             result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         await self.manager.done(result, show_mode)
 
@@ -121,8 +121,8 @@ class SubManager(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
-            access_settings: Optional[AccessSettings] = None,
+            show_mode: ShowMode | None = None,
+            access_settings: AccessSettings | None = None,
     ) -> None:
         await self.manager.start(
             state=state, data=data,
@@ -133,25 +133,25 @@ class SubManager(DialogManager):
     async def switch_to(
             self,
             state: State,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         await self.manager.switch_to(state, show_mode)
 
     async def update(
             self,
             data: dict,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
     def bg(
             self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            user_id: int | None = None,
+            chat_id: int | None = None,
+            stack_id: str | None = None,
+            thread_id: int | UnsetId | None = UnsetId.UNSET,
+            business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         return self.manager.bg(

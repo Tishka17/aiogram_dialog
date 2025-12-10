@@ -1,18 +1,18 @@
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any
 
 from aiogram.fsm.state import State
 from aiogram.fsm.storage.base import BaseStorage, StorageKey
 
-StateType = Optional[Union[str, State]]
+StateType = str | State | None
 
 
 @dataclass
 class MemoryStorageRecord:
     data: str = "{}"
-    state: Optional[str] = None
+    state: str | None = None
 
 
 class JsonMemoryStorage(BaseStorage):
@@ -33,7 +33,7 @@ class JsonMemoryStorage(BaseStorage):
             state_value = state
         self.storage[key].state = state_value
 
-    async def get_state(self, key: StorageKey) -> Optional[str]:
+    async def get_state(self, key: StorageKey) -> str | None:
         return self.storage[key].state
 
     async def set_data(self, key: StorageKey, data: dict[str, Any]) -> None:

@@ -1,6 +1,6 @@
 import warnings
 from logging import getLogger
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -18,7 +18,6 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
-
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -45,12 +44,12 @@ class Window(WindowProtocol):
             *widgets: WidgetSrc,
             state: State,
             getter: GetterVariant = None,
-            on_process_result: Optional[OnResultEvent] = None,
+            on_process_result: OnResultEvent | None = None,
             markup_factory: MarkupFactory = _DEFAULT_MARKUP_FACTORY,
-            parse_mode: Optional[str] = UNSET_PARSE_MODE,
-            disable_web_page_preview: Optional[bool] = None,
-            protect_content: Optional[bool] = None,
-            preview_add_transitions: Optional[list[Keyboard]] = None,
+            parse_mode: str | None = UNSET_PARSE_MODE,
+            disable_web_page_preview: bool | None = None,
+            protect_content: bool | None = None,
+            preview_add_transitions: list[Keyboard] | None = None,
             preview_data: GetterVariant = None,
     ):
         (
@@ -91,7 +90,7 @@ class Window(WindowProtocol):
 
     async def render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         if self.media:
             return await self.media.render_media(data, manager)
         return None
@@ -106,7 +105,7 @@ class Window(WindowProtocol):
 
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         if self.link_preview:
             return await self.link_preview.render_link_preview(data, manager)
         return None
@@ -180,7 +179,7 @@ class Window(WindowProtocol):
     def get_state(self) -> State:
         return self.state
 
-    def find(self, widget_id) -> Optional[Widget]:
+    def find(self, widget_id) -> Widget | None:
         for root in (self.text, self.keyboard, self.on_message, self.media):
             if root and (found := root.find(widget_id)):
                 return found

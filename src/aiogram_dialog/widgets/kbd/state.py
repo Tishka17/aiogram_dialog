@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
@@ -39,9 +39,9 @@ class SwitchTo(EventProcessorButton):
             text: Text,
             id: str,
             state: State,
-            on_click: Optional[OnClick] = None,
+            on_click: OnClick | None = None,
             when: WhenCondition = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -66,8 +66,8 @@ class Next(EventProcessorButton):
             self,
             text: Text = NEXT_TEXT,
             id: str = "__next__",
-            on_click: Optional[OnClick] = None,
-            show_mode: Optional[ShowMode] = None,
+            on_click: OnClick | None = None,
+            show_mode: ShowMode | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -93,8 +93,8 @@ class Back(EventProcessorButton):
             self,
             text: Text = BACK_TEXT,
             id: str = "__back__",
-            on_click: Optional[OnClick] = None,
-            show_mode: Optional[ShowMode] = None,
+            on_click: OnClick | None = None,
+            show_mode: ShowMode | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -121,9 +121,9 @@ class Cancel(EventProcessorButton):
             text: Text = CANCEL_TEXT,
             id: str = "__cancel__",
             result: Any = None,
-            on_click: Optional[OnClick] = None,
+            on_click: OnClick | None = None,
             when: WhenCondition = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -150,8 +150,8 @@ class Start(EventProcessorButton):
             id: str,
             state: State,
             data: Data = None,
-            on_click: Optional[OnClick] = None,
-            show_mode: Optional[ShowMode] = None,
+            on_click: OnClick | None = None,
+            show_mode: ShowMode | None = None,
             mode: StartMode = StartMode.NORMAL,
             when: WhenCondition = None,
     ):

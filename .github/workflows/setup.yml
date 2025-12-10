@@ -21,34 +21,36 @@ jobs:
         os:
           - ubuntu-latest
         python-version:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Set up ${{ matrix.python-version }} on ${{ matrix.os }}
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
 
-      - name: Install dependencies
+      - name: "Install dependencies"
         run: |
           uv pip install . -r requirements_dev.txt --system
           uv pip install diagrams --system
 
-      - name: Run Ruff
-        run: ruff check src/aiogram_dialog tests example
+      - name: "Run Ruff"
+        run: ruff check
 
-      - name: Run tests
+      - name: "Run tests"
         run: |
           pytest
 
-      - name: Run vulture
+      - name: "Run vulture"
         run: |
           python -m vulture src/aiogram_dialog --min-confidence 70

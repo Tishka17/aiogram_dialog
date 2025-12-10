@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.internal import MediaWidget
@@ -12,14 +11,14 @@ class Media(Whenable, BaseWidget, MediaWidget):
 
     async def render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         if not self.is_(data, manager):
             return None
         return await self._render_media(data, manager)
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         return None
 
     def __or__(self, other: "Media") -> "Or":
@@ -40,7 +39,7 @@ class Or(Media):
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         for widget in self.widgets:
             res = await widget.render_media(data, manager)
             if res:

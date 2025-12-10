@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -9,7 +8,6 @@ from aiogram_dialog.widgets.common import (
     OnPageChangedVariants,
     WhenCondition,
 )
-
 from .base import Keyboard
 from .group import Group
 
@@ -19,7 +17,7 @@ class ScrollingGroup(Group, BaseScroll):
             self,
             *buttons: Keyboard,
             id: str,
-            width: Optional[int] = None,
+            width: int | None = None,
             height: int = 0,
             when: WhenCondition = None,
             on_page_changed: OnPageChangedVariants = None,

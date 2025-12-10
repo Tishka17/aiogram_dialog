@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 
 from aiogram import Bot, Dispatcher
 from aiogram.methods import AnswerCallbackQuery, TelegramMethod
@@ -34,7 +34,7 @@ class FakeBot(Bot):
 
     async def __call__(
             self, method: TelegramMethod[Any],
-            request_timeout: Optional[int] = None,
+            request_timeout: int | None = None,
     ) -> Any:
         del request_timeout  # unused
         if isinstance(method, AnswerCallbackQuery):
@@ -48,15 +48,14 @@ class FakeBot(Bot):
         return self is other
 
 
-ChatMember = Union[
-    ChatMemberOwner,
-    ChatMemberAdministrator,
-    ChatMemberMember,
-    ChatMemberRestricted,
-    ChatMemberLeft,
-    ChatMemberBanned,
-]
-
+ChatMember = (
+    ChatMemberOwner |
+    ChatMemberAdministrator |
+    ChatMemberMember |
+    ChatMemberRestricted |
+    ChatMemberLeft |
+    ChatMemberBanned
+)
 
 class BotClient:
     def __init__(
@@ -65,7 +64,7 @@ class BotClient:
             user_id: int = 1,
             chat_id: int = 1,
             chat_type: str = "private",
-            bot: Optional[Bot] = None,
+            bot: Bot | None = None,
     ):
         self.chat = Chat(id=chat_id, type=chat_type)
         self.user = User(
@@ -86,7 +85,7 @@ class BotClient:
         return self.last_message_id
 
     def _new_message(
-            self, text: str, reply_to: Optional[Message],
+            self, text: str, reply_to: Message | None,
     ):
         return Message(
             message_id=self._new_message_id(),
@@ -97,7 +96,7 @@ class BotClient:
             reply_to_message=reply_to,
         )
 
-    async def send(self, text: str, reply_to: Optional[Message] = None):
+    async def send(self, text: str, reply_to: Message | None = None):
         return await self.dp.feed_update(self.bot, Update(
             update_id=self._new_update_id(),
             message=self._new_message(text, reply_to),

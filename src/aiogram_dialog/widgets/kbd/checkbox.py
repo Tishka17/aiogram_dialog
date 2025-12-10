@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Optional, Union
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -13,16 +12,16 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import Keyboard
 
 OnStateChanged = Callable[
     [ChatEvent, "ManagedCheckbox", DialogManager], Awaitable,
 ]
-OnStateChangedVariant = Union[
-    OnStateChanged, WidgetEventProcessor, None,
-]
-
+OnStateChangedVariant = (
+    OnStateChanged |
+    WidgetEventProcessor |
+    None
+)
 
 class BaseCheckbox(Keyboard, ABC):
     def __init__(
@@ -96,8 +95,8 @@ class Checkbox(BaseCheckbox):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
-            on_click: Union[OnStateChanged, WidgetEventProcessor, None] = None,
-            on_state_changed: Optional[OnStateChanged] = None,
+            on_click: OnStateChanged | WidgetEventProcessor | None = None,
+            on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
     ):

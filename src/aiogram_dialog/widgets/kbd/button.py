@@ -1,5 +1,4 @@
 from collections.abc import Awaitable, Callable
-from typing import Optional, Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -17,7 +16,6 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import Keyboard
 
 OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
@@ -28,7 +26,7 @@ class Button(Keyboard):
             self,
             text: Text,
             id: str,
-            on_click: Union[OnClick, WidgetEventProcessor, None] = None,
+            on_click: OnClick | WidgetEventProcessor | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -64,7 +62,7 @@ class Url(Keyboard):
             self,
             text: Text,
             url: Text,
-            id: Optional[str] = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -103,7 +101,7 @@ class SwitchInlineQuery(Keyboard):
             self,
             text: Text,
             switch_inline_query: Text,
-            id: Optional[str] = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -132,10 +130,10 @@ class LoginURLButton(Keyboard):
             self,
             text: Text,
             url: Text,
-            forward_text: Optional[Text] = None,
-            bot_username: Optional[Text] = None,
-            request_write_access: Optional[bool] = None,
-            id: Optional[str] = None,
+            forward_text: Text | None = None,
+            bot_username: Text | None = None,
+            request_write_access: bool | None = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -183,7 +181,7 @@ class SwitchInlineQueryCurrentChat(Keyboard):
             self,
             text: Text,
             switch_inline_query_current_chat: Text,
-            id: Optional[str] = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -217,11 +215,11 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
             self,
             text: Text,
             query: Text,
-            allow_user_chats: Optional[bool] = None,
-            allow_bot_chats: Optional[bool] = None,
-            allow_group_chats: Optional[bool] = None,
-            allow_channel_chats: Optional[bool] = None,
-            id: Optional[str] = None,
+            allow_user_chats: bool | None = None,
+            allow_bot_chats: bool | None = None,
+            allow_group_chats: bool | None = None,
+            allow_channel_chats: bool | None = None,
+            id: str | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)

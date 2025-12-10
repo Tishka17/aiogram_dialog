@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Sequence
-from typing import Protocol, Union
+from typing import Protocol
 
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
@@ -9,7 +9,6 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .action import Actionable
 from .managed import ManagedWidget
 
@@ -51,7 +50,7 @@ OnPageChanged = Callable[
     [ChatEvent, ManagedScroll, DialogManager],
     Awaitable,
 ]
-OnPageChangedVariants = Union[OnPageChanged, WidgetEventProcessor, None]
+OnPageChangedVariants = OnPageChanged | WidgetEventProcessor | None
 
 
 class BaseScroll(Actionable, Scroll, ABC):
@@ -81,8 +80,8 @@ class BaseScroll(Actionable, Scroll, ABC):
 
 
 def sync_scroll(
-    scroll_id: Union[str, Sequence[str]],
-    on_page_chaged: Union[OnPageChanged, None] = None,
+    scroll_id: str | Sequence[str],
+    on_page_chaged: OnPageChanged | None = None,
 ) -> OnPageChanged:
     async def sync_scroll_on_page_changed(
         event: ChatEvent,

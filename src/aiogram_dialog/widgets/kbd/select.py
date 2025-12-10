@@ -3,10 +3,8 @@ from collections.abc import Callable
 from typing import (
     Any,
     Generic,
-    Optional,
     Protocol,
     TypeVar,
-    Union,
 )
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
@@ -24,13 +22,12 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import Keyboard
 
 T = TypeVar("T")
 ManagedT = TypeVar("ManagedT")
 TypeFactory = Callable[[str], T]
-ItemIdGetter = Callable[[Any], Union[str, int]]
+ItemIdGetter = Callable[[Any], str | int]
 
 
 class OnItemStateChanged(Protocol[ManagedT, T]):
@@ -67,9 +64,11 @@ class Select(Keyboard, Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[
-                OnItemClick["Select[T]", T], WidgetEventProcessor, None,
-            ] = None,
+            on_click: (
+                    OnItemClick["Select[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
@@ -137,13 +136,17 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[
-                OnItemClick[ManagedT, T], WidgetEventProcessor, None,
-            ] = None,
-            on_state_changed: Union[
-                OnItemStateChanged[ManagedT, T], WidgetEventProcessor, None,
-            ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            on_click: (
+                    OnItemClick[ManagedT, T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            on_state_changed: (
+                    OnItemStateChanged[ManagedT, T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            when: str | Callable | None = None,
     ):
         text = Case(
             {True: checked_text, False: unchecked_text},
@@ -221,15 +224,17 @@ class Radio(StatefulSelect[T], Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[
-                OnItemClick["ManagedRadio[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            on_state_changed: Union[
-                OnItemStateChanged["ManagedRadio[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            on_click: (
+                    OnItemClick["ManagedRadio[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            on_state_changed: (
+                    OnItemStateChanged["ManagedRadio[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            when: str | Callable | None = None,
     ):
 
         super().__init__(
@@ -244,13 +249,13 @@ class Radio(StatefulSelect[T], Generic[T]):
             when=when,
         )
 
-    def get_checked(self, manager: DialogManager) -> Optional[T]:
+    def get_checked(self, manager: DialogManager) -> T | None:
         data = self._get_checked(manager)
         if data is None:
             return None
         return self.type_factory(data)
 
-    def _get_checked(self, manager: DialogManager) -> Optional[str]:
+    def _get_checked(self, manager: DialogManager) -> str | None:
         return self.get_widget_data(manager, None)
 
     async def set_checked(
@@ -295,7 +300,7 @@ class Radio(StatefulSelect[T], Generic[T]):
 
 
 class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
-    def get_checked(self) -> Optional[T]:
+    def get_checked(self) -> T | None:
         """Get an id of selected item."""
         return self.widget.get_checked(self.manager)
 
@@ -323,15 +328,17 @@ class Multiselect(StatefulSelect[T], Generic[T]):
             min_selected: int = 0,
             max_selected: int = 0,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[
-                OnItemClick["ManagedMultiselect[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            on_state_changed: Union[
-                OnItemStateChanged["ManagedMultiselect[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            on_click: (
+                    OnItemClick["ManagedMultiselect[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            on_state_changed: (
+                    OnItemStateChanged["ManagedMultiselect[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            when: str | Callable | None = None,
     ):
         super().__init__(
             checked_text=checked_text,
@@ -441,15 +448,17 @@ class Toggle(Radio[T], Generic[T]):
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
             type_factory: TypeFactory[T] = str,
-            on_click: Union[
-                OnItemClick["ManagedToggle[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            on_state_changed: Union[
-                OnItemStateChanged["ManagedToggle[T]", T],
-                WidgetEventProcessor, None,
-            ] = None,
-            when: Optional[Union[str, Callable]] = None,
+            on_click: (
+                    OnItemClick["ManagedToggle[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            on_state_changed: (
+                    OnItemStateChanged["ManagedToggle[T]", T]
+                    | WidgetEventProcessor
+                    | None
+            ) = None,
+            when: str | Callable | None = None,
     ):
         super().__init__(
             checked_text=text, unchecked_text=text,

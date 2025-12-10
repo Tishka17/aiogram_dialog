@@ -1,5 +1,4 @@
 from collections.abc import Callable, Iterable
-from typing import Optional, Union
 
 from aiogram import Router
 from aiogram.dispatcher.event.telegram import TelegramEventObserver
@@ -33,7 +32,6 @@ from aiogram_dialog.manager.manager_middleware import (
 )
 from aiogram_dialog.manager.message_manager import MessageManager
 from aiogram_dialog.manager.update_handler import handle_update
-
 from .about import about_dialog
 from .context.access_validator import DefaultAccessValidator
 
@@ -60,7 +58,7 @@ class DialogRegistry(DialogRegistryProtocol):
         if not self._loaded:
             self.refresh()
 
-    def find_dialog(self, state: Union[State, str]) -> DialogProtocol:
+    def find_dialog(self, state: State | str) -> DialogProtocol:
         self._ensure_loaded()
         try:
             return self._dialogs[state.group]
@@ -173,9 +171,9 @@ def _register_middleware(
 
 
 def _prepare_dialog_manager_factory(
-        dialog_manager_factory: Optional[DialogManagerFactory],
-        message_manager: Optional[MessageManagerProtocol],
-        media_id_storage: Optional[MediaIdStorageProtocol],
+        dialog_manager_factory: DialogManagerFactory | None,
+        message_manager: MessageManagerProtocol | None,
+        media_id_storage: MediaIdStorageProtocol | None,
 ) -> DialogManagerFactory:
     if dialog_manager_factory is not None:
         return dialog_manager_factory
@@ -190,7 +188,7 @@ def _prepare_dialog_manager_factory(
 
 
 def _prepare_stack_access_validator(
-        stack_access_validator: Optional[StackAccessValidator],
+        stack_access_validator: StackAccessValidator | None,
 ) -> StackAccessValidator:
     if stack_access_validator:
         return stack_access_validator
@@ -199,7 +197,7 @@ def _prepare_stack_access_validator(
 
 
 def _prepare_events_isolation(
-        events_isolation: Optional[BaseEventIsolation],
+        events_isolation: BaseEventIsolation | None,
 ) -> BaseEventIsolation:
     if events_isolation:
         return events_isolation
@@ -221,11 +219,11 @@ def _include_default_dialogs(router: Router):
 def setup_dialogs(
         router: Router,
         *,
-        dialog_manager_factory: Optional[DialogManagerFactory] = None,
-        message_manager: Optional[MessageManagerProtocol] = None,
-        media_id_storage: Optional[MediaIdStorageProtocol] = None,
-        stack_access_validator: Optional[StackAccessValidator] = None,
-        events_isolation: Optional[BaseEventIsolation] = None,
+        dialog_manager_factory: DialogManagerFactory | None = None,
+        message_manager: MessageManagerProtocol | None = None,
+        media_id_storage: MediaIdStorageProtocol | None = None,
+        stack_access_validator: StackAccessValidator | None = None,
+        events_isolation: BaseEventIsolation | None = None,
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)

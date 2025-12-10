@@ -19,7 +19,6 @@ from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarYearsView,
 )
 from aiogram_dialog.widgets.text import Const, Format, Text
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 

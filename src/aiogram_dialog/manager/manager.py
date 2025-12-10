@@ -1,7 +1,7 @@
 import sys
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
@@ -57,7 +57,6 @@ from aiogram_dialog.api.protocols import (
 )
 from aiogram_dialog.context.storage import StorageProxy
 from aiogram_dialog.utils import get_media_id
-
 from .bg_manager import (
     BgManager,
     coalesce_business_connection_id,
@@ -152,7 +151,7 @@ class ManagerImpl(DialogManager):
             raise NoContextError
         return context
 
-    def _current_context_unsafe(self) -> Optional[Context]:
+    def _current_context_unsafe(self) -> Context | None:
         return self._data[CONTEXT_KEY]
 
     def has_context(self) -> bool:
@@ -187,7 +186,7 @@ class ManagerImpl(DialogManager):
     async def done(
             self,
             result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
@@ -234,8 +233,8 @@ class ManagerImpl(DialogManager):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
-            access_settings: Optional[AccessSettings] = None,
+            show_mode: ShowMode | None = None,
+            access_settings: AccessSettings | None = None,
     ) -> None:
         self.check_disabled()
         self.show_mode = show_mode or self.show_mode
@@ -262,7 +261,7 @@ class ManagerImpl(DialogManager):
 
     async def _start_new_stack(
             self, state: State, data: Data,
-            access_settings: Optional[AccessSettings],
+            access_settings: AccessSettings | None,
     ) -> None:
         stack = Stack()
         await self.bg(stack_id=stack.id).start(
@@ -274,10 +273,10 @@ class ManagerImpl(DialogManager):
 
     async def _start_normal(
             self, state: State, data: Data,
-            access_settings: Optional[AccessSettings],
+            access_settings: AccessSettings | None,
     ) -> None:
         stack = self.current_stack()
-        old_dialog: Optional[DialogProtocol] = None
+        old_dialog: DialogProtocol | None = None
         if not stack.empty():
             old_dialog = self.dialog()
             if old_dialog.launch_mode is LaunchMode.EXCLUSIVE:
@@ -305,7 +304,7 @@ class ManagerImpl(DialogManager):
 
     async def _process_launch_mode(
         self,
-        old_dialog: Optional[DialogProtocol],
+        old_dialog: DialogProtocol | None,
         new_dialog: DialogProtocol,
     ):
         if new_dialog.launch_mode in (LaunchMode.EXCLUSIVE, LaunchMode.ROOT):
@@ -315,7 +314,7 @@ class ManagerImpl(DialogManager):
                 await self.storage().remove_context(self.current_stack().pop())
                 self._data[CONTEXT_KEY] = None
 
-    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def next(self, show_mode: ShowMode | None = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
@@ -329,7 +328,7 @@ class ManagerImpl(DialogManager):
         new_state = states[current_index + 1]
         await self.switch_to(new_state, show_mode)
 
-    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def back(self, show_mode: ShowMode | None = None) -> None:
         context = self.current_context()
         states = self.dialog().states()
         current_index = states.index(context.state)
@@ -346,7 +345,7 @@ class ManagerImpl(DialogManager):
     async def switch_to(
             self,
             state: State,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         self.check_disabled()
         context = self.current_context()
@@ -368,7 +367,7 @@ class ManagerImpl(DialogManager):
                 "Cannot use ReplyKeyboardMarkup in non default stack",
             )
 
-    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def show(self, show_mode: ShowMode | None = None) -> None:
         try:
             stack = self.current_stack()
             bot = self._data["bot"]
@@ -429,7 +428,7 @@ class ManagerImpl(DialogManager):
 
     def _get_message_from_callback(
             self, event: CallbackQuery,
-    ) -> Optional[OldMessage]:
+    ) -> OldMessage | None:
         current_message = event.message
         stack = self.current_stack()
         event_context = cast(
@@ -463,7 +462,7 @@ class ManagerImpl(DialogManager):
                 content_type=stack.content_type,
             )
 
-    def _get_last_message(self) -> Optional[OldMessage]:
+    def _get_last_message(self) -> OldMessage | None:
         if isinstance(self.event, ErrorEvent):
             event = self.event.update.event
         else:
@@ -520,25 +519,25 @@ class ManagerImpl(DialogManager):
     async def update(
             self,
             data: dict,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id) -> Any | None:
         widget = self.dialog().find(widget_id)
         if not widget:
             return None
         return widget.managed(self)
 
-    def _get_fake_user(self, user_id: Optional[int] = None) -> User:
+    def _get_fake_user(self, user_id: int | None = None) -> User:
         """Get User if we have info about him or FakeUser instead."""
         current_user = self.event.from_user
         if user_id in (None, current_user.id):
             return current_user
         return FakeUser(id=user_id, is_bot=False, first_name="")
 
-    def _get_fake_chat(self, chat_id: Optional[int] = None) -> Chat:
+    def _get_fake_chat(self, chat_id: int | None = None) -> Chat:
         """Get Chat if we have info about him or FakeChat instead."""
         if "event_chat" in self._data:
             current_chat = self._data["event_chat"]
@@ -553,11 +552,11 @@ class ManagerImpl(DialogManager):
 
     def bg(
             self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            user_id: int | None = None,
+            chat_id: int | None = None,
+            stack_id: str | None = None,
+            thread_id: int | None | UnsetId = UnsetId.UNSET,
+            business_connection_id: str | None | UnsetId = UnsetId.UNSET,
             load: bool = False,
     ) -> BaseDialogManager:
         user = self._get_fake_user(user_id)

@@ -1,25 +1,24 @@
 __all__ = [
-    "AccessSettings",
     "DEFAULT_STACK_ID",
-    "Dialog",
-    "Data",
     "GROUP_STACK_ID",
-    "ChatEvent",
-    "LaunchMode",
-    "StartMode",
+    "AccessSettings",
     "BaseDialogManager",
     "BgManagerFactory",
     "CancelEventProcessing",
+    "ChatEvent",
+    "Data",
+    "Dialog",
     "DialogManager",
     "DialogProtocol",
-    "UnsetId",
-    "setup_dialogs",
+    "LaunchMode",
     "ShowMode",
+    "StartMode",
     "SubManager",
+    "UnsetId",
     "Window",
+    "setup_dialogs",
 ]
 
-import importlib.metadata as _metadata
 
 from .api.entities import (
     DEFAULT_STACK_ID,
@@ -43,5 +42,3 @@ from .dialog import Dialog
 from .manager.sub_manager import SubManager
 from .setup import setup_dialogs
 from .window import Window
-
-__version__ = _metadata.version("aiogram-dialog")

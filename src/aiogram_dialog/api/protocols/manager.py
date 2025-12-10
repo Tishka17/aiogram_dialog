@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, Optional, Protocol, Union
+from typing import Any, Protocol
 
 from aiogram import Bot
 from aiogram.fsm.state import State
@@ -25,7 +25,7 @@ class BaseDialogManager(Protocol):
     async def done(
             self,
             result: Any = None,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         raise NotImplementedError
 
@@ -35,8 +35,8 @@ class BaseDialogManager(Protocol):
             state: State,
             data: Data = None,
             mode: StartMode = StartMode.NORMAL,
-            show_mode: Optional[ShowMode] = None,
-            access_settings: Optional[AccessSettings] = None,
+            show_mode: ShowMode | None = None,
+            access_settings: AccessSettings | None = None,
     ) -> None:
         raise NotImplementedError
 
@@ -44,7 +44,7 @@ class BaseDialogManager(Protocol):
     async def switch_to(
             self,
             state: State,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         raise NotImplementedError
 
@@ -52,18 +52,18 @@ class BaseDialogManager(Protocol):
     async def update(
             self,
             data: dict,
-            show_mode: Optional[ShowMode] = None,
+            show_mode: ShowMode | None = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     def bg(
             self,
-            user_id: Optional[int] = None,
-            chat_id: Optional[int] = None,
-            stack_id: Optional[str] = None,
-            thread_id: Union[int, None, UnsetId] = UnsetId.UNSET,
-            business_connection_id: Union[str, None, UnsetId] = UnsetId.UNSET,
+            user_id: int | None = None,
+            chat_id: int | None = None,
+            stack_id: str | None = None,
+            thread_id: int | UnsetId | None = UnsetId.UNSET,
+            business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
@@ -76,9 +76,9 @@ class BgManagerFactory(Protocol):
             bot: Bot,
             user_id: int,
             chat_id: int,
-            stack_id: Optional[str] = None,
-            thread_id: Optional[int] = None,
-            business_connection_id: Optional[str] = None,
+            stack_id: str | None = None,
+            thread_id: int | None = None,
+            business_connection_id: str | None = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
         raise NotImplementedError
@@ -130,7 +130,7 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def show(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def show(self, show_mode: ShowMode | None = None) -> None:
         """Show current state to the user."""
         raise NotImplementedError
 
@@ -159,17 +159,17 @@ class DialogManager(BaseDialogManager, Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def next(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def next(self, show_mode: ShowMode | None = None) -> None:
         """Switch to the next state within current dialog."""
         raise NotImplementedError
 
     @abstractmethod
-    async def back(self, show_mode: Optional[ShowMode] = None) -> None:
+    async def back(self, show_mode: ShowMode | None = None) -> None:
         """Switch to the previous state within current dialog."""
         raise NotImplementedError
 
     @abstractmethod
-    def find(self, widget_id) -> Optional[Any]:
+    def find(self, widget_id) -> Any | None:
         """
         Find a widget in current dialog by its id.
 

@@ -1,5 +1,5 @@
 import os
-from typing import NamedTuple, Optional, cast
+from typing import NamedTuple, cast
 
 from aiogram.types import ContentType
 from cachetools import LRUCache
@@ -10,7 +10,7 @@ from aiogram_dialog.api.protocols import MediaIdStorageProtocol
 
 class CachedMediaId(NamedTuple):
     media_id: MediaId
-    mtime: Optional[float]
+    mtime: float | None
 
 
 class MediaIdStorage(MediaIdStorageProtocol):
@@ -19,14 +19,14 @@ class MediaIdStorage(MediaIdStorageProtocol):
 
     async def get_media_id(
             self,
-            path: Optional[str],
-            url: Optional[str],
+            path: str | None,
+            url: str | None,
             type: ContentType,
-    ) -> Optional[MediaId]:
+    ) -> MediaId | None:
         if not path and not url:
             return None
         cached = cast(
-            Optional[CachedMediaId],
+            CachedMediaId | None,
             self.cache.get((path, url, type)),
         )
         if cached is None:
@@ -38,7 +38,7 @@ class MediaIdStorage(MediaIdStorageProtocol):
                 return None
         return cached.media_id
 
-    def _get_file_mtime(self, path: Optional[str]) -> Optional[float]:
+    def _get_file_mtime(self, path: str | None) -> float | None:
         if not path:
             return None
         if not os.path.exists(path):  # noqa: PTH110
@@ -47,14 +47,14 @@ class MediaIdStorage(MediaIdStorageProtocol):
 
     async def save_media_id(
             self,
-            path: Optional[str],
-            url: Optional[str],
+            path: str | None,
+            url: str | None,
             type: ContentType,
             media_id: MediaId,
     ) -> None:
         if not path and not url:
             return
-        self.cache[(path, url, type)] = CachedMediaId(
+        self.cache[path, url, type] = CachedMediaId(
             media_id,
             self._get_file_mtime(path),
         )

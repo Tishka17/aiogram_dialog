@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Protocol, Union
+from typing import Protocol
 
 from magic_filter import MagicFilter
 
@@ -28,7 +28,7 @@ class Predicate(Protocol):
         raise NotImplementedError
 
 
-WhenCondition = Union[str, MagicFilter, Predicate, None]
+WhenCondition = str | MagicFilter | Predicate | None
 
 
 def new_when_field(fieldname: str) -> Predicate:

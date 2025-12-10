@@ -1,10 +1,16 @@
 __all__ = [
-    "CancelEventProcessing", "DialogProtocol",
-    "BaseDialogManager", "BgManagerFactory", "DialogManager", "UnsetId",
+    "BaseDialogManager",
+    "BgManagerFactory",
+    "CancelEventProcessing",
+    "DialogManager",
+    "DialogProtocol",
+    "DialogRegistryProtocol",
+    "DialogRegistryProtocol",
     "MediaIdStorageProtocol",
-    "MessageManagerProtocol", "MessageNotModified",
-    "DialogProtocol", "DialogRegistryProtocol",
+    "MessageManagerProtocol",
+    "MessageNotModified",
     "StackAccessValidator",
+    "UnsetId",
 ]
 
 from .dialog import CancelEventProcessing, DialogProtocol

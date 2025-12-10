@@ -1,12 +1,10 @@
 from collections.abc import Callable
-from typing import Optional, Union
 
 from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.text import Text
-
 from .base import Keyboard
 
 
@@ -14,7 +12,7 @@ class RequestContact(Keyboard):
     def __init__(
             self,
             text: Text,
-            when: Union[str, Callable, None] = None,
+            when: str | Callable | None = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -38,7 +36,7 @@ class RequestLocation(Keyboard):
     def __init__(
             self,
             text: Text,
-            when: Union[str, Callable, None] = None,
+            when: str | Callable | None = None,
     ):
         super().__init__(when=when)
         self.text = text
@@ -62,8 +60,8 @@ class RequestPoll(Keyboard):
     def __init__(
             self,
             text: Text,
-            poll_type: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            poll_type: str | None = None,
+            when: str | Callable | None = None,
     ):
         super().__init__(when=when)
         self.text = text

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -35,17 +35,17 @@ class DialogUpdateEvent(TelegramObject):
     chat: Chat
     action: DialogAction
     data: Any
-    intent_id: Optional[str]
-    stack_id: Optional[str]
-    thread_id: Optional[int]
-    business_connection_id: Optional[str]
-    show_mode: Optional[ShowMode] = None
+    intent_id: str | None
+    stack_id: str | None
+    thread_id: int | None
+    business_connection_id: str | None
+    show_mode: ShowMode | None = None
 
 
 class DialogStartEvent(DialogUpdateEvent):
     new_state: State
     mode: StartMode
-    access_settings: Optional[AccessSettings] = None
+    access_settings: AccessSettings | None = None
 
 
 class DialogSwitchEvent(DialogUpdateEvent):

@@ -2,9 +2,7 @@ from collections.abc import Awaitable, Callable
 from logging import getLogger
 from typing import (
     Any,
-    Optional,
     TypeVar,
-    Union,
 )
 
 from aiogram import Router
@@ -22,7 +20,6 @@ from aiogram_dialog.api.protocols import (
     DialogManager,
     DialogProtocol,
 )
-
 from .context.intent_filter import IntentFilter
 from .utils import remove_intent_id
 from .widgets.data import PreviewAwareGetter
@@ -30,7 +27,7 @@ from .widgets.utils import GetterVariant, ensure_data_getter
 
 logger = getLogger(__name__)
 
-ChatEvent = Union[CallbackQuery, Message]
+ChatEvent = CallbackQuery | Message
 OnDialogEvent = Callable[[Any, DialogManager], Awaitable]
 OnResultEvent = Callable[[Data, Any, DialogManager], Awaitable]
 W = TypeVar("W", bound=Widget)
@@ -40,13 +37,13 @@ class Dialog(Router, DialogProtocol):
     def __init__(
             self,
             *windows: WindowProtocol,
-            on_start: Optional[OnDialogEvent] = None,
-            on_close: Optional[OnDialogEvent] = None,
-            on_process_result: Optional[OnResultEvent] = None,
+            on_start: OnDialogEvent | None = None,
+            on_close: OnDialogEvent | None = None,
+            on_process_result: OnResultEvent | None = None,
             launch_mode: LaunchMode = LaunchMode.STANDARD,
             getter: GetterVariant = None,
             preview_data: GetterVariant = None,
-            name: Optional[str] = None,
+            name: str | None = None,
     ):
         if not windows:
             raise ValueError(
@@ -66,7 +63,7 @@ class Dialog(Router, DialogProtocol):
                 raise ValueError(f"Multiple windows with state {state}")
             self._states.append(state)
         self.windows: dict[State, WindowProtocol] = dict(
-            zip(self._states, windows),
+            zip(self._states, windows, strict=False),
         )
         self.on_start = on_start
         self.on_close = on_close
@@ -90,7 +87,7 @@ class Dialog(Router, DialogProtocol):
             self,
             manager: DialogManager,
             start_data: Data,
-            state: Optional[State] = None,
+            state: State | None = None,
     ) -> None:
         if state is None:
             state = self._states[0]
@@ -99,7 +96,7 @@ class Dialog(Router, DialogProtocol):
         await self._process_callback(self.on_start, start_data, manager)
 
     async def _process_callback(
-            self, callback: Optional[OnDialogEvent], *args, **kwargs,
+            self, callback: OnDialogEvent | None, *args, **kwargs,
     ):
         if callback:
             await callback(*args, **kwargs)
@@ -147,7 +144,7 @@ class Dialog(Router, DialogProtocol):
             dialog_manager: DialogManager,
     ):
         old_context = dialog_manager.current_context()
-        intent_id, callback_data = remove_intent_id(callback.data)
+        _, callback_data = remove_intent_id(callback.data)
         cleaned_callback = callback.model_copy(update={"data": callback_data})
         window = await self._current_window(dialog_manager)
         try:
@@ -221,7 +218,7 @@ class Dialog(Router, DialogProtocol):
     ) -> None:
         await self._process_callback(self.on_close, result, manager)
 
-    def find(self, widget_id) -> Optional[W]:
+    def find(self, widget_id) -> W | None:
         for w in self.windows.values():
             widget = w.find(widget_id)
             if widget:

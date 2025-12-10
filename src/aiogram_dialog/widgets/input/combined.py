@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
 
 from aiogram.dispatcher.event.handler import FilterObject
 from aiogram.types import Message
@@ -8,7 +8,6 @@ from aiogram_dialog.api.protocols import (
     DialogManager,
     DialogProtocol,
 )
-
 from .base import BaseInput
 
 
@@ -16,7 +15,7 @@ class CombinedInput(BaseInput):
     def __init__(
             self,
             *inputs: BaseInput,
-            filter: Optional[Callable[..., Any]] = None,
+            filter: Callable[..., Any] | None = None,
     ):
         super().__init__()
         self.inputs = inputs

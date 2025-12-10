@@ -4,7 +4,6 @@ from aiogram_dialog.widgets.common import (
     OnPageChangedVariants,
     WhenCondition,
 )
-
 from .base import Text
 
 
