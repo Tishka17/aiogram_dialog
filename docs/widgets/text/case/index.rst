@@ -8,7 +8,7 @@ To select one of the texts depending on some condition you can use ``Case``.
 To use this widget you have to specify at least two parameters:
 
 * ``texts`` - dictionary, which contains options
-* ``selector`` - expression wich is used to get the ``condition`` value that will be used to select which option of ``Case`` widget to show.
+* ``selector`` - expression which is used to get the ``condition`` value that will be used to select which option of ``Case`` widget to show.
 
 ``selector`` can be:
 

@@ -61,7 +61,7 @@ Migration 0.11 -> 1.0
 * In manager ``context`` and ``current_intent()`` were replaced with ``current_context()`` call.
     * ``dialog_data`` is a dict to hold user data
     * ``widget_data`` is a dict to hold data of widgets
-    * ``start_data`` is a data provided whe dialog start
+    * ``start_data`` is a data provided when dialog start
     * ``state`` is current dialog state
 * When subdialog finishes parent is restored with previous state, not which it was started
 * Changed signature of ``on_process_result`` callback. It now accepts start data used to start subdialog

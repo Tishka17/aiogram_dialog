@@ -47,6 +47,10 @@ jobs:
       - name: "Run Ruff"
         run: ruff check
 
+      - name: "Run typos"
+        run: typos
+
+
       - name: "Run tests"
         run: |
           pytest

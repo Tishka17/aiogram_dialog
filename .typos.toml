@@ -1,0 +1,3 @@
+[default.extend-words]
+# Because it's Latin: `electus nam consectetur temporibus`
+nam = "nam"

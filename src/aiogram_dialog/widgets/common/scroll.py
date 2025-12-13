@@ -81,15 +81,15 @@ class BaseScroll(Actionable, Scroll, ABC):
 
 def sync_scroll(
     scroll_id: str | Sequence[str],
-    on_page_chaged: OnPageChanged | None = None,
+    on_page_changed: OnPageChanged | None = None,
 ) -> OnPageChanged:
     async def sync_scroll_on_page_changed(
         event: ChatEvent,
         widget: ManagedScroll,
         dialog_manager: DialogManager,
     ) -> None:
-        if on_page_chaged is not None:
-            await on_page_chaged(event, widget, dialog_manager)
+        if on_page_changed is not None:
+            await on_page_changed(event, widget, dialog_manager)
         page = await widget.get_page()
         scroll_ids = scroll_id
         if isinstance(scroll_id, str):
