@@ -35,7 +35,11 @@ class Scroll(Widget, Protocol):
 
 class ManagedScroll(ManagedWidget[Scroll]):
     async def get_page_count(self, data: dict) -> int:
-        return await self.widget.get_page_count(data, self.manager)
+        try:
+            return await self.widget.get_page_count(data, self.manager)
+        except Exception as e:
+            e.add_note(f"at {self!r}")
+            raise
 
     async def get_page(self) -> int:
         return await self.widget.get_page(self.manager)

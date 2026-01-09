@@ -86,7 +86,11 @@ class Window(WindowProtocol):
     async def render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
-        return await self.text.render_text(data, manager)
+        try:
+            return await self.text.render_text(data, manager)
+        except Exception as e:
+            e.add_note(f"at {self!r}")
+            raise
 
     async def render_media(
             self, data: dict, manager: DialogManager,
@@ -99,15 +103,23 @@ class Window(WindowProtocol):
             self, data: dict, manager: DialogManager,
     ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        return await self.markup_factory.render_markup(
-            data, manager, keyboard,
-        )
+        try:
+            return await self.markup_factory.render_markup(
+                data, manager, keyboard,
+            )
+        except Exception as e:
+            e.add_note(f"at markup {self!r}")
+            raise
 
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
         if self.link_preview:
-            return await self.link_preview.render_link_preview(data, manager)
+            try:
+                return await self.link_preview.render_link_preview(data, manager)
+            except Exception as e:
+                e.add_note(f"at link preview {self!r}")
+                raise
         return None
 
     async def load_data(

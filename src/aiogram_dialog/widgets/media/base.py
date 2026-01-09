@@ -14,7 +14,11 @@ class Media(Whenable, BaseWidget, MediaWidget):
     ) -> MediaAttachment | None:
         if not self.is_(data, manager):
             return None
-        return await self._render_media(data, manager)
+        try:
+            return await self._render_media(data, manager)
+        except Exception as e:
+            e.add_note(f"at {self!r}")
+            raise
 
     async def _render_media(
             self, data: dict, manager: DialogManager,

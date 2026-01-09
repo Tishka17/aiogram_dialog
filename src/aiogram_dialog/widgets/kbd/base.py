@@ -29,7 +29,11 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
         """
         if not self.is_(data, manager):
             return []
-        return await self._render_keyboard(data, manager)
+        try:
+            return await self._render_keyboard(data, manager)
+        except Exception as e:
+            e.add_note(f"at {self!r}")
+            raise
 
     @abstractmethod
     async def _render_keyboard(
