@@ -211,9 +211,9 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 def add_exception_note(f: Callable[P, R]) -> Callable[P, R]:
-    def inner(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
+    async def inner(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
         try:
-            return f(self, *args, **kwargs)
+            return await f(self, *args, **kwargs)
         except Exception as e:
             # execute only on version >= 3.11
             if sys.version_info >= (3, 11):
