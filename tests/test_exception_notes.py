@@ -1,3 +1,4 @@
+import sys
 from unittest.mock import Mock
 
 import pytest
@@ -66,10 +67,11 @@ async def test_exception_notes():
 
     with pytest.raises(UndefinedError) as exc_info:
         await client.send("/start")
-    assert exc_info.value.__notes__
-    assert Jinja.__name__ in exc_info.value.__notes__[0]
-    assert exc_info.value.__notes__[1:] == [
-        "at <Select id=select_id>",
-        "at <ScrollingGroup id=scrolling_group_id>",
-        "aiogram-dialog state: <State 'MainSG:start'>",
-    ]
+    if sys.version_info >= (3, 11):
+        assert exc_info.value.__notes__
+        assert Jinja.__name__ in exc_info.value.__notes__[0]
+        assert exc_info.value.__notes__[1:] == [
+            "at <Select id=select_id>",
+            "at <ScrollingGroup id=scrolling_group_id>",
+            "aiogram-dialog state: <State 'MainSG:start'>",
+        ]
