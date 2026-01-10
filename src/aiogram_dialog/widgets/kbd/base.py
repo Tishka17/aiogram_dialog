@@ -4,12 +4,12 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
     Actionable,
     Whenable,
     WhenCondition,
 )
-from utils import add_exception_note
 
 
 class Keyboard(Actionable, Whenable, KeyboardWidget):

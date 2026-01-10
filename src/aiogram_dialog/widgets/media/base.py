@@ -2,8 +2,8 @@
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.internal import MediaWidget
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import BaseWidget, Whenable, WhenCondition
-from utils import add_exception_note
 
 
 class Media(Whenable, BaseWidget, MediaWidget):

@@ -18,7 +18,7 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
-from utils import add_exception_note
+from aiogram_dialog.utils import add_exception_note
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol

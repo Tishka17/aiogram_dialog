@@ -5,11 +5,11 @@ from typing import Protocol
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-from utils import add_exception_note
 from .action import Actionable
 from .managed import ManagedWidget
 

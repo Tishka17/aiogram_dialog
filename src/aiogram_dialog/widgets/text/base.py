@@ -3,13 +3,13 @@ from typing import Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
     BaseWidget,
     Whenable,
     WhenCondition,
     true_condition,
 )
-from utils import add_exception_note
 
 
 class Text(Whenable, BaseWidget, TextWidget):

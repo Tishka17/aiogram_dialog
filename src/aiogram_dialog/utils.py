@@ -1,6 +1,7 @@
 import sys
+from collections.abc import Callable
 from logging import getLogger
-from typing import Callable, Any, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 from aiogram.types import (
     CallbackQuery,
