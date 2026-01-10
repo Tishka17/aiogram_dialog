@@ -114,13 +114,13 @@ class Window(WindowProtocol):
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
-        if self.link_preview:
-            try:
-                return await self.link_preview.render_link_preview(data, manager)
-            except Exception as e:
-                e.add_note(f"at link preview {self!r}")
-                raise
-        return None
+        if not self.link_preview:
+            return None
+        try:
+            return await self.link_preview.render_link_preview(data, manager)
+        except Exception as e:
+            e.add_note(f"at link preview {self!r}")
+            raise
 
     async def load_data(
             self, dialog: "DialogProtocol",
