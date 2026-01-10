@@ -18,7 +18,6 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
-from aiogram_dialog.utils import add_exception_note
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -84,7 +83,6 @@ class Window(WindowProtocol):
             )
             self.link_preview = LinkPreview(is_disabled=True)
 
-    @add_exception_note
     async def render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
@@ -97,7 +95,6 @@ class Window(WindowProtocol):
             return await self.media.render_media(data, manager)
         return None
 
-    @add_exception_note
     async def render_kbd(
             self, data: dict, manager: DialogManager,
     ) -> MarkupVariant:
@@ -106,7 +103,6 @@ class Window(WindowProtocol):
             data, manager, keyboard,
         )
 
-    @add_exception_note
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
