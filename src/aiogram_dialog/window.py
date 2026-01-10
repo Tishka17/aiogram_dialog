@@ -18,6 +18,7 @@ from aiogram_dialog.api.entities import (
     NewMessage,
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
+from utils import add_exception_note
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -83,14 +84,11 @@ class Window(WindowProtocol):
             )
             self.link_preview = LinkPreview(is_disabled=True)
 
+    @add_exception_note
     async def render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
-        try:
-            return await self.text.render_text(data, manager)
-        except Exception as e:
-            e.add_note(f"at {self!r}")
-            raise
+        return await self.text.render_text(data, manager)
 
     async def render_media(
             self, data: dict, manager: DialogManager,
@@ -99,28 +97,22 @@ class Window(WindowProtocol):
             return await self.media.render_media(data, manager)
         return None
 
+    @add_exception_note
     async def render_kbd(
             self, data: dict, manager: DialogManager,
     ) -> MarkupVariant:
         keyboard = await self.keyboard.render_keyboard(data, manager)
-        try:
-            return await self.markup_factory.render_markup(
-                data, manager, keyboard,
-            )
-        except Exception as e:
-            e.add_note(f"at markup {self!r}")
-            raise
+        return await self.markup_factory.render_markup(
+            data, manager, keyboard,
+        )
 
+    @add_exception_note
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
         if not self.link_preview:
             return None
-        try:
-            return await self.link_preview.render_link_preview(data, manager)
-        except Exception as e:
-            e.add_note(f"at link preview {self!r}")
-            raise
+        return await self.link_preview.render_link_preview(data, manager)
 
     async def load_data(
             self, dialog: "DialogProtocol",

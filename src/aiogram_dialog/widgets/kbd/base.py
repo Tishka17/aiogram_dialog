@@ -9,6 +9,7 @@ from aiogram_dialog.widgets.common import (
     Whenable,
     WhenCondition,
 )
+from utils import add_exception_note
 
 
 class Keyboard(Actionable, Whenable, KeyboardWidget):
@@ -16,6 +17,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
         Actionable.__init__(self, id=id)
         Whenable.__init__(self, when=when)
 
+    @add_exception_note
     async def render_keyboard(
             self,
             data,
@@ -29,11 +31,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
         """
         if not self.is_(data, manager):
             return []
-        try:
-            return await self._render_keyboard(data, manager)
-        except Exception as e:
-            e.add_note(f"at {self!r}")
-            raise
+        return await self._render_keyboard(data, manager)
 
     @abstractmethod
     async def _render_keyboard(

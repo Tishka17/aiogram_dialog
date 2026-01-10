@@ -9,12 +9,14 @@ from aiogram_dialog.widgets.common import (
     WhenCondition,
     true_condition,
 )
+from utils import add_exception_note
 
 
 class Text(Whenable, BaseWidget, TextWidget):
     def __init__(self, when: WhenCondition = None):
         super().__init__(when=when)
 
+    @add_exception_note
     async def render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:
@@ -26,11 +28,7 @@ class Text(Whenable, BaseWidget, TextWidget):
         """
         if not self.is_(data, manager):
             return ""
-        try:
-            return await self._render_text(data, manager)
-        except Exception as e:
-            e.add_note(f"at {self!r}")
-            raise
+        return await self._render_text(data, manager)
 
     @abstractmethod
     async def _render_text(self, data, manager: DialogManager) -> str:

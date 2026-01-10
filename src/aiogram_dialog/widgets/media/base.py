@@ -3,22 +3,20 @@ from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.api.internal import MediaWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import BaseWidget, Whenable, WhenCondition
+from utils import add_exception_note
 
 
 class Media(Whenable, BaseWidget, MediaWidget):
     def __init__(self, when: WhenCondition = None):
         super().__init__(when=when)
 
+    @add_exception_note
     async def render_media(
             self, data: dict, manager: DialogManager,
     ) -> MediaAttachment | None:
         if not self.is_(data, manager):
             return None
-        try:
-            return await self._render_media(data, manager)
-        except Exception as e:
-            e.add_note(f"at {self!r}")
-            raise
+        return await self._render_media(data, manager)
 
     async def _render_media(
             self, data: dict, manager: DialogManager,

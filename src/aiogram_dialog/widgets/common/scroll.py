@@ -9,6 +9,7 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
+from utils import add_exception_note
 from .action import Actionable
 from .managed import ManagedWidget
 
@@ -34,12 +35,9 @@ class Scroll(Widget, Protocol):
 
 
 class ManagedScroll(ManagedWidget[Scroll]):
+    @add_exception_note
     async def get_page_count(self, data: dict) -> int:
-        try:
-            return await self.widget.get_page_count(data, self.manager)
-        except Exception as e:
-            e.add_note(f"at {self!r}")
-            raise
+        return await self.widget.get_page_count(data, self.manager)
 
     async def get_page(self) -> int:
         return await self.widget.get_page(self.manager)

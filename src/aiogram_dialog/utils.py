@@ -1,4 +1,6 @@
+import sys
 from logging import getLogger
+from typing import Callable, Any, ParamSpec, TypeVar
 
 from aiogram.types import (
     CallbackQuery,
@@ -202,3 +204,18 @@ def remove_intent_id(callback_data: str) -> tuple[str | None, str]:
         intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
         return intent_id, new_data
     return None, callback_data
+
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+def add_exception_note(f: Callable[P, R]) -> Callable[P, R]:
+    def inner(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
+        try:
+            return f(self, *args, **kwargs)
+        except Exception as e:
+            # execute only on version >= 3.11
+            if sys.version_info >= (3, 11):
+                e.add_note(f"at {self!r}")
+            raise
+    return inner
