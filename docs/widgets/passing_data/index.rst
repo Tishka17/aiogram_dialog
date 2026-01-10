@@ -28,7 +28,7 @@ Result:
 
 .. image:: /resources/passing_data_example.png
 
-In event handlers you don't have access to that dictionary, but you can acess ``event``, ``middleware_data``, ``start_data``, ``dialog_data`` via dialog_manager:
+In event handlers you don't have access to that dictionary, but you can access ``event``, ``middleware_data``, ``start_data``, ``dialog_data`` via dialog_manager:
 
 .. literalinclude:: ./data_in_handlers.py
 

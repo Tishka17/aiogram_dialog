@@ -17,7 +17,7 @@ async def get_data(**kwargs):
 
 
 # Using string selector as a `selector`.
-# The value of data["color"] will be used to select wich option of ``Case`` widget to show.
+# The value of data["color"] will be used to select which option of ``Case`` widget to show.
 #
 # `text` will produce text `Square`
 text = Case(
@@ -32,7 +32,7 @@ text = Case(
 
 
 # Using function as a `selector`.
-# The result of this function will be used to select wich option of ``Case`` widget to show.
+# The result of this function will be used to select which option of ``Case`` widget to show.
 #
 # `text2` will produce text `42 is even!`
 def parity_selector(data: dict, case: Case, manager: DialogManager):
@@ -49,7 +49,7 @@ text2 = Case(
 
 
 # Using F-filters as a selector.
-# The value of data["dialog_data"]["user"]["test_result"] will be used to select wich option
+# The value of data["dialog_data"]["user"]["test_result"] will be used to select which option
 # of ``Case`` widget to show.
 #
 # `text3` will produce text `Great job!`
