@@ -26,7 +26,11 @@ class Text(Whenable, BaseWidget, TextWidget):
         """
         if not self.is_(data, manager):
             return ""
-        return await self._render_text(data, manager)
+        try:
+            return await self._render_text(data, manager)
+        except Exception as e:
+            e.add_note(f"at {self!r}")
+            raise
 
     @abstractmethod
     async def _render_text(self, data, manager: DialogManager) -> str:
