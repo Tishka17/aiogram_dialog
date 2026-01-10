@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -6,6 +5,7 @@ from aiogram import Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
+from jinja2 import UndefinedError
 
 from aiogram_dialog import (
     Dialog,
@@ -15,11 +15,9 @@ from aiogram_dialog import (
     setup_dialogs,
 )
 from aiogram_dialog.test_tools import BotClient, MockMessageManager
-from aiogram_dialog.test_tools.keyboard import InlineButtonTextLocator
 from aiogram_dialog.test_tools.memory_storage import JsonMemoryStorage
-from aiogram_dialog.widgets.kbd import Button, Group, Select, ScrollingGroup
-from aiogram_dialog.widgets.text import Const, Format, Jinja
-from jinja2 import UndefinedError
+from aiogram_dialog.widgets.kbd import ScrollingGroup, Select
+from aiogram_dialog.widgets.text import Const, Jinja
 
 
 class MainSG(StatesGroup):
@@ -42,7 +40,7 @@ dialog = Dialog(
             height=10,
         ),
         state=MainSG.start,
-        getter={"data": [{"foo": 1}]}
+        getter={"data": [{"foo": 1}]},
     ),
 )
 
@@ -66,14 +64,12 @@ async def test_exception_notes():
     message_manager = MockMessageManager()
     setup_dialogs(dp, message_manager=message_manager)
 
-    try:
+    with pytest.raises(UndefinedError) as exc_info:
         await client.send("/start")
-    except UndefinedError as e:
-        assert e.__notes__
-        assert "at <aiogram_dialog.widgets.text.jinja.Jinja object at 0x" in e.__notes__[0]
-        assert e.__notes__[1:] == [
-            'at <Select id=select_id>',
-            'at <ScrollingGroup id=scrolling_group_id>',
-            "aiogram-dialog state: <State 'MainSG:start'>"
-        ]
-
+    assert exc_info.value.__notes__
+    assert Jinja.__name__ in exc_info.value.__notes__[0]
+    assert exc_info.value.__notes__[1:] == [
+        "at <Select id=select_id>",
+        "at <ScrollingGroup id=scrolling_group_id>",
+        "aiogram-dialog state: <State 'MainSG:start'>",
+    ]
