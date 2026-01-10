@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
     Actionable,
     Whenable,
@@ -16,6 +17,7 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
         Actionable.__init__(self, id=id)
         Whenable.__init__(self, when=when)
 
+    @add_exception_note
     async def render_keyboard(
             self,
             data,

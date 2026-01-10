@@ -38,3 +38,6 @@ class Actionable(BaseWidget):
     ) -> Any:
         """Set data for current widget id."""
         manager.current_context().widget_data[self.widget_id] = value
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} id={self.widget_id}>"

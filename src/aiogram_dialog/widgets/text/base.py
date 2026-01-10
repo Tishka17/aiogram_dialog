@@ -3,6 +3,7 @@ from typing import Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
     BaseWidget,
     Whenable,
@@ -15,6 +16,7 @@ class Text(Whenable, BaseWidget, TextWidget):
     def __init__(self, when: WhenCondition = None):
         super().__init__(when=when)
 
+    @add_exception_note
     async def render_text(
             self, data: dict, manager: DialogManager,
     ) -> str:

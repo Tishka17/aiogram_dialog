@@ -5,6 +5,7 @@ from typing import Protocol
 from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import Widget
 from aiogram_dialog.api.protocols import DialogManager
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -34,6 +35,7 @@ class Scroll(Widget, Protocol):
 
 
 class ManagedScroll(ManagedWidget[Scroll]):
+    @add_exception_note
     async def get_page_count(self, data: dict) -> int:
         return await self.widget.get_page_count(data, self.manager)
 
