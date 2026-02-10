@@ -50,8 +50,16 @@ class Button(Keyboard):
         data: dict,
         manager: DialogManager,
     ) -> RawKeyboard:
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         return [
             [
@@ -84,8 +92,16 @@ class Url(Keyboard):
         data: dict,
         manager: DialogManager,
     ) -> RawKeyboard:
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         return [
             [
@@ -109,9 +125,19 @@ class WebApp(Url):
 
         web_app_url = await self.url.render_text(data, manager)
         web_app_info = WebAppInfo(url=web_app_url)
-        style = await self.style.render_style(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
 
-        return [[InlineKeyboardButton(text=text, web_app=web_app_info, style=style)]]
+        return [
+            [
+                InlineKeyboardButton(
+                    text=text, web_app=web_app_info, style=style,
+                ),
+            ],
+        ]
 
 
 class SwitchInlineQuery(Keyboard):
@@ -133,8 +159,16 @@ class SwitchInlineQuery(Keyboard):
         data: dict,
         manager: DialogManager,
     ) -> list[list[InlineKeyboardButton]]:
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         return [
             [
@@ -177,8 +211,16 @@ class LoginURLButton(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         url = await self.url.render_text(data, manager)
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         forward_text = None
         if self.forward_text:
@@ -232,8 +274,16 @@ class SwitchInlineQueryCurrentChat(Keyboard):
             data,
             manager,
         )
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         return [
             [
@@ -275,9 +325,16 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         query = await self.query.render_text(data, manager)
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
-
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         switch_inline_query_chosen_chat = SwitchInlineQueryChosenChat(
             query=query,
