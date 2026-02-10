@@ -21,7 +21,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
         manager: DialogManager,
     ) -> str:
         """
-        Create style.
+        Create button style.
 
         When inheriting override `_render_style` method instead
         if you want to keep processing of `when` condition
