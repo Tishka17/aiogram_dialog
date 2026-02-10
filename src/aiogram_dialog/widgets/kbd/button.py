@@ -50,14 +50,16 @@ class Button(Keyboard):
         data: dict,
         manager: DialogManager,
     ) -> RawKeyboard:
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+
         return [
             [
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     callback_data=self._own_callback_data(),
-                    style=await self.style.render_style(data, manager)
-                    if self.style
-                    else None,
+                    style=style,
+                    custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -70,21 +72,28 @@ class Url(Keyboard):
         url: Text,
         id: str | None = None,
         when: WhenCondition = None,
+        style: Style | None = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.url = url
+        self.style = style
 
     async def _render_keyboard(
         self,
         data: dict,
         manager: DialogManager,
     ) -> RawKeyboard:
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+
         return [
             [
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     url=await self.url.render_text(data, manager),
+                    style=style,
+                    custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -100,8 +109,9 @@ class WebApp(Url):
 
         web_app_url = await self.url.render_text(data, manager)
         web_app_info = WebAppInfo(url=web_app_url)
+        style = await self.style.render_style(data, manager) if self.style else None
 
-        return [[InlineKeyboardButton(text=text, web_app=web_app_info)]]
+        return [[InlineKeyboardButton(text=text, web_app=web_app_info, style=style)]]
 
 
 class SwitchInlineQuery(Keyboard):
@@ -111,16 +121,21 @@ class SwitchInlineQuery(Keyboard):
         switch_inline_query: Text,
         id: str | None = None,
         when: WhenCondition = None,
+        style: Style | None = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.switch_inline = switch_inline_query
+        self.style = style
 
     async def _render_keyboard(
         self,
         data: dict,
         manager: DialogManager,
     ) -> list[list[InlineKeyboardButton]]:
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+
         return [
             [
                 InlineKeyboardButton(
@@ -129,6 +144,8 @@ class SwitchInlineQuery(Keyboard):
                         data,
                         manager,
                     ),
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -144,6 +161,7 @@ class LoginURLButton(Keyboard):
         request_write_access: bool | None = None,
         id: str | None = None,
         when: WhenCondition = None,
+        style: Style | None = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -159,6 +177,8 @@ class LoginURLButton(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         url = await self.url.render_text(data, manager)
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
 
         forward_text = None
         if self.forward_text:
@@ -180,6 +200,8 @@ class LoginURLButton(Keyboard):
                 InlineKeyboardButton(
                     text=text,
                     login_url=login_url,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -192,6 +214,7 @@ class SwitchInlineQueryCurrentChat(Keyboard):
         switch_inline_query_current_chat: Text,
         id: str | None = None,
         when: WhenCondition = None,
+        style: Style | None = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -209,12 +232,16 @@ class SwitchInlineQueryCurrentChat(Keyboard):
             data,
             manager,
         )
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
 
         return [
             [
                 InlineKeyboardButton(
                     text=text,
                     switch_inline_query_current_chat=query,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -231,6 +258,7 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
         allow_channel_chats: bool | None = None,
         id: str | None = None,
         when: WhenCondition = None,
+        style: Style | None = None,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -247,6 +275,9 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         query = await self.query.render_text(data, manager)
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+
 
         switch_inline_query_chosen_chat = SwitchInlineQueryChosenChat(
             query=query,
@@ -261,6 +292,8 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
                 InlineKeyboardButton(
                     text=text,
                     switch_inline_query_chosen_chat=switch_inline_query_chosen_chat,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]

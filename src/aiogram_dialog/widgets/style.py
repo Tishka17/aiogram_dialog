@@ -39,11 +39,42 @@ class Style(Whenable, BaseWidget, StyleWidget):
         """
         raise NotImplementedError
 
+    @add_exception_note
+    async def render_emoji(
+        self,
+        data: dict,
+        manager: DialogManager,
+    ) -> str | None:
+        """
+        Add custom emoji shown before the text of the button.
 
-class ConstStyle(Style):
-    def __init__(self, style: str, when: WhenCondition = None):
+        When inheriting override `_render_emoji` method instead
+        if you want to keep processing of `when` condition
+        """
+        if not self.is_(data, manager):
+            return ""
+        return await self._render_emoji(data, manager)
+
+    @abstractmethod
+    async def _render_emoji(self, data, manager: DialogManager) -> str | None:
+        """
+        Add custom emoji shown before the text of the button.
+
+        Called if widget is not hidden only (regarding `when`-condition)
+        """
+        raise NotImplementedError
+
+
+class SimpleStyle(Style):
+    def __init__(
+        self,
+        style: str,
+        emoji_id: str | None = None,
+        when: WhenCondition = None,
+    ):
         super().__init__(when=when)
         self.style = style
+        self.emoji_id = emoji_id
 
     async def _render_style(
         self,
@@ -51,3 +82,10 @@ class ConstStyle(Style):
         manager: DialogManager,
     ) -> str:
         return self.style
+
+    async def _render_emoji(
+        self,
+        data: dict,
+        manager: DialogManager,
+    ) -> str | None:
+        return self.emoji_id

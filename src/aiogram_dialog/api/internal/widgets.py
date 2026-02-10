@@ -39,8 +39,8 @@ class TextWidget(Widget, Protocol):
     ) -> str:
         """Create text."""
         raise NotImplementedError
-    
-    
+
+
 @runtime_checkable
 class StyleWidget(Widget, Protocol):
     @abstractmethod
@@ -48,6 +48,13 @@ class StyleWidget(Widget, Protocol):
             self, data: dict, manager: DialogManager,
     ) -> str:
         """Create button style."""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def render_emoji(
+            self, data: dict, manager: DialogManager,
+    ) -> str | None:
+        """Add custom emoji shown before the text of the button."""
         raise NotImplementedError
 
 
