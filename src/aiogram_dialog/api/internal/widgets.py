@@ -39,6 +39,16 @@ class TextWidget(Widget, Protocol):
     ) -> str:
         """Create text."""
         raise NotImplementedError
+    
+    
+@runtime_checkable
+class StyleWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_style(
+            self, data: dict, manager: DialogManager,
+    ) -> str:
+        """Create style."""
+        raise NotImplementedError
 
 
 @runtime_checkable
