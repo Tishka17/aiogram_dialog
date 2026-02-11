@@ -203,6 +203,7 @@ class LoginURLButton(Keyboard):
         self.forward_text = forward_text
         self.bot_username = bot_username
         self.request_write_access = request_write_access
+        self.style = style
 
     async def _render_keyboard(
         self,
@@ -263,6 +264,7 @@ class SwitchInlineQueryCurrentChat(Keyboard):
         self.switch_inline_query_current_chat = (
             switch_inline_query_current_chat
         )
+        self.style = style
 
     async def _render_keyboard(
         self,
@@ -317,6 +319,7 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
         self.allow_bot_chats = allow_bot_chats
         self.allow_group_chats = allow_group_chats
         self.allow_channel_chats = allow_channel_chats
+        self.style = style
 
     async def _render_keyboard(
         self,
