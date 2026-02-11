@@ -19,7 +19,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
         self,
         data: dict,
         manager: DialogManager,
-    ) -> str:
+    ) -> str | None:
         """
         Create button style.
 
@@ -31,7 +31,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
         return await self._render_style(data, manager)
 
     @abstractmethod
-    async def _render_style(self, data, manager: DialogManager) -> str:
+    async def _render_style(self, data, manager: DialogManager) -> str | None:
         """
         Create button style.
 
@@ -68,7 +68,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
 class SimpleStyle(Style):
     def __init__(
         self,
-        style: str,
+        style: str | None = None,
         emoji_id: str | None = None,
         when: WhenCondition = None,
     ):
@@ -80,7 +80,7 @@ class SimpleStyle(Style):
         self,
         data: dict,
         manager: DialogManager,
-    ) -> str:
+    ) -> str | None:
         return self.style
 
     async def _render_emoji(

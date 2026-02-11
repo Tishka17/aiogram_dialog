@@ -46,7 +46,7 @@ class StyleWidget(Widget, Protocol):
     @abstractmethod
     async def render_style(
             self, data: dict, manager: DialogManager,
-    ) -> str:
+    ) -> str | None:
         """Create button style."""
         raise NotImplementedError
 
