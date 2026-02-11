@@ -6,7 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
-from aiogram_dialog.widgets.style import EMPTY_STYLE, BaseStyle
+from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
 from aiogram_dialog.widgets.text import Text
 
 
@@ -16,7 +16,7 @@ class CopyText(Keyboard):
         text: Text,
         copy_text: Text,
         when: WhenCondition = None,
-        style: BaseStyle = EMPTY_STYLE,
+        style: StyleWidget = EMPTY_STYLE,
     ) -> None:
         super().__init__(when=when)
         self._text = text
