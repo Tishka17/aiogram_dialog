@@ -7,7 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.style import Style
+from aiogram_dialog.widgets.style import EmptyStyle, Style
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -30,8 +30,8 @@ class BaseCheckbox(Keyboard, ABC):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
-            checked_style: Style | None = None,
-            unchecked_style: Style | None = None,
+            checked_style: Style = EmptyStyle(),
+            unchecked_style: Style = EmptyStyle(),
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
             when: WhenCondition = None,
@@ -46,7 +46,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.checked_style = checked_style
         self.unchecked_style = unchecked_style
 
-    def _get_current_style(self, manager: DialogManager) -> Style | None:
+    def _get_current_style(self, manager: DialogManager) -> Style:
         if self.is_checked(manager):
             return self.checked_style
         return self.unchecked_style
@@ -56,16 +56,8 @@ class BaseCheckbox(Keyboard, ABC):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         current_style = self._get_current_style(manager)
-        style = (
-            await current_style.render_style(data, manager)
-            if current_style
-            else None
-        )
-        icon_custom_emoji_id = (
-            await current_style.render_emoji(data, manager)
-            if current_style
-            else None
-        )
+        style = await current_style.render_style(data, manager)
+        icon_custom_emoji_id = await current_style.render_emoji(data, manager)
 
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
@@ -125,8 +117,8 @@ class Checkbox(BaseCheckbox):
             on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
-            checked_style: Style | None = None,
-            unchecked_style: Style | None = None,
+            checked_style: Style = EmptyStyle(),
+            unchecked_style: Style = EmptyStyle(),
     ):
         super().__init__(
             checked_text=checked_text, unchecked_text=unchecked_text,

@@ -4,7 +4,7 @@ from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.style import Style
+from aiogram_dialog.widgets.style import EmptyStyle, Style
 from aiogram_dialog.widgets.text import Text
 from .base import Keyboard
 
@@ -14,7 +14,7 @@ class RequestContact(Keyboard):
             self,
             text: Text,
             when: str | Callable | None = None,
-            style: Style | None = None,
+            style: Style = EmptyStyle(),
     ):
         super().__init__(when=when)
         self.text = text
@@ -25,16 +25,8 @@ class RequestContact(Keyboard):
             data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
-        style = (
-            await self.style.render_style(data, manager)
-            if self.style
-            else None
-        )
-        icon_custom_emoji_id = (
-            await self.style.render_emoji(data, manager)
-            if self.style
-            else None
-        )
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         return [
             [
@@ -53,7 +45,7 @@ class RequestLocation(Keyboard):
             self,
             text: Text,
             when: str | Callable | None = None,
-            style: Style | None = None,
+            style: Style = EmptyStyle(),
     ):
         super().__init__(when=when)
         self.text = text
@@ -64,16 +56,8 @@ class RequestLocation(Keyboard):
             data: dict,
             manager: DialogManager,
     ) -> RawKeyboard:
-        style = (
-            await self.style.render_style(data, manager)
-            if self.style
-            else None
-        )
-        icon_custom_emoji_id = (
-            await self.style.render_emoji(data, manager)
-            if self.style
-            else None
-        )
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         return [
             [
@@ -93,7 +77,7 @@ class RequestPoll(Keyboard):
             text: Text,
             poll_type: str | None = None,
             when: str | Callable | None = None,
-            style: Style | None = None,
+            style: Style = EmptyStyle(),
     ):
         super().__init__(when=when)
         self.text = text
@@ -107,16 +91,8 @@ class RequestPoll(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         request_poll = KeyboardButtonPollType(type=self.poll_type)
-        style = (
-            await self.style.render_style(data, manager)
-            if self.style
-            else None
-        )
-        icon_custom_emoji_id = (
-            await self.style.render_emoji(data, manager)
-            if self.style
-            else None
-        )
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         return [
             [

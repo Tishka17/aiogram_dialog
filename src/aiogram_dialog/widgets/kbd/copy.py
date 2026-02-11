@@ -6,7 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
-from aiogram_dialog.widgets.style import Style
+from aiogram_dialog.widgets.style import EmptyStyle, Style
 from aiogram_dialog.widgets.text import Text
 
 
@@ -16,7 +16,7 @@ class CopyText(Keyboard):
         text: Text,
         copy_text: Text,
         when: WhenCondition = None,
-        style: Style | None = None,
+        style: Style = EmptyStyle(),
     ) -> None:
         super().__init__(when=when)
         self._text = text
@@ -28,16 +28,8 @@ class CopyText(Keyboard):
         data: dict[str, Any],
         manager: DialogManager,
     ) -> RawKeyboard:
-        style = (
-            await self.style.render_style(data, manager)
-            if self.style
-            else None
-        )
-        icon_custom_emoji_id = (
-            await self.style.render_emoji(data, manager)
-            if self.style
-            else None
-        )
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         return [
             [

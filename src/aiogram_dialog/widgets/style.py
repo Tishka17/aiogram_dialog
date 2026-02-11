@@ -89,3 +89,8 @@ class SimpleStyle(Style):
         manager: DialogManager,
     ) -> str | None:
         return self.emoji_id
+
+
+class EmptyStyle(SimpleStyle):
+    def __init__(self):
+        super().__init__(style=None, emoji_id=None, when=None)
