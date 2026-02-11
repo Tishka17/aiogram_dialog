@@ -91,4 +91,4 @@ class SimpleStyle(Style):
         return self.emoji_id
 
 
-EMPTY_STYLE = SimpleStyle()
+EMPTY_STYLE = SimpleStyle(style=None, emoji_id=None, when=None)
