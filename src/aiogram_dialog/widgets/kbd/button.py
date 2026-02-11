@@ -11,7 +11,7 @@ from aiogram.types import (
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
-from aiogram_dialog.widgets.style import EmptyStyle, Style
+from aiogram_dialog.widgets.style import EMPTY_STYLE, Style
 from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -29,7 +29,7 @@ class Button(Keyboard):
         id: str,
         on_click: OnClick | WidgetEventProcessor | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -72,7 +72,7 @@ class Url(Keyboard):
         url: Text,
         id: str | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -131,7 +131,7 @@ class SwitchInlineQuery(Keyboard):
         switch_inline_query: Text,
         id: str | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -171,7 +171,7 @@ class LoginURLButton(Keyboard):
         request_write_access: bool | None = None,
         id: str | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -225,7 +225,7 @@ class SwitchInlineQueryCurrentChat(Keyboard):
         switch_inline_query_current_chat: Text,
         id: str | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -270,7 +270,7 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
         allow_channel_chats: bool | None = None,
         id: str | None = None,
         when: WhenCondition = None,
-        style: Style = EmptyStyle(),
+        style: Style = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text

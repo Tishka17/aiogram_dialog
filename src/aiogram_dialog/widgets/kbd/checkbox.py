@@ -7,7 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.style import EmptyStyle, Style
+from aiogram_dialog.widgets.style import EMPTY_STYLE, Style
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -30,8 +30,8 @@ class BaseCheckbox(Keyboard, ABC):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
-            checked_style: Style = EmptyStyle(),
-            unchecked_style: Style = EmptyStyle(),
+            checked_style: Style = EMPTY_STYLE,
+            unchecked_style: Style = EMPTY_STYLE,
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
             when: WhenCondition = None,
@@ -117,8 +117,8 @@ class Checkbox(BaseCheckbox):
             on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
-            checked_style: Style = EmptyStyle(),
-            unchecked_style: Style = EmptyStyle(),
+            checked_style: Style = EMPTY_STYLE,
+            unchecked_style: Style = EMPTY_STYLE,
     ):
         super().__init__(
             checked_text=checked_text, unchecked_text=unchecked_text,
