@@ -7,7 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.style import EMPTY_STYLE, Style
+from aiogram_dialog.widgets.style import EMPTY_STYLE, BaseStyle
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -30,8 +30,8 @@ class BaseCheckbox(Keyboard, ABC):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
-            checked_style: Style = EMPTY_STYLE,
-            unchecked_style: Style = EMPTY_STYLE,
+            checked_style: BaseStyle = EMPTY_STYLE,
+            unchecked_style: BaseStyle = EMPTY_STYLE,
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
             when: WhenCondition = None,
@@ -46,7 +46,7 @@ class BaseCheckbox(Keyboard, ABC):
         self.checked_style = checked_style
         self.unchecked_style = unchecked_style
 
-    def _get_current_style(self, manager: DialogManager) -> Style:
+    def _get_current_style(self, manager: DialogManager) -> BaseStyle:
         if self.is_checked(manager):
             return self.checked_style
         return self.unchecked_style
@@ -117,8 +117,8 @@ class Checkbox(BaseCheckbox):
             on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
-            checked_style: Style = EMPTY_STYLE,
-            unchecked_style: Style = EMPTY_STYLE,
+            checked_style: BaseStyle = EMPTY_STYLE,
+            unchecked_style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             checked_text=checked_text, unchecked_text=unchecked_text,

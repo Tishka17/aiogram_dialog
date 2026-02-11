@@ -7,7 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent, Data, ShowMode, StartMode
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd.button import Button, OnClick
-from aiogram_dialog.widgets.style import EMPTY_STYLE, Style
+from aiogram_dialog.widgets.style import EMPTY_STYLE, BaseStyle
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 
@@ -43,7 +43,7 @@ class SwitchTo(EventProcessorButton):
             on_click: OnClick | None = None,
             when: WhenCondition = None,
             show_mode: ShowMode | None = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -71,7 +71,7 @@ class Next(EventProcessorButton):
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
             when: WhenCondition = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             text=text,
@@ -100,7 +100,7 @@ class Back(EventProcessorButton):
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
             when: WhenCondition = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -129,7 +129,7 @@ class Cancel(EventProcessorButton):
             on_click: OnClick | None = None,
             when: WhenCondition = None,
             show_mode: ShowMode | None = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
@@ -160,7 +160,7 @@ class Start(EventProcessorButton):
             show_mode: ShowMode | None = None,
             mode: StartMode = StartMode.NORMAL,
             when: WhenCondition = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(
             text=text, on_click=self._on_click,

@@ -10,7 +10,7 @@ from aiogram_dialog.widgets.common import (
 )
 
 
-class Style(Whenable, BaseWidget, StyleWidget):
+class BaseStyle(Whenable, BaseWidget, StyleWidget):
     def __init__(self, when: WhenCondition = None):
         super().__init__(when=when)
 
@@ -65,7 +65,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
         raise NotImplementedError
 
 
-class SimpleStyle(Style):
+class Style(BaseStyle):
     def __init__(
         self,
         style: str | None = None,
@@ -91,4 +91,4 @@ class SimpleStyle(Style):
         return self.emoji_id
 
 
-EMPTY_STYLE = SimpleStyle(style=None, emoji_id=None, when=None)
+EMPTY_STYLE = Style(style=None, emoji_id=None, when=None)

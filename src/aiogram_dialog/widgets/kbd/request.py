@@ -4,7 +4,7 @@ from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.style import EMPTY_STYLE, Style
+from aiogram_dialog.widgets.style import EMPTY_STYLE, BaseStyle
 from aiogram_dialog.widgets.text import Text
 from .base import Keyboard
 
@@ -14,7 +14,7 @@ class RequestContact(Keyboard):
             self,
             text: Text,
             when: str | Callable | None = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(when=when)
         self.text = text
@@ -45,7 +45,7 @@ class RequestLocation(Keyboard):
             self,
             text: Text,
             when: str | Callable | None = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(when=when)
         self.text = text
@@ -77,7 +77,7 @@ class RequestPoll(Keyboard):
             text: Text,
             poll_type: str | None = None,
             when: str | Callable | None = None,
-            style: Style = EMPTY_STYLE,
+            style: BaseStyle = EMPTY_STYLE,
     ):
         super().__init__(when=when)
         self.text = text
