@@ -52,9 +52,17 @@ class BaseCheckbox(Keyboard, ABC):
             self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
-        style = await self.style.render_style(data, manager) if self.style else None
-        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
-        
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
+
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
 
