@@ -27,13 +27,13 @@ class Style(Whenable, BaseWidget, StyleWidget):
         if you want to keep processing of `when` condition
         """
         if not self.is_(data, manager):
-            return ""
+            return None
         return await self._render_style(data, manager)
 
     @abstractmethod
     async def _render_style(self, data, manager: DialogManager) -> str:
         """
-        Create style.
+        Create button style.
 
         Called if widget is not hidden only (regarding `when`-condition)
         """
@@ -52,7 +52,7 @@ class Style(Whenable, BaseWidget, StyleWidget):
         if you want to keep processing of `when` condition
         """
         if not self.is_(data, manager):
-            return ""
+            return None
         return await self._render_emoji(data, manager)
 
     @abstractmethod
