@@ -7,6 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent, Data, ShowMode, StartMode
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd.button import Button, OnClick
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Text
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 
@@ -42,10 +43,11 @@ class SwitchTo(EventProcessorButton):
             on_click: OnClick | None = None,
             when: WhenCondition = None,
             show_mode: ShowMode | None = None,
+            style: Style | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
-            id=id, when=when,
+            id=id, when=when, style=style,
         )
         self.text = text
         self.user_on_click = on_click
@@ -69,11 +71,13 @@ class Next(EventProcessorButton):
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
             when: WhenCondition = None,
+            style: Style | None = None,
     ):
         super().__init__(
             text=text,
             on_click=self._on_click,
             id=id, when=when,
+            style=style,
         )
         self.text = text
         self.show_mode = show_mode
@@ -96,10 +100,11 @@ class Back(EventProcessorButton):
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
             when: WhenCondition = None,
+            style: Style | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
-            id=id, when=when,
+            id=id, when=when, style=style,
         )
         self.text = text
         self.callback_data = id
@@ -124,10 +129,11 @@ class Cancel(EventProcessorButton):
             on_click: OnClick | None = None,
             when: WhenCondition = None,
             show_mode: ShowMode | None = None,
+            style: Style | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
-            id=id, when=when,
+            id=id, when=when, style=style,
         )
         self.text = text
         self.result = result
@@ -154,10 +160,11 @@ class Start(EventProcessorButton):
             show_mode: ShowMode | None = None,
             mode: StartMode = StartMode.NORMAL,
             when: WhenCondition = None,
+            style: Style | None = None,
     ):
         super().__init__(
             text=text, on_click=self._on_click,
-            id=id, when=when,
+            id=id, when=when, style=style,
         )
         self.text = text
         self.start_data = data

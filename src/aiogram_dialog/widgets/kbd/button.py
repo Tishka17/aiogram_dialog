@@ -130,11 +130,19 @@ class WebApp(Url):
             if self.style
             else None
         )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
 
         return [
             [
                 InlineKeyboardButton(
-                    text=text, web_app=web_app_info, style=style,
+                    text=text,
+                    web_app=web_app_info,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]

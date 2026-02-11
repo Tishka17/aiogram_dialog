@@ -43,23 +43,27 @@ class BaseCheckbox(Keyboard, ABC):
         )
         self.on_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
-        self.style = Case(
-            {True: checked_style, False: unchecked_style},
-            selector=self._is_text_checked,
-        )
+        self.checked_style = checked_style
+        self.unchecked_style = unchecked_style
+
+    def _get_current_style(self, manager: DialogManager) -> Style | None:
+        if self.is_checked(manager):
+            return self.checked_style
+        return self.unchecked_style
 
     async def _render_keyboard(
             self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
+        current_style = self._get_current_style(manager)
         style = (
-            await self.style.render_style(data, manager)
-            if self.style
+            await current_style.render_style(data, manager)
+            if current_style
             else None
         )
         icon_custom_emoji_id = (
-            await self.style.render_emoji(data, manager)
-            if self.style
+            await current_style.render_emoji(data, manager)
+            if current_style
             else None
         )
 
@@ -121,12 +125,15 @@ class Checkbox(BaseCheckbox):
             on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
-            style: Style | None = None,
+            checked_style: Style | None = None,
+            unchecked_style: Style | None = None,
     ):
         super().__init__(
             checked_text=checked_text, unchecked_text=unchecked_text,
             on_click=on_click, on_state_changed=on_state_changed,
-            id=id, when=when, style=style,
+            id=id, when=when,
+            checked_style=checked_style,
+            unchecked_style=unchecked_style,
         )
         self.default = default
 
