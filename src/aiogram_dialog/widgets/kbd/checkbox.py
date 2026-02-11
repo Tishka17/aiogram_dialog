@@ -7,6 +7,7 @@ from aiogram_dialog.api.entities import ChatEvent
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Case, Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -29,6 +30,8 @@ class BaseCheckbox(Keyboard, ABC):
             checked_text: Text,
             unchecked_text: Text,
             id: str,
+            checked_style: Style | None = None,
+            unchecked_style: Style | None = None,
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
             when: WhenCondition = None,
@@ -40,16 +43,27 @@ class BaseCheckbox(Keyboard, ABC):
         )
         self.on_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
+        self.style = Case(
+            {True: checked_style, False: unchecked_style},
+            selector=self._is_text_checked,
+        )
 
     async def _render_keyboard(
             self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
+        text = await self.text.render_text(data, manager)
+        style = await self.style.render_style(data, manager) if self.style else None
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager) if self.style else None
+        
         checked = int(self.is_checked(manager))
         # store current checked status in callback data
+
         return [
             [
                 InlineKeyboardButton(
-                    text=await self.text.render_text(data, manager),
+                    text=text,
+                    style=style,
+                    custom_emoji_id=icon_custom_emoji_id,
                     callback_data=self._item_callback_data(checked),
                 ),
             ],
@@ -99,11 +113,12 @@ class Checkbox(BaseCheckbox):
             on_state_changed: OnStateChanged | None = None,
             default: bool = False,
             when: WhenCondition = None,
+            style: Style | None = None,
     ):
         super().__init__(
             checked_text=checked_text, unchecked_text=unchecked_text,
             on_click=on_click, on_state_changed=on_state_changed,
-            id=id, when=when,
+            id=id, when=when, style=style,
         )
         self.default = default
 
