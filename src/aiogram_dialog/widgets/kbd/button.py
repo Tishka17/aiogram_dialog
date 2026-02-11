@@ -67,7 +67,7 @@ class Button(Keyboard):
                     text=await self.text.render_text(data, manager),
                     callback_data=self._own_callback_data(),
                     style=style,
-                    custom_emoji_id=icon_custom_emoji_id,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -109,7 +109,7 @@ class Url(Keyboard):
                     text=await self.text.render_text(data, manager),
                     url=await self.url.render_text(data, manager),
                     style=style,
-                    custom_emoji_id=icon_custom_emoji_id,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]

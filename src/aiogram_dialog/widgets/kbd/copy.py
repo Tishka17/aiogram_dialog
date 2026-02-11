@@ -6,6 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Text
 
 
@@ -15,16 +16,29 @@ class CopyText(Keyboard):
         text: Text,
         copy_text: Text,
         when: WhenCondition = None,
+        style: Style | None = None,
     ) -> None:
         super().__init__(when=when)
         self._text = text
         self._copy_text = copy_text
+        self.style = style
 
     async def _render_keyboard(
         self,
         data: dict[str, Any],
         manager: DialogManager,
     ) -> RawKeyboard:
+        style = (
+            await self.style.render_style(data, manager)
+            if self.style
+            else None
+        )
+        icon_custom_emoji_id = (
+            await self.style.render_emoji(data, manager)
+            if self.style
+            else None
+        )
+
         return [
             [
                 InlineKeyboardButton(
@@ -32,6 +46,8 @@ class CopyText(Keyboard):
                     copy_text=CopyTextButton(
                         text=await self._copy_text.render_text(data, manager),
                     ),
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]

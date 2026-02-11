@@ -71,7 +71,7 @@ class BaseCheckbox(Keyboard, ABC):
                 InlineKeyboardButton(
                     text=text,
                     style=style,
-                    custom_emoji_id=icon_custom_emoji_id,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                     callback_data=self._item_callback_data(checked),
                 ),
             ],
