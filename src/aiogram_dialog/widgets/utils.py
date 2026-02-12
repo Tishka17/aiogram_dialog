@@ -16,7 +16,6 @@ from .widget_event import WidgetEventProcessor
 
 WidgetSrc = (
     str |
-    Text |
     TextWidget |
     Keyboard |
     MessageHandlerFunc |
@@ -98,7 +97,6 @@ def ensure_link_preview(
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
 ) -> tuple[
-    Text,
     TextWidget,
     Keyboard,
     BaseInput | None,
