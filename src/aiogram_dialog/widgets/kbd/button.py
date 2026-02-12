@@ -8,8 +8,7 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-from aiogram_dialog.api.internal import RawKeyboard
-from aiogram_dialog.api.internal.widgets import TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
