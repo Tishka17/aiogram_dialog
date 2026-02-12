@@ -102,9 +102,14 @@ def _transform_to_reply_button(
         raise ValueError(
             "Cannot convert inline button without callback_data or web_app",
         )
-    return KeyboardButton(text=join_reply_callback(
-        text=button.text, callback_data=button.callback_data,
-    ))
+    return KeyboardButton(
+        text=join_reply_callback(
+            text=button.text,
+            callback_data=button.callback_data,
+        ),
+        style=button.style,
+        icon_custom_emoji_id=button.icon_custom_emoji_id,
+    )
 
 
 def transform_to_reply_keyboard(
