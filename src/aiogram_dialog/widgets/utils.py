@@ -1,7 +1,11 @@
 from collections.abc import Callable, Sequence
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
-from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget, TextWidget
+from aiogram_dialog.api.internal import (
+    DataGetter,
+    LinkPreviewWidget,
+    TextWidget,
+)
 from .data.data_context import CompositeGetter, StaticGetter
 from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard

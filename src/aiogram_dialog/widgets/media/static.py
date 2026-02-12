@@ -2,8 +2,8 @@ from pathlib import Path
 
 from aiogram.types import ContentType
 
-from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.entities import MediaAttachment
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.text import Const

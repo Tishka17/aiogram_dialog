@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Optional, Union
 
 from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
@@ -39,31 +38,31 @@ class Text(Whenable, BaseWidget, TextWidget):
         """
         raise NotImplementedError
 
-    def __add__(self, other: Union[TextWidget, str]):
+    def __add__(self, other: TextWidget | str):
         if isinstance(other, str):
             other = Const(other)
         elif isinstance(other, Multi):
             return NotImplemented
         return Multi(self, other, sep="")
 
-    def __radd__(self, other: Union[TextWidget, str]):
+    def __radd__(self, other: TextWidget | str):
         if isinstance(other, str):
             other = Const(other)
         return Multi(other, self, sep="")
 
-    def __or__(self, other: Union[TextWidget, str]):
+    def __or__(self, other: TextWidget | str):
         if isinstance(other, str):
             other = Const(other)
         elif isinstance(other, Or):
             return NotImplemented
         return Or(self, other)
 
-    def __ror__(self, other: Union[TextWidget, str]):
+    def __ror__(self, other: TextWidget | str):
         if isinstance(other, str):
             other = Const(other)
         return Or(other, self)
 
-    def find(self, widget_id: str) -> Optional[TextWidget]:
+    def find(self, widget_id: str) -> TextWidget | None:
         # no reimplementation, just change return type
         return super().find(widget_id)
 
@@ -80,7 +79,12 @@ class Const(Text):
 
 
 class Multi(Text):
-    def __init__(self, *texts: TextWidget, sep="\n", when: WhenCondition = None):
+    def __init__(
+        self,
+        *texts: TextWidget,
+        sep="\n",
+        when: WhenCondition = None,
+    ):
         super().__init__(when=when)
         self.texts = texts
         self.sep = sep

@@ -1,10 +1,10 @@
 from datetime import date
 
 from aiogram import F
-from aiogram_dialog.api.internal.widgets import TextWidget
 from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
+from aiogram_dialog.api.internal.widgets import TextWidget
 from aiogram_dialog.widgets.kbd import (
     Calendar,
     CalendarScope,
