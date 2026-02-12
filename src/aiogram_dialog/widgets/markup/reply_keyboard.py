@@ -6,9 +6,9 @@ from aiogram_dialog.api.internal.widgets import (
     MarkupFactory,
     MarkupVariant,
     RawKeyboard,
+    TextWidget,
 )
 from aiogram_dialog.utils import add_intent_id, transform_to_reply_keyboard
-from aiogram_dialog.widgets.text import Text
 
 
 class ReplyKeyboardFactory(MarkupFactory):
@@ -16,7 +16,7 @@ class ReplyKeyboardFactory(MarkupFactory):
             self,
             resize_keyboard: bool | None = None,
             one_time_keyboard: bool | None = None,
-            input_field_placeholder: Text | None = None,
+            input_field_placeholder: TextWidget | None = None,
             selective: bool | None = None,
             is_persistent: bool | None = None,
     ):

@@ -10,14 +10,14 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.common.items import (
     ItemsGetterVariant,
     get_items_getter,
 )
-from aiogram_dialog.widgets.text import Case, Text
+from aiogram_dialog.widgets.text import Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -59,7 +59,7 @@ class OnItemClick(Protocol[ManagedT, T]):
 class Select(Keyboard, Generic[T]):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
@@ -130,8 +130,8 @@ class Select(Keyboard, Generic[T]):
 class StatefulSelect(Select[T], ABC, Generic[T]):
     def __init__(
             self,
-            checked_text: Text,
-            unchecked_text: Text,
+            checked_text: TextWidget,
+            unchecked_text: TextWidget,
             id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
@@ -218,8 +218,8 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
 class Radio(StatefulSelect[T], Generic[T]):
     def __init__(
             self,
-            checked_text: Text,
-            unchecked_text: Text,
+            checked_text: TextWidget,
+            unchecked_text: TextWidget,
             id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
@@ -320,8 +320,8 @@ class ManagedRadio(ManagedWidget[Radio[T]], Generic[T]):
 class Multiselect(StatefulSelect[T], Generic[T]):
     def __init__(
             self,
-            checked_text: Text,
-            unchecked_text: Text,
+            checked_text: TextWidget,
+            unchecked_text: TextWidget,
             id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,
@@ -443,7 +443,7 @@ class ManagedMultiselect(ManagedWidget[Multiselect[T]], Generic[T]):
 class Toggle(Radio[T], Generic[T]):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             item_id_getter: ItemIdGetter,
             items: ItemsGetterVariant,

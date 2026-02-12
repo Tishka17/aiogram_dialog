@@ -2,10 +2,11 @@ import importlib.metadata
 
 from aiogram.fsm.state import State, StatesGroup
 
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.dialog import Dialog
 from aiogram_dialog.widgets.kbd import Cancel, Keyboard, Start
 from aiogram_dialog.widgets.link_preview import LinkPreview
-from aiogram_dialog.widgets.text import Const, Jinja, Text
+from aiogram_dialog.widgets.text import Const, Jinja
 from aiogram_dialog.window import Window
 
 
@@ -52,7 +53,7 @@ DEFAULT_ABOUT_BTN_TEXT = Const("🗨️ About aiogram-dialog")
 
 
 def about_aiogram_dialog_button(
-        text: Text = DEFAULT_ABOUT_BTN_TEXT,
+        text: TextWidget = DEFAULT_ABOUT_BTN_TEXT,
 ) -> Keyboard:
     return Start(
         text=text,

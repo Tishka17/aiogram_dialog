@@ -39,31 +39,31 @@ class Text(Whenable, BaseWidget, TextWidget):
         """
         raise NotImplementedError
 
-    def __add__(self, other: Union["Text", str]):
+    def __add__(self, other: Union[TextWidget, str]):
         if isinstance(other, str):
             other = Const(other)
         elif isinstance(other, Multi):
             return NotImplemented
         return Multi(self, other, sep="")
 
-    def __radd__(self, other: Union["Text", str]):
+    def __radd__(self, other: Union[TextWidget, str]):
         if isinstance(other, str):
             other = Const(other)
         return Multi(other, self, sep="")
 
-    def __or__(self, other: Union["Text", str]):
+    def __or__(self, other: Union[TextWidget, str]):
         if isinstance(other, str):
             other = Const(other)
         elif isinstance(other, Or):
             return NotImplemented
         return Or(self, other)
 
-    def __ror__(self, other: Union["Text", str]):
+    def __ror__(self, other: Union[TextWidget, str]):
         if isinstance(other, str):
             other = Const(other)
         return Or(other, self)
 
-    def find(self, widget_id: str) -> Optional["Text"]:
+    def find(self, widget_id: str) -> Optional[TextWidget]:
         # no reimplementation, just change return type
         return super().find(widget_id)
 
@@ -80,7 +80,7 @@ class Const(Text):
 
 
 class Multi(Text):
-    def __init__(self, *texts: Text, sep="\n", when: WhenCondition = None):
+    def __init__(self, *texts: TextWidget, sep="\n", when: WhenCondition = None):
         super().__init__(when=when)
         self.texts = texts
         self.sep = sep
@@ -91,13 +91,13 @@ class Multi(Text):
         texts = [await t.render_text(data, manager) for t in self.texts]
         return self.sep.join(filter(None, texts))
 
-    def __iadd__(self, other: Text | str) -> "Multi":
+    def __iadd__(self, other: TextWidget | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         self.texts += (other,)
         return self
 
-    def __add__(self, other: Text | str) -> "Multi":
+    def __add__(self, other: TextWidget | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -106,7 +106,7 @@ class Multi(Text):
         else:
             return Multi(self, other, sep="")
 
-    def __radd__(self, other: Text | str) -> "Multi":
+    def __radd__(self, other: TextWidget | str) -> "Multi":
         if isinstance(other, str):
             other = Const(other)
         if self.condition is true_condition and self.sep == "":
@@ -115,7 +115,7 @@ class Multi(Text):
         else:
             return Multi(other, self, sep="")
 
-    def find(self, widget_id: str) -> Text | None:
+    def find(self, widget_id: str) -> TextWidget | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found
@@ -123,7 +123,7 @@ class Multi(Text):
 
 
 class Or(Text):
-    def __init__(self, *texts: Text):
+    def __init__(self, *texts: TextWidget):
         super().__init__()
         self.texts = texts
 
@@ -136,25 +136,25 @@ class Or(Text):
                 return res
         return ""
 
-    def __ior__(self, other: Text | str) -> "Or":
+    def __ior__(self, other: TextWidget | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         self.texts += (other,)
         return self
 
-    def __or__(self, other: Text | str) -> "Or":
+    def __or__(self, other: TextWidget | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         # reduce nesting
         return Or(*self.texts, other)
 
-    def __ror__(self, other: Text | str) -> "Or":
+    def __ror__(self, other: TextWidget | str) -> "Or":
         if isinstance(other, str):
             other = Const(other)
         # reduce nesting
         return Or(other, *self.texts)
 
-    def find(self, widget_id: str) -> Text | None:
+    def find(self, widget_id: str) -> TextWidget | None:
         for text in self.texts:
             if found := text.find(widget_id):
                 return found

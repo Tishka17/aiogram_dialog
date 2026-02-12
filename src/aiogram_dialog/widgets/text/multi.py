@@ -3,6 +3,7 @@ from typing import Any
 
 from magic_filter import MagicFilter
 
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from .base import Text
@@ -31,7 +32,7 @@ def new_magic_selector(f: MagicFilter) -> Selector:
 class Case(Text):
     def __init__(
             self,
-            texts: dict[Any, Text],
+            texts: dict[Any, TextWidget],
             selector: str | Selector | MagicFilter,
             when: WhenCondition = None,
     ):
@@ -54,7 +55,7 @@ class Case(Text):
                 selection = next(iter(self.texts))
         return await self.texts[selection].render_text(data, manager)
 
-    def find(self, widget_id: str) -> Text | None:
+    def find(self, widget_id: str) -> TextWidget | None:
         for text in self.texts.values():
             if found := text.find(widget_id):
                 return found

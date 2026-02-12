@@ -4,10 +4,10 @@ from collections.abc import Awaitable, Callable
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.text import Case, Text
+from aiogram_dialog.widgets.text import Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -26,8 +26,8 @@ OnStateChangedVariant = (
 class BaseCheckbox(Keyboard, ABC):
     def __init__(
             self,
-            checked_text: Text,
-            unchecked_text: Text,
+            checked_text: TextWidget,
+            unchecked_text: TextWidget,
             id: str,
             on_click: OnStateChangedVariant = None,
             on_state_changed: OnStateChangedVariant = None,
@@ -92,8 +92,8 @@ class BaseCheckbox(Keyboard, ABC):
 class Checkbox(BaseCheckbox):
     def __init__(
             self,
-            checked_text: Text,
-            unchecked_text: Text,
+            checked_text: TextWidget,
+            unchecked_text: TextWidget,
             id: str,
             on_click: OnStateChanged | WidgetEventProcessor | None = None,
             on_state_changed: OnStateChanged | None = None,

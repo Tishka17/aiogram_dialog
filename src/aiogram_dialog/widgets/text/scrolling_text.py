@@ -1,3 +1,4 @@
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
     BaseScroll,
@@ -10,7 +11,7 @@ from .base import Text
 class ScrollingText(Text, BaseScroll):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             page_size: int = 0,
             when: WhenCondition = None,

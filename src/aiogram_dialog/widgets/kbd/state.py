@@ -4,10 +4,11 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.entities import ChatEvent, Data, ShowMode, StartMode
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd.button import Button, OnClick
-from aiogram_dialog.widgets.text import Const, Text
+from aiogram_dialog.widgets.text import Const
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 
 BACK_TEXT = Const("Back")
@@ -36,7 +37,7 @@ class EventProcessorButton(Button, WidgetEventProcessor):
 class SwitchTo(EventProcessorButton):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             state: State,
             on_click: OnClick | None = None,
@@ -64,7 +65,7 @@ class SwitchTo(EventProcessorButton):
 class Next(EventProcessorButton):
     def __init__(
             self,
-            text: Text = NEXT_TEXT,
+            text: TextWidget = NEXT_TEXT,
             id: str = "__next__",
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
@@ -91,7 +92,7 @@ class Next(EventProcessorButton):
 class Back(EventProcessorButton):
     def __init__(
             self,
-            text: Text = BACK_TEXT,
+            text: TextWidget = BACK_TEXT,
             id: str = "__back__",
             on_click: OnClick | None = None,
             show_mode: ShowMode | None = None,
@@ -118,7 +119,7 @@ class Back(EventProcessorButton):
 class Cancel(EventProcessorButton):
     def __init__(
             self,
-            text: Text = CANCEL_TEXT,
+            text: TextWidget = CANCEL_TEXT,
             id: str = "__cancel__",
             result: Any = None,
             on_click: OnClick | None = None,
@@ -146,7 +147,7 @@ class Cancel(EventProcessorButton):
 class Start(EventProcessorButton):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             state: State,
             data: Data = None,

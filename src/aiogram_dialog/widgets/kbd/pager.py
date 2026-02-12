@@ -4,10 +4,10 @@ from typing import TypedDict
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedScroll, Scroll, WhenCondition
-from aiogram_dialog.widgets.text import Const, Format, Text
+from aiogram_dialog.widgets.text import Const, Format
 from .base import Keyboard
 
 
@@ -80,7 +80,7 @@ class SwitchPage(BasePager):
             self, page: int | PageDirection,
             scroll: str | Scroll | None,
             id: str,
-            text: Text,
+            text: TextWidget,
             when: WhenCondition = None,
     ):
 
@@ -150,7 +150,7 @@ class LastPage(SwitchPage):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            text: Text = DEFAULT_LAST_BUTTON_TEXT,
+            text: TextWidget = DEFAULT_LAST_BUTTON_TEXT,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -164,7 +164,7 @@ class NextPage(SwitchPage):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            text: Text = DEFAULT_NEXT_BUTTON_TEXT,
+            text: TextWidget = DEFAULT_NEXT_BUTTON_TEXT,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -178,7 +178,7 @@ class PrevPage(SwitchPage):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            text: Text = DEFAULT_PREV_BUTTON_TEXT,
+            text: TextWidget = DEFAULT_PREV_BUTTON_TEXT,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -192,7 +192,7 @@ class FirstPage(SwitchPage):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            text: Text = DEFAULT_FIRST_BUTTON_TEXT,
+            text: TextWidget = DEFAULT_FIRST_BUTTON_TEXT,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -206,7 +206,7 @@ class CurrentPage(SwitchPage):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            text: Text = DEFAULT_CURRENT_BUTTON_TEXT,
+            text: TextWidget = DEFAULT_CURRENT_BUTTON_TEXT,
             when: WhenCondition = None,
     ):
         super().__init__(
@@ -220,8 +220,8 @@ class NumberedPager(BasePager):
             self,
             scroll: str | Scroll | None,
             id: str = DEFAULT_PAGER_ID,
-            page_text: Text = DEFAULT_PAGE_TEXT,
-            current_page_text: Text = DEFAULT_CURRENT_PAGE_TEXT,
+            page_text: TextWidget = DEFAULT_PAGE_TEXT,
+            current_page_text: TextWidget = DEFAULT_CURRENT_PAGE_TEXT,
             when: WhenCondition = None,
             length: int | None = None,
     ):

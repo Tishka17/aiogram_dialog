@@ -8,10 +8,9 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
-from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -24,7 +23,7 @@ OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 class Button(Keyboard):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             id: str,
             on_click: OnClick | WidgetEventProcessor | None = None,
             when: WhenCondition = None,
@@ -60,8 +59,8 @@ class Button(Keyboard):
 class Url(Keyboard):
     def __init__(
             self,
-            text: Text,
-            url: Text,
+            text: TextWidget,
+            url: TextWidget,
             id: str | None = None,
             when: WhenCondition = None,
     ):
@@ -99,8 +98,8 @@ class WebApp(Url):
 class SwitchInlineQuery(Keyboard):
     def __init__(
             self,
-            text: Text,
-            switch_inline_query: Text,
+            text: TextWidget,
+            switch_inline_query: TextWidget,
             id: str | None = None,
             when: WhenCondition = None,
     ):
@@ -128,10 +127,10 @@ class SwitchInlineQuery(Keyboard):
 class LoginURLButton(Keyboard):
     def __init__(
             self,
-            text: Text,
-            url: Text,
-            forward_text: Text | None = None,
-            bot_username: Text | None = None,
+            text: TextWidget,
+            url: TextWidget,
+            forward_text: TextWidget | None = None,
+            bot_username: TextWidget | None = None,
             request_write_access: bool | None = None,
             id: str | None = None,
             when: WhenCondition = None,
@@ -179,8 +178,8 @@ class LoginURLButton(Keyboard):
 class SwitchInlineQueryCurrentChat(Keyboard):
     def __init__(
             self,
-            text: Text,
-            switch_inline_query_current_chat: Text,
+            text: TextWidget,
+            switch_inline_query_current_chat: TextWidget,
             id: str | None = None,
             when: WhenCondition = None,
     ):
@@ -213,8 +212,8 @@ class SwitchInlineQueryCurrentChat(Keyboard):
 class SwitchInlineQueryChosenChatButton(Keyboard):
     def __init__(
             self,
-            text: Text,
-            query: Text,
+            text: TextWidget,
+            query: TextWidget,
             allow_user_chats: bool | None = None,
             allow_bot_chats: bool | None = None,
             allow_group_chats: bool | None = None,

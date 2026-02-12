@@ -4,11 +4,11 @@ from typing import Protocol
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd.base import Keyboard
-from aiogram_dialog.widgets.text import Const, Format, Text
+from aiogram_dialog.widgets.text import Const, Format
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -44,9 +44,9 @@ class Counter(Keyboard):
     def __init__(
             self,
             id: str,
-            plus: Text | None = PLUS_TEXT,
-            minus: Text | None = MINUS_TEXT,
-            text: Text | None = DEFAULT_COUNTER_TEXT,
+            plus: TextWidget | None = PLUS_TEXT,
+            minus: TextWidget | None = MINUS_TEXT,
+            text: TextWidget | None = DEFAULT_COUNTER_TEXT,
             min_value: float = 0,
             max_value: float = 999999,
             increment: float = 1,
@@ -61,9 +61,9 @@ class Counter(Keyboard):
         Init counter widget.
 
         :param id: ID of widget
-        :param plus: Text to render `+`-button. Set `None` to disable
-        :param minus: Text to render `-`-button. Set `None` to disable
-        :param text: Text to render button with current value. \
+        :param plus: TextWidget to render `+`-button. Set `None` to disable
+        :param minus: TextWidget to render `-`-button. Set `None` to disable
+        :param text: TextWidget to render button with current value. \
         Set `None` to disable
         :param min_value: Minimal allowed value
         :param max_value: Maximum allowed value
