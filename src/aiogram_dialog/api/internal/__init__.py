@@ -15,6 +15,7 @@ __all__ = [
     "MediaWidget",
     "RawKeyboard",
     "ReplyCallbackQuery",
+    "StyleWidget",
     "TextWidget",
     "Widget",
     "WindowProtocol",
@@ -39,6 +40,7 @@ from .widgets import (
     LinkPreviewWidget,
     MediaWidget,
     RawKeyboard,
+    StyleWidget,
     TextWidget,
     Widget,
 )

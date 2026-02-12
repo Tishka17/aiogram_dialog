@@ -42,6 +42,23 @@ class TextWidget(Widget, Protocol):
 
 
 @runtime_checkable
+class StyleWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_style(
+            self, data: dict, manager: DialogManager,
+    ) -> str | None:
+        """Create button style."""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def render_emoji(
+            self, data: dict, manager: DialogManager,
+    ) -> str | None:
+        """Add custom emoji shown before the text of the button."""
+        raise NotImplementedError
+
+
+@runtime_checkable
 class LinkPreviewWidget(Widget, Protocol):
     @abstractmethod
     async def render_link_preview(
