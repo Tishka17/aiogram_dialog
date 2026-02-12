@@ -2,17 +2,16 @@ from collections.abc import Callable
 
 from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
-from aiogram_dialog.widgets.text import Text
 from .base import Keyboard
 
 
 class RequestContact(Keyboard):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             when: str | Callable | None = None,
             style: StyleWidget = EMPTY_STYLE,
     ):
@@ -43,7 +42,7 @@ class RequestContact(Keyboard):
 class RequestLocation(Keyboard):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             when: str | Callable | None = None,
             style: StyleWidget = EMPTY_STYLE,
     ):
@@ -74,7 +73,7 @@ class RequestLocation(Keyboard):
 class RequestPoll(Keyboard):
     def __init__(
             self,
-            text: Text,
+            text: TextWidget,
             poll_type: str | None = None,
             when: str | Callable | None = None,
             style: StyleWidget = EMPTY_STYLE,

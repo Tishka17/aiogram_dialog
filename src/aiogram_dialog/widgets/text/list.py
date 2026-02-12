@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from typing import Any
 
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import (
     BaseScroll,
@@ -17,7 +18,7 @@ from .base import Text
 class List(Text, BaseScroll):
     def __init__(
             self,
-            field: Text,
+            field: TextWidget,
             items: ItemsGetterVariant,
             sep: str = "\n",
             when: WhenCondition = None,

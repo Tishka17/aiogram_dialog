@@ -1,7 +1,11 @@
 from collections.abc import Callable, Sequence
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
-from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget
+from aiogram_dialog.api.internal import (
+    DataGetter,
+    LinkPreviewWidget,
+    TextWidget,
+)
 from .data.data_context import CompositeGetter, StaticGetter
 from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
@@ -12,7 +16,7 @@ from .widget_event import WidgetEventProcessor
 
 WidgetSrc = (
     str |
-    Text |
+    TextWidget |
     Keyboard |
     MessageHandlerFunc |
     Media |
@@ -29,7 +33,7 @@ GetterVariant = (
 )
 
 
-def ensure_text(widget: str | Text | Sequence[Text]) -> Text:
+def ensure_text(widget: str | TextWidget | Sequence[TextWidget]) -> TextWidget:
     if isinstance(widget, str):
         return Format(widget)
     if isinstance(widget, Sequence):
@@ -93,7 +97,7 @@ def ensure_link_preview(
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
 ) -> tuple[
-    Text,
+    TextWidget,
     Keyboard,
     BaseInput | None,
     Media,

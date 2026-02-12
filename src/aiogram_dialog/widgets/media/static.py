@@ -3,9 +3,10 @@ from pathlib import Path
 from aiogram.types import ContentType
 
 from aiogram_dialog.api.entities import MediaAttachment
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
-from aiogram_dialog.widgets.text import Const, Text
+from aiogram_dialog.widgets.text import Const
 from .base import Media
 
 
@@ -13,8 +14,8 @@ class StaticMedia(Media):
     def __init__(
             self,
             *,
-            path: Text | str | Path | None = None,
-            url: Text | str | None = None,
+            path: TextWidget | str | Path | None = None,
+            url: TextWidget | str | None = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
             media_params: dict | None = None,

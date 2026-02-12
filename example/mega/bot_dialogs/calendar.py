@@ -4,6 +4,7 @@ from aiogram import F
 from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
+from aiogram_dialog.api.internal.widgets import TextWidget
 from aiogram_dialog.widgets.kbd import (
     Calendar,
     CalendarScope,
@@ -35,7 +36,7 @@ class WeekDay(Text):
 
 
 class MarkedDay(Text):
-    def __init__(self, mark: str, other: Text):
+    def __init__(self, mark: str, other: TextWidget):
         super().__init__()
         self.mark = mark
         self.other = other
