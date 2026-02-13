@@ -101,7 +101,7 @@ class TimeSelect(Keyboard):
             [
                 InlineKeyboardButton(
                     text=await self.hour_header.render_text(data, manager),
-                    callback_data=self.callback_prefix(),
+                    callback_data=self._own_callback_data(),
                     style=header_style,
                     icon_custom_emoji_id=header_icon,
                 ),
@@ -114,7 +114,7 @@ class TimeSelect(Keyboard):
                 row.append(
                     InlineKeyboardButton(
                         text=f"[{hour}]" if is_selected else f"{hour}",
-                        callback_data=self.callback_prefix() + f"h{hour}",
+                        callback_data=self._item_callback_data(f"h{hour}"),
                         style=(selected_style if is_selected else None),
                         icon_custom_emoji_id=(
                             selected_icon if is_selected else None
@@ -127,7 +127,7 @@ class TimeSelect(Keyboard):
             [
                 InlineKeyboardButton(
                     text=await self.minute_header.render_text(data, manager),
-                    callback_data=self.callback_prefix(),
+                    callback_data=self._own_callback_data(),
                     style=header_style,
                     icon_custom_emoji_id=header_icon,
                 ),
@@ -146,7 +146,7 @@ class TimeSelect(Keyboard):
                 row.append(
                     InlineKeyboardButton(
                         text=f"[{minute}]" if is_selected else f"{minute}",
-                        callback_data=self.callback_prefix() + f"m{minute}",
+                        callback_data=self._item_callback_data(f"m{minute}"),
                         style=(selected_style if is_selected else None),
                         icon_custom_emoji_id=(
                             selected_icon if is_selected else None

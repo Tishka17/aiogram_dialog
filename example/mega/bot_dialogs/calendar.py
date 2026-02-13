@@ -116,7 +116,10 @@ async def selection_getter(dialog_manager, **_):
 
 
 CALENDAR_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.Calendar.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.Calendar.MAIN,
+    style=Style(style="primary"),
 )
 calendar_dialog = Dialog(
     Window(
