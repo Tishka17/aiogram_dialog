@@ -103,17 +103,16 @@ def _transform_to_reply_button(
             "Cannot convert inline button without callback_data or web_app",
         )
 
-    style: str | None = None
-    if hasattr(button, "style"):
-        style = button.style
-    elif hasattr(button.model_extra, "style"):
-        style = button.model_extra["style"]
-
-    emoji_id: str | None = None
-    if hasattr(button, "icon_custom_emoji_id"):
-        emoji_id = button.icon_custom_emoji_id
-    elif hasattr(button.model_extra, "icon_custom_emoji_id"):
-        emoji_id = button.model_extra["icon_custom_emoji_id"]
+    style: str | None = getattr(
+        button,
+        "style",
+        button.model_extra.get("style"),
+    )
+    emoji_id: str | None = getattr(
+        button,
+        "icon_custom_emoji_id",
+        button.model_extra.get("icon_custom_emoji_id"),
+    )
 
     return KeyboardButton(
         text=join_reply_callback(
