@@ -43,6 +43,7 @@ __all__ = [
     "SwitchInlineQueryCurrentChat",
     "SwitchPage",
     "SwitchTo",
+    "TimeSelect",
     "Toggle",
     "Url",
     "WebApp",
@@ -92,3 +93,4 @@ from .select import (
 )
 from .state import Back, Cancel, Next, Start, SwitchTo
 from .stub_scroll import StubScroll
+from .time import TimeSelect

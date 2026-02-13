@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.kbd import (
     CalendarScope,
     ManagedCalendar,
     SwitchTo,
+    TimeSelect,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
     DATE_TEXT,
@@ -19,6 +20,7 @@ from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarScopeView,
     CalendarYearsView,
 )
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format, Text
 from . import states
 from .common import MAIN_MENU_BUTTON
@@ -118,16 +120,21 @@ CALENDAR_MAIN_MENU_BUTTON = SwitchTo(
 )
 calendar_dialog = Dialog(
     Window(
-        Const("Select calendar configuration"),
+        Const("Select configuration"),
         SwitchTo(
-            Const("Default"),
+            Const("Default calendar"),
             id="default",
             state=states.Calendar.DEFAULT,
         ),
         SwitchTo(
-            Const("Customized"),
+            Const("Customized calendar"),
             id="custom",
             state=states.Calendar.CUSTOM,
+        ),
+        SwitchTo(
+            Const("Time selection"),
+            id="time",
+            state=states.Calendar.TIME,
         ),
         MAIN_MENU_BUTTON,
         state=states.Calendar.MAIN,
@@ -154,5 +161,11 @@ calendar_dialog = Dialog(
         CALENDAR_MAIN_MENU_BUTTON,
         getter=selection_getter,
         state=states.Calendar.CUSTOM,
+    ),
+    Window(
+        Const("TimeSelect widget"),
+        TimeSelect("time", selected_style=Style(style="success")),
+        CALENDAR_MAIN_MENU_BUTTON,
+        state=states.Calendar.TIME,
     ),
 )
