@@ -12,8 +12,8 @@ from .common import MAIN_MENU_BUTTON
 
 async def links_getter(**_):
     return {
-        "main": "https://en.wikipedia.org/wiki/HTML_element",
-        "photo": "https://en.wikipedia.org/wiki/Hyperlink",
+        "main": "https://github.com/Tishka17",
+        "photo": "https://github.com/Tishka17/aiogram_dialog",
     }
 
 
