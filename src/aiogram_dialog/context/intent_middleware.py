@@ -140,7 +140,7 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
 class InaccessibleBusinessMessage(InaccessibleMessage):
     business_connection_id: str | None = None
     message_thread_id: int | None = None
-    is_topic_message: bool = False
+    is_topic_message: bool | None = None
 
 
 class IntentMiddlewareFactory:
