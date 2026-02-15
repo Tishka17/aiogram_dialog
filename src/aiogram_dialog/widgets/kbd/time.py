@@ -206,7 +206,7 @@ class ManagedTimeSelect(ManagedWidget[TimeSelect]):
     def get_value(self) -> time | None:
         return self.widget.get_value(self.manager)
 
-    async def set_value(self, value: time) -> None:
+    async def set_value(self, value: time | None) -> None:
         return await self.widget.set_value(
             self.manager.event,
             self.manager,

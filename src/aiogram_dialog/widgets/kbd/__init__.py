@@ -23,6 +23,7 @@ __all__ = [
     "ManagedListGroup",
     "ManagedMultiselect",
     "ManagedRadio",
+    "ManagedTimeSelect",
     "ManagedToggle",
     "Multiselect",
     "Next",
@@ -93,4 +94,4 @@ from .select import (
 )
 from .state import Back, Cancel, Next, Start, SwitchTo
 from .stub_scroll import StubScroll
-from .time import TimeSelect
+from .time import ManagedTimeSelect, TimeSelect
