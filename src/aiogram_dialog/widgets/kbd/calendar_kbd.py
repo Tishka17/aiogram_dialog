@@ -14,9 +14,10 @@ from typing import (
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard, TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
+from aiogram_dialog.widgets.style import EMPTY_STYLE
 from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -193,15 +194,31 @@ class CalendarDaysView(CalendarScopeView):
             zoom_out_text: TextWidget = ZOOM_OUT_TEXT,
             next_month_text: TextWidget = NEXT_MONTH_TEXT,
             prev_month_text: TextWidget = PREV_MONTH_TEXT,
+            date_style: StyleWidget = EMPTY_STYLE,
+            today_style: StyleWidget = EMPTY_STYLE,
+            weekday_style: StyleWidget = EMPTY_STYLE,
+            header_style: StyleWidget = EMPTY_STYLE,
+            zoom_out_style: StyleWidget = EMPTY_STYLE,
+            next_month_style: StyleWidget = EMPTY_STYLE,
+            prev_month_style: StyleWidget = EMPTY_STYLE,
     ):
+        self.callback_generator = callback_generator
+
         self.zoom_out_text = zoom_out_text
         self.next_month_text = next_month_text
         self.prev_month_text = prev_month_text
-        self.callback_generator = callback_generator
         self.date_text = date_text
         self.today_text = today_text
         self.weekday_text = weekday_text
         self.header_text = header_text
+
+        self.date_style = date_style
+        self.today_style = today_style
+        self.weekday_style = weekday_style
+        self.header_style = header_style
+        self.zoom_out_style = zoom_out_style
+        self.next_month_style = next_month_style
+        self.prev_month_style = prev_month_style
 
     async def _render_date_button(
             self,
@@ -216,8 +233,10 @@ class CalendarDaysView(CalendarScopeView):
         }
         if selected_date == today:
             text = self.today_text
+            style = self.today_style
         else:
             text = self.date_text
+            style = self.date_style
 
         raw_date = raw_from_date(selected_date)
 
@@ -226,6 +245,10 @@ class CalendarDaysView(CalendarScopeView):
                 current_data, manager,
             ),
             callback_data=self.callback_generator(str(raw_date)),
+            style=await style.render_style(current_data, manager),
+            icon_custom_emoji_id=await style.render_emoji(
+                current_data, manager,
+            ),
         )
 
     async def _render_days(
@@ -283,6 +306,10 @@ class CalendarDaysView(CalendarScopeView):
             header.append(InlineKeyboardButton(
                 text=await self.weekday_text.render_text(data, manager),
                 callback_data="",
+                style=await self.weekday_style.render_style(data, manager),
+                icon_custom_emoji_id=await self.weekday_style.render_emoji(
+                    data, manager,
+                ),
             ))
         return header
 
@@ -328,12 +355,24 @@ class CalendarDaysView(CalendarScopeView):
                     prev_month_data, manager,
                 ),
                 callback_data=self.callback_generator(CALLBACK_PREV_MONTH),
+                style=await self.prev_month_style.render_style(
+                    prev_month_data, manager,
+                ),
+                icon_custom_emoji_id=await self.prev_month_style.render_emoji(
+                    prev_month_data, manager,
+                ),
             )
         zoom_button = InlineKeyboardButton(
             text=await self.zoom_out_text.render_text(
                 curr_month_data, manager,
             ),
             callback_data=self.callback_generator(CALLBACK_SCOPE_MONTHS),
+            style=await self.zoom_out_style.render_style(
+                curr_month_data, manager,
+            ),
+            icon_custom_emoji_id=await self.zoom_out_style.render_emoji(
+                curr_month_data, manager,
+            ),
         )
         if next_begin > config.max_date:
             next_button = empty_button()
@@ -343,6 +382,12 @@ class CalendarDaysView(CalendarScopeView):
                     next_month_data, manager,
                 ),
                 callback_data=self.callback_generator(CALLBACK_NEXT_MONTH),
+                style=await self.next_month_style.render_style(
+                    next_month_data, manager,
+                ),
+                icon_custom_emoji_id=await self.next_month_style.render_emoji(
+                    next_month_data, manager,
+                ),
             )
 
         return [prev_button, zoom_button, next_button]
@@ -361,6 +406,12 @@ class CalendarDaysView(CalendarScopeView):
         return [InlineKeyboardButton(
             text=await self.header_text.render_text(data, manager),
             callback_data=self.callback_generator(CALLBACK_SCOPE_MONTHS),
+            style=await self.header_style.render_style(
+                data, manager,
+            ),
+            icon_custom_emoji_id=await self.header_style.render_emoji(
+                data, manager,
+            ),
         )]
 
     async def render(
@@ -388,14 +439,28 @@ class CalendarMonthView(CalendarScopeView):
             zoom_out_text: TextWidget = ZOOM_OUT_TEXT,
             next_year_text: TextWidget = NEXT_YEAR_TEXT,
             prev_year_text: TextWidget = PREV_YEAR_TEXT,
+            month_style: StyleWidget = EMPTY_STYLE,
+            this_month_style: StyleWidget = EMPTY_STYLE,
+            header_style: StyleWidget = EMPTY_STYLE,
+            zoom_out_style: StyleWidget = EMPTY_STYLE,
+            next_year_style: StyleWidget = EMPTY_STYLE,
+            prev_year_style: StyleWidget = EMPTY_STYLE,
     ):
         self.callback_generator = callback_generator
+
         self.month_text = month_text
         self.this_month_text = this_month_text
         self.header_text = header_text
         self.zoom_out_text = zoom_out_text
         self.next_year_text = next_year_text
         self.prev_year_text = prev_year_text
+
+        self.month_style = month_style
+        self.this_month_style = this_month_style
+        self.header_style = header_style
+        self.zoom_out_style = zoom_out_style
+        self.next_year_style = next_year_style
+        self.prev_year_style = prev_year_style
 
     async def _render_pager(
             self,
@@ -442,6 +507,12 @@ class CalendarMonthView(CalendarScopeView):
                     prev_year_data, manager,
                 ),
                 callback_data=self.callback_generator(CALLBACK_PREV_YEAR),
+                style=await self.prev_year_style.render_style(
+                    prev_year_data, manager,
+                ),
+                icon_custom_emoji_id=await self.prev_year_style.render_emoji(
+                    prev_year_data, manager,
+                ),
             )
         if next_year > config.max_date.year:
             next_button = empty_button()
@@ -451,12 +522,24 @@ class CalendarMonthView(CalendarScopeView):
                     next_year_data, manager,
                 ),
                 callback_data=self.callback_generator(CALLBACK_NEXT_YEAR),
+                style=await self.next_year_style.render_style(
+                    next_year_data, manager,
+                ),
+                icon_custom_emoji_id=await self.next_year_style.render_emoji(
+                    next_year_data, manager,
+                ),
             )
         zoom_button = InlineKeyboardButton(
             text=await self.zoom_out_text.render_text(
                 curr_year_data, manager,
             ),
             callback_data=self.callback_generator(CALLBACK_SCOPE_YEARS),
+            style=await self.zoom_out_style.render_style(
+                curr_year_data, manager,
+            ),
+            icon_custom_emoji_id=await self.zoom_out_style.render_emoji(
+                curr_year_data, manager,
+            ),
         )
         return [prev_button, zoom_button, next_button]
 
@@ -486,8 +569,10 @@ class CalendarMonthView(CalendarScopeView):
         }
         if month == this_month:
             text = self.this_month_text
+            style = self.this_month_style
         else:
             text = self.month_text
+            style = self.month_style
 
         return InlineKeyboardButton(
             text=await text.render_text(
@@ -495,6 +580,12 @@ class CalendarMonthView(CalendarScopeView):
             ),
             callback_data=self.callback_generator(
                 f"{CALLBACK_PREFIX_MONTH}{month}",
+            ),
+            style=await style.render_style(
+                month_data, manager,
+            ),
+            icon_custom_emoji_id=await style.render_emoji(
+                month_data, manager,
             ),
         )
 
@@ -531,6 +622,12 @@ class CalendarMonthView(CalendarScopeView):
         return [InlineKeyboardButton(
             text=await self.header_text.render_text(data, manager),
             callback_data=self.callback_generator(CALLBACK_SCOPE_YEARS),
+            style=await self.header_style.render_style(
+                data, manager,
+            ),
+            icon_custom_emoji_id=await self.header_style.render_emoji(
+                data, manager,
+            ),
         )]
 
     async def render(
@@ -555,12 +652,22 @@ class CalendarYearsView(CalendarScopeView):
             this_year_text: TextWidget = THIS_YEAR_TEXT,
             next_page_text: TextWidget = NEXT_YEARS_PAGE_TEXT,
             prev_page_text: TextWidget = PREV_YEARS_PAGE_TEXT,
+            year_style: StyleWidget = EMPTY_STYLE,
+            this_year_style: StyleWidget = EMPTY_STYLE,
+            next_page_style: StyleWidget = EMPTY_STYLE,
+            prev_page_style: StyleWidget = EMPTY_STYLE,
     ):
         self.callback_generator = callback_generator
+
         self.year_text = year_text
         self.this_year_text = this_year_text
         self.next_page_text = next_page_text
         self.prev_page_text = prev_page_text
+
+        self.year_style = year_style
+        self.this_year_style = this_year_style
+        self.next_page_style = next_page_style
+        self.prev_page_style = prev_page_style
 
     async def _render_pager(
             self,
@@ -599,6 +706,12 @@ class CalendarYearsView(CalendarScopeView):
                 callback_data=self.callback_generator(
                     CALLBACK_PREV_YEARS_PAGE,
                 ),
+                style=await self.prev_page_style.render_style(
+                    prev_year_data, manager,
+                ),
+                icon_custom_emoji_id=await self.prev_page_style.render_emoji(
+                    prev_year_data, manager,
+                ),
             )
         if next_year > config.max_date.year:
             next_button = empty_button()
@@ -609,6 +722,12 @@ class CalendarYearsView(CalendarScopeView):
                 ),
                 callback_data=self.callback_generator(
                     CALLBACK_NEXT_YEARS_PAGE,
+                ),
+                style=await self.next_page_style.render_style(
+                    next_year_data, manager,
+                ),
+                icon_custom_emoji_id=await self.next_page_style.render_emoji(
+                    next_year_data, manager,
                 ),
             )
 
@@ -631,8 +750,10 @@ class CalendarYearsView(CalendarScopeView):
             return empty_button()
         if year == this_year:
             text = self.this_year_text
+            style = self.this_year_style
         else:
             text = self.year_text
+            style = self.year_style
 
         year_data = {
             "year": year,
@@ -645,6 +766,12 @@ class CalendarYearsView(CalendarScopeView):
             ),
             callback_data=self.callback_generator(
                 f"{CALLBACK_PREFIX_YEAR}{year}",
+            ),
+            style=await style.render_style(
+                year_data, manager,
+            ),
+            icon_custom_emoji_id=await style.render_emoji(
+                year_data, manager,
             ),
         )
 
