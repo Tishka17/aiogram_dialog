@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from aiogram_dialog.api.internal.widgets import StyleWidget
+from aiogram_dialog.api.internal.widgets import ButtonStyle, StyleWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
@@ -19,7 +19,7 @@ class BaseStyle(Whenable, BaseWidget, StyleWidget):
         self,
         data: dict,
         manager: DialogManager,
-    ) -> str | None:
+    ) -> ButtonStyle | None:
         """
         Create button style.
 
@@ -68,7 +68,7 @@ class BaseStyle(Whenable, BaseWidget, StyleWidget):
 class Style(BaseStyle):
     def __init__(
         self,
-        style: str | None = None,
+        style: ButtonStyle | None = None,
         emoji_id: str | None = None,
         when: WhenCondition = None,
     ):
@@ -80,7 +80,7 @@ class Style(BaseStyle):
         self,
         data: dict,
         manager: DialogManager,
-    ) -> str | None:
+    ) -> ButtonStyle | None:
         return self.style
 
     async def _render_emoji(

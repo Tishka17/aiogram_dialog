@@ -4,6 +4,7 @@ from typing import (
     Any,
     Optional,
     Protocol,
+    TypeAlias,
     runtime_checkable,
 )
 
@@ -14,6 +15,11 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
+
+try:
+    from aiogram.enums import ButtonStyle
+except ImportError:
+    ButtonStyle: TypeAlias = str
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
@@ -46,7 +52,7 @@ class StyleWidget(Widget, Protocol):
     @abstractmethod
     async def render_style(
             self, data: dict, manager: DialogManager,
-    ) -> str | None:
+    ) -> ButtonStyle | None:
         """Create button style."""
         raise NotImplementedError
 
