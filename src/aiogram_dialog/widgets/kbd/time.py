@@ -183,7 +183,7 @@ class TimeSelect(Keyboard):
             minute = int(data[1:])
         else:
             raise ValueError(f"Unknown callback format {data!r}")
-        self.set_widget_data(manager, (hour, minute))
+        self.set_widget_data(manager, [hour, minute])
         value = self._value_from_raw((hour, minute))
         await self.on_value_changed.process_event(
             manager.event,
