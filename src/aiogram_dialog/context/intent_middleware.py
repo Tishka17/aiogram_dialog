@@ -71,7 +71,10 @@ def event_context_from_callback(event: CallbackQuery) -> EventContext:
         chat=event.message.chat,
         thread_id=(
             get_thread_id(event.message)
-            if isinstance(event.message, Message)
+            if isinstance(
+                event.message,
+                (Message, InaccessibleBusinessMessage),
+            )
             else None
         ),
         business_connection_id=business_connection_id,
@@ -136,6 +139,8 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
 
 class InaccessibleBusinessMessage(InaccessibleMessage):
     business_connection_id: str | None = None
+    message_thread_id: int | None = None
+    is_topic_message: bool = False
 
 
 class IntentMiddlewareFactory:
@@ -306,6 +311,9 @@ class IntentMiddlewareFactory:
                 message=InaccessibleBusinessMessage(
                     chat=event.chat,
                     message_id=event.message_id,
+                    business_connection_id=event.business_connection_id,
+                    message_thread_id=event.message_thread_id,
+                    is_topic_message=event.is_topic_message,
                 ),
                 original_message=event,
                 data=callback_data,
