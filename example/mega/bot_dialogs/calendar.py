@@ -1,10 +1,10 @@
 from datetime import date
 
 from aiogram import F
+from aiogram.enums import ButtonStyle
 from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
-from aiogram_dialog.api.internal.widgets import TextWidget
 from aiogram_dialog.widgets.kbd import (
     Calendar,
     CalendarScope,
@@ -37,21 +37,6 @@ class WeekDay(Text):
         )[selected_date.weekday()].title()
 
 
-class MarkedDay(Text):
-    def __init__(self, mark: str, other: TextWidget):
-        super().__init__()
-        self.mark = mark
-        self.other = other
-
-    async def _render_text(self, data, manager: DialogManager) -> str:
-        current_date: date = data["date"]
-        serial_date = current_date.isoformat()
-        selected = manager.dialog_data.get(SELECTED_DAYS_KEY, [])
-        if serial_date in selected:
-            return self.mark
-        return await self.other.render_text(data, manager)
-
-
 class Month(Text):
     async def _render_text(self, data, manager: DialogManager) -> str:
         selected_date: date = data["date"]
@@ -61,17 +46,26 @@ class Month(Text):
         )[selected_date.month].title()
 
 
+def is_date_selected(data, widget, manager) -> bool:
+    current_date: date = data["date"]
+    serial_date = current_date.isoformat()
+    selected = manager.dialog_data.get(SELECTED_DAYS_KEY, [])
+    return serial_date in selected
+
+
 class CustomCalendar(Calendar):
     def _init_views(self) -> dict[CalendarScope, CalendarScopeView]:
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data,
-                date_text=MarkedDay("🔴", DATE_TEXT),
-                today_text=MarkedDay("⭕", TODAY_TEXT),
+                date_text=Const("🔴", when=is_date_selected) | DATE_TEXT,
+                today_text=Const("⭕", when=is_date_selected) | TODAY_TEXT,
                 header_text="~~~~~ " + Month() + " ~~~~~",
                 weekday_text=WeekDay(),
                 next_month_text=Month() + " >>",
                 prev_month_text="<< " + Month(),
+                date_style=Style(ButtonStyle.SUCCESS, when=is_date_selected),
+                today_style=Style(ButtonStyle.SUCCESS, when=is_date_selected),
             ),
             CalendarScope.MONTHS: CalendarMonthView(
                 self._item_callback_data,
