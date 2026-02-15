@@ -24,7 +24,7 @@ main_dialog = Dialog(
             state=states.Selects.MAIN,
         ),
         Start(
-            text=Const("📅 Calendar"),
+            text=Const("📅 Date and time"),
             id="cal",
             state=states.Calendar.MAIN,
         ),

@@ -17,6 +17,7 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
 )
 from aiogram_dialog.widgets.media import StaticMedia
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format, List, ScrollingText
 from . import states
 from .common import MAIN_MENU_BUTTON
@@ -68,7 +69,10 @@ async def paging_getter(dialog_manager: DialogManager, **_kwargs):
 
 
 SCROLLS_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.Scrolls.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.Scrolls.MAIN,
+    style=Style(style="primary"),
 )
 
 ID_SCROLL_WITH_PAGER = "scroll_with_pager"

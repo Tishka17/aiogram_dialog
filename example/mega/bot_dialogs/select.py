@@ -12,12 +12,16 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
     Toggle,
 )
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format, List
 from . import states
 from .common import MAIN_MENU_BUTTON
 
 Selects_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.Selects.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.Selects.MAIN,
+    style=Style(style="primary"),
 )
 
 FRUITS_KEY = "fruits"
