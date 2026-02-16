@@ -17,8 +17,7 @@ from aiogram_dialog.widgets.common.items import (
     ItemsGetterVariant,
     get_items_getter,
 )
-from aiogram_dialog.widgets.style import EMPTY_STYLE
-from aiogram_dialog.widgets.style.multi import StyleCase
+from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleCase
 from aiogram_dialog.widgets.text import TextCase
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -72,7 +71,7 @@ class Select(Keyboard, Generic[T]):
                     | None
             ) = None,
             when: WhenCondition = None,
-            style: StyleWidget | None = EMPTY_STYLE,
+            style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -110,7 +109,6 @@ class Select(Keyboard, Generic[T]):
             "pos": pos + 1, "pos0": pos,
         }
         item_id = self.item_id_getter(target_item)
-
         style = await self.style.render_style(data, manager)
         icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
@@ -189,7 +187,10 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
 
     @abstractmethod
     def _is_text_checked(
-            self, data: dict, case: TextCase, manager: DialogManager,
+            self,
+            data: dict,
+            case: TextCase | StyleCase,
+            manager: DialogManager,
     ) -> bool:
         raise NotImplementedError
 
@@ -300,7 +301,10 @@ class Radio(StatefulSelect[T], Generic[T]):
         return self.get_widget_data(manager, item_id)
 
     def _is_text_checked(
-            self, data: dict, case: TextCase, manager: DialogManager,
+            self,
+            data: dict,
+            case: TextCase | StyleCase,
+            manager: DialogManager,
     ) -> bool:
         item_id = self.item_id_getter(data["item"])
         if manager.is_preview():
@@ -378,7 +382,10 @@ class Multiselect(StatefulSelect[T], Generic[T]):
         self.max_selected = max_selected
 
     def _is_text_checked(
-            self, data: dict, case: TextCase, manager: DialogManager,
+            self,
+            data: dict,
+            case: TextCase | StyleCase,
+            manager: DialogManager,
     ) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
         if manager.is_preview():
