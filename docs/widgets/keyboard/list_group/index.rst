@@ -20,6 +20,10 @@ Manager methods:
 
     If you nest a ``ListGroup`` in ``ListGroup`` your parent manager will be ``SubManager``
 
+
+Additionally, you can provide ``page_size`` and ``id`` so the ``ListGroup`` will allow you to paginate its items.
+You can combine it with ``Pager`` widgets to switch pages.
+
 Code example:
 
 .. literalinclude:: ./example.py
