@@ -1,12 +1,12 @@
 import pytest
 from aiogram import F
 
-from aiogram_dialog.widgets.text import Case, Const, Format
+from aiogram_dialog.widgets.text import Const, Format, TextCase
 
 
 @pytest.mark.asyncio
 async def test_render_case(mock_manager) -> None:
-    case = Case(
+    case = TextCase(
         {
             0: Format("{number} is even!"),
             1: Const("It is Odd"),

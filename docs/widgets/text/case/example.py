@@ -4,7 +4,7 @@ from aiogram.filters.state import State, StatesGroup
 from magic_filter import F
 
 from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram_dialog.widgets.text import Case, Const, Format
+from aiogram_dialog.widgets.text import TextCase, Const, Format
 
 
 class MySG(StatesGroup):
@@ -20,7 +20,7 @@ async def get_data(**kwargs):
 # The value of data["color"] will be used to select wich option of ``Case`` widget to show.
 #
 # `text` will produce text `Square`
-text = Case(
+text = TextCase(
     {
         "red": Const("Square"),
         "green": Const("Unicorn"),
@@ -35,11 +35,11 @@ text = Case(
 # The result of this function will be used to select wich option of ``Case`` widget to show.
 #
 # `text2` will produce text `42 is even!`
-def parity_selector(data: dict, case: Case, manager: DialogManager):
+def parity_selector(data: dict, case: TextCase, manager: DialogManager):
     return data["number"] % 2
 
 
-text2 = Case(
+text2 = TextCase(
     {
         0: Format("{number} is even!"),
         1: Const("It is Odd"),
@@ -53,7 +53,7 @@ text2 = Case(
 # of ``Case`` widget to show.
 #
 # `text3` will produce text `Great job!`
-text3 = Case(
+text3 = TextCase(
     {
         True: Const("Great job!"),
         False: Const("Try again.."),

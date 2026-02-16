@@ -2,7 +2,7 @@ from typing import Any
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Back, Checkbox, Next, Radio, Row
-from aiogram_dialog.widgets.text import Case, Const, Format
+from aiogram_dialog.widgets.text import Const, Format, TextCase
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -51,7 +51,7 @@ input_window = Window(
 last_window = Window(
     HEADER,
     Const("Step 3. Your data:"),
-    Case(
+    TextCase(
         {
             True: Const("Option: enabled"),
             False: Const("Option: disabled"),

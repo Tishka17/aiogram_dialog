@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
+    Button,
     Column,
     Multiselect,
     Radio,
@@ -65,6 +66,13 @@ async def on_item_selected(
 ):
     await callback.answer(selected_item)
 
+
+async def reset_multi_select(
+    callback: CallbackQuery,
+    widget: Any,
+    manager: DialogManager,
+) -> None:
+    await manager.find("multi").reset_checked()
 
 menu_window = Window(
     Const("Different keyboard Selects."),
@@ -143,6 +151,8 @@ multiselect_window = Window(
         Multiselect(
             checked_text=Format("✓ {item.name}"),
             unchecked_text=Format("{item.emoji} {item.name}"),
+            checked_style=Style(style="success"),
+            unchecked_style=Style(style="primary"),
             id="multi",
             items=FRUITS_KEY,
             # Alternatives:
@@ -150,6 +160,12 @@ multiselect_window = Window(
             # items=F[OTHER_KEY][FRUITS_KEY],
             item_id_getter=fruit_id_getter,
         ),
+    ),
+    Button(
+        text=Const("↩️ Reset"),
+        id="reset_multiselect",
+        on_click=reset_multi_select,
+        style=Style(style="danger"),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.MULTI,

@@ -4,11 +4,11 @@ from collections.abc import Awaitable, Callable
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard, TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
-from aiogram_dialog.widgets.text import Case
+from aiogram_dialog.widgets.style import EMPTY_STYLE
+from aiogram_dialog.widgets.text import TextCase
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -37,7 +37,7 @@ class BaseCheckbox(Keyboard, ABC):
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
-        self.text = Case(
+        self.text = TextCase(
             {True: checked_text, False: unchecked_text},
             selector=self._is_text_checked,
         )
@@ -89,7 +89,7 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(
-            self, data: dict, case: Case, manager: DialogManager,
+            self, data: dict, case: TextCase, manager: DialogManager,
     ) -> bool:
         del data  # unused
         del case  # unused
