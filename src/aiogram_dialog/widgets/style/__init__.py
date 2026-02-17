@@ -3,7 +3,6 @@ __all__ = [
     "BaseStyle",
     "Style",
     "StyleCase",
-    "StyleWidget",
 ]
 
 from .base import EMPTY_STYLE, BaseStyle, Style
