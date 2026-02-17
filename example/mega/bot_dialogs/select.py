@@ -113,6 +113,7 @@ select_window = Window(
             text=Format("{item.emoji} {item.name} ({item.id})"),
             id="sel",
             items=FRUITS_KEY,
+            style=Style(style="primary"),
             # Alternatives:
             # items=lambda d: d[OTHER_KEY][FRUITS_KEY],
             # items=F[OTHER_KEY][FRUITS_KEY],
@@ -131,6 +132,8 @@ radio_window = Window(
         Radio(
             checked_text=Format("🔘 {item.emoji} {item.name}"),
             unchecked_text=Format("⚪️ {item.emoji} {item.name}"),
+            checked_style=Style(style="success"),
+            unchecked_style=Style(style="primary"),
             id="radio",
             items=FRUITS_KEY,
             # Alternatives:
@@ -181,6 +184,7 @@ toggle_window = Window(
             id="radio",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
+            style=Style(style="primary"),
         ),
     ),
     Selects_MAIN_MENU_BUTTON,

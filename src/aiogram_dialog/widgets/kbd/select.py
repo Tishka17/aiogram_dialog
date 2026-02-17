@@ -491,17 +491,15 @@ class Toggle(Radio[T], Generic[T]):
                     | None
             ) = None,
             when: str | Callable | None = None,
-            checked_style: StyleWidget = EMPTY_STYLE,
-            unchecked_style: StyleWidget = EMPTY_STYLE,
+            style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(
             checked_text=text, unchecked_text=text,
             id=id, item_id_getter=item_id_getter,
             items=items, type_factory=type_factory, on_click=on_click,
             on_state_changed=on_state_changed, when=when,
-            checked_style=checked_style,
-            unchecked_style=unchecked_style,
         )
+        self.style = style
 
     async def _render_keyboard(
             self,

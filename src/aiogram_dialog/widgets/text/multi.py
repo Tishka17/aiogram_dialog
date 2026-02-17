@@ -15,10 +15,10 @@ from .base import Text
 
 class TextCase(Text):
     def __init__(
-            self,
-            texts: dict[Any, TextWidget],
-            selector: str | Selector["TextCase"] | MagicFilter,
-            when: WhenCondition = None,
+        self,
+        texts: dict[Any, TextWidget],
+        selector: str | Selector["TextCase"] | MagicFilter,
+        when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.texts = texts
@@ -31,7 +31,6 @@ class TextCase(Text):
             self.selector = new_magic_selector(selector)
         else:
             self.selector = selector
-
 
     async def _render_text(self, data, manager: DialogManager) -> str:
         selection = self.selector(data, self, manager)

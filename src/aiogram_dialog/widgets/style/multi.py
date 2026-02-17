@@ -15,10 +15,10 @@ from .base import BaseStyle
 
 class StyleCase(BaseStyle):
     def __init__(
-            self,
-            styles: dict[Any, StyleWidget],
-            selector: str | Selector["StyleCase"] | MagicFilter,
-            when: WhenCondition = None,
+        self,
+        styles: dict[Any, StyleWidget],
+        selector: str | Selector["StyleCase"] | MagicFilter,
+        when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.styles = styles
