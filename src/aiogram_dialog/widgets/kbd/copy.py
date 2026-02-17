@@ -3,10 +3,10 @@ from typing import Any
 from aiogram.types import CopyTextButton, InlineKeyboardButton
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.internal import RawKeyboard, TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
-from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
+from aiogram_dialog.widgets.style import EMPTY_STYLE
 
 
 class CopyText(Keyboard):

@@ -2,9 +2,9 @@ from collections.abc import Callable
 
 from aiogram.types import KeyboardButton, KeyboardButtonPollType
 
-from aiogram_dialog.api.internal import RawKeyboard, TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager
-from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
+from aiogram_dialog.widgets.style import EMPTY_STYLE
 from .base import Keyboard
 
 

@@ -4,10 +4,10 @@ from collections.abc import Awaitable, Callable
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from aiogram_dialog.api.entities import ChatEvent
-from aiogram_dialog.api.internal import RawKeyboard, TextWidget
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
-from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
+from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleCase
 from aiogram_dialog.widgets.text import Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
@@ -41,23 +41,19 @@ class BaseCheckbox(Keyboard, ABC):
             {True: checked_text, False: unchecked_text},
             selector=self._is_text_checked,
         )
+        self.style = StyleCase(
+            {True: checked_style, False: unchecked_style},
+            selector=self._is_text_checked,
+        )
         self.on_click = ensure_event_processor(on_click)
         self.on_state_changed = ensure_event_processor(on_state_changed)
-        self.checked_style = checked_style
-        self.unchecked_style = unchecked_style
-
-    def _get_current_style(self, manager: DialogManager) -> StyleWidget:
-        if self.is_checked(manager):
-            return self.checked_style
-        return self.unchecked_style
 
     async def _render_keyboard(
             self, data: dict, manager: DialogManager,
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
-        current_style = self._get_current_style(manager)
-        style = await current_style.render_style(data, manager)
-        icon_custom_emoji_id = await current_style.render_emoji(data, manager)
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         checked = int(self.is_checked(manager))
         # store current checked status in callback data

@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import os.path
+import os
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.exceptions import TelegramBadRequest

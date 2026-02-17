@@ -4,11 +4,11 @@ from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.entities import ChatEvent, Data, ShowMode, StartMode
-from aiogram_dialog.api.internal import TextWidget
+from aiogram_dialog.api.internal import StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
 from aiogram_dialog.widgets.kbd.button import Button, OnClick
-from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleWidget
+from aiogram_dialog.widgets.style import EMPTY_STYLE
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog.widgets.widget_event import WidgetEventProcessor
 
