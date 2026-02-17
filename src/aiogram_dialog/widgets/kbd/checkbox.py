@@ -8,7 +8,7 @@ from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleCase
-from aiogram_dialog.widgets.text import TextCase
+from aiogram_dialog.widgets.text import Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -37,7 +37,7 @@ class BaseCheckbox(Keyboard, ABC):
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
-        self.text = TextCase(
+        self.text = Case(
             {True: checked_text, False: unchecked_text},
             selector=self._is_text_checked,
         )
@@ -85,7 +85,7 @@ class BaseCheckbox(Keyboard, ABC):
         return True
 
     def _is_text_checked(
-            self, data: dict, case: TextCase, manager: DialogManager,
+            self, data: dict, case: Case, manager: DialogManager,
     ) -> bool:
         del data  # unused
         del case  # unused

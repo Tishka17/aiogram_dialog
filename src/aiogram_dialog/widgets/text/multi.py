@@ -13,18 +13,18 @@ from aiogram_dialog.widgets.common import (
 from .base import Text
 
 
-class TextCase(Text):
+class Case(Text):
     def __init__(
         self,
         texts: dict[Any, TextWidget],
-        selector: str | Selector["TextCase"] | MagicFilter,
+        selector: str | Selector["Case"] | MagicFilter,
         when: WhenCondition = None,
     ):
         super().__init__(when=when)
         self.texts = texts
         self._has_default = ... in self.texts
 
-        self.selector: Selector[TextCase]
+        self.selector: Selector[Case]
         if isinstance(selector, str):
             self.selector = new_case_field(selector)
         elif isinstance(selector, MagicFilter):

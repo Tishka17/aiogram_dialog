@@ -18,7 +18,7 @@ from aiogram_dialog.widgets.common.items import (
     get_items_getter,
 )
 from aiogram_dialog.widgets.style import EMPTY_STYLE, StyleCase
-from aiogram_dialog.widgets.text import TextCase
+from aiogram_dialog.widgets.text import Case
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -158,7 +158,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
             checked_style: StyleWidget = EMPTY_STYLE,
             unchecked_style: StyleWidget = EMPTY_STYLE,
     ):
-        text = TextCase(
+        text = Case(
             {True: checked_text, False: unchecked_text},
             selector=self._is_text_checked,
         )
@@ -189,7 +189,7 @@ class StatefulSelect(Select[T], ABC, Generic[T]):
     def _is_text_checked(
             self,
             data: dict,
-            case: TextCase | StyleCase,
+            case: Case | StyleCase,
             manager: DialogManager,
     ) -> bool:
         raise NotImplementedError
@@ -303,7 +303,7 @@ class Radio(StatefulSelect[T], Generic[T]):
     def _is_text_checked(
             self,
             data: dict,
-            case: TextCase | StyleCase,
+            case: Case | StyleCase,
             manager: DialogManager,
     ) -> bool:
         item_id = self.item_id_getter(data["item"])
@@ -384,7 +384,7 @@ class Multiselect(StatefulSelect[T], Generic[T]):
     def _is_text_checked(
             self,
             data: dict,
-            case: TextCase | StyleCase,
+            case: Case | StyleCase,
             manager: DialogManager,
     ) -> bool:
         item_id = str(self.item_id_getter(data["item"]))
