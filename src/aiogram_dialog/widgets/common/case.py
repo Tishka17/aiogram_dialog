@@ -1,5 +1,5 @@
 from collections.abc import Callable, Hashable
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from magic_filter import MagicFilter
 
@@ -21,7 +21,7 @@ def new_case_field(fieldname: str) -> Selector[T]:
 def new_magic_selector(f: MagicFilter) -> Selector[T]:
     def when_magic(
         data: dict, widget: T, manager: DialogManager,
-    ) -> bool:
+    ) -> Any:
         return f.resolve(data)
 
     return when_magic
