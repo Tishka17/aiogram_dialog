@@ -1,5 +1,7 @@
+from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from datetime import time
+from typing import Protocol
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 
@@ -14,10 +16,18 @@ from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
 )
 
-OnValueChanged = Callable[
-    [ChatEvent, "ManagedTimeSelect", DialogManager, time | None],
-    Awaitable,
-]
+class OnValueChanged(Protocol):
+    @abstractmethod
+    async def __call__(
+        self,
+        event: ChatEvent,
+        counter: "ManagedTimeSelect",  # noqa: F841, RUF100
+        dialog_manager: DialogManager,
+        value: time | None
+    ):
+        raise NotImplementedError
+
+
 OnValueChangedVariant = OnValueChanged | WidgetEventProcessor | None
 
 HOUR_TEXT = Const("Hour")
