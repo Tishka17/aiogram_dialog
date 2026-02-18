@@ -1,7 +1,9 @@
+from aiogram.enums import ButtonStyle
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import Counter, ManagedCounter
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Progress
 from . import states
 from .common import MAIN_MENU_BUTTON
@@ -36,6 +38,8 @@ counter_dialog = Dialog(
             default=0,
             max_value=MAX_VALUE,
             on_text_click=on_text_click,
+            plus_style=Style(ButtonStyle.SUCCESS),
+            minus_style=Style(ButtonStyle.DANGER),
         ),
         MAIN_MENU_BUTTON,
         state=states.Counter.MAIN,

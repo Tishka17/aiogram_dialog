@@ -1,6 +1,8 @@
 import calendar
 from operator import itemgetter
 
+from aiogram.enums import ButtonStyle
+
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.common import sync_scroll
 from aiogram_dialog.widgets.kbd import (
@@ -144,6 +146,7 @@ custom_pager_window = Window(
         scroll=ID_SCROLL_NO_PAGER,
         page_text=Format("{target_page1}\uFE0F\u20E3"),
         current_page_text=Format("{current_page1}"),
+        current_page_style=Style(ButtonStyle.SUCCESS),
     ),
     NumberedPager(
         scroll=ID_SCROLL_NO_PAGER,
@@ -199,6 +202,7 @@ list_scroll_window = Window(
     ),
     NumberedPager(
         scroll="list_scroll",
+        current_page_style=Style(ButtonStyle.SUCCESS),
     ),
     SCROLLS_MAIN_MENU_BUTTON,
     getter=product_getter,
