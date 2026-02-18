@@ -16,7 +16,7 @@ Classes
    :special-members: __call__
 
 .. autoclass:: aiogram_dialog.widgets.kbd.TimeSelect
-   :special-members: __init__,
+   :special-members: __init__
 
 .. autoclass:: aiogram_dialog.widgets.kbd.ManagedTimeSelect
    :members: get_value, set_value
