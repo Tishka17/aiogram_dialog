@@ -33,7 +33,7 @@ class TimeSelect(Keyboard):
         minute_header: TextWidget = MINUTE_TEXT,
         header_style: StyleWidget = EMPTY_STYLE,
         selected_style: StyleWidget = EMPTY_STYLE,
-        on_click: OnValueChanged = None,
+        on_click: OnValueChangedVariant = None,
         on_value_changed: OnValueChangedVariant = None,
         hour_width: int = 6,
         minute_precision: int = 5,
