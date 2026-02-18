@@ -22,6 +22,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * :ref:`Multiselect<multiselect>` - selection of multiple items. Like select/radio but stores all chosen items and renders them differently.
 * :ref:`Toggle<toggle>` - to switch between elements of the list
 * :ref:`Calendar<calendar>` - simulates a calendar in the form of a keyboard.
+* :ref:`TimeSelect<time_select>` - time selection form.
 * :ref:`Counter<counter>` - couple of buttons +/- to input a number
 * :ref:`SwitchTo<switch_to>` - switches window within a dialog using provided state
 * :ref:`Next and Back<next_and_back>` - switches state forward or backward
@@ -49,6 +50,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
     multiselect/index
     toggle/index
     calendar/index
+    time/index
     counter/index
     switch_to/index
     next_and_back/index
