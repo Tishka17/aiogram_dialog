@@ -14,12 +14,6 @@ from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
 )
 
-OnClick = Callable[
-    [CallbackQuery, "ManagedTimeSelect", DialogManager],
-    Awaitable,
-]
-OnClickVariant = OnClick | WidgetEventProcessor | None
-
 OnValueChanged = Callable[
     [ChatEvent, "ManagedTimeSelect", DialogManager, time | None],
     Awaitable,
@@ -39,7 +33,7 @@ class TimeSelect(Keyboard):
         minute_header: TextWidget = MINUTE_TEXT,
         header_style: StyleWidget = EMPTY_STYLE,
         selected_style: StyleWidget = EMPTY_STYLE,
-        on_click: OnClickVariant = None,
+        on_click: OnValueChanged = None,
         on_value_changed: OnValueChangedVariant = None,
         hour_width: int = 6,
         minute_precision: int = 5,
@@ -171,11 +165,6 @@ class TimeSelect(Keyboard):
         dialog: DialogProtocol,
         manager: DialogManager,
     ) -> bool:
-        await self.on_click.process_event(
-            manager.event,
-            self.managed(manager),
-            manager,
-        )
         hour, minute = self.get_widget_data(manager, (None, None))
         if data.startswith("h"):
             hour = int(data[1:])
@@ -183,8 +172,15 @@ class TimeSelect(Keyboard):
             minute = int(data[1:])
         else:
             raise ValueError(f"Unknown callback format {data!r}")
-        self.set_widget_data(manager, [hour, minute])
+
         value = self._value_from_raw((hour, minute))
+        await self.on_click.process_event(
+            manager.event,
+            self.managed(manager),
+            manager,
+            value,
+        )
+        self.set_widget_data(manager, [hour, minute])
         await self.on_value_changed.process_event(
             manager.event,
             self.managed(manager),
