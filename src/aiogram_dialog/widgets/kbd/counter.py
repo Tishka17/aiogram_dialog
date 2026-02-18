@@ -79,6 +79,9 @@ class Counter(Keyboard):
         :param on_value_changed: Callback to process value changes, \
         regardless of the reason
         :param when: Condition when to show widget
+        :param plus_style: style for plus button
+        :param minus_style: style for minus button
+        :param value_style: style for button with current value
         """
         super().__init__(id=id, when=when)
         self.plus = plus

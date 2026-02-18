@@ -103,47 +103,47 @@ class Style(BaseStyle):
 
 
 class Or(StyleWidget):
-        def __init__(self, *styles: StyleWidget):
-            super().__init__()
-            self.styles = styles
+    def __init__(self, *styles: StyleWidget):
+        super().__init__()
+        self.styles = styles
 
-        def managed(self, manager: DialogManager) -> Any:
-            return self
+    def managed(self, manager: DialogManager) -> Any:
+        return self
 
-        def find(self, widget_id: str) -> Widget | None:
-            for style in self.styles:
-                if found := style.find(widget_id):
-                    return found
-            return None
+    def find(self, widget_id: str) -> Widget | None:
+        for style in self.styles:
+            if found := style.find(widget_id):
+                return found
+        return None
 
 
-        async def render_style(
-                self, data: dict, manager: DialogManager,
-        ) -> ButtonStyle | None:
-            for style in self.styles:
-                res = await style.render_style(data, manager)
-                if res:
-                    return res
-            return None
+    async def render_style(
+            self, data: dict, manager: DialogManager,
+    ) -> ButtonStyle | None:
+        for style in self.styles:
+            res = await style.render_style(data, manager)
+            if res:
+                return res
+        return None
 
-        async def render_emoji(self, data: dict,
-                               manager: DialogManager) -> str | None:
-            for text in self.styles:
-                res = await text.render_emoji(data, manager)
-                if res:
-                    return res
-            return None
+    async def render_emoji(self, data: dict,
+                           manager: DialogManager) -> str | None:
+        for style in self.styles:
+            res = await style.render_emoji(data, manager)
+            if res:
+                return res
+        return None
 
-        def __ior__(self, other: StyleWidget) -> "Or":
-            self.styles += (other,)
-            return self
+    def __ior__(self, other: StyleWidget) -> "Or":
+        self.styles += (other,)
+        return self
 
-        def __or__(self, other: StyleWidget) -> "Or":
-            # reduce nesting
-            return Or(*self.styles, other)
+    def __or__(self, other: StyleWidget) -> "Or":
+        # reduce nesting
+        return Or(*self.styles, other)
 
-        def __ror__(self, other: StyleWidget) -> "Or":
-            # reduce nesting
-            return Or(other, *self.styles)
+    def __ror__(self, other: StyleWidget) -> "Or":
+        # reduce nesting
+        return Or(other, *self.styles)
 
 EMPTY_STYLE = Style(style=None, emoji_id=None, when=None)
