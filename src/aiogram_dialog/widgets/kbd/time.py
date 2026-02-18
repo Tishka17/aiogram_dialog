@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from collections.abc import Awaitable, Callable
 from datetime import time
 from typing import Protocol
 
@@ -16,6 +15,19 @@ from aiogram_dialog.widgets.widget_event import (
     ensure_event_processor,
 )
 
+
+class OnClick(Protocol):
+    @abstractmethod
+    async def __call__(
+        self,
+        event: ChatEvent,
+        counter: "ManagedTimeSelect",  # noqa: F841, RUF100
+        dialog_manager: DialogManager,
+        value: int,
+    ):
+        raise NotImplementedError
+
+
 class OnValueChanged(Protocol):
     @abstractmethod
     async def __call__(
@@ -23,11 +35,12 @@ class OnValueChanged(Protocol):
         event: ChatEvent,
         counter: "ManagedTimeSelect",  # noqa: F841, RUF100
         dialog_manager: DialogManager,
-        value: time | None
+        value: time | None,
     ):
         raise NotImplementedError
 
 
+OnClickVariant = OnClick | WidgetEventProcessor | None
 OnValueChangedVariant = OnValueChanged | WidgetEventProcessor | None
 
 HOUR_TEXT = Const("Hour")
@@ -43,7 +56,8 @@ class TimeSelect(Keyboard):
         minute_header: TextWidget = MINUTE_TEXT,
         header_style: StyleWidget = EMPTY_STYLE,
         selected_style: StyleWidget = EMPTY_STYLE,
-        on_click: OnValueChangedVariant = None,
+        on_hour_click: OnClickVariant = None,
+        on_minute_click: OnClickVariant = None,
         on_value_changed: OnValueChangedVariant = None,
         hour_width: int = 6,
         minute_precision: int = 5,
@@ -57,7 +71,8 @@ class TimeSelect(Keyboard):
         self.minute_precision = minute_precision
         self.minute_width = minute_width
         self.hour_width = hour_width
-        self.on_click = ensure_event_processor(on_click)
+        self.on_hour_click = ensure_event_processor(on_hour_click)
+        self.on_minute_click = ensure_event_processor(on_minute_click)
         self.on_value_changed = ensure_event_processor(on_value_changed)
 
     def _value_from_raw(
@@ -178,24 +193,29 @@ class TimeSelect(Keyboard):
         hour, minute = self.get_widget_data(manager, (None, None))
         if data.startswith("h"):
             hour = int(data[1:])
+            await self.on_hour_click.process_event(
+                manager.event,
+                self.managed(manager),
+                manager,
+                hour,
+            )
         elif data.startswith("m"):
             minute = int(data[1:])
+            await self.on_minute_click.process_event(
+                manager.event,
+                self.managed(manager),
+                manager,
+                minute,
+            )
         else:
             raise ValueError(f"Unknown callback format {data!r}")
 
-        value = self._value_from_raw((hour, minute))
-        await self.on_click.process_event(
-            manager.event,
-            self.managed(manager),
-            manager,
-            value,
-        )
         self.set_widget_data(manager, [hour, minute])
         await self.on_value_changed.process_event(
             manager.event,
             self.managed(manager),
             manager,
-            value,
+            self._value_from_raw((hour, minute)),
         )
         return await super()._process_item_callback(
             callback,

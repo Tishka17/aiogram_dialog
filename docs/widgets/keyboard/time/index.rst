@@ -12,6 +12,9 @@ Classes
 .. autoclass:: aiogram_dialog.widgets.kbd.time.OnValueChanged
    :special-members: __call__
 
+.. autoclass:: aiogram_dialog.widgets.kbd.time.OnClick
+   :special-members: __call__
+
 .. autoclass:: aiogram_dialog.widgets.kbd.TimeSelect
    :special-members: __init__,
 
