@@ -9,7 +9,7 @@ from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd import Keyboard
 from aiogram_dialog.widgets.style import EMPTY_STYLE
-from aiogram_dialog.widgets.text import Const
+from aiogram_dialog.widgets.text import Const, Format
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
@@ -46,6 +46,8 @@ OnValueChangedVariant = OnValueChanged | WidgetEventProcessor | None
 HOUR_TEXT = Const("Hour")
 MINUTE_TEXT = Const("Minute")
 
+BUTTON_TEXT = Format("{value}")
+BUTTON_SELECTED_TEXT = Format("[{value}]")
 
 class TimeSelect(Keyboard):
     def __init__(
@@ -54,6 +56,8 @@ class TimeSelect(Keyboard):
         when: WhenCondition = None,
         hour_header: TextWidget = HOUR_TEXT,
         minute_header: TextWidget = MINUTE_TEXT,
+        button_text: TextWidget = BUTTON_TEXT,
+        button_selected_text: TextWidget = BUTTON_SELECTED_TEXT,
         header_style: StyleWidget = EMPTY_STYLE,
         selected_style: StyleWidget = EMPTY_STYLE,
         on_hour_click: OnClickVariant = None,
@@ -66,6 +70,8 @@ class TimeSelect(Keyboard):
         super().__init__(id, when)
         self.hour_header = hour_header
         self.minute_header = minute_header
+        self.button_text = button_text
+        self.button_selected_text = button_selected_text
         self.header_style = header_style
         self.selected_style = selected_style
         self.minute_precision = minute_precision
@@ -130,9 +136,17 @@ class TimeSelect(Keyboard):
             row: list[InlineKeyboardButton] = []
             for hour in hour_row:
                 is_selected = old_hour == hour
+
+                data["value"] = hour
+                text = (
+                    await self.button_selected_text.render_text(data, manager)
+                    if is_selected
+                    else await self.button_text.render_text(data, manager)
+                )
+
                 row.append(
                     InlineKeyboardButton(
-                        text=f"[{hour}]" if is_selected else f"{hour}",
+                        text=text,
                         callback_data=self._item_callback_data(f"h{hour}"),
                         style=(selected_style if is_selected else None),
                         icon_custom_emoji_id=(
@@ -162,9 +176,17 @@ class TimeSelect(Keyboard):
             row = []
             for minute in minute_row:
                 is_selected = old_minute == minute
+
+                data["value"] = minute
+                text = (
+                    await self.button_selected_text.render_text(data, manager)
+                    if is_selected
+                    else await self.button_text.render_text(data, manager)
+                )
+
                 row.append(
                     InlineKeyboardButton(
-                        text=f"[{minute}]" if is_selected else f"{minute}",
+                        text=text,
                         callback_data=self._item_callback_data(f"m{minute}"),
                         style=(selected_style if is_selected else None),
                         icon_custom_emoji_id=(
