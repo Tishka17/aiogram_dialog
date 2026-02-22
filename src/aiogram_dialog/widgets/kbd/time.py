@@ -137,11 +137,15 @@ class TimeSelect(Keyboard):
             for hour in hour_row:
                 is_selected = old_hour == hour
 
-                data["value"] = hour
+                button_data = {**data, "value": hour}
                 text = (
-                    await self.button_selected_text.render_text(data, manager)
+                    await self.button_selected_text.render_text(
+                        button_data, manager,
+                    )
                     if is_selected
-                    else await self.button_text.render_text(data, manager)
+                    else await self.button_text.render_text(
+                        button_data, manager,
+                    )
                 )
 
                 row.append(
@@ -177,11 +181,15 @@ class TimeSelect(Keyboard):
             for minute in minute_row:
                 is_selected = old_minute == minute
 
-                data["value"] = minute
+                button_data = {**data, "value": minute}
                 text = (
-                    await self.button_selected_text.render_text(data, manager)
+                    await self.button_selected_text.render_text(
+                        button_data, manager,
+                    )
                     if is_selected
-                    else await self.button_text.render_text(data, manager)
+                    else await self.button_text.render_text(
+                        button_data, manager,
+                    )
                 )
 
                 row.append(
