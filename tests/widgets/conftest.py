@@ -19,4 +19,5 @@ def mock_manager() -> DialogManager:
         _intent_id="_intent_id",
     )
     manager.current_context = Mock(side_effect=lambda: context)
+    manager.is_preview = MagicMock(return_value=False)
     return manager
