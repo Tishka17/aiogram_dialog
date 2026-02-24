@@ -49,6 +49,7 @@ MINUTE_TEXT = Const("Minute")
 BUTTON_TEXT = Format("{value}")
 BUTTON_SELECTED_TEXT = Format("[{value}]")
 
+
 class TimeSelect(Keyboard):
     def __init__(
         self,
@@ -59,7 +60,8 @@ class TimeSelect(Keyboard):
         button_text: TextWidget = BUTTON_TEXT,
         button_selected_text: TextWidget = BUTTON_SELECTED_TEXT,
         header_style: StyleWidget = EMPTY_STYLE,
-        selected_style: StyleWidget = EMPTY_STYLE,
+        button_style: StyleWidget = EMPTY_STYLE,
+        button_selected_style: StyleWidget = EMPTY_STYLE,
         on_hour_click: OnClickVariant = None,
         on_minute_click: OnClickVariant = None,
         on_value_changed: OnValueChangedVariant = None,
@@ -73,7 +75,8 @@ class TimeSelect(Keyboard):
         self.button_text = button_text
         self.button_selected_text = button_selected_text
         self.header_style = header_style
-        self.selected_style = selected_style
+        self.button_style = button_style
+        self.button_selected_style = button_selected_style
         self.minute_precision = minute_precision
         self.minute_width = minute_width
         self.hour_width = hour_width
@@ -131,39 +134,18 @@ class TimeSelect(Keyboard):
             ],
         )
         for hour_row in self._rows(0, 24, 1, self.hour_width):
-            row: list[InlineKeyboardButton] = []
-            for hour in hour_row:
-                is_selected = old_hour == hour
-
-                button_data = {"value": hour, "data": data}
-                text = (
-                    await self.button_selected_text.render_text(
-                        button_data, manager,
+            rows.append(
+                [
+                    await self._render_button(
+                        data=data,
+                        manager=manager,
+                        is_selected=(old_hour == hour),
+                        value=hour,
+                        callback_prefix="h",
                     )
-                    if is_selected
-                    else await self.button_text.render_text(
-                        button_data, manager,
-                    )
-                )
-
-                selected_style = await self.selected_style.render_style(
-                    button_data, manager,
-                )
-                selected_icon = await self.selected_style.render_emoji(
-                    button_data, manager,
-                )
-
-                row.append(
-                    InlineKeyboardButton(
-                        text=text,
-                        callback_data=self._item_callback_data(f"h{hour}"),
-                        style=(selected_style if is_selected else None),
-                        icon_custom_emoji_id=(
-                            selected_icon if is_selected else None
-                        ),
-                    ),
-                )
-            rows.append(row)
+                    for hour in hour_row
+                ],
+            )
 
         rows.append(
             [
@@ -182,40 +164,45 @@ class TimeSelect(Keyboard):
             self.minute_precision,
             self.minute_width,
         ):
-            row = []
-            for minute in minute_row:
-                is_selected = old_minute == minute
-
-                button_data = {"value": minute, "data": data}
-                text = (
-                    await self.button_selected_text.render_text(
-                        button_data, manager,
+            rows.append(
+                [
+                    await self._render_button(
+                        data=data,
+                        manager=manager,
+                        is_selected=(old_minute == minute),
+                        value=minute,
+                        callback_prefix="m",
                     )
-                    if is_selected
-                    else await self.button_text.render_text(
-                        button_data, manager,
-                    )
-                )
-
-                selected_style = await self.selected_style.render_style(
-                    button_data, manager,
-                )
-                selected_icon = await self.selected_style.render_emoji(
-                    button_data, manager,
-                )
-
-                row.append(
-                    InlineKeyboardButton(
-                        text=text,
-                        callback_data=self._item_callback_data(f"m{minute}"),
-                        style=(selected_style if is_selected else None),
-                        icon_custom_emoji_id=(
-                            selected_icon if is_selected else None
-                        ),
-                    ),
-                )
-            rows.append(row)
+                    for minute in minute_row
+                ],
+            )
         return rows
+
+    async def _render_button(
+        self,
+        *,
+        data: dict,
+        manager: DialogManager,
+        is_selected: bool,
+        value: int,
+        callback_prefix: str,
+    ) -> InlineKeyboardButton:
+        button_data = {"value": value, "data": data}
+        text = self.button_selected_text if is_selected else self.button_text
+        style = (
+            self.button_selected_style if is_selected else self.button_style
+        )
+        return InlineKeyboardButton(
+            text=await text.render_text(button_data, manager),
+            callback_data=self._item_callback_data(
+                f"{callback_prefix}{value}",
+            ),
+            style=await style.render_style(button_data, manager),
+            icon_custom_emoji_id=await style.render_emoji(
+                button_data,
+                manager,
+            ),
+        )
 
     def _rows(self, start, stop, step, width) -> list[list[int]]:
         rows = [[]]
