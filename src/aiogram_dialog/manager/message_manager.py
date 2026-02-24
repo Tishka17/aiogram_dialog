@@ -1,5 +1,4 @@
 from logging import getLogger
-from typing import Optional, Union
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
@@ -64,6 +63,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
     return OldMessage(
         message_id=message_result.message_id,
         chat=message_result.chat,
+        has_protected_content=message_result.has_protected_content,
         has_reply_keyboard=isinstance(
             sent_message.reply_markup, ReplyKeyboardMarkup,
         ),
@@ -91,7 +91,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def get_media_source(
             self, media: MediaAttachment, bot: Bot,
-    ) -> Union[InputFile, str]:
+    ) -> InputFile | str:
         if media.file_id:
             return media.file_id.file_id
         if media.url:
@@ -107,12 +107,12 @@ class MessageManager(MessageManagerProtocol):
     def need_media(self, new_message: NewMessage) -> bool:
         return bool(new_message.media)
 
-    def had_reply_keyboard(self, old_message: Optional[OldMessage]) -> bool:
+    def had_reply_keyboard(self, old_message: OldMessage | None) -> bool:
         if not old_message:
             return False
         return old_message.has_reply_keyboard
 
-    def need_reply_keyboard(self, new_message: Optional[NewMessage]) -> bool:
+    def need_reply_keyboard(self, new_message: NewMessage | None) -> bool:
         if not new_message:
             return False
         return isinstance(new_message.reply_markup, ReplyKeyboardMarkup)
@@ -134,7 +134,11 @@ class MessageManager(MessageManagerProtocol):
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
             # we do not know if link preview changed
-            new_message.link_preview_options
+            new_message.link_preview_options or
+            (
+                bool(new_message.protect_content)
+                != bool(old_message.has_protected_content)
+            )
         ):
             return True
 
@@ -163,7 +167,7 @@ class MessageManager(MessageManagerProtocol):
 
     async def show_message(
             self, bot: Bot, new_message: NewMessage,
-            old_message: Optional[OldMessage],
+            old_message: OldMessage | None,
     ) -> OldMessage:
         if new_message.show_mode is ShowMode.NO_UPDATE:
             logger.debug("ShowMode is NO_UPDATE, skipping show")
@@ -214,8 +218,8 @@ class MessageManager(MessageManagerProtocol):
             self,
             bot: Bot,
             show_mode: ShowMode,
-            old_message: Optional[OldMessage],
-    ) -> Optional[Message]:
+            old_message: OldMessage | None,
+    ) -> Message | None:
         if show_mode is ShowMode.NO_UPDATE:
             return None
         if show_mode is ShowMode.DELETE_AND_SEND and old_message:
@@ -225,9 +229,9 @@ class MessageManager(MessageManagerProtocol):
     async def _remove_kbd(
             self,
             bot: Bot,
-            old_message: Optional[OldMessage],
-            new_message: Optional[NewMessage],
-    ) -> Optional[Message]:
+            old_message: OldMessage | None,
+            new_message: NewMessage | None,
+    ) -> Message | None:
         if self.had_reply_keyboard(old_message):
             if not self.need_reply_keyboard(new_message):
                 return await self.remove_reply_kbd(bot, old_message)
@@ -236,8 +240,8 @@ class MessageManager(MessageManagerProtocol):
             return await self.remove_inline_kbd(bot, old_message)
 
     async def remove_inline_kbd(
-            self, bot: Bot, old_message: Optional[OldMessage],
-    ) -> Optional[Message]:
+            self, bot: Bot, old_message: OldMessage | None,
+    ) -> Message | None:
         if not old_message:
             return None
         logger.debug("remove_inline_kbd in %s", old_message.chat)
@@ -260,8 +264,8 @@ class MessageManager(MessageManagerProtocol):
                 raise err
 
     async def remove_reply_kbd(
-            self, bot: Bot, old_message: Optional[OldMessage],
-    ) -> Optional[Message]:
+            self, bot: Bot, old_message: OldMessage | None,
+    ) -> Message | None:
         if not old_message:
             return None
         logger.debug("remove_reply_kbd in %s", old_message.chat)
@@ -279,7 +283,7 @@ class MessageManager(MessageManagerProtocol):
             self,
             bot: Bot,
             old_message: OldMessage,
-            new_message: Optional[NewMessage],
+            new_message: NewMessage | None,
     ) -> None:
         if old_message.business_connection_id:
             await self._remove_kbd(bot, old_message, new_message)
@@ -317,6 +321,11 @@ class MessageManager(MessageManagerProtocol):
     async def edit_message(
             self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
+        if bool(old_message.has_protected_content) != \
+           bool(new_message.protect_content):
+            await self.remove_message_safe(bot, old_message, new_message)
+            return await self.send_message(bot, new_message)
+
         if new_message.media:
             if (
                 old_message.media_id is not None and
@@ -396,6 +405,7 @@ class MessageManager(MessageManagerProtocol):
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            protect_content=new_message.protect_content,
             link_preview_options=new_message.link_preview_options,
         )
 
@@ -418,5 +428,6 @@ class MessageManager(MessageManagerProtocol):
             caption=new_message.text,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            protect_content=new_message.protect_content,
             **new_message.media.kwargs,
         )

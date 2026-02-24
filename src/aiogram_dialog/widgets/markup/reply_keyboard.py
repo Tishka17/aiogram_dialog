@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram.types import ReplyKeyboardMarkup
 
@@ -7,19 +6,19 @@ from aiogram_dialog.api.internal.widgets import (
     MarkupFactory,
     MarkupVariant,
     RawKeyboard,
+    TextWidget,
 )
 from aiogram_dialog.utils import add_intent_id, transform_to_reply_keyboard
-from aiogram_dialog.widgets.text import Text
 
 
 class ReplyKeyboardFactory(MarkupFactory):
     def __init__(
             self,
-            resize_keyboard: Optional[bool] = None,
-            one_time_keyboard: Optional[bool] = None,
-            input_field_placeholder: Optional[Text] = None,
-            selective: Optional[bool] = None,
-            is_persistent: Optional[bool] = None,
+            resize_keyboard: bool | None = None,
+            one_time_keyboard: bool | None = None,
+            input_field_placeholder: TextWidget | None = None,
+            selective: bool | None = None,
+            is_persistent: bool | None = None,
     ):
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard

@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from typing import Any, Union
+from typing import Any
 
 from aiogram import Router
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
@@ -37,7 +37,7 @@ class ManagerMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Update, DialogUpdateEvent], dict[str, Any]],
+                [Update | DialogUpdateEvent, dict[str, Any]],
                 Awaitable[Any],
             ],
             event: ChatEvent,
@@ -70,7 +70,7 @@ class BgFactoryMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[TelegramObject, DialogUpdateEvent], dict[str, Any]],
+                [TelegramObject | DialogUpdateEvent, dict[str, Any]],
                 Awaitable[TelegramObject],
             ],
             event: TelegramObject,

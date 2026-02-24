@@ -2,7 +2,6 @@ from aiogram_dialog import Dialog, LaunchMode, Window
 from aiogram_dialog.about import about_aiogram_dialog_button
 from aiogram_dialog.widgets.kbd import Start
 from aiogram_dialog.widgets.text import Const
-
 from . import states
 
 main_dialog = Dialog(
@@ -25,7 +24,7 @@ main_dialog = Dialog(
             state=states.Selects.MAIN,
         ),
         Start(
-            text=Const("📅 Calendar"),
+            text=Const("📅 Date and time"),
             id="cal",
             state=states.Calendar.MAIN,
         ),

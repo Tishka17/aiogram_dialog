@@ -1,4 +1,3 @@
-from typing import Optional
 
 from aiogram.types import ForceReply
 
@@ -7,15 +6,15 @@ from aiogram_dialog.api.internal.widgets import (
     MarkupFactory,
     MarkupVariant,
     RawKeyboard,
+    TextWidget,
 )
-from aiogram_dialog.widgets.text import Text
 
 
 class ForceReplyFactory(MarkupFactory):
     def __init__(
             self,
-            input_field_placeholder: Optional[Text] = None,
-            selective: Optional[bool] = None,
+            input_field_placeholder: TextWidget | None = None,
+            selective: bool | None = None,
     ):
         self.input_field_placeholder = input_field_placeholder
         self.selective = selective

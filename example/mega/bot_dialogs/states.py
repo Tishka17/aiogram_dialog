@@ -34,6 +34,7 @@ class Calendar(StatesGroup):
     MAIN = State()
     DEFAULT = State()
     CUSTOM = State()
+    TIME = State()
 
 
 class Counter(StatesGroup):

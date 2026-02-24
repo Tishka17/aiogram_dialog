@@ -1,6 +1,7 @@
 from datetime import date
 
 from aiogram import F
+from aiogram.enums import ButtonStyle
 from babel.dates import get_day_names, get_month_names
 
 from aiogram_dialog import ChatEvent, Dialog, DialogManager, Window
@@ -9,6 +10,7 @@ from aiogram_dialog.widgets.kbd import (
     CalendarScope,
     ManagedCalendar,
     SwitchTo,
+    TimeSelect,
 )
 from aiogram_dialog.widgets.kbd.calendar_kbd import (
     DATE_TEXT,
@@ -18,8 +20,8 @@ from aiogram_dialog.widgets.kbd.calendar_kbd import (
     CalendarScopeView,
     CalendarYearsView,
 )
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format, Text
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 
@@ -35,21 +37,6 @@ class WeekDay(Text):
         )[selected_date.weekday()].title()
 
 
-class MarkedDay(Text):
-    def __init__(self, mark: str, other: Text):
-        super().__init__()
-        self.mark = mark
-        self.other = other
-
-    async def _render_text(self, data, manager: DialogManager) -> str:
-        current_date: date = data["date"]
-        serial_date = current_date.isoformat()
-        selected = manager.dialog_data.get(SELECTED_DAYS_KEY, [])
-        if serial_date in selected:
-            return self.mark
-        return await self.other.render_text(data, manager)
-
-
 class Month(Text):
     async def _render_text(self, data, manager: DialogManager) -> str:
         selected_date: date = data["date"]
@@ -59,17 +46,26 @@ class Month(Text):
         )[selected_date.month].title()
 
 
+def is_date_selected(data, widget, manager) -> bool:
+    current_date: date = data["date"]
+    serial_date = current_date.isoformat()
+    selected = manager.dialog_data.get(SELECTED_DAYS_KEY, [])
+    return serial_date in selected
+
+
 class CustomCalendar(Calendar):
     def _init_views(self) -> dict[CalendarScope, CalendarScopeView]:
         return {
             CalendarScope.DAYS: CalendarDaysView(
                 self._item_callback_data,
-                date_text=MarkedDay("🔴", DATE_TEXT),
-                today_text=MarkedDay("⭕", TODAY_TEXT),
+                date_text=Const("🔴", when=is_date_selected) | DATE_TEXT,
+                today_text=Const("⭕", when=is_date_selected) | TODAY_TEXT,
                 header_text="~~~~~ " + Month() + " ~~~~~",
                 weekday_text=WeekDay(),
                 next_month_text=Month() + " >>",
                 prev_month_text="<< " + Month(),
+                date_style=Style(ButtonStyle.SUCCESS, when=is_date_selected),
+                today_style=Style(ButtonStyle.SUCCESS, when=is_date_selected),
             ),
             CalendarScope.MONTHS: CalendarMonthView(
                 self._item_callback_data,
@@ -114,20 +110,28 @@ async def selection_getter(dialog_manager, **_):
 
 
 CALENDAR_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.Calendar.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.Calendar.MAIN,
+    style=Style(style="primary"),
 )
 calendar_dialog = Dialog(
     Window(
-        Const("Select calendar configuration"),
+        Const("Select configuration"),
         SwitchTo(
-            Const("Default"),
+            Const("Default calendar"),
             id="default",
             state=states.Calendar.DEFAULT,
         ),
         SwitchTo(
-            Const("Customized"),
+            Const("Customized calendar"),
             id="custom",
             state=states.Calendar.CUSTOM,
+        ),
+        SwitchTo(
+            Const("Time selection"),
+            id="time",
+            state=states.Calendar.TIME,
         ),
         MAIN_MENU_BUTTON,
         state=states.Calendar.MAIN,
@@ -154,5 +158,11 @@ calendar_dialog = Dialog(
         CALENDAR_MAIN_MENU_BUTTON,
         getter=selection_getter,
         state=states.Calendar.CUSTOM,
+    ),
+    Window(
+        Const("TimeSelect widget"),
+        TimeSelect("time", button_selected_style=Style(style="success")),
+        CALENDAR_MAIN_MENU_BUTTON,
+        state=states.Calendar.TIME,
     ),
 )

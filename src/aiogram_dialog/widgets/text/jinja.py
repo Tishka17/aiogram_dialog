@@ -2,8 +2,6 @@ import warnings
 from collections.abc import Callable, Iterable, Mapping
 from typing import (
     Any,
-    Optional,
-    Union,
 )
 
 from aiogram import Bot, Dispatcher
@@ -11,13 +9,15 @@ from jinja2 import BaseLoader, Environment
 
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
-
 from .base import Text
 
 JINJA_ENV_FIELD = "DialogsJinjaEnvironment"
 
 Filter = Callable[..., str]
-Filters = Union[Iterable[tuple[str, Filter]], Mapping[str, Filter]]
+Filters = (
+    Iterable[tuple[str, Filter]]
+    | Mapping[str, Filter]
+)
 
 
 class Jinja(Text):
@@ -48,7 +48,7 @@ class StubLoader(BaseLoader):
 
 
 def _create_env(
-        *args: Any, filters: Optional[Filters] = None, **kwargs: Any,
+        *args: Any, filters: Filters | None = None, **kwargs: Any,
 ) -> Environment:
     kwargs.setdefault("autoescape", True)
     kwargs.setdefault("lstrip_blocks", True)
@@ -62,9 +62,9 @@ def _create_env(
 
 
 def setup_jinja(
-        dp: Union[Bot, Dispatcher],
+        dp: Bot | Dispatcher,
         *args: Any,
-        filters: Optional[Filters] = None,
+        filters: Filters | None = None,
         **kwargs: Any,
 ) -> Environment:
     env = _create_env(*args, filters=filters, **kwargs)

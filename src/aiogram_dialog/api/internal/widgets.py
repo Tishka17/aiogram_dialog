@@ -4,7 +4,7 @@ from typing import (
     Any,
     Optional,
     Protocol,
-    Union,
+    TypeAlias,
     runtime_checkable,
 )
 
@@ -15,6 +15,11 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
+
+try:
+    from aiogram.enums import ButtonStyle
+except ImportError:
+    ButtonStyle: TypeAlias = str
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
@@ -43,16 +48,33 @@ class TextWidget(Widget, Protocol):
 
 
 @runtime_checkable
+class StyleWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_style(
+            self, data: dict, manager: DialogManager,
+    ) -> ButtonStyle | None:
+        """Create button style."""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def render_emoji(
+            self, data: dict, manager: DialogManager,
+    ) -> str | None:
+        """Add custom emoji shown before the text of the button."""
+        raise NotImplementedError
+
+
+@runtime_checkable
 class LinkPreviewWidget(Widget, Protocol):
     @abstractmethod
     async def render_link_preview(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[LinkPreviewOptions]:
+    ) -> LinkPreviewOptions | None:
         """Create link preview."""
         raise NotImplementedError
 
 
-ButtonVariant = Union[InlineKeyboardButton, KeyboardButton]
+ButtonVariant = InlineKeyboardButton | KeyboardButton
 RawKeyboard = list[list[ButtonVariant]]
 
 
@@ -85,7 +107,7 @@ class MediaWidget(Widget, Protocol):
     @abstractmethod
     async def render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         """Create media attachment."""
         raise NotImplementedError
 

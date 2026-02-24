@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os.path
 from io import BytesIO
-from typing import Union
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
@@ -23,6 +22,8 @@ from aiogram_dialog.widgets.kbd import Back, Next, Row
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.text import Const
 
+logger = logging.getLogger(__name__)
+
 src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
 
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -30,7 +31,7 @@ CUSTOM_URL_PREFIX = "my://"
 
 
 def draw(text) -> bytes:
-    logging.info("Draw image")
+    logger.info("Draw image")
     img = Image.new("RGB", (200, 100), 0x800000)
     draw = ImageDraw.Draw(img)
 
@@ -57,7 +58,7 @@ class DialogSG(StatesGroup):
 class CustomMessageManager(MessageManager):
     async def get_media_source(
         self, media: MediaAttachment, bot: Bot,
-    ) -> Union[InputFile, str]:
+    ) -> InputFile | str:
         if media.file_id:
             return await super().get_media_source(media, bot)
         if media.url and media.url.startswith(CUSTOM_URL_PREFIX):

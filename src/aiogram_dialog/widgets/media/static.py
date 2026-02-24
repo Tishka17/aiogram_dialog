@@ -1,13 +1,12 @@
 from pathlib import Path
-from typing import Optional, Union
 
 from aiogram.types import ContentType
 
 from aiogram_dialog.api.entities import MediaAttachment
+from aiogram_dialog.api.internal import TextWidget
 from aiogram_dialog.api.protocols import DialogManager
 from aiogram_dialog.widgets.common import WhenCondition
-from aiogram_dialog.widgets.text import Const, Text
-
+from aiogram_dialog.widgets.text import Const
 from .base import Media
 
 
@@ -15,11 +14,11 @@ class StaticMedia(Media):
     def __init__(
             self,
             *,
-            path: Union[Text, str, Path, None] = None,
-            url: Union[Text, str, None] = None,
+            path: TextWidget | str | Path | None = None,
+            url: TextWidget | str | None = None,
             type: ContentType = ContentType.PHOTO,
             use_pipe: bool = False,
-            media_params: Optional[dict] = None,
+            media_params: dict | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(when=when)
@@ -39,7 +38,7 @@ class StaticMedia(Media):
 
     async def _render_media(
             self, data: dict, manager: DialogManager,
-    ) -> Optional[MediaAttachment]:
+    ) -> MediaAttachment | None:
         if self.url:
             url = await self.url.render_text(data, manager)
         else:

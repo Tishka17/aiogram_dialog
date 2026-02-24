@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Protocol
+from typing import Protocol
 
 from aiogram.types import InlineKeyboardButton, Message
 
@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardButton, Message
 class InlineButtonLocator(Protocol):
     def find_button(
             self, message: Message,
-    ) -> Optional[InlineKeyboardButton]:
+    ) -> InlineKeyboardButton | None:
         raise NotImplementedError
 
 
@@ -17,7 +17,7 @@ class InlineButtonTextLocator:
 
     def find_button(
             self, message: Message,
-    ) -> Optional[InlineKeyboardButton]:
+    ) -> InlineKeyboardButton | None:
         if not message.reply_markup:
             return None
         for row in message.reply_markup.inline_keyboard:
@@ -37,7 +37,7 @@ class InlineButtonPositionLocator:
 
     def find_button(
             self, message: Message,
-    ) -> Optional[InlineKeyboardButton]:
+    ) -> InlineKeyboardButton | None:
         if not message.reply_markup:
             return None
         try:
@@ -56,7 +56,7 @@ class InlineButtonDataLocator:
 
     def find_button(
             self, message: Message,
-    ) -> Optional[InlineKeyboardButton]:
+    ) -> InlineKeyboardButton | None:
         if not message.reply_markup:
             return None
         for row in message.reply_markup.inline_keyboard:

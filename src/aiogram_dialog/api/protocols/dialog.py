@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from aiogram.fsm.state import State, StatesGroup
 
@@ -8,7 +8,6 @@ from aiogram_dialog.api.entities import (
     LaunchMode,
     NewMessage,
 )
-
 from .manager import DialogManager
 
 
@@ -45,7 +44,7 @@ class DialogProtocol(Protocol):
             self,
             manager: "DialogManager",
             start_data: Data,
-            state: Optional[State] = None,
+            state: State | None = None,
     ) -> None:
         raise NotImplementedError
 

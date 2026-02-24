@@ -4,21 +4,24 @@ from aiogram_dialog import (
 )
 from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.link_preview import LinkPreview
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 
 
 async def links_getter(**_):
     return {
-        "main": "https://en.wikipedia.org/wiki/HTML_element",
-        "photo": "https://en.wikipedia.org/wiki/Hyperlink",
+        "main": "https://github.com/Tishka17",
+        "photo": "https://github.com/Tishka17/aiogram_dialog",
     }
 
 
 LinkPreview_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.LinkPreview.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.LinkPreview.MAIN,
+    style=Style(style="primary"),
 )
 COMMON_TEXT = Format(
     "This is demo of different link preview options.\n"
@@ -26,8 +29,6 @@ COMMON_TEXT = Format(
     "Link in preview can be different\n\n"
     "Current mode is:",
 )
-
-BACK = SwitchTo(Const("back"), "_back", states.LinkPreview.MAIN)
 
 link_preview_dialog = Dialog(
     Window(

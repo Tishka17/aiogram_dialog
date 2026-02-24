@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from typing import Optional, Union
 
 from aiogram.types import CallbackQuery
 
 from aiogram_dialog.api.internal import KeyboardWidget, RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
+from aiogram_dialog.utils import add_exception_note
 from aiogram_dialog.widgets.common import (
     Actionable,
     Whenable,
@@ -13,10 +13,11 @@ from aiogram_dialog.widgets.common import (
 
 
 class Keyboard(Actionable, Whenable, KeyboardWidget):
-    def __init__(self, id: Optional[str] = None, when: WhenCondition = None):
+    def __init__(self, id: str | None = None, when: WhenCondition = None):
         Actionable.__init__(self, id=id)
         Whenable.__init__(self, when=when)
 
+    @add_exception_note
     async def render_keyboard(
             self,
             data,
@@ -50,11 +51,11 @@ class Keyboard(Actionable, Whenable, KeyboardWidget):
             return None
         return f"{self.widget_id}:"
 
-    def _own_callback_data(self) -> Union[str, None]:
+    def _own_callback_data(self) -> str | None:
         """Create callback data for only button in widget."""
         return self.widget_id
 
-    def _item_callback_data(self, data: Union[str, int]):
+    def _item_callback_data(self, data: str | int):
         """Create callback data for widgets button if multiple."""
         return f"{self.callback_prefix()}{data}"
 
@@ -160,7 +161,7 @@ class Or(Keyboard):
         # reduce nesting
         return Or(other, *self.widgets)
 
-    def find(self, widget_id: str) -> Optional[Keyboard]:
+    def find(self, widget_id: str) -> Keyboard | None:
         for text in self.widgets:
             if found := text.find(widget_id):
                 return found

@@ -1,16 +1,15 @@
 import re
-from typing import Any, Optional
+from typing import Any
 
 from aiogram_dialog.api.exceptions import InvalidWidgetIdError
 from aiogram_dialog.api.protocols import DialogManager
-
 from .base import BaseWidget
 
 ID_PATTERN = re.compile("^[a-zA-Z0-9_.]+$")
 
 
 class Actionable(BaseWidget):
-    def __init__(self, id: Optional[str] = None):
+    def __init__(self, id: str | None = None):
         if id and not ID_PATTERN.match(id):
             raise InvalidWidgetIdError(f"Invalid widget id: {id}")
         self.widget_id = id
@@ -39,3 +38,6 @@ class Actionable(BaseWidget):
     ) -> Any:
         """Set data for current widget id."""
         manager.current_context().widget_data[self.widget_id] = value
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} id={self.widget_id}>"

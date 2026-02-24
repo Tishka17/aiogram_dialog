@@ -116,10 +116,14 @@ async def test_render_multiselect(mock_manager) -> None:
     )
 
     keyboard = await multiselect.render_keyboard(data={}, manager=mock_manager)
+    assert keyboard[0][0].text == "Apple"
+    assert keyboard[0][1].text == "Banana"
+    assert keyboard[0][2].text == "Orange"
 
     await multiselect.set_checked(TelegramObject(), "1", True, mock_manager)
     await multiselect.set_checked(TelegramObject(), "3", True, mock_manager)
 
+    keyboard = await multiselect.render_keyboard(data={}, manager=mock_manager)
     assert keyboard[0][0].text == "✓ Apple"
     assert keyboard[0][1].text == "Banana"
     assert keyboard[0][2].text == "✓ Orange"

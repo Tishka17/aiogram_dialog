@@ -19,7 +19,7 @@ What is ``current_context().widget_data`` for?
 
 This dictionary contains data stored by widgets themselves. Data structure is a matter of widget implementation so it should not be accessed directly. If you need to retrieve widget state use its methods.
 
-How can I set a default value for a ``Musltiselect`` or a ``Radio``
+How can I set a default value for a ``Multiselect`` or a ``Radio``
 =====================================================================
 
 The better way is to state inside ``on_start`` callback of dialog.

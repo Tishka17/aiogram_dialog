@@ -1,6 +1,6 @@
 from collections.abc import Awaitable, Callable
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any
 
 from aiogram import Router
 from aiogram.dispatcher.event.bases import UNHANDLED
@@ -44,7 +44,6 @@ from aiogram_dialog.api.protocols import (
     StackAccessValidator,
 )
 from aiogram_dialog.utils import remove_intent_id, split_reply_callback
-
 from .storage import StorageProxy
 
 logger = getLogger(__name__)
@@ -52,7 +51,7 @@ logger = getLogger(__name__)
 FORBIDDEN_STACK_KEY = "aiogd_stack_forbidden"
 
 
-def get_thread_id(message: Message) -> Optional[str]:
+def get_thread_id(message: Message) -> int | None:
     if not message.is_topic_message:
         return None
     return message.message_thread_id
@@ -72,7 +71,10 @@ def event_context_from_callback(event: CallbackQuery) -> EventContext:
         chat=event.message.chat,
         thread_id=(
             get_thread_id(event.message)
-            if isinstance(event.message, Message)
+            if isinstance(
+                event.message,
+                (Message, InaccessibleBusinessMessage),
+            )
             else None
         ),
         business_connection_id=business_connection_id,
@@ -136,7 +138,9 @@ def event_context_from_error(event: ErrorEvent) -> EventContext:
 
 
 class InaccessibleBusinessMessage(InaccessibleMessage):
-    business_connection_id: Optional[str] = None
+    business_connection_id: str | None = None
+    message_thread_id: int | None = None
+    is_topic_message: bool | None = None
 
 
 class IntentMiddlewareFactory:
@@ -183,10 +187,10 @@ class IntentMiddlewareFactory:
     async def _load_stack(
             self,
             event: ChatEvent,
-            stack_id: Optional[str],
+            stack_id: str | None,
             proxy: StorageProxy,
             data: dict,
-    ) -> Optional[Stack]:
+    ) -> Stack | None:
         if stack_id is None:
             raise InvalidStackIdError("Both stack id and intent id are None")
         return await proxy.load_stack(stack_id)
@@ -195,7 +199,7 @@ class IntentMiddlewareFactory:
             self,
             event: ChatEvent,
             proxy: StorageProxy,
-            stack_id: Optional[str],
+            stack_id: str | None,
             data: dict,
     ) -> None:
         logger.debug(
@@ -233,7 +237,7 @@ class IntentMiddlewareFactory:
             self,
             event: ChatEvent,
             proxy: StorageProxy,
-            intent_id: Optional[str],
+            intent_id: str | None,
             data: dict,
     ) -> None:
         logger.debug(
@@ -276,7 +280,7 @@ class IntentMiddlewareFactory:
 
     def _intent_id_from_reply(
             self, event: Message, data: dict,
-    ) -> Optional[str]:
+    ) -> str | None:
         if not (
                 event.reply_to_message and
                 event.reply_to_message.from_user.id == data["bot"].id and
@@ -300,13 +304,16 @@ class IntentMiddlewareFactory:
         event_context = event_context_from_message(event)
         data[EVENT_CONTEXT_KEY] = event_context
 
-        text, callback_data = split_reply_callback(event.text)
+        _, callback_data = split_reply_callback(event.text)
         if callback_data:
             query = ReplyCallbackQuery(
                 id="",
                 message=InaccessibleBusinessMessage(
                     chat=event.chat,
                     message_id=event.message_id,
+                    business_connection_id=event.business_connection_id,
+                    message_thread_id=event.message_thread_id,
+                    is_topic_message=event.is_topic_message,
                 ),
                 original_message=event,
                 data=callback_data,
@@ -395,12 +402,14 @@ class IntentMiddlewareFactory:
         data[EVENT_CONTEXT_KEY] = event_context
         original_data = event.data
         if event.data:
-            intent_id, callback_data = remove_intent_id(event.data)
+            intent_id, _ = remove_intent_id(event.data)
             if intent_id:
                 await self._load_context_by_intent(
                     event=event,
-                    proxy=self.storage_proxy(event_context,
-                                             data["fsm_storage"]),
+                    proxy=self.storage_proxy(
+                        event_context,
+                        data["fsm_storage"],
+                    ),
                     intent_id=intent_id,
                     data=data,
                 )
@@ -465,9 +474,7 @@ class IntentErrorMiddleware(BaseMiddleware):
             return False
         if "event_chat" not in data:
             return False
-        if "event_from_user" not in data:
-            return False
-        return True
+        return "event_from_user" in data
 
     async def _fix_broken_stack(
             self, storage: StorageProxy, stack: Stack,
@@ -478,7 +485,7 @@ class IntentErrorMiddleware(BaseMiddleware):
 
     async def _load_last_context(
             self, storage: StorageProxy, stack: Stack,
-    ) -> Optional[Context]:
+    ) -> Context | None:
         try:
             return await storage.load_context(stack.last_intent_id())
         except (UnknownIntent, OutdatedIntent):

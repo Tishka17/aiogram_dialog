@@ -8,7 +8,6 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.text import Const, Format
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 

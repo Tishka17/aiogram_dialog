@@ -1,5 +1,4 @@
 from collections.abc import Awaitable, Callable
-from typing import Optional, Union
 
 from aiogram.types import (
     CallbackQuery,
@@ -9,15 +8,14 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-from aiogram_dialog.api.internal import RawKeyboard
+from aiogram_dialog.api.internal import RawKeyboard, StyleWidget, TextWidget
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import WhenCondition
-from aiogram_dialog.widgets.text import Text
+from aiogram_dialog.widgets.style import EMPTY_STYLE
 from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import Keyboard
 
 OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
@@ -25,35 +23,42 @@ OnClick = Callable[[CallbackQuery, "Button", DialogManager], Awaitable]
 
 class Button(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            id: str,
-            on_click: Union[OnClick, WidgetEventProcessor, None] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        id: str,
+        on_click: OnClick | WidgetEventProcessor | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.on_click = ensure_event_processor(on_click)
+        self.style = style
 
     async def _process_own_callback(
-            self,
-            callback: CallbackQuery,
-            dialog: DialogProtocol,
-            manager: DialogManager,
+        self,
+        callback: CallbackQuery,
+        dialog: DialogProtocol,
+        manager: DialogManager,
     ) -> bool:
         await self.on_click.process_event(callback, self, manager)
         return True
 
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> RawKeyboard:
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
+
         return [
             [
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     callback_data=self._own_callback_data(),
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -61,26 +66,33 @@ class Button(Keyboard):
 
 class Url(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            url: Text,
-            id: Optional[str] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        url: TextWidget,
+        id: str | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.url = url
+        self.style = style
 
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> RawKeyboard:
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
+
         return [
             [
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     url=await self.url.render_text(data, manager),
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -88,40 +100,61 @@ class Url(Keyboard):
 
 class WebApp(Url):
     async def _render_keyboard(
-            self, data: dict, manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> list[list[InlineKeyboardButton]]:
         text = await self.text.render_text(data, manager)
 
         web_app_url = await self.url.render_text(data, manager)
         web_app_info = WebAppInfo(url=web_app_url)
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
-        return [[InlineKeyboardButton(text=text, web_app=web_app_info)]]
+        return [
+            [
+                InlineKeyboardButton(
+                    text=text,
+                    web_app=web_app_info,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
+                ),
+            ],
+        ]
 
 
 class SwitchInlineQuery(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            switch_inline_query: Text,
-            id: Optional[str] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        switch_inline_query: TextWidget,
+        id: str | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.switch_inline = switch_inline_query
+        self.style = style
 
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> list[list[InlineKeyboardButton]]:
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
+
         return [
             [
                 InlineKeyboardButton(
                     text=await self.text.render_text(data, manager),
                     switch_inline_query=await self.switch_inline.render_text(
-                        data, manager,
+                        data,
+                        manager,
                     ),
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -129,14 +162,15 @@ class SwitchInlineQuery(Keyboard):
 
 class LoginURLButton(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            url: Text,
-            forward_text: Optional[Text] = None,
-            bot_username: Optional[Text] = None,
-            request_write_access: Optional[bool] = None,
-            id: Optional[str] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        url: TextWidget,
+        forward_text: TextWidget | None = None,
+        bot_username: TextWidget | None = None,
+        request_write_access: bool | None = None,
+        id: str | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -144,14 +178,17 @@ class LoginURLButton(Keyboard):
         self.forward_text = forward_text
         self.bot_username = bot_username
         self.request_write_access = request_write_access
+        self.style = style
 
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         url = await self.url.render_text(data, manager)
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         forward_text = None
         if self.forward_text:
@@ -173,6 +210,8 @@ class LoginURLButton(Keyboard):
                 InlineKeyboardButton(
                     text=text,
                     login_url=login_url,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -180,33 +219,40 @@ class LoginURLButton(Keyboard):
 
 class SwitchInlineQueryCurrentChat(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            switch_inline_query_current_chat: Text,
-            id: Optional[str] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        switch_inline_query_current_chat: TextWidget,
+        id: str | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
         self.switch_inline_query_current_chat = (
             switch_inline_query_current_chat
         )
+        self.style = style
 
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         query = await self.switch_inline_query_current_chat.render_text(
-            data, manager,
+            data,
+            manager,
         )
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         return [
             [
                 InlineKeyboardButton(
                     text=text,
                     switch_inline_query_current_chat=query,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]
@@ -214,15 +260,16 @@ class SwitchInlineQueryCurrentChat(Keyboard):
 
 class SwitchInlineQueryChosenChatButton(Keyboard):
     def __init__(
-            self,
-            text: Text,
-            query: Text,
-            allow_user_chats: Optional[bool] = None,
-            allow_bot_chats: Optional[bool] = None,
-            allow_group_chats: Optional[bool] = None,
-            allow_channel_chats: Optional[bool] = None,
-            id: Optional[str] = None,
-            when: WhenCondition = None,
+        self,
+        text: TextWidget,
+        query: TextWidget,
+        allow_user_chats: bool | None = None,
+        allow_bot_chats: bool | None = None,
+        allow_group_chats: bool | None = None,
+        allow_channel_chats: bool | None = None,
+        id: str | None = None,
+        when: WhenCondition = None,
+        style: StyleWidget = EMPTY_STYLE,
     ):
         super().__init__(id=id, when=when)
         self.text = text
@@ -231,6 +278,7 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
         self.allow_bot_chats = allow_bot_chats
         self.allow_group_chats = allow_group_chats
         self.allow_channel_chats = allow_channel_chats
+        self.style = style
 
     async def _render_keyboard(
         self,
@@ -239,6 +287,8 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
     ) -> RawKeyboard:
         text = await self.text.render_text(data, manager)
         query = await self.query.render_text(data, manager)
+        style = await self.style.render_style(data, manager)
+        icon_custom_emoji_id = await self.style.render_emoji(data, manager)
 
         switch_inline_query_chosen_chat = SwitchInlineQueryChosenChat(
             query=query,
@@ -253,6 +303,8 @@ class SwitchInlineQueryChosenChatButton(Keyboard):
                 InlineKeyboardButton(
                     text=text,
                     switch_inline_query_chosen_chat=switch_inline_query_chosen_chat,
+                    style=style,
+                    icon_custom_emoji_id=icon_custom_emoji_id,
                 ),
             ],
         ]

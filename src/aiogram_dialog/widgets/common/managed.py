@@ -13,3 +13,6 @@ class ManagedWidget(Generic[W]):
 
     def __getattr__(self, item):
         return getattr(self.widget, item)
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.widget!r}>"

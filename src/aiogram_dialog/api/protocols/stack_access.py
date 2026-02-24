@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Protocol
+from typing import Protocol
 
 from aiogram_dialog import ChatEvent
 from aiogram_dialog.api.entities import Context, Stack
@@ -10,7 +10,7 @@ class StackAccessValidator(Protocol):
     async def is_allowed(
             self,
             stack: Stack,
-            context: Optional[Context],
+            context: Context | None,
             event: ChatEvent,
             data: dict,
     ) -> bool:

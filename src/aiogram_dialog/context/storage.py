@@ -1,6 +1,5 @@
 from contextlib import AsyncExitStack
 from copy import copy
-from typing import Optional
 
 from aiogram import Bot
 from aiogram.fsm.state import State, StatesGroup
@@ -24,10 +23,10 @@ class StorageProxy:
             self,
             storage: BaseStorage,
             events_isolation: BaseEventIsolation,
-            user_id: Optional[int],
+            user_id: int | None,
             chat_id: int,
-            thread_id: Optional[int],
-            business_connection_id: Optional[str],
+            thread_id: int | None,
+            business_connection_id: str | None,
             bot: Bot,
             state_groups: dict[str, type[StatesGroup]],
     ):
@@ -80,7 +79,7 @@ class StorageProxy:
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
         return Stack(access_settings=access_settings, **data)
 
-    async def save_context(self, context: Optional[Context]) -> None:
+    async def save_context(self, context: Context | None) -> None:
         if not context:
             return
         data = copy(vars(context))
@@ -105,7 +104,7 @@ class StorageProxy:
             data={},
         )
 
-    async def save_stack(self, stack: Optional[Stack]) -> None:
+    async def save_stack(self, stack: Stack | None) -> None:
         if not stack:
             return
         if stack.empty() and not stack.last_message_id:
@@ -171,8 +170,8 @@ class StorageProxy:
         raise UnknownState(f"Unknown state {state}")
 
     def _parse_access_settings(
-            self, raw: Optional[dict],
-    ) -> Optional[AccessSettings]:
+            self, raw: dict | None,
+    ) -> AccessSettings | None:
         if not raw:
             return None
         return AccessSettings(
@@ -181,8 +180,8 @@ class StorageProxy:
         )
 
     def _dump_access_settings(
-            self, access_settings: Optional[AccessSettings],
-    ) -> Optional[dict]:
+            self, access_settings: AccessSettings | None,
+    ) -> dict | None:
         if not access_settings:
             return None
         return {

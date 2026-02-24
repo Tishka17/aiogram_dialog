@@ -1,9 +1,11 @@
 from collections.abc import Callable, Sequence
-from typing import Optional, Union
 
 from aiogram_dialog.api.exceptions import InvalidWidgetType
-from aiogram_dialog.api.internal import DataGetter, LinkPreviewWidget
-
+from aiogram_dialog.api.internal import (
+    DataGetter,
+    LinkPreviewWidget,
+    TextWidget,
+)
 from .data.data_context import CompositeGetter, StaticGetter
 from .input import BaseInput, CombinedInput, MessageHandlerFunc, MessageInput
 from .kbd import Group, Keyboard
@@ -12,20 +14,26 @@ from .media import Media
 from .text import Format, Multi, Text
 from .widget_event import WidgetEventProcessor
 
-WidgetSrc = Union[
-    str, Text, Keyboard, MessageHandlerFunc, Media, BaseInput, LinkPreviewBase,
-]
+WidgetSrc = (
+    str |
+    TextWidget |
+    Keyboard |
+    MessageHandlerFunc |
+    Media |
+    BaseInput |
+    LinkPreviewBase
+)
 
-SingleGetterBase = Union[DataGetter, dict]
-GetterVariant = Union[
-    None,
-    SingleGetterBase,
-    list[SingleGetterBase],
-    tuple[SingleGetterBase, ...],
-]
+SingleGetterBase = DataGetter | dict
+GetterVariant = (
+    SingleGetterBase |
+    list[SingleGetterBase] |
+    tuple[SingleGetterBase, ...] |
+    None
+)
 
 
-def ensure_text(widget: Union[str, Text, Sequence[Text]]) -> Text:
+def ensure_text(widget: str | TextWidget | Sequence[TextWidget]) -> TextWidget:
     if isinstance(widget, str):
         return Format(widget)
     if isinstance(widget, Sequence):
@@ -35,7 +43,7 @@ def ensure_text(widget: Union[str, Text, Sequence[Text]]) -> Text:
     return widget
 
 
-def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
+def ensure_keyboard(widget: Keyboard | Sequence[Keyboard]) -> Keyboard:
     if isinstance(widget, Sequence):
         if len(widget) == 1:
             return widget[0]
@@ -44,13 +52,13 @@ def ensure_keyboard(widget: Union[Keyboard, Sequence[Keyboard]]) -> Keyboard:
 
 
 def ensure_input(
-        widget: Union[
-            MessageHandlerFunc,
-            WidgetEventProcessor,
-            BaseInput,
-            Sequence[BaseInput],
-        ],
-) -> Union[BaseInput, None]:
+    widget: (
+            MessageHandlerFunc
+            | WidgetEventProcessor
+            | BaseInput
+            | Sequence[BaseInput]
+    ),
+) -> BaseInput | None:
     if isinstance(widget, BaseInput):
         return widget
     elif isinstance(widget, Sequence):
@@ -64,7 +72,7 @@ def ensure_input(
         return MessageInput(widget)
 
 
-def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
+def ensure_media(widget: Media | Sequence[Media]) -> Media:
     if isinstance(widget, Media):
         return widget
     if len(widget) > 1:  # TODO case selection of media
@@ -75,8 +83,8 @@ def ensure_media(widget: Union[Media, Sequence[Media]]) -> Media:
 
 
 def ensure_link_preview(
-        widget: Union[LinkPreviewWidget, Sequence[LinkPreviewWidget]],
-) -> Optional[LinkPreviewWidget]:
+        widget: LinkPreviewWidget | Sequence[LinkPreviewWidget],
+) -> LinkPreviewWidget | None:
     if isinstance(widget, LinkPreviewWidget):
         return widget
     if len(widget) > 1:
@@ -89,11 +97,11 @@ def ensure_link_preview(
 def ensure_widgets(
         widgets: Sequence[WidgetSrc],
 ) -> tuple[
-    Text,
+    TextWidget,
     Keyboard,
-    Optional[BaseInput],
+    BaseInput | None,
     Media,
-    Optional[LinkPreviewWidget],
+    LinkPreviewWidget | None,
 ]:
     texts = []
     keyboards = []

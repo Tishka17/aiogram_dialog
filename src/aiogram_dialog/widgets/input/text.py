@@ -5,10 +5,8 @@ from collections.abc import Callable
 from typing import (
     Any,
     Generic,
-    Optional,
     Protocol,
     TypeVar,
-    Union,
 )
 
 from aiogram.dispatcher.event.handler import FilterObject
@@ -20,7 +18,6 @@ from aiogram_dialog.widgets.widget_event import (
     WidgetEventProcessor,
     ensure_event_processor,
 )
-
 from .base import BaseInput
 
 T = TypeVar("T")
@@ -58,9 +55,9 @@ class TextInput(BaseInput, Generic[T]):
             self,
             id: str,
             type_factory: TypeFactory[T] = str,
-            on_success: Union[OnSuccess[T], WidgetEventProcessor, None] = None,
-            on_error: Union[OnError, WidgetEventProcessor, None] = None,
-            filter: Optional[Callable[..., Any]] = None,
+            on_success: OnSuccess[T] | WidgetEventProcessor | None = None,
+            on_error: OnError | WidgetEventProcessor | None = None,
+            filter: Callable[..., Any] | None = None,
     ):
         super().__init__(id=id)
         if filter is not None:
@@ -97,7 +94,7 @@ class TextInput(BaseInput, Generic[T]):
             )
         return True
 
-    def get_value(self, manager: DialogManager) -> Optional[T]:
+    def get_value(self, manager: DialogManager) -> T | None:
         data = self.get_widget_data(manager, None)
         if data is None:
             return None
@@ -108,6 +105,6 @@ class TextInput(BaseInput, Generic[T]):
 
 
 class ManagedTextInput(ManagedWidget[TextInput[T]], Generic[T]):
-    def get_value(self) -> Optional[T]:
+    def get_value(self) -> T | None:
         """Get last input data stored by widget."""
         return self.widget.get_value(self.manager)

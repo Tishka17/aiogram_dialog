@@ -1,6 +1,5 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 from aiogram import Bot
@@ -82,8 +81,8 @@ class MockMessageManager(MessageManagerProtocol):
             self,
             bot: Bot,
             show_mode: ShowMode,
-            old_message: Optional[OldMessage],
-    ) -> Optional[Message]:
+            old_message: OldMessage | None,
+    ) -> Message | None:
         if not old_message:
             return None
         if show_mode in (ShowMode.DELETE_AND_SEND, ShowMode.NO_UPDATE):
@@ -108,7 +107,7 @@ class MockMessageManager(MessageManagerProtocol):
         assert callback_id in self.answered_callbacks
 
     async def show_message(self, bot: Bot, new_message: NewMessage,
-                           old_message: Optional[OldMessage]) -> OldMessage:
+                           old_message: OldMessage | None) -> OldMessage:
         assert isinstance(new_message, NewMessage)
         assert isinstance(old_message, (OldMessage, type(None)))
         if new_message.show_mode is ShowMode.NO_UPDATE:

@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from typing import Any, Union
+from typing import Any
 
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.types import CallbackQuery, Message
@@ -20,10 +20,10 @@ class I18nMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[
-                [Union[Message, CallbackQuery], dict[str, Any]],
+                [Message | CallbackQuery, dict[str, Any]],
                 Awaitable[Any],
             ],
-            event: Union[Message, CallbackQuery],
+            event: Message | CallbackQuery,
             data: dict[str, Any],
     ) -> Any:
         # some language/locale retrieving logic

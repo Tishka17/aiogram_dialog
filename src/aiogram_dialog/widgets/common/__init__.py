@@ -1,20 +1,24 @@
 __all__ = [
     "Actionable",
-    "BaseWidget",
-    "ManagedWidget",
     "BaseScroll",
+    "BaseWidget",
     "ManagedScroll",
+    "ManagedWidget",
     "OnPageChanged",
     "OnPageChangedVariants",
     "Scroll",
+    "Selector",
+    "WhenCondition",
+    "Whenable",
+    "new_case_field",
+    "new_magic_selector",
     "sync_scroll",
     "true_condition",
-    "Whenable",
-    "WhenCondition",
 ]
 
 from .action import Actionable
 from .base import BaseWidget
+from .case import Selector, new_case_field, new_magic_selector
 from .managed import ManagedWidget
 from .scroll import (
     BaseScroll,

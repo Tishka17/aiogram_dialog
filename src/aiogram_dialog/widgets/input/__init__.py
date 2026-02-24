@@ -1,9 +1,9 @@
 __all__ = [
-    "MessageHandlerFunc",
-    "MessageInput",
     "BaseInput",
     "CombinedInput",
     "ManagedTextInput",
+    "MessageHandlerFunc",
+    "MessageInput",
     "TextInput",
 ]
 

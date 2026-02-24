@@ -23,5 +23,5 @@ second_window = Window(
         prefer_small_media=True,
         show_above_text=True,
     ),
-    state=SG.MAIN,
+    state=SG.SECOND,
 )

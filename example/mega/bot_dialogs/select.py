@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.widgets.kbd import (
+    Button,
     Column,
     Multiselect,
     Radio,
@@ -12,13 +13,16 @@ from aiogram_dialog.widgets.kbd import (
     SwitchTo,
     Toggle,
 )
+from aiogram_dialog.widgets.style import Style
 from aiogram_dialog.widgets.text import Const, Format, List
-
 from . import states
 from .common import MAIN_MENU_BUTTON
 
 Selects_MAIN_MENU_BUTTON = SwitchTo(
-    text=Const("Back"), id="back", state=states.Selects.MAIN,
+    text=Const("Back"),
+    id="back",
+    state=states.Selects.MAIN,
+    style=Style(style="primary"),
 )
 
 FRUITS_KEY = "fruits"
@@ -63,6 +67,13 @@ async def on_item_selected(
     await callback.answer(selected_item)
 
 
+async def reset_multi_select(
+    callback: CallbackQuery,
+    widget: Any,
+    manager: DialogManager,
+) -> None:
+    await manager.find("multi").reset_checked()
+
 menu_window = Window(
     Const("Different keyboard Selects."),
     SwitchTo(
@@ -102,6 +113,7 @@ select_window = Window(
             text=Format("{item.emoji} {item.name} ({item.id})"),
             id="sel",
             items=FRUITS_KEY,
+            style=Style(style="primary"),
             # Alternatives:
             # items=lambda d: d[OTHER_KEY][FRUITS_KEY],
             # items=F[OTHER_KEY][FRUITS_KEY],
@@ -120,6 +132,8 @@ radio_window = Window(
         Radio(
             checked_text=Format("🔘 {item.emoji} {item.name}"),
             unchecked_text=Format("⚪️ {item.emoji} {item.name}"),
+            checked_style=Style(style="success"),
+            unchecked_style=Style(style="primary"),
             id="radio",
             items=FRUITS_KEY,
             # Alternatives:
@@ -140,6 +154,8 @@ multiselect_window = Window(
         Multiselect(
             checked_text=Format("✓ {item.name}"),
             unchecked_text=Format("{item.emoji} {item.name}"),
+            checked_style=Style(style="success"),
+            unchecked_style=Style(style="primary"),
             id="multi",
             items=FRUITS_KEY,
             # Alternatives:
@@ -147,6 +163,12 @@ multiselect_window = Window(
             # items=F[OTHER_KEY][FRUITS_KEY],
             item_id_getter=fruit_id_getter,
         ),
+    ),
+    Button(
+        text=Const("↩️ Reset"),
+        id="reset_multiselect",
+        on_click=reset_multi_select,
+        style=Style(style="danger"),
     ),
     Selects_MAIN_MENU_BUTTON,
     state=states.Selects.MULTI,
@@ -162,6 +184,7 @@ toggle_window = Window(
             id="radio",
             items=FRUITS_KEY,
             item_id_getter=fruit_id_getter,
+            style=Style(style="primary"),
         ),
     ),
     Selects_MAIN_MENU_BUTTON,

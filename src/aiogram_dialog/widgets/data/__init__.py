@@ -6,8 +6,8 @@ from .data_context import (
 )
 
 __all__ = [
-    "DataGetter",
     "CompositeGetter",
-    "StaticGetter",
+    "DataGetter",
     "PreviewAwareGetter",
+    "StaticGetter",
 ]

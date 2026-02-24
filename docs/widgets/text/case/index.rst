@@ -13,8 +13,8 @@ To use this widget you have to specify at least two parameters:
 ``selector`` can be:
 
 * string key - this string will be used as a key of ``data`` dictionary to get the value of ``condition``
-* magic-filter (``F``) - the result of resolving mafic-filter will be used as a ``condition``
-* function - the result of this function will be used as a ``condition```
+* magic-filter (``F``) - the result of resolving magic-filter will be used as a ``condition``
+* function - the result of this function will be used as a ``condition``
 
 .. note::
 
