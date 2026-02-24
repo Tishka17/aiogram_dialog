@@ -161,7 +161,7 @@ calendar_dialog = Dialog(
     ),
     Window(
         Const("TimeSelect widget"),
-        TimeSelect("time", selected_style=Style(style="success")),
+        TimeSelect("time", button_selected_style=Style(style="success")),
         CALENDAR_MAIN_MENU_BUTTON,
         state=states.Calendar.TIME,
     ),
