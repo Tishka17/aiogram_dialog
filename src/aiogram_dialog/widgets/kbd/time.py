@@ -119,8 +119,6 @@ class TimeSelect(Keyboard):
         old_hour, old_minute = self.get_widget_data(manager, (None, None))
         header_style = await self.header_style.render_style(data, manager)
         header_icon = await self.header_style.render_emoji(data, manager)
-        selected_style = await self.selected_style.render_style(data, manager)
-        selected_icon = await self.selected_style.render_emoji(data, manager)
 
         rows.append(
             [
@@ -146,6 +144,13 @@ class TimeSelect(Keyboard):
                     else await self.button_text.render_text(
                         button_data, manager,
                     )
+                )
+
+                selected_style = await self.selected_style.render_style(
+                    button_data, manager,
+                )
+                selected_icon = await self.selected_style.render_emoji(
+                    button_data, manager,
                 )
 
                 row.append(
@@ -190,6 +195,13 @@ class TimeSelect(Keyboard):
                     else await self.button_text.render_text(
                         button_data, manager,
                     )
+                )
+
+                selected_style = await self.selected_style.render_style(
+                    button_data, manager,
+                )
+                selected_icon = await self.selected_style.render_emoji(
+                    button_data, manager,
                 )
 
                 row.append(
