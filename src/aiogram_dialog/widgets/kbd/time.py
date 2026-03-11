@@ -246,12 +246,13 @@ class TimeSelect(Keyboard):
             manager,
             self._value_from_raw((hour, minute)),
         )
-        return await super()._process_item_callback(
+        await super()._process_item_callback(
             callback,
             data,
             dialog,
             manager,
         )
+        return True
 
     def managed(self, manager: DialogManager) -> "ManagedTimeSelect":
         return ManagedTimeSelect(self, manager)
