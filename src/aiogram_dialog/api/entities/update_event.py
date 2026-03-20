@@ -1,3 +1,4 @@
+from asyncio import Future
 from enum import Enum
 from typing import Any
 
@@ -24,6 +25,7 @@ class DialogAction(Enum):
     START = "START"
     UPDATE = "UPDATE"
     SWITCH = "SWITCH"
+    FG = "FG"
 
 
 class DialogUpdateEvent(TelegramObject):
@@ -50,6 +52,11 @@ class DialogStartEvent(DialogUpdateEvent):
 
 class DialogSwitchEvent(DialogUpdateEvent):
     new_state: State
+
+
+class DialogFgEvent(DialogUpdateEvent):
+    entered: Future
+    exited: Future
 
 
 class DialogUpdate(Update):

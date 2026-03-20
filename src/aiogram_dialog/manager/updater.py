@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import Task
 from contextvars import copy_context
 
 from aiogram import Bot, Dispatcher, Router
@@ -14,7 +15,8 @@ class Updater:
             raise TypeError("Root router must be Dispatcher.")
         self.dp = dp
 
-    async def notify(self, bot: Bot, update: DialogUpdate) -> None:
+    def notify(self, bot: Bot, update: DialogUpdate) -> Task:
+        return asyncio.create_task(self._process_update(bot, update), context=copy_context())
         def callback():
             asyncio.create_task(  # noqa: RUF006
                 self._process_update(bot, update),

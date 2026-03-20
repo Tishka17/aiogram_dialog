@@ -7,6 +7,7 @@ from aiogram_dialog.api.entities import (
     DialogUpdateEvent,
     ShowMode,
 )
+from aiogram_dialog.api.entities.update_event import DialogFgEvent
 from aiogram_dialog.api.protocols import DialogManager
 
 logger = getLogger(__name__)
@@ -27,6 +28,9 @@ async def handle_update(
     elif isinstance(event, DialogSwitchEvent):
         await dialog_manager.switch_to(state=event.new_state)
         await dialog_manager.show()
+    elif isinstance(event, DialogFgEvent):
+        event.entered.set_result(dialog_manager)
+        await event.exited
     elif event.action is DialogAction.UPDATE:
         if not dialog_manager.has_context():
             logger.warning("No context found")

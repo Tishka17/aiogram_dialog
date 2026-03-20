@@ -1,7 +1,9 @@
 import sys
+from collections.abc import Iterator
+from contextlib import asynccontextmanager
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, cast
+from typing import Any, AsyncContextManager, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
@@ -602,6 +604,10 @@ class ManagerImpl(DialogManager):
             business_connection_id=new_event_context.business_connection_id,
             load=load,
         )
+
+    @asynccontextmanager
+    async def fg(self) -> Iterator[DialogManager]:
+        yield self
 
     async def close_manager(self) -> None:
         self.check_disabled()

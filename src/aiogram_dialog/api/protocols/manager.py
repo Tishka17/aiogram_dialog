@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, Protocol
+from typing import Any, AsyncContextManager, Protocol
 
 from aiogram import Bot
 from aiogram.fsm.state import State
@@ -66,6 +66,10 @@ class BaseDialogManager(Protocol):
             business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
+        raise NotImplementedError
+
+    @abstractmethod
+    def fg(self) -> AsyncContextManager["DialogManager"]:
         raise NotImplementedError
 
 

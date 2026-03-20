@@ -1,4 +1,6 @@
 import dataclasses
+from collections.abc import Iterator
+from contextlib import asynccontextmanager
 from typing import Any
 
 from aiogram.fsm.state import State
@@ -162,3 +164,7 @@ class SubManager(DialogManager):
             business_connection_id=business_connection_id,
             load=load,
         )
+
+    @asynccontextmanager
+    async def fg(self) -> Iterator[DialogManager]:
+        yield self
