@@ -1,5 +1,5 @@
 import dataclasses
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -141,10 +141,11 @@ class SubManager(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
-        self.current_context().dialog_data.update(data)
+        if data:
+            self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
     def bg(
@@ -166,5 +167,5 @@ class SubManager(DialogManager):
         )
 
     @asynccontextmanager
-    async def fg(self) -> Iterator[DialogManager]:
+    async def fg(self) -> AsyncIterator[DialogManager]:
         yield self

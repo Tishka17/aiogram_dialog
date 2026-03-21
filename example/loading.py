@@ -67,7 +67,7 @@ async def background(callback: CallbackQuery, manager: BaseDialogManager):
         await asyncio.sleep(1)
         async with manager.fg() as m:
             m.dialog_data["progress"] = i * 100 / count
-            await m.show()
+            await m.update()
     await asyncio.sleep(1)
     await manager.done()
 

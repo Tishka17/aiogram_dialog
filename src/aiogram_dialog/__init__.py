@@ -1,5 +1,6 @@
 __all__ = [
     "DEFAULT_STACK_ID",
+    "DIALOG_EVENT_NAME",
     "GROUP_STACK_ID",
     "AccessSettings",
     "BaseDialogManager",
@@ -22,6 +23,7 @@ __all__ = [
 
 from .api.entities import (
     DEFAULT_STACK_ID,
+    DIALOG_EVENT_NAME,
     GROUP_STACK_ID,
     AccessSettings,
     ChatEvent,

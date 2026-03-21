@@ -1,5 +1,5 @@
 import asyncio
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from logging import getLogger
 from typing import Any
@@ -249,19 +249,21 @@ class BgManager(BaseDialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.UPDATE, data=data, show_mode=show_mode,
+                action=DialogAction.UPDATE,
+                data=data or {},
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
 
     @asynccontextmanager
-    async def fg(self) -> Iterator[DialogManager]:
+    async def fg(self) -> AsyncIterator[DialogManager]:
         event = DialogFgEvent(
             data=None,
             action=DialogAction.FG,
