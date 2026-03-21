@@ -267,8 +267,8 @@ class BgManager(BaseDialogManager):
         event = DialogFgEvent(
             data=None,
             action=DialogAction.FG,
-            entered=asyncio.get_event_loop().create_future(),
-            exited=asyncio.get_event_loop().create_future(),
+            entered=asyncio.get_running_loop().create_future(),
+            exited=asyncio.get_running_loop().create_future(),
             **self._base_event_params(),
         )
         bot = self._event_context.bot
