@@ -1,4 +1,6 @@
 import sys
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from copy import deepcopy
 from logging import getLogger
 from typing import Any, cast
@@ -518,10 +520,11 @@ class ManagerImpl(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
-        self.current_context().dialog_data.update(data)
+        if data:
+            self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
     def find(self, widget_id) -> Any | None:
@@ -602,6 +605,10 @@ class ManagerImpl(DialogManager):
             business_connection_id=new_event_context.business_connection_id,
             load=load,
         )
+
+    @asynccontextmanager
+    async def fg(self) -> AsyncIterator[DialogManager]:
+        yield self
 
     async def close_manager(self) -> None:
         self.check_disabled()

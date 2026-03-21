@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import Task
 from contextvars import copy_context
 
 from aiogram import Bot, Dispatcher, Router
@@ -21,6 +22,10 @@ class Updater:
             )
 
         asyncio.get_running_loop().call_soon(callback, context=copy_context())
+
+    def notify_task(self, bot: Bot, update: DialogUpdate) -> Task:
+        ctx = copy_context()
+        return ctx.run(asyncio.create_task, self._process_update(bot, update))
 
     async def _process_update(self, bot: Bot, update: DialogUpdate) -> None:
         event = update.event
