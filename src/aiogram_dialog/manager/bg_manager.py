@@ -28,8 +28,8 @@ from aiogram_dialog.api.internal import (
 )
 from aiogram_dialog.api.protocols import (
     BaseDialogManager,
-    DialogManager,
     BgManagerFactory,
+    DialogManager,
     UnsetId,
 )
 from aiogram_dialog.manager.updater import Updater

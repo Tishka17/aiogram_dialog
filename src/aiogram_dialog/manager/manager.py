@@ -3,7 +3,7 @@ from collections.abc import Iterator
 from contextlib import asynccontextmanager
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, AsyncContextManager, cast
+from typing import Any, cast
 
 from aiogram import Router
 from aiogram.enums import ChatType
