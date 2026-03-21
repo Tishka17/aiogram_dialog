@@ -271,7 +271,7 @@ class BgManager(BaseDialogManager):
         )
         bot = self._event_context.bot
         update = DialogUpdate(aiogd_update=event.as_(bot)).as_(bot)
-        task = self._updater.notify(bot=bot, update=update)
+        task = self._updater.notify_task(bot=bot, update=update)
         manager = await event.entered
         try:
             yield manager
