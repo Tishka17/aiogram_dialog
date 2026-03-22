@@ -1,3 +1,6 @@
+import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from logging import getLogger
 from typing import Any
 
@@ -18,6 +21,7 @@ from aiogram_dialog.api.entities import (
     ShowMode,
     StartMode,
 )
+from aiogram_dialog.api.entities.update_event import DialogFgEvent
 from aiogram_dialog.api.internal import (
     FakeChat,
     FakeUser,
@@ -25,6 +29,7 @@ from aiogram_dialog.api.internal import (
 from aiogram_dialog.api.protocols import (
     BaseDialogManager,
     BgManagerFactory,
+    DialogManager,
     UnsetId,
 )
 from aiogram_dialog.manager.updater import Updater
@@ -244,16 +249,40 @@ class BgManager(BaseDialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
         await self._load()
         await self._notify(
             DialogUpdateEvent(
-                action=DialogAction.UPDATE, data=data, show_mode=show_mode,
+                action=DialogAction.UPDATE,
+                data=data or {},
+                show_mode=show_mode,
                 **self._base_event_params(),
             ),
         )
+
+    @asynccontextmanager
+    async def fg(self) -> AsyncIterator[DialogManager]:
+        event = DialogFgEvent(
+            data=None,
+            action=DialogAction.FG,
+            entered=asyncio.get_running_loop().create_future(),
+            exited=asyncio.get_running_loop().create_future(),
+            **self._base_event_params(),
+        )
+        bot = self._event_context.bot
+        update = DialogUpdate(aiogd_update=event.as_(bot)).as_(bot)
+        task = self._updater.notify_task(bot=bot, update=update)
+        manager = await event.entered
+        try:
+            yield manager
+        except Exception as e:
+            event.exited.set_exception(e)
+            raise e
+        else:
+            event.exited.set_result(None)
+        await task
 
 
 class BgManagerFactoryImpl(BgManagerFactory):

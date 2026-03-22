@@ -1,5 +1,7 @@
 import html
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -233,7 +235,7 @@ class FakeManager(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
         pass
@@ -248,6 +250,10 @@ class FakeManager(DialogManager):
             load: bool = False,
     ) -> BaseDialogManager:
         return self
+
+    @asynccontextmanager
+    async def fg(self) -> AsyncIterator[DialogManager]:
+        yield self
 
     async def answer_callback(self) -> None:
         pass

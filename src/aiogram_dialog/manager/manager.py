@@ -1,4 +1,6 @@
 import sys
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from copy import deepcopy
 from logging import getLogger
 from typing import Any, cast
@@ -42,6 +44,7 @@ from aiogram_dialog.api.internal import (
     EVENT_SIMULATED,
     STACK_KEY,
     STORAGE_KEY,
+    DataGetter,
     FakeChat,
     FakeUser,
 )
@@ -75,6 +78,7 @@ class ManagerImpl(DialogManager):
             registry: DialogRegistryProtocol,
             router: Router,
             data: dict,
+            getter: DataGetter | None,
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -84,6 +88,7 @@ class ManagerImpl(DialogManager):
         self._show_mode: ShowMode = ShowMode.AUTO
         self._registry = registry
         self._router = router
+        self._getter = getter
 
     @property
     def show_mode(self) -> ShowMode:
@@ -124,11 +129,16 @@ class ManagerImpl(DialogManager):
 
     async def load_data(self) -> dict:
         context = self.current_context()
+        if self._getter:
+            data = await self._getter(**self.middleware_data)
+        else:
+            data = {}
         return {
             "dialog_data": context.dialog_data,
             "start_data": context.start_data,
             "middleware_data": self._data,
             "event": self.event,
+            **data,
         }
 
     def is_preview(self) -> bool:
@@ -518,10 +528,11 @@ class ManagerImpl(DialogManager):
 
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
-        self.current_context().dialog_data.update(data)
+        if data:
+            self.current_context().dialog_data.update(data)
         await self.show(show_mode)
 
     def find(self, widget_id) -> Any | None:
@@ -602,6 +613,10 @@ class ManagerImpl(DialogManager):
             business_connection_id=new_event_context.business_connection_id,
             load=load,
         )
+
+    @asynccontextmanager
+    async def fg(self) -> AsyncIterator[DialogManager]:
+        yield self
 
     async def close_manager(self) -> None:
         self.check_disabled()

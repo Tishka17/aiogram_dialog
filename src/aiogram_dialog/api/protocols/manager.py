@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from contextlib import AbstractAsyncContextManager
 from enum import Enum
 from typing import Any, Protocol
 
@@ -27,6 +28,7 @@ class BaseDialogManager(Protocol):
             result: Any = None,
             show_mode: ShowMode | None = None,
     ) -> None:
+        """Close current dialog and show underlying dialog in the stack"""
         raise NotImplementedError
 
     @abstractmethod
@@ -38,6 +40,7 @@ class BaseDialogManager(Protocol):
             show_mode: ShowMode | None = None,
             access_settings: AccessSettings | None = None,
     ) -> None:
+        """Add new dialog to the stack and show it"""
         raise NotImplementedError
 
     @abstractmethod
@@ -46,14 +49,16 @@ class BaseDialogManager(Protocol):
             state: State,
             show_mode: ShowMode | None = None,
     ) -> None:
+        """Switch active window in the current dialog"""
         raise NotImplementedError
 
     @abstractmethod
     async def update(
             self,
-            data: dict,
+            data: dict | None = None,
             show_mode: ShowMode | None = None,
     ) -> None:
+        """Update dialog data and dredraw current window."""
         raise NotImplementedError
 
     @abstractmethod
@@ -66,6 +71,12 @@ class BaseDialogManager(Protocol):
             business_connection_id: str | UnsetId | None = UnsetId.UNSET,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
+        """Get background manager for specified chat"""
+        raise NotImplementedError
+
+    @abstractmethod
+    def fg(self) -> AbstractAsyncContextManager["DialogManager"]:
+        """Get full-featured dialog manager"""
         raise NotImplementedError
 
 
@@ -81,6 +92,7 @@ class BgManagerFactory(Protocol):
             business_connection_id: str | None = None,
             load: bool = False,  # load chat and user
     ) -> "BaseDialogManager":
+        """Get background manager for specified chat"""
         raise NotImplementedError
 
 

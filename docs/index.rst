@@ -11,6 +11,7 @@ aiogram-dialog
     transitions/index
     how_are_messages_updated/index
     group_business
+    bg/index
     helper_tools/index
     migration
     faq
