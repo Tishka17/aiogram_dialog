@@ -11,7 +11,7 @@ You have access to the following dynamic data:
 * ``start_data`` - data that was passed when the current dialog was started. These data is stored in the aiogram FSM storage.
 * ``dialog_data`` - you can use this dict to store dialog-related data. It will be accessible at all windows of current dialog. These data is stored in the aiogram FSM storage.
 
-In addition you can specify getter-functions for dialog and window.
+In addition you can specify getter-functions for ``Dialog``, ``Window`` or globally in ``setup_dialogs``.
 Getter-function has to return a dictionary.
 
 Library collects all the data above into one dictionary object and passes this object to widgets.
@@ -28,7 +28,7 @@ Result:
 
 .. image:: /resources/passing_data_example.png
 
-In event handlers you don't have access to that dictionary, but you can acess ``event``, ``middleware_data``, ``start_data``, ``dialog_data`` via dialog_manager:
+In event handlers you don't have access to that dictionary, but you can access ``event``, ``middleware_data``, ``start_data``, ``dialog_data`` via dialog_manager:
 
 .. literalinclude:: ./data_in_handlers.py
 

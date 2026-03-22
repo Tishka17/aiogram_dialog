@@ -8,7 +8,7 @@ from aiogram.fsm.storage.memory import SimpleEventIsolation
 
 from aiogram_dialog.api.entities import DIALOG_EVENT_NAME
 from aiogram_dialog.api.exceptions import UnregisteredDialogError
-from aiogram_dialog.api.internal import DialogManagerFactory
+from aiogram_dialog.api.internal import DataGetter, DialogManagerFactory
 from aiogram_dialog.api.protocols import (
     BgManagerFactory,
     DialogProtocol,
@@ -174,6 +174,7 @@ def _prepare_dialog_manager_factory(
         dialog_manager_factory: DialogManagerFactory | None,
         message_manager: MessageManagerProtocol | None,
         media_id_storage: MediaIdStorageProtocol | None,
+        getter: DataGetter | None,
 ) -> DialogManagerFactory:
     if dialog_manager_factory is not None:
         return dialog_manager_factory
@@ -184,6 +185,7 @@ def _prepare_dialog_manager_factory(
     return DefaultManagerFactory(
         message_manager=message_manager,
         media_id_storage=media_id_storage,
+        getter=getter,
     )
 
 
@@ -224,6 +226,7 @@ def setup_dialogs(
         media_id_storage: MediaIdStorageProtocol | None = None,
         stack_access_validator: StackAccessValidator | None = None,
         events_isolation: BaseEventIsolation | None = None,
+        getter: DataGetter | None = None,
 ) -> BgManagerFactory:
     _setup_event_observer(router)
     _register_event_handler(router, handle_update)
@@ -233,6 +236,7 @@ def setup_dialogs(
         dialog_manager_factory=dialog_manager_factory,
         message_manager=message_manager,
         media_id_storage=media_id_storage,
+        getter=getter,
     )
     stack_access_validator = _prepare_stack_access_validator(
         stack_access_validator,
