@@ -36,6 +36,7 @@ Also there are 2 general types:
     passing_data/index
     text/index
     keyboard/index
+    style/index
     input/index
     media/index
     link_preview/index
