@@ -44,6 +44,7 @@ from aiogram_dialog.api.internal import (
     EVENT_SIMULATED,
     STACK_KEY,
     STORAGE_KEY,
+    DataGetter,
     FakeChat,
     FakeUser,
 )
@@ -77,6 +78,7 @@ class ManagerImpl(DialogManager):
             registry: DialogRegistryProtocol,
             router: Router,
             data: dict,
+            getter: DataGetter | None,
     ):
         self.disabled = False
         self.message_manager = message_manager
@@ -86,6 +88,7 @@ class ManagerImpl(DialogManager):
         self._show_mode: ShowMode = ShowMode.AUTO
         self._registry = registry
         self._router = router
+        self._getter = getter
 
     @property
     def show_mode(self) -> ShowMode:
@@ -126,11 +129,16 @@ class ManagerImpl(DialogManager):
 
     async def load_data(self) -> dict:
         context = self.current_context()
+        if self._getter:
+            data = await self._getter(**self.middleware_data)
+        else:
+            data = {}
         return {
             "dialog_data": context.dialog_data,
             "start_data": context.start_data,
             "middleware_data": self._data,
             "event": self.event,
+            **data,
         }
 
     def is_preview(self) -> bool:
