@@ -8,6 +8,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
 * :ref:`Button<button>` - single inline button. User provided ``on_click`` method is called when it is clicked.
 * :ref:`Url<url>` - single inline button with url
 * :ref:`LoginURLButton<login_url>` - a single inline button with HTTPS URL used to automatically authorize the user
+* :ref:`CopyText<copy_text>` - a single inline button that copies specified text to the user's clipboard
 * :ref:`SwitchInlineQuery<switch_inline_query>` - single inline button to switch inline mode
 * :ref:`SwitchInlineQueryCurrentChat<switch_inline_query_current_chat>` - a single inline button that inserts the bot's username and specified inline query into the current chat's input field
 * :ref:`SwitchInlineQueryChosenChatButton<switch_inline_query_chosen_chat>` - a single inline button that prompts the user to select one of their chats based on the specified scopes, opens the selected chat, and inserts the bot's username and the given inline query into the input field
@@ -36,6 +37,7 @@ Each keyboard provides one or multiple inline buttons. Text on button is rendere
     button/index
     url/index
     login_url/index
+    copy_text/index
     switch_inline_query/index
     switch_inline_query_current_chat/index
     switch_inline_query_chosen_chat/index
