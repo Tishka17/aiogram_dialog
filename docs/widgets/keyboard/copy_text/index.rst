@@ -8,3 +8,5 @@ It requires two text arguments (which can be any text widgets like ``Const`` or 
 * ``copy_text``: The actual text that will be copied to the clipboard.
 
 .. literalinclude:: ./example.py
+
+.. image:: /resources/copy_text.png
