@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 from logging import getLogger
 from typing import Any
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.dispatcher.event.bases import UNHANDLED
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
 from aiogram.fsm.storage.base import BaseEventIsolation, BaseStorage
@@ -306,6 +306,7 @@ class IntentMiddlewareFactory:
 
         _, callback_data = split_reply_callback(event.text)
         if callback_data:
+            bot: Bot = data["bot"]
             query = ReplyCallbackQuery(
                 id="",
                 message=InaccessibleBusinessMessage(
@@ -314,13 +315,13 @@ class IntentMiddlewareFactory:
                     business_connection_id=event.business_connection_id,
                     message_thread_id=event.message_thread_id,
                     is_topic_message=event.is_topic_message,
-                ),
+                ).as_(bot),
                 original_message=event,
                 data=callback_data,
                 from_user=event.from_user,
                 # we cannot know real chat instance
                 chat_instance=str(event.chat.id),
-            ).as_(data["bot"])
+            ).as_(bot)
             router: Router = data["event_router"]
             return await router.propagate_event(
                 "callback_query",
