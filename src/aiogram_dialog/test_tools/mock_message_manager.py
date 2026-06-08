@@ -67,6 +67,7 @@ class MockMessageManager(MessageManagerProtocol):
     def reset_history(self):
         self.sent_messages.clear()
         self.answered_callbacks.clear()
+        self.last_reply_markup = None
 
     def assert_one_message(self) -> None:
         assert len(self.sent_messages) == 1
