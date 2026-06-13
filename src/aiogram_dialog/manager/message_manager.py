@@ -133,6 +133,8 @@ class MessageManager(MessageManagerProtocol):
             (new_message.text != old_message.text) or
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
+            # formatting changed
+            (new_message.rich_params != old_message.rich_params) or
             # we do not know if link preview changed
             new_message.link_preview_options or
             (
@@ -358,6 +360,7 @@ class MessageManager(MessageManagerProtocol):
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
             text=new_message.text,
+            rich_message=self._get_rich_input(new_message),
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             link_preview_options=new_message.link_preview_options,
@@ -389,6 +392,8 @@ class MessageManager(MessageManagerProtocol):
     async def send_message(self, bot: Bot, new_message: NewMessage) -> Message:
         if new_message.media:
             return await self.send_media(bot, new_message)
+        elif new_message.rich_params:
+            return await self.send_rich(bot, new_message)
         else:
             return await self.send_text(bot, new_message)
 
@@ -405,6 +410,32 @@ class MessageManager(MessageManagerProtocol):
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
+            protect_content=new_message.protect_content,
+            link_preview_options=new_message.link_preview_options,
+        )
+
+    async def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage | None:
+        if new_message.rich_params is None:
+            return None
+        if new_message.rich_params.parse_mode == "markdown":
+            return InputRichMessage(html=new_message.text)
+        elif new_message.rich_params.parse_mode == "html":
+            return InputRichMessage(markdown=new_message.text)
+        else:
+            raise ValueError("unknown rich parse mode")
+
+    async def send_rich(self, bot: Bot, new_message: NewMessage) -> Message:
+        logger.debug(
+            "send_rich to chat %s, thread %s, business_id %s",
+            new_message.chat.id, new_message.thread_id,
+            new_message.business_connection_id,
+        )
+        return await bot.send_rich_message(
+            new_message.chat.id,
+            rich_message=self._get_rich_input(new_message),
+            message_thread_id=new_message.thread_id,
+            business_connection_id=new_message.business_connection_id,
+            reply_markup=new_message.reply_markup,
             protect_content=new_message.protect_content,
             link_preview_options=new_message.link_preview_options,
         )
