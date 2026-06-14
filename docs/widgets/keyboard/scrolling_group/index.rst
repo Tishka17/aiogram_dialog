@@ -10,3 +10,9 @@ You can set the ``height`` and ``width`` of the keyboard. If there are not enoug
 
 .. image:: /resources/scrolling_group1.png
 .. image:: /resources/scrolling_group2.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.scrolling_group.ScrollingGroup
+

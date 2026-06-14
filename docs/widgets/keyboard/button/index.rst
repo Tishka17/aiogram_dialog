@@ -15,3 +15,8 @@ Unlike normal handlers you should not call callback.answer(), as it is done auto
 .. image:: /resources/button.png
 
 If it is unclear to you where to put button, check :ref:`quickstart`
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.button.Button

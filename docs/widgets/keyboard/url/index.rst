@@ -10,3 +10,8 @@ Url itself can be any text (including ``Const`` or ``Format``)
 .. literalinclude:: ./example.py
 
 .. image:: /resources/url.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.button.Url

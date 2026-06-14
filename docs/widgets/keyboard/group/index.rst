@@ -14,3 +14,8 @@ Also it can be used to produce rows of fixed width. To do it just set ``width`` 
 .. literalinclude:: ./example_width.py
 
 .. image:: /resources/group_width.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.group.Group

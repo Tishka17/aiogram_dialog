@@ -12,3 +12,8 @@ It requires two text arguments (which can be any text widgets like ``Const`` or 
 .. literalinclude:: ./example.py
 
 .. image:: /resources/copy_text.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.copy.CopyText

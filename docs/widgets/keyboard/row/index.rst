@@ -9,3 +9,8 @@ You can place any keyboard widgets inside it (for example buttons or groups) and
 .. literalinclude:: ./example.py
 
 .. image:: /resources/row.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.group.Row
