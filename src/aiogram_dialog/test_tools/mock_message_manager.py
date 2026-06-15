@@ -7,6 +7,7 @@ from aiogram.types import (
     Audio,
     CallbackQuery,
     Document,
+    InlineKeyboardMarkup,
     Message,
     PhotoSize,
     ReplyKeyboardMarkup,
@@ -59,10 +60,14 @@ class MockMessageManager(MessageManagerProtocol):
         self.answered_callbacks: set[str] = set()
         self.sent_messages = []
         self.last_message_id = 0
+        self.last_reply_markup: (
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | None
+        ) = None
 
     def reset_history(self):
         self.sent_messages.clear()
         self.answered_callbacks.clear()
+        self.last_reply_markup = None
 
     def assert_one_message(self) -> None:
         assert len(self.sent_messages) == 1
@@ -128,11 +133,17 @@ class MockMessageManager(MessageManagerProtocol):
                 "text": new_message.text,
             }
 
+        self.last_reply_markup = new_message.reply_markup
+        if isinstance(self.last_reply_markup, ReplyKeyboardMarkup):
+            reply_markup = None
+        else:
+            reply_markup = deepcopy(self.last_reply_markup)
+
         message = Message(
             message_id=message_id,
             date=datetime.now(),
             chat=new_message.chat,
-            reply_markup=deepcopy(new_message.reply_markup),
+            reply_markup=deepcopy(reply_markup),
             **contents,
         )
         self.sent_messages.append(message)
