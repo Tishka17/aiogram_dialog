@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal
+from typing import Literal, TypeAlias
 
 from aiogram.enums import ContentType
 from aiogram.types import (
@@ -26,9 +26,14 @@ class UnknownText(Enum):
     UNKNOWN = object()
 
 
+class RichParseMode(str, Enum):
+    html = "html"
+    markdown = "markdown"
+
+
 @dataclass
 class RichParams:
-    parse_mode: Literal["html", "markdown"]
+    parse_mode: RichParseMode
     is_rtl: bool
     skip_entity_detection: bool
 

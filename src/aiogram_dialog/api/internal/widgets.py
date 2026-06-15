@@ -4,10 +4,8 @@ from typing import (
     Any,
     Optional,
     Protocol,
-    TypeAlias,
     runtime_checkable,
 )
-
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -15,14 +13,14 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
-
-try:
-    from aiogram.enums import ButtonStyle
-except ImportError:
-    ButtonStyle: TypeAlias = str
+from aiogram.enums import ButtonStyle
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
+from aiogram_dialog.api.entities import (
+    MarkupVariant,
+    MediaAttachment,
+    RichParams,
+)
 from aiogram_dialog.api.protocols import DialogProtocol
 
 
@@ -139,4 +137,15 @@ class MarkupFactory(Protocol):
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
     ) -> MarkupVariant:
         """Render reply_markup using prepared keyboard."""
+        raise NotImplementedError
+
+
+@runtime_checkable
+class RichFormat(Protocol):
+    async def render_rich_params(
+        self,
+        data: dict,
+        manager: DialogManager,
+    ) -> RichParams:
+        """Transform new_message"""
         raise NotImplementedError

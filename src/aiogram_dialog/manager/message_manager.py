@@ -12,6 +12,7 @@ from aiogram.types import (
     InputMediaDocument,
     InputMediaPhoto,
     InputMediaVideo,
+    InputRichMessage,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -23,6 +24,7 @@ from aiogram_dialog.api.entities import (
     MediaId,
     NewMessage,
     OldMessage,
+    RichParseMode,
     ShowMode,
 )
 from aiogram_dialog.api.protocols import (
@@ -414,13 +416,13 @@ class MessageManager(MessageManagerProtocol):
             link_preview_options=new_message.link_preview_options,
         )
 
-    async def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage | None:
+    def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage | None:
         if new_message.rich_params is None:
             return None
-        if new_message.rich_params.parse_mode == "markdown":
-            return InputRichMessage(html=new_message.text)
-        elif new_message.rich_params.parse_mode == "html":
-            return InputRichMessage(markdown=new_message.text)
+        if new_message.rich_params.parse_mode == RichParseMode.markdown:
+            return InputRichMessage(markdown=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
+        elif new_message.rich_params.parse_mode == RichParseMode.html:
+            return InputRichMessage(html=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
         else:
             raise ValueError("unknown rich parse mode")
 
@@ -437,7 +439,6 @@ class MessageManager(MessageManagerProtocol):
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
             protect_content=new_message.protect_content,
-            link_preview_options=new_message.link_preview_options,
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:
