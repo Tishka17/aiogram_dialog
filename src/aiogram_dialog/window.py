@@ -19,7 +19,8 @@ from aiogram_dialog.api.entities import (
 )
 from aiogram_dialog.api.internal import Widget, WindowProtocol
 from .api.entities import Data
-from .api.internal.widgets import MarkupFactory
+from .api.entities.new_message import RichParams
+from .api.internal.widgets import MarkupFactory, RichFormat
 from .api.protocols import DialogManager, DialogProtocol
 from .dialog import OnResultEvent
 from .widgets.data import PreviewAwareGetter
@@ -51,6 +52,7 @@ class Window(WindowProtocol):
             protect_content: bool | None = None,
             preview_add_transitions: list[Keyboard] | None = None,
             preview_data: GetterVariant = None,
+            rich: RichFormat | None = None,
     ):
         (
             self.text,
@@ -69,6 +71,7 @@ class Window(WindowProtocol):
         self.parse_mode = parse_mode
         self.protect_content = protect_content
         self.preview_add_transitions = preview_add_transitions
+        self.rich_format = rich
         if disable_web_page_preview is not None:
             if self.link_preview:
                 raise ValueError(
@@ -155,6 +158,15 @@ class Window(WindowProtocol):
         except Exception:
             logger.error("Cannot get window data for state %s", self.state)
             raise
+
+        rich_params: RichParams | None = None
+        if self.rich_format:
+            rich_params = await self.rich_format.render_rich_params(
+                current_data,
+                manager,
+            )
+
+        current_data["rich_params"] = rich_params
         try:
             event_context = cast(
                 EventContext, manager.middleware_data.get(EVENT_CONTEXT_KEY),
@@ -171,6 +183,7 @@ class Window(WindowProtocol):
                 link_preview_options=await self.render_link_preview(
                     current_data, manager,
                 ),
+                rich_params=rich_params,
             )
         except Exception:
             logger.error("Cannot render window for state %s", self.state)
