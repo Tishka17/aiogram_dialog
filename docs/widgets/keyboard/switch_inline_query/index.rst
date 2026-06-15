@@ -8,3 +8,8 @@ SwitchInlineQuery is a special kind of inline keyboard button that will prompt t
 You can additionally specify a text that will occur in the query field (e.g. @mytestbot some query)
 
 .. literalinclude:: ./example.py
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.button.SwitchInlineQuery

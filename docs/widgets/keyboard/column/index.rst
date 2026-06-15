@@ -8,3 +8,8 @@ Column
 .. literalinclude:: ./example.py
 
 .. image:: /resources/column.png
+
+Classes
+===========
+
+.. autoclass:: aiogram_dialog.widgets.kbd.group.Column
