@@ -329,8 +329,9 @@ class MessageManager(MessageManagerProtocol):
            bool(new_message.protect_content):
             await self.remove_message_safe(bot, old_message, new_message)
             return await self.send_message(bot, new_message)
-
-        if new_message.media:
+        if new_message.rich_params:
+            return await self.edit_rich(bot, new_message, old_message)
+        elif new_message.media:
             if (
                 old_message.media_id is not None and
                 new_message.media.file_id == old_message.media_id
@@ -362,6 +363,19 @@ class MessageManager(MessageManagerProtocol):
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
             text=new_message.text,
+            reply_markup=new_message.reply_markup,
+            parse_mode=new_message.parse_mode,
+            link_preview_options=new_message.link_preview_options,
+        )
+
+    async def edit_rich(
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
+    ) -> Message:
+        logger.debug("edit_rich to %s", new_message.chat)
+        return await bot.edit_message_text(
+            message_id=old_message.message_id,
+            chat_id=old_message.chat.id,
+            business_connection_id=new_message.business_connection_id,
             rich_message=self._get_rich_input(new_message),
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
@@ -416,9 +430,9 @@ class MessageManager(MessageManagerProtocol):
             link_preview_options=new_message.link_preview_options,
         )
 
-    def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage | None:
+    def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage:
         if new_message.rich_params is None:
-            return None
+            raise ValueError("rich_params is None")
         if new_message.rich_params.parse_mode == RichParseMode.markdown:
             return InputRichMessage(markdown=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
         elif new_message.rich_params.parse_mode == RichParseMode.html:
