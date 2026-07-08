@@ -5,6 +5,8 @@ ScrollingGroup
 
 **ScrollingGroup** widget combines buttons into pages with the ability to scroll forward and backward and go to the last or first page with buttons.
 You can set the ``height`` and ``width`` of the keyboard. If there are not enough buttons for the last page, the keyboard will be filled with empty buttons keeping the specified height and width.
+``ScrollingGroup`` also accepts ``width_symbols`` (forwarded to :ref:`group`),
+wrapping rows by total character count instead of button count.
 
 .. literalinclude:: ./example.py
 
