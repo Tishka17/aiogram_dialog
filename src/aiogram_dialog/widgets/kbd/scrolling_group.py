@@ -18,13 +18,17 @@ class ScrollingGroup(Group, BaseScroll):
             *buttons: Keyboard,
             id: str,
             width: int | None = None,
+            width_symbols: int | None = None,
             height: int = 0,
             when: WhenCondition = None,
             on_page_changed: OnPageChangedVariants = None,
             hide_on_single_page: bool = False,
             hide_pager: bool = False,
     ):
-        Group.__init__(self, *buttons, id=id, width=width, when=when)
+        Group.__init__(
+            self, *buttons, id=id, width=width, width_symbols=width_symbols,
+            when=when,
+        )
         BaseScroll.__init__(self, id=id, on_page_changed=on_page_changed)
         self.height = height
         self.hide_on_single_page = hide_on_single_page

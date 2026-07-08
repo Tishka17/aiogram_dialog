@@ -15,11 +15,17 @@ class Group(Keyboard):
             *buttons: Keyboard,
             id: str | None = None,
             width: int | None = None,
+            width_symbols: int | None = None,
             when: WhenCondition = None,
     ):
         super().__init__(id=id, when=when)
+        if width is not None and width_symbols is not None:
+            raise ValueError(
+                "Only one of `width` and `width_symbols` can be set",
+            )
         self.buttons = buttons
         self.width = width
+        self.width_symbols = width_symbols
 
     def find(self, widget_id):
         widget = super().find(widget_id)
@@ -39,17 +45,25 @@ class Group(Keyboard):
         kbd: RawKeyboard = []
         for b in self.buttons:
             b_kbd = await b.render_keyboard(data, manager)
-            if self.width is None:
+            if self.width is None and self.width_symbols is None:
                 kbd += b_kbd
             else:
                 if not kbd:
                     kbd.append([])
                 kbd[0].extend(chain.from_iterable(b_kbd))
-        if self.width and kbd:
+        if (self.width or self.width_symbols) and kbd:
             kbd = self._wrap_kbd(kbd[0])
         return kbd
 
     def _wrap_kbd(
+            self,
+            kbd: Iterable[InlineKeyboardButton],
+    ) -> RawKeyboard:
+        if self.width_symbols:
+            return self._wrap_kbd_by_symbols(kbd)
+        return self._wrap_kbd_by_width(kbd)
+
+    def _wrap_kbd_by_width(
             self,
             kbd: Iterable[InlineKeyboardButton],
     ) -> RawKeyboard:
@@ -60,6 +74,26 @@ class Group(Keyboard):
             if len(row) >= self.width:
                 res.append(row)
                 row = []
+        if row:
+            res.append(row)
+        return res
+
+    def _wrap_kbd_by_symbols(
+            self,
+            kbd: Iterable[InlineKeyboardButton],
+    ) -> RawKeyboard:
+        res: RawKeyboard = []
+        row: list[ButtonVariant] = []
+        row_len = 0
+        for b in kbd:
+            b_len = len(b.text)
+            # only wrap a non-empty row, so an over-long button keeps its row
+            if row and row_len + b_len > self.width_symbols:
+                res.append(row)
+                row = []
+                row_len = 0
+            row.append(b)
+            row_len += b_len
         if row:
             res.append(row)
         return res
