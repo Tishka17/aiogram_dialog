@@ -6,6 +6,8 @@ from typing import (
     Protocol,
     runtime_checkable,
 )
+
+from aiogram.enums import ButtonStyle
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -13,7 +15,6 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
-from aiogram.enums import ButtonStyle
 
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import (
@@ -69,6 +70,16 @@ class LinkPreviewWidget(Widget, Protocol):
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
         """Create link preview."""
+        raise NotImplementedError
+
+
+@runtime_checkable
+class RichWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_rich_params(
+            self, data: dict, manager: DialogManager,
+    ) -> RichParams | None:
+        """Create rich message params."""
         raise NotImplementedError
 
 
@@ -137,15 +148,4 @@ class MarkupFactory(Protocol):
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
     ) -> MarkupVariant:
         """Render reply_markup using prepared keyboard."""
-        raise NotImplementedError
-
-
-@runtime_checkable
-class RichFormat(Protocol):
-    async def render_rich_params(
-        self,
-        data: dict,
-        manager: DialogManager,
-    ) -> RichParams:
-        """Transform new_message"""
         raise NotImplementedError

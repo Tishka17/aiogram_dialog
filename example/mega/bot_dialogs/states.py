@@ -13,6 +13,8 @@ class Scrolls(StatesGroup):
 
 class Rich(StatesGroup):
     MAIN = State()
+    MARKDOWN = State()
+    BLOCKS = State()
 
 
 class Main(StatesGroup):

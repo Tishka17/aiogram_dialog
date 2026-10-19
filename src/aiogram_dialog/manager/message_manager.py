@@ -6,12 +6,14 @@ from aiogram.types import (
     CallbackQuery,
     ContentType,
     FSInputFile,
+    InlineKeyboardMarkup,
     InputFile,
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
     InputMediaPhoto,
     InputMediaVideo,
+    InputRichBlockParagraph,
     InputRichMessage,
     Message,
     ReplyKeyboardMarkup,
@@ -20,18 +22,23 @@ from aiogram.types import (
 )
 
 from aiogram_dialog.api.entities import (
+    MarkupVariant,
     MediaAttachment,
     MediaId,
     NewMessage,
     OldMessage,
-    RichParseMode,
+    RichFormat,
     ShowMode,
 )
 from aiogram_dialog.api.protocols import (
     MessageManagerProtocol,
     MessageNotModified,
 )
-from aiogram_dialog.utils import get_media_id
+from aiogram_dialog.utils import (
+    get_media_id,
+    transform_to_rich_blocks,
+    transform_to_rich_html,
+)
 
 logger = getLogger(__name__)
 
@@ -103,6 +110,40 @@ class MessageManager(MessageManagerProtocol):
         else:
             return FSInputFile(media.path)
 
+    def get_rich_message(self, new_message: NewMessage) -> InputRichMessage:
+        rich_params = new_message.rich_params
+        text = new_message.text
+        keyboard = []
+        if isinstance(new_message.reply_markup, InlineKeyboardMarkup):
+            keyboard = new_message.reply_markup.inline_keyboard
+
+        if rich_params.format is RichFormat.HTML:
+            content = {"html": text + transform_to_rich_html(keyboard)}
+        elif rich_params.format is RichFormat.MARKDOWN:
+            content = {
+                "markdown": f"{text}\n\n{transform_to_rich_html(keyboard)}",
+            }
+        elif rich_params.format is RichFormat.BLOCKS:
+            blocks = [InputRichBlockParagraph(text=text)] if text else []
+            content = {"blocks": blocks + transform_to_rich_blocks(keyboard)}
+        else:
+            raise ValueError(
+                f"Rich format {rich_params.format} is not supported",
+            )
+        return InputRichMessage(
+            **content,
+            is_rtl=rich_params.is_rtl,
+            skip_entity_detection=rich_params.skip_entity_detection,
+        )
+
+    def get_rich_reply_markup(
+            self, new_message: NewMessage,
+    ) -> MarkupVariant | None:
+        # inline keyboard is embedded into rich message
+        if isinstance(new_message.reply_markup, InlineKeyboardMarkup):
+            return None
+        return new_message.reply_markup
+
     def had_media(self, old_message: OldMessage) -> bool:
         return old_message.media_id is not None
 
@@ -135,8 +176,8 @@ class MessageManager(MessageManagerProtocol):
             (new_message.text != old_message.text) or
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
-            # formatting changed
-            (new_message.rich_params != old_message.rich_params) or
+            # we cannot compare rich message content
+            new_message.rich_params or
             # we do not know if link preview changed
             new_message.link_preview_options or
             (
@@ -329,15 +370,16 @@ class MessageManager(MessageManagerProtocol):
            bool(new_message.protect_content):
             await self.remove_message_safe(bot, old_message, new_message)
             return await self.send_message(bot, new_message)
-        if new_message.rich_params:
-            return await self.edit_rich(bot, new_message, old_message)
-        elif new_message.media:
+
+        if new_message.media:
             if (
                 old_message.media_id is not None and
                 new_message.media.file_id == old_message.media_id
             ):
                 return await self.edit_caption(bot, new_message, old_message)
             return await self.edit_media(bot, new_message, old_message)
+        elif new_message.rich_params:
+            return await self.edit_rich(bot, new_message, old_message)
         else:
             return await self.edit_text(bot, new_message, old_message)
 
@@ -376,10 +418,8 @@ class MessageManager(MessageManagerProtocol):
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
-            rich_message=self._get_rich_input(new_message),
-            reply_markup=new_message.reply_markup,
-            parse_mode=new_message.parse_mode,
-            link_preview_options=new_message.link_preview_options,
+            rich_message=self.get_rich_message(new_message),
+            reply_markup=self.get_rich_reply_markup(new_message),
         )
 
     async def edit_media(
@@ -430,16 +470,6 @@ class MessageManager(MessageManagerProtocol):
             link_preview_options=new_message.link_preview_options,
         )
 
-    def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage:
-        if new_message.rich_params is None:
-            raise ValueError("rich_params is None")
-        if new_message.rich_params.parse_mode == RichParseMode.markdown:
-            return InputRichMessage(markdown=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
-        elif new_message.rich_params.parse_mode == RichParseMode.html:
-            return InputRichMessage(html=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
-        else:
-            raise ValueError("unknown rich parse mode")
-
     async def send_rich(self, bot: Bot, new_message: NewMessage) -> Message:
         logger.debug(
             "send_rich to chat %s, thread %s, business_id %s",
@@ -448,10 +478,10 @@ class MessageManager(MessageManagerProtocol):
         )
         return await bot.send_rich_message(
             new_message.chat.id,
-            rich_message=self._get_rich_input(new_message),
+            rich_message=self.get_rich_message(new_message),
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
-            reply_markup=new_message.reply_markup,
+            reply_markup=self.get_rich_reply_markup(new_message),
             protect_content=new_message.protect_content,
         )
 
