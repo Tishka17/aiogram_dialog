@@ -19,7 +19,6 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import (
     MarkupVariant,
     MediaAttachment,
-    RichParams,
 )
 from aiogram_dialog.api.protocols import DialogProtocol
 
@@ -137,15 +136,4 @@ class MarkupFactory(Protocol):
             self, data: dict, manager: DialogManager, keyboard: RawKeyboard,
     ) -> MarkupVariant:
         """Render reply_markup using prepared keyboard."""
-        raise NotImplementedError
-
-
-@runtime_checkable
-class RichFormat(Protocol):
-    async def render_rich_params(
-        self,
-        data: dict,
-        manager: DialogManager,
-    ) -> RichParams:
-        """Transform new_message"""
         raise NotImplementedError

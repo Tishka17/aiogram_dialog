@@ -2,6 +2,7 @@ from contextlib import AsyncExitStack
 from copy import copy
 
 from aiogram import Bot
+from aiogram.enums import ContentType
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import (
     BaseEventIsolation,
@@ -74,6 +75,8 @@ class StorageProxy:
         await self.lock(key)
         data = await self.storage.get_data(key)
         data.pop("access_settings", None)  # compat with 2.2a5
+        if data.get("content_type"):
+            data["content_type"] = ContentType(data["content_type"])
         access_settings = self._default_access_settings(stack_id)
         if not data:
             return Stack(_id=fixed_stack_id, access_settings=access_settings)
@@ -121,6 +124,9 @@ class StorageProxy:
                 "last_media_id": stack.last_media_id,
                 "last_media_unique_id": stack.last_media_unique_id,
                 "last_income_media_group_id": stack.last_income_media_group_id,
+                "content_type": stack.content_type,
+                "has_protected_content": stack.has_protected_content,
+                "is_rich": stack.is_rich,
             }
             await self.storage.set_data(
                 key=self._stack_key(stack.id),

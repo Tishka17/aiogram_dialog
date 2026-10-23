@@ -19,8 +19,6 @@ __all__ = [
     "MediaId",
     "NewMessage",
     "OldMessage",
-    "RichParams",
-    "RichParseMode",
     "ShowMode",
     "Stack",
     "StartMode",
@@ -38,8 +36,6 @@ from .new_message import (
     NewMessage,
     OldMessage,
     UnknownText,
-    RichParams,
-    RichParseMode,
 )
 from .stack import DEFAULT_STACK_ID, GROUP_STACK_ID, Stack
 from .update_event import (

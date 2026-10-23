@@ -7,6 +7,7 @@ from aiogram.types import (
     Chat,
     ForceReply,
     InlineKeyboardMarkup,
+    InputRichMessage,
     LinkPreviewOptions,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -26,18 +27,6 @@ class UnknownText(Enum):
     UNKNOWN = object()
 
 
-class RichParseMode(str, Enum):
-    html = "html"
-    markdown = "markdown"
-
-
-@dataclass
-class RichParams:
-    parse_mode: RichParseMode
-    is_rtl: bool
-    skip_entity_detection: bool
-
-
 @dataclass
 class OldMessage:
     chat: Chat
@@ -49,7 +38,12 @@ class OldMessage:
     has_reply_keyboard: bool = False
     business_connection_id: str | None = None
     content_type: ContentType | None = None
-    rich_params: RichParams | None = None
+    is_rich: bool = False
+
+    def __eq__(self, value: object, /) -> bool:
+        if self.is_rich:  # cannot compare rich messages
+            return False
+        return super().__eq__(value)
 
 
 @dataclass
@@ -64,4 +58,4 @@ class NewMessage:
     show_mode: ShowMode = ShowMode.AUTO
     media: MediaAttachment | None = None
     link_preview_options: LinkPreviewOptions | None = None
-    rich_params: RichParams | None = None
+    rich_message: InputRichMessage | None = None

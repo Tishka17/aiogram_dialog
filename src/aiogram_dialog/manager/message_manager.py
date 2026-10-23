@@ -24,7 +24,6 @@ from aiogram_dialog.api.entities import (
     MediaId,
     NewMessage,
     OldMessage,
-    RichParseMode,
     ShowMode,
 )
 from aiogram_dialog.api.protocols import (
@@ -74,6 +73,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         media_id=(media_id.file_id if media_id else None),
         business_connection_id=message_result.business_connection_id,
         content_type=message_result.content_type,
+        is_rich=bool(Message.rich_message),
     )
 
 
@@ -135,8 +135,8 @@ class MessageManager(MessageManagerProtocol):
             (new_message.text != old_message.text) or
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
-            # formatting changed
-            (new_message.rich_params != old_message.rich_params) or
+            # rich cannot be compared
+            (new_message.rich_message or old_message.is_rich) or
             # we do not know if link preview changed
             new_message.link_preview_options or
             (
@@ -329,7 +329,7 @@ class MessageManager(MessageManagerProtocol):
            bool(new_message.protect_content):
             await self.remove_message_safe(bot, old_message, new_message)
             return await self.send_message(bot, new_message)
-        if new_message.rich_params:
+        if new_message.rich_message:
             return await self.edit_rich(bot, new_message, old_message)
         elif new_message.media:
             if (
@@ -376,7 +376,7 @@ class MessageManager(MessageManagerProtocol):
             message_id=old_message.message_id,
             chat_id=old_message.chat.id,
             business_connection_id=new_message.business_connection_id,
-            rich_message=self._get_rich_input(new_message),
+            rich_message=new_message.rich_message,  # type: ignore
             reply_markup=new_message.reply_markup,
             parse_mode=new_message.parse_mode,
             link_preview_options=new_message.link_preview_options,
@@ -430,16 +430,6 @@ class MessageManager(MessageManagerProtocol):
             link_preview_options=new_message.link_preview_options,
         )
 
-    def _get_rich_input(self, new_message: NewMessage) -> InputRichMessage:
-        if new_message.rich_params is None:
-            raise ValueError("rich_params is None")
-        if new_message.rich_params.parse_mode == RichParseMode.markdown:
-            return InputRichMessage(markdown=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
-        elif new_message.rich_params.parse_mode == RichParseMode.html:
-            return InputRichMessage(html=new_message.text, is_rtl=new_message.rich_params.is_rtl, skip_entity_detection=new_message.rich_params.skip_entity_detection)
-        else:
-            raise ValueError("unknown rich parse mode")
-
     async def send_rich(self, bot: Bot, new_message: NewMessage) -> Message:
         logger.debug(
             "send_rich to chat %s, thread %s, business_id %s",
@@ -448,7 +438,7 @@ class MessageManager(MessageManagerProtocol):
         )
         return await bot.send_rich_message(
             new_message.chat.id,
-            rich_message=self._get_rich_input(new_message),
+            rich_message=new_message.rich_message,  # type: ignore
             message_thread_id=new_message.thread_id,
             business_connection_id=new_message.business_connection_id,
             reply_markup=new_message.reply_markup,
