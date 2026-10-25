@@ -1,21 +1,18 @@
 from aiogram.enums import ParseMode
 
-from aiogram_dialog import Dialog, Window
-from aiogram_dialog.api.entities import RichParseMode
-from aiogram_dialog.widgets.rich import Rich
-from aiogram_dialog.widgets.text import Const
+from aiogram_dialog import Dialog
+from aiogram_dialog.api.internal.render import RenderMode
+from aiogram_dialog.rich_window import RichWindow
+from aiogram_dialog.widgets.rich.button import Button
+from aiogram_dialog.widgets.rich.text import Const
 from . import states
 from .common import MAIN_MENU_BUTTON
 
 rich_dialog = Dialog(
-    Window(
+    RichWindow(
         Const("<h1>This is rich text header</h1>"),
-        Const("<img src=\"https://telegram.org/example/photo.jpg\" />"),
-        Const("<p>Press <b>Main menu</b> to return</p>"),
-        MAIN_MENU_BUTTON,
-        rich=Rich(
-            parse_mode=RichParseMode.html,
-        ),
+        Button(Const("111")),
+        render_mode=RenderMode.RICH_HTML,
         state=states.Rich.MAIN,
     )
 )

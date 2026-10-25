@@ -73,7 +73,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         media_id=(media_id.file_id if media_id else None),
         business_connection_id=message_result.business_connection_id,
         content_type=message_result.content_type,
-        is_rich=bool(Message.rich_message),
+        is_rich=bool(message_result.rich_message),
     )
 
 
@@ -408,7 +408,7 @@ class MessageManager(MessageManagerProtocol):
     async def send_message(self, bot: Bot, new_message: NewMessage) -> Message:
         if new_message.media:
             return await self.send_media(bot, new_message)
-        elif new_message.rich_params:
+        elif new_message.rich_message:
             return await self.send_rich(bot, new_message)
         else:
             return await self.send_text(bot, new_message)
