@@ -12,6 +12,7 @@ from aiogram.types import (
     InputMediaDocument,
     InputMediaPhoto,
     InputMediaVideo,
+    InputRichMessage,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -72,6 +73,7 @@ def _combine(sent_message: NewMessage, message_result: Message) -> OldMessage:
         media_id=(media_id.file_id if media_id else None),
         business_connection_id=message_result.business_connection_id,
         content_type=message_result.content_type,
+        is_rich=bool(message_result.rich_message),
     )
 
 
@@ -133,6 +135,8 @@ class MessageManager(MessageManagerProtocol):
             (new_message.text != old_message.text) or
             # we cannot actually compare reply keyboards
             (new_message.reply_markup or old_message.has_reply_keyboard) or
+            # rich cannot be compared
+            (new_message.rich_message or old_message.is_rich) or
             # we do not know if link preview changed
             new_message.link_preview_options or
             (
@@ -325,8 +329,9 @@ class MessageManager(MessageManagerProtocol):
            bool(new_message.protect_content):
             await self.remove_message_safe(bot, old_message, new_message)
             return await self.send_message(bot, new_message)
-
-        if new_message.media:
+        if new_message.rich_message:
+            return await self.edit_rich(bot, new_message, old_message)
+        elif new_message.media:
             if (
                 old_message.media_id is not None and
                 new_message.media.file_id == old_message.media_id
@@ -363,6 +368,20 @@ class MessageManager(MessageManagerProtocol):
             link_preview_options=new_message.link_preview_options,
         )
 
+    async def edit_rich(
+            self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
+    ) -> Message:
+        logger.debug("edit_rich to %s", new_message.chat)
+        return await bot.edit_message_text(
+            message_id=old_message.message_id,
+            chat_id=old_message.chat.id,
+            business_connection_id=new_message.business_connection_id,
+            rich_message=new_message.rich_message,  # type: ignore
+            reply_markup=new_message.reply_markup,
+            parse_mode=new_message.parse_mode,
+            link_preview_options=new_message.link_preview_options,
+        )
+
     async def edit_media(
             self, bot: Bot, new_message: NewMessage, old_message: OldMessage,
     ) -> Message:
@@ -389,6 +408,8 @@ class MessageManager(MessageManagerProtocol):
     async def send_message(self, bot: Bot, new_message: NewMessage) -> Message:
         if new_message.media:
             return await self.send_media(bot, new_message)
+        elif new_message.rich_message:
+            return await self.send_rich(bot, new_message)
         else:
             return await self.send_text(bot, new_message)
 
@@ -407,6 +428,21 @@ class MessageManager(MessageManagerProtocol):
             parse_mode=new_message.parse_mode,
             protect_content=new_message.protect_content,
             link_preview_options=new_message.link_preview_options,
+        )
+
+    async def send_rich(self, bot: Bot, new_message: NewMessage) -> Message:
+        logger.debug(
+            "send_rich to chat %s, thread %s, business_id %s",
+            new_message.chat.id, new_message.thread_id,
+            new_message.business_connection_id,
+        )
+        return await bot.send_rich_message(
+            new_message.chat.id,
+            rich_message=new_message.rich_message,  # type: ignore
+            message_thread_id=new_message.thread_id,
+            business_connection_id=new_message.business_connection_id,
+            reply_markup=new_message.reply_markup,
+            protect_content=new_message.protect_content,
         )
 
     async def send_media(self, bot: Bot, new_message: NewMessage) -> Message:

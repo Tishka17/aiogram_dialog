@@ -4,10 +4,8 @@ from typing import (
     Any,
     Optional,
     Protocol,
-    TypeAlias,
     runtime_checkable,
 )
-
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -15,14 +13,13 @@ from aiogram.types import (
     LinkPreviewOptions,
     Message,
 )
-
-try:
-    from aiogram.enums import ButtonStyle
-except ImportError:
-    ButtonStyle: TypeAlias = str
+from aiogram.enums import ButtonStyle
 
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
+from aiogram_dialog.api.entities import (
+    MarkupVariant,
+    MediaAttachment,
+)
 from aiogram_dialog.api.protocols import DialogProtocol
 
 

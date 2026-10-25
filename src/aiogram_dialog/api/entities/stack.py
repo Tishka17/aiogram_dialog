@@ -49,6 +49,7 @@ class Stack:
     content_type: ContentType | None = field(compare=False, default=None)
     access_settings: AccessSettings | None = None
     has_protected_content: bool | None = field(compare=False, default=None)
+    is_rich: bool = field(compare=False, default=False)
 
     @property
     def id(self):
