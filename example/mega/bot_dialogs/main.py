@@ -53,6 +53,11 @@ main_dialog = Dialog(
             id="reply",
             state=states.ReplyKeyboard.MAIN,
         ),
+        Start(
+            text=Const("🖼️ Rich formatting"),
+            id="rich",
+            state=states.Rich.MAIN,
+        ),
         about_aiogram_dialog_button(),
         state=states.Main.MAIN,
     ),

@@ -11,6 +11,12 @@ class Scrolls(StatesGroup):
     SYNC = State()
 
 
+class Rich(StatesGroup):
+    MAIN = State()
+    MARKDOWN = State()
+    BLOCKS = State()
+
+
 class Main(StatesGroup):
     MAIN = State()
 
