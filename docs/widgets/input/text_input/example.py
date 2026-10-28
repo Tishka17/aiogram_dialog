@@ -7,7 +7,7 @@ from aiogram_dialog import (
     DialogManager,
     Window,
 )
-from aiogram_dialog.widgets.input import TextInput
+from aiogram_dialog.widgets.input import ManagedTextInput, TextInput
 from aiogram_dialog.widgets.kbd import Next
 from aiogram_dialog.widgets.text import Const, Jinja
 
@@ -20,9 +20,9 @@ class SG(StatesGroup):
 
 async def error(
         message: Message,
-        dialog_: Any,
-        manager: DialogManager,
-        error_: ValueError
+        widget: ManagedTextInput,
+        dialog_manager: DialogManager,
+        error: ValueError,
 ):
     await message.answer("Age must be a number!")
 
