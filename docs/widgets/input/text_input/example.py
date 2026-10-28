@@ -20,7 +20,7 @@ class SG(StatesGroup):
 
 async def error(
         message: Message,
-        widget: ManagedTextInput,
+        widget: ManagedTextInput[int],
         dialog_manager: DialogManager,
         error: ValueError,
 ):
