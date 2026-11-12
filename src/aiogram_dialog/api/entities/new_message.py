@@ -25,6 +25,19 @@ class UnknownText(Enum):
     UNKNOWN = object()
 
 
+class RichFormat(Enum):
+    HTML = "html"
+    MARKDOWN = "markdown"
+    BLOCKS = "blocks"
+
+
+@dataclass
+class RichParams:
+    format: RichFormat
+    is_rtl: bool = False
+    skip_entity_detection: bool = False
+
+
 @dataclass
 class OldMessage:
     chat: Chat
@@ -50,3 +63,4 @@ class NewMessage:
     show_mode: ShowMode = ShowMode.AUTO
     media: MediaAttachment | None = None
     link_preview_options: LinkPreviewOptions | None = None
+    rich_params: RichParams | None = None

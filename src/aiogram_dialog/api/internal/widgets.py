@@ -4,10 +4,10 @@ from typing import (
     Any,
     Optional,
     Protocol,
-    TypeAlias,
     runtime_checkable,
 )
 
+from aiogram.enums import ButtonStyle
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -16,13 +16,12 @@ from aiogram.types import (
     Message,
 )
 
-try:
-    from aiogram.enums import ButtonStyle
-except ImportError:
-    ButtonStyle: TypeAlias = str
-
 from aiogram_dialog import DialogManager
-from aiogram_dialog.api.entities import MarkupVariant, MediaAttachment
+from aiogram_dialog.api.entities import (
+    MarkupVariant,
+    MediaAttachment,
+    RichParams,
+)
 from aiogram_dialog.api.protocols import DialogProtocol
 
 
@@ -71,6 +70,16 @@ class LinkPreviewWidget(Widget, Protocol):
             self, data: dict, manager: DialogManager,
     ) -> LinkPreviewOptions | None:
         """Create link preview."""
+        raise NotImplementedError
+
+
+@runtime_checkable
+class RichWidget(Widget, Protocol):
+    @abstractmethod
+    async def render_rich_params(
+            self, data: dict, manager: DialogManager,
+    ) -> RichParams | None:
+        """Create rich message params."""
         raise NotImplementedError
 
 

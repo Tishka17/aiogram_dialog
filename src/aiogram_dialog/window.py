@@ -16,8 +16,9 @@ from aiogram_dialog.api.entities import (
     MarkupVariant,
     MediaAttachment,
     NewMessage,
+    RichParams,
 )
-from aiogram_dialog.api.internal import Widget, WindowProtocol
+from aiogram_dialog.api.internal import RichWidget, Widget, WindowProtocol
 from .api.entities import Data
 from .api.internal.widgets import MarkupFactory
 from .api.protocols import DialogManager, DialogProtocol
@@ -51,6 +52,7 @@ class Window(WindowProtocol):
             protect_content: bool | None = None,
             preview_add_transitions: list[Keyboard] | None = None,
             preview_data: GetterVariant = None,
+            rich: RichWidget | None = None,
     ):
         (
             self.text,
@@ -69,6 +71,7 @@ class Window(WindowProtocol):
         self.parse_mode = parse_mode
         self.protect_content = protect_content
         self.preview_add_transitions = preview_add_transitions
+        self.rich = rich
         if disable_web_page_preview is not None:
             if self.link_preview:
                 raise ValueError(
@@ -108,6 +111,13 @@ class Window(WindowProtocol):
     ) -> LinkPreviewOptions | None:
         if self.link_preview:
             return await self.link_preview.render_link_preview(data, manager)
+        return None
+
+    async def render_rich_params(
+            self, data: dict, manager: DialogManager,
+    ) -> RichParams | None:
+        if self.rich:
+            return await self.rich.render_rich_params(data, manager)
         return None
 
     async def load_data(
@@ -169,6 +179,9 @@ class Window(WindowProtocol):
                 protect_content=self.protect_content,
                 media=await self.render_media(current_data, manager),
                 link_preview_options=await self.render_link_preview(
+                    current_data, manager,
+                ),
+                rich_params=await self.render_rich_params(
                     current_data, manager,
                 ),
             )

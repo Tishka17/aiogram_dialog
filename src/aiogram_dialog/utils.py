@@ -1,3 +1,4 @@
+import html
 import sys
 from collections.abc import Callable
 from logging import getLogger
@@ -11,8 +12,11 @@ from aiogram.types import (
     ErrorEvent,
     InaccessibleMessage,
     InlineKeyboardButton,
+    InputRichBlockButtons,
     KeyboardButton,
     Message,
+    RichMessageButton,
+    RichTextCustomEmoji,
     User,
 )
 
@@ -26,6 +30,8 @@ from aiogram_dialog.api.internal import RawKeyboard
 logger = getLogger(__name__)
 
 CB_SEP = "\x1D"
+# Telegram replaces control characters in rich message markup with spaces
+RICH_CB_SEP = "\x7F"
 
 REPLY_CALLBACK_SYMBOLS: str = (
     "\u200C"
@@ -133,6 +139,116 @@ def transform_to_reply_keyboard(
     ]
 
 
+def _rich_button_attrs(button: InlineKeyboardButton) -> dict[str, Any]:
+    if button.url:
+        attrs = {"type": "url", "url": button.url}
+    elif button.callback_data is not None:
+        attrs = {
+            "type": "callback_data",
+            "data": button.callback_data.replace(CB_SEP, RICH_CB_SEP, 1),
+        }
+    elif button.web_app:
+        attrs = {"type": "web_app", "url": button.web_app.url}
+    elif button.login_url:
+        attrs = {
+            "type": "login_url",
+            "url": button.login_url.url,
+            "forward-text": button.login_url.forward_text,
+            "request-write-access": button.login_url.request_write_access,
+        }
+    elif button.switch_inline_query is not None:
+        attrs = {
+            "type": "switch_inline_query",
+            "query": button.switch_inline_query,
+        }
+    elif button.switch_inline_query_current_chat is not None:
+        attrs = {
+            "type": "switch_inline_query_current_chat",
+            "query": button.switch_inline_query_current_chat,
+        }
+    elif chosen_chat := button.switch_inline_query_chosen_chat:
+        attrs = {
+            "type": "switch_inline_query_chosen_chat",
+            "query": chosen_chat.query,
+            "allow-user-chats": chosen_chat.allow_user_chats,
+            "allow-bot-chats": chosen_chat.allow_bot_chats,
+            "allow-group-chats": chosen_chat.allow_group_chats,
+            "allow-channel-chats": chosen_chat.allow_channel_chats,
+        }
+    elif button.copy_text:
+        attrs = {"type": "copy_text", "text": button.copy_text.text}
+    elif button.disabled:
+        attrs = {"type": "disabled"}
+    else:
+        raise ValueError("Cannot use pay or game button in rich message")
+    attrs["style"] = button.style
+    return attrs
+
+
+def _transform_to_rich_html_button(button: InlineKeyboardButton) -> str:
+    attrs = "".join(
+        f" {name}" if value is True else f' {name}="{html.escape(value)}"'
+        for name, value in _rich_button_attrs(button).items()
+        if value is not None and value is not False
+    )
+    text = html.escape(button.text, quote=False)
+    if button.icon_custom_emoji_id:
+        emoji_id = button.icon_custom_emoji_id
+        text = f'<tg-emoji emoji-id="{emoji_id}"></tg-emoji>{text}'
+    return f"<tg-button{attrs}>{text}</tg-button>"
+
+
+def transform_to_rich_html(keyboard: list[list[InlineKeyboardButton]]) -> str:
+    return "".join(
+        "<tg-button-row>"
+        + "".join(_transform_to_rich_html_button(button) for button in row)
+        + "</tg-button-row>"
+        for row in keyboard
+        if row
+    )
+
+
+def _transform_to_rich_button(
+        button: InlineKeyboardButton,
+) -> RichMessageButton:
+    if button.pay or button.callback_game:
+        raise ValueError("Cannot use pay or game button in rich message")
+    text = button.text
+    if button.icon_custom_emoji_id:
+        emoji = RichTextCustomEmoji(
+            custom_emoji_id=button.icon_custom_emoji_id,
+            alternative_text="",  # filled by telegram
+        )
+        text = [emoji, text]
+    return RichMessageButton(
+        text=text,
+        style=button.style,
+        url=button.url,
+        callback_data=button.callback_data,
+        web_app=button.web_app,
+        login_url=button.login_url,
+        switch_inline_query=button.switch_inline_query,
+        switch_inline_query_current_chat=(
+            button.switch_inline_query_current_chat
+        ),
+        switch_inline_query_chosen_chat=button.switch_inline_query_chosen_chat,
+        copy_text=button.copy_text,
+        disabled=button.disabled,
+    )
+
+
+def transform_to_rich_blocks(
+        keyboard: list[list[InlineKeyboardButton]],
+) -> list[InputRichBlockButtons]:
+    return [
+        InputRichBlockButtons(
+            buttons=[_transform_to_rich_button(button) for button in row],
+        )
+        for row in keyboard
+        if row
+    ]
+
+
 def get_chat(event: ChatEvent) -> Chat:
     if isinstance(
             event,
@@ -218,9 +334,10 @@ def add_intent_id(keyboard: RawKeyboard, intent_id: str):
 
 
 def remove_intent_id(callback_data: str) -> tuple[str | None, str]:
-    if CB_SEP in callback_data:
-        intent_id, new_data = callback_data.split(CB_SEP, maxsplit=1)
-        return intent_id, new_data
+    for sep in (CB_SEP, RICH_CB_SEP):
+        if sep in callback_data:
+            intent_id, new_data = callback_data.split(sep, maxsplit=1)
+            return intent_id, new_data
     return None, callback_data
 
 
