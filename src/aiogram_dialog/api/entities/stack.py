@@ -1,3 +1,4 @@
+import itertools
 import random
 import string
 import time
@@ -16,8 +17,12 @@ _STACK_LIMIT = 100
 _ID_SYMS = string.digits + string.ascii_letters
 
 
+_id_counter = itertools.count(random.randrange(100))
+
+
 def new_int_id() -> int:
-    return int(time.time()) % 100000000 + random.randint(0, 99) * 100000000
+    # ids from the same second differ only here: count them, don't draw
+    return int(time.time()) % 100000000 + next(_id_counter) % 100 * 100000000
 
 
 def id_to_str(int_id: int) -> str:
