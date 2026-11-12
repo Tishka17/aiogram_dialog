@@ -250,6 +250,9 @@ class IntentMiddlewareFactory:
             return
         try:
             self._check_outdated(intent_id, stack)
+            # The first read only gave us the stack id. Another event could
+            # have changed the context while we were waiting for the lock.
+            context = await proxy.load_context(intent_id)
         except:
             await proxy.unlock()
             raise
