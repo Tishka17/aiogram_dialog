@@ -2,23 +2,30 @@ from unittest.mock import patch
 
 from aiogram.fsm.state import State, StatesGroup
 
-from aiogram_dialog.api.entities.stack import Stack, new_id
+from aiogram_dialog.api.entities.stack import _STACK_LIMIT, Stack
 
 NOW = "aiogram_dialog.api.entities.stack.time.time"
+RANDINT = "aiogram_dialog.api.entities.stack.random.randint"
 
 
 class SG(StatesGroup):
     first = State()
 
 
-def test_ids_within_one_second_are_unique():
-    with patch(NOW, return_value=1_700_000_000):
-        ids = [new_id() for _ in range(100)]
-    assert len(set(ids)) == 100
+def test_push_skips_an_id_already_in_the_stack():
+    stack = Stack()
+    with (
+        patch(NOW, return_value=1_700_000_000),
+        patch(RANDINT, side_effect=[7, 7, 8]),
+    ):
+        first = stack.push(state=SG.first, data=None).id
+        second = stack.push(state=SG.first, data=None).id
+    assert first != second
 
 
-def test_nested_intents_get_distinct_ids():
+def test_full_stack_pushed_in_one_second_has_distinct_ids():
+    stack = Stack()
     with patch(NOW, return_value=1_700_000_000):
-        stack = Stack()
-        intents = [stack.push(state=SG.first, data=None).id for _ in range(3)]
-    assert len({stack.id, *intents}) == 4
+        for _ in range(_STACK_LIMIT):
+            stack.push(state=SG.first, data=None)
+    assert len(set(stack.intents)) == _STACK_LIMIT

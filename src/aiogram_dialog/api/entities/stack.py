@@ -1,4 +1,3 @@
-import itertools
 import random
 import string
 import time
@@ -17,12 +16,8 @@ _STACK_LIMIT = 100
 _ID_SYMS = string.digits + string.ascii_letters
 
 
-_id_counter = itertools.count(random.randrange(100))
-
-
 def new_int_id() -> int:
-    # ids from the same second differ only here: count them, don't draw
-    return int(time.time()) % 100000000 + next(_id_counter) % 100 * 100000000
+    return int(time.time()) % 100000000 + random.randint(0, 99) * 100000000
 
 
 def id_to_str(int_id: int) -> str:
@@ -65,8 +60,11 @@ class Stack:
                 f"Cannot open more dialogs in current stack. "
                 f"Max count is {_STACK_LIMIT}",
             )
+        intent_id = new_id()
+        while intent_id in self.intents:
+            intent_id = new_id()
         context = Context(
-            _intent_id=new_id(),
+            _intent_id=intent_id,
             _stack_id=self.id,
             state=state,
             start_data=data,
