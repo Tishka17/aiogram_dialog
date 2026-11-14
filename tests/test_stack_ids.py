@@ -25,7 +25,11 @@ def test_push_skips_an_id_already_in_the_stack():
 
 def test_full_stack_pushed_in_one_second_has_distinct_ids():
     stack = Stack()
-    with patch(NOW, return_value=1_700_000_000):
+    with (
+        patch(NOW, return_value=1_700_000_000),
+        patch(RANDINT, side_effect=[0, *range(_STACK_LIMIT)]) as randint,
+    ):
         for _ in range(_STACK_LIMIT):
             stack.push(state=SG.first, data=None)
     assert len(set(stack.intents)) == _STACK_LIMIT
+    assert randint.call_count == _STACK_LIMIT + 1
