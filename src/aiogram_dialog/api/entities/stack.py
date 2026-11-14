@@ -60,8 +60,11 @@ class Stack:
                 f"Cannot open more dialogs in current stack. "
                 f"Max count is {_STACK_LIMIT}",
             )
+        intent_id = new_id()
+        while intent_id in self.intents:
+            intent_id = new_id()
         context = Context(
-            _intent_id=new_id(),
+            _intent_id=intent_id,
             _stack_id=self.id,
             state=state,
             start_data=data,
