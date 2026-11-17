@@ -155,6 +155,7 @@ class Window(WindowProtocol):
         except Exception:
             logger.error("Cannot get window data for state %s", self.state)
             raise
+
         try:
             event_context = cast(
                 EventContext, manager.middleware_data.get(EVENT_CONTEXT_KEY),

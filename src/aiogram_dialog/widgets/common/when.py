@@ -5,6 +5,7 @@ from typing import Protocol
 
 from magic_filter import MagicFilter
 
+from aiogram_dialog.api.internal.render import RenderingContext
 from aiogram_dialog.api.protocols import DialogManager
 
 
@@ -65,5 +66,5 @@ class Whenable:
         else:
             self.condition = when
 
-    def is_(self, data: dict, manager: DialogManager):
+    def is_(self, data: dict, manager: DialogManager | RenderingContext):
         return self.condition(data, self, manager)

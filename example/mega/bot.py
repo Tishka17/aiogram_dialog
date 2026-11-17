@@ -15,6 +15,7 @@ from bot_dialogs.link_preview import link_preview_dialog
 from bot_dialogs.main import main_dialog
 from bot_dialogs.mutltiwidget import multiwidget_dialog
 from bot_dialogs.reply_buttons import reply_kbd_dialog
+from bot_dialogs.rich import rich_dialog
 from bot_dialogs.scrolls import scroll_dialog
 from bot_dialogs.select import selects_dialog
 from bot_dialogs.switch import switch_dialog
@@ -72,6 +73,7 @@ dialog_router.include_routers(
     switch_dialog,
     reply_kbd_dialog,
     link_preview_dialog,
+    rich_dialog,
 )
 
 
